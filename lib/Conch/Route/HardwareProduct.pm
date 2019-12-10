@@ -29,29 +29,18 @@ sub routes {
     $hardware_product->require_system_admin->post('/')->to('#create');
 
     {
-        # /hardware_product/:hardware_product_id
-        my $with_hardware_product_id = $hardware_product->under('/<hardware_product_id:uuid>')
+        # /hardware_product/:hardware_product_id_or_other
+        my $with_hardware_product_id_or_other = $hardware_product->under('/:hardware_product_id_or_other')
             ->to('#find_hardware_product');
 
-        # * /hardware_product/name=:hardware_product_name
-        # * /hardware_product/alias=:hardware_product_alias
-        # * /hardware_product/sku=:hardware_product_sku
-        my $with_hardware_product_key_and_value =
-            $hardware_product
-                ->under('/<:hardware_product_key>=<:hardware_product_value>'
-                    => [ hardware_product_key => [qw(name alias sku)] ])
-                ->to('#find_hardware_product');
+        # GET /hardware_product/<:identifier>
+        $with_hardware_product_id_or_other->get('/')->to('#get');
 
-        foreach ($with_hardware_product_id, $with_hardware_product_key_and_value) {
-            # GET /hardware_product/<:identifier>
-            $_->get('/')->to('#get');
+        # POST /hardware_product/<:identifier>
+        $with_hardware_product_id_or_other->require_system_admin->post('/')->to('#update');
 
-            # POST /hardware_product/<:identifier>
-            $_->require_system_admin->post('/')->to('#update');
-
-            # DELETE /hardware_product/<:identifier>
-            $_->require_system_admin->delete('/')->to('#delete');
-        }
+        # DELETE /hardware_product/<:identifier>
+        $with_hardware_product_id_or_other->require_system_admin->delete('/')->to('#delete');
     }
 }
 
@@ -82,13 +71,9 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /hardware_product/:hardware_product_id>
+=head3 C<GET /hardware_product/:hardware_product_id_or_other>
 
-=head3 C<GET /hardware_product/name=:hardware_product_name>
-
-=head3 C<GET /hardware_product/alias=:hardware_product_alias>
-
-=head3 C<GET /hardware_product/sku=:hardware_product_sku>
+Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =over 4
 
@@ -96,13 +81,9 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /hardware_product/:hardware_product_id>
+=head3 C<POST /hardware_product/:hardware_product_id_or_other>
 
-=head3 C<POST /hardware_product/name=:hardware_product_name>
-
-=head3 C<POST /hardware_product/alias=:hardware_product_alias>
-
-=head3 C<POST /hardware_product/sku=:hardware_product_sku>
+Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =over 4
 
@@ -114,13 +95,9 @@ All routes require authentication.
 
 =back
 
-=head3 C<DELETE /hardware_product/:hardware_product_id>
+=head3 C<DELETE /hardware_product/:hardware_product_id_or_other>
 
-=head3 C<DELETE /hardware_product/name=:hardware_product_name>
-
-=head3 C<DELETE /hardware_product/alias=:hardware_product_alias>
-
-=head3 C<DELETE /hardware_product/sku=:hardware_product_sku>
+Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =over 4
 

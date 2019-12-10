@@ -2,6 +2,8 @@ package Conch::Controller::HardwareProduct;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
+use Conch::UUID 'is_uuid';
+
 =pod
 
 =head1 NAME
@@ -29,48 +31,37 @@ sub list ($c) {
 
 =head2 find_hardware_product
 
-Chainable action that uses the C<hardware_product_id> or C<hardware_product_key> and
+Chainable action that uses the C<hardware_product_id_or_sku> or C<hardware_product_key> and
 C<hardware_product_value> values provided in the stash (usually via the request URL) to look up
 a hardware_product, and stashes the query to get to it in C<hardware_product_rs>.
 
-Supported keys are: C<sku>, C<name>, and C<alias>.
+Supported keys are: C<sku>, C<name>, and C<alias>. This feature is deprecated and will be
+removed in a subsequent release.
 
 =cut
 
 sub find_hardware_product ($c) {
+    my $identifier = $c->stash('hardware_product_id_or_other');
     my $hardware_product_rs = $c->db_hardware_products;
 
-    # route restricts key to: sku, name, alias
-    if (my $key = $c->stash('hardware_product_key')
-            and my $value = $c->stash('hardware_product_value')) {
-        $c->log->debug('Looking up a HardwareProduct by identifier ('.$key.' = '.$value.')');
-        $hardware_product_rs = $hardware_product_rs
-            ->search({ 'hardware_product.'.$key => $value });
-    }
-    elsif ($c->stash('hardware_product_id')) {
-        $c->log->debug('Looking up a HardwareProduct by id '.$c->stash('hardware_product_id'));
-        $hardware_product_rs = $hardware_product_rs
-            ->search({ 'hardware_product.id' => $c->stash('hardware_product_id') });
+    # identifier can be id, sku, name, alias
+    if (is_uuid($identifier)) {
+        $c->log->debug('Looking up a hardware_product by id '.$identifier);
+        $hardware_product_rs = $hardware_product_rs->search({ 'hardware_product.id' => $identifier });
     }
     else {
-        return $c->status(500);
+        $c->log->debug('Looking up a hardware_product by sku,name,alias '.$identifier);
+        $hardware_product_rs = $hardware_product_rs->search({
+            -or => [ map +{ 'hardware_product.'.$_ => $identifier }, qw(sku name alias) ],
+        });
     }
 
-    if (not $hardware_product_rs->exists) {
-        $c->log->debug('Could not find hardware product with '
-            .($c->stash('hardware_product_id') ? ('id '.$c->stash('hardware_product_id'))
-                : ($c->stash('hardware_product_key').' '.$c->stash('hardware_product_value'))));
-        return $c->status(404);
-    }
+    return $c->status(404) if not $hardware_product_rs->exists;
 
     $hardware_product_rs = $hardware_product_rs->active;
-    if (not $hardware_product_rs->exists) {
-        $c->log->debug('Hardware product '
-            .($c->stash('hardware_product_id') ? ('id '.$c->stash('hardware_product_id'))
-                : ($c->stash('hardware_product_key').' '.$c->stash('hardware_product_value')))
-            .'has already been deactivated');
-        return $c->status(410);
-    }
+    return $c->status(410) if not $hardware_product_rs->exists;
+
+    return $c->status(409, { error => 'there is more than one match' }) if $hardware_product_rs->count > 1;
 
     $c->stash('hardware_product_rs', $hardware_product_rs);
     return 1;
@@ -85,7 +76,9 @@ Response uses the HardwareProduct json schema.
 =cut
 
 sub get ($c) {
-    $c->status(200, $c->stash('hardware_product_rs')->single);
+    my $hardware_product = $c->stash('hardware_product_rs')->single;
+    $c->res->headers->location('/hardware_product/'.$hardware_product->id);
+    $c->status(200, $hardware_product);
 }
 
 =head2 create
