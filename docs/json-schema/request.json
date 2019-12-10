@@ -152,7 +152,7 @@
             "$ref" : "common.json#/definitions/device_serial_number"
           },
           "sku" : {
-            "type" : "string"
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
           }
         },
         "required" : [

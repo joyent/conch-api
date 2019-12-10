@@ -713,7 +713,7 @@ definitions:
             - $ref: common.yaml#/definitions/device_asset_tag
             - type: 'null'
         sku:
-          type: string
+          $ref: common.yaml#/definitions/mojo_standard_placeholder
         links:
           type: array
           uniqueItems: true

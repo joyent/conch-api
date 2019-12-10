@@ -133,7 +133,7 @@ definitions:
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       sku:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       health:
         $ref: common.yaml#/definitions/device_health
       hostname:
@@ -363,7 +363,7 @@ definitions:
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       sku:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       health:
         $ref: common.yaml#/definitions/device_health
       hostname:
@@ -573,7 +573,7 @@ definitions:
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       sku:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
   WorkspaceDevicePXEs:
     type: array
     uniqueItems: true
@@ -673,7 +673,7 @@ definitions:
             description: Hardware product alias
             type: string
           sku:
-            type: string
+            $ref: common.yaml#/definitions/mojo_standard_placeholder
           hardware_vendor_id:
             $ref: common.yaml#/definitions/uuid
   DeviceSetting:
