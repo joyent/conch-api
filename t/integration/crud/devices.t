@@ -885,11 +885,6 @@ subtest 'Device settings' => sub {
         ->json_schema_is('RequestValidationError')
         ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
-    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 1 })
-        ->status_is(400)
-        ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/foo', message => re(qr/expected string/i) } ]);
-
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => 'bar', baz => 'quux' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
@@ -901,6 +896,22 @@ subtest 'Device settings' => sub {
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'baz' })
         ->status_is(204);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 2 })
+        ->status_is(204);
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings')
+        ->status_is(200)
+        ->json_schema_is('DeviceSettings')
+        ->json_is({ foo => 2 });
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => JSON::PP::true })
+        ->status_is(204);
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings')
+        ->status_is(200)
+        ->json_schema_is('DeviceSettings')
+        ->json_is({ foo => 1 });
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'bar' })
         ->status_is(204);

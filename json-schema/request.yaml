@@ -511,7 +511,10 @@ definitions:
   DeviceSettings:
     type: object
     additionalProperties:
-      $ref: common.yaml#/definitions/non_empty_string
+      anyOf:
+        - $ref: common.yaml#/definitions/non_empty_string
+        - type: number
+        - type: boolean
     minProperties: 1
     propertyNames:
       $ref: common.yaml#/definitions/device_setting_key

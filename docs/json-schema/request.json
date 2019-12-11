@@ -384,7 +384,17 @@
     },
     "DeviceSettings" : {
       "additionalProperties" : {
-        "$ref" : "common.json#/definitions/non_empty_string"
+        "anyOf" : [
+          {
+            "$ref" : "common.json#/definitions/non_empty_string"
+          },
+          {
+            "type" : "number"
+          },
+          {
+            "type" : "boolean"
+          }
+        ]
       },
       "minProperties" : 1,
       "propertyNames" : {
