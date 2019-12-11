@@ -92,7 +92,8 @@ sub user_has_role ($self, $user_id, $role) {
         ->related_resultset('build')
         ->search_related('user_build_roles', { user_id => $user_id })
         ->with_role($role)
-        ->related_resultset('user_account');
+        ->related_resultset('user_account')
+        ->columns(['id']);
 
     my $via_org_rs = $self
         ->related_resultset('build')
@@ -100,7 +101,8 @@ sub user_has_role ($self, $user_id, $role) {
         ->with_role($role)
         ->related_resultset('organization')
         ->search_related('user_organization_roles', { user_id => $user_id })
-        ->related_resultset('user_account');
+        ->related_resultset('user_account')
+        ->columns(['id']);
 
     return 1 if $via_user_rs->union_all($via_org_rs)->exists;
 

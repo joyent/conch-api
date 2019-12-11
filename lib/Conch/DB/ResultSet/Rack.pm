@@ -103,7 +103,8 @@ sub user_has_role ($self, $user_id, $role) {
         ->related_resultset('workspace')
         ->search_related('user_workspace_roles', { user_id => $user_id })
         ->with_role($role)
-        ->related_resultset('user_account');
+        ->related_resultset('user_account')
+        ->columns(['id']);
 
     my $build_rs = $self->related_resultset('build');
 
@@ -111,14 +112,16 @@ sub user_has_role ($self, $user_id, $role) {
     my $build_via_user_rs = $build_rs
         ->search_related('user_build_roles', { user_id => $user_id })
         ->with_role($role)
-        ->related_resultset('user_account');
+        ->related_resultset('user_account')
+        ->columns(['id']);
 
     my $build_via_org_rs = $build_rs
         ->related_resultset('organization_build_roles')
         ->with_role($role)
         ->related_resultset('organization')
         ->search_related('user_organization_roles', { user_id => $user_id })
-        ->related_resultset('user_account');
+        ->related_resultset('user_account')
+        ->columns(['id']);
 
     return $ws_via_user_rs
         ->union_all($build_via_user_rs)
