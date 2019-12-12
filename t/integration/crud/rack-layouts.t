@@ -59,8 +59,9 @@ $t->post_ok('/layout', json => { wat => 'wat' })
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
 
-$t->get_ok("/rack/$rack_id/layouts")
+$t->get_ok("/rack/$rack_id/layout")
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         map +{
@@ -163,9 +164,6 @@ $t->post_ok('/layout', json => {
     ->json_schema_is('Error')
     ->json_is({ error => 'rack_unit_start conflict' });
 
-$t->get_ok("/rack/$rack_id/layouts")
-    ->status_is(200)
-    ->json_schema_is('RackLayouts');
 
 # at the moment, we have these assigned slots:
 # start 1, width 2
@@ -173,8 +171,12 @@ $t->get_ok("/rack/$rack_id/layouts")
 # start 11, width 4
 # start 42, width 1
 
-$t->get_ok("/rack/$rack_id/layouts")
+my $rack = $t->app->db_racks->search({ 'rack.id' => $rack_id })->prefetch('datacenter_room')->single;
+my $room = $rack->datacenter_room;
+
+$t->get_ok($_)
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         map +{
@@ -188,7 +190,16 @@ $t->get_ok("/rack/$rack_id/layouts")
         { rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
         { rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
         { rack_unit_start => 42, rack_unit_size => 1, hardware_product_id => $hw_product_switch->id },
-    ]);
+    ])
+    foreach
+        '/rack/'.$rack_id.'/layout',
+        '/rack/'.$room->vendor_name.':'.$rack->name.'/layout',
+        '/room/'.$room->id.'/rack/'.$rack->id.'/layout',
+        '/room/'.$room->id.'/rack/'.$room->vendor_name.':'.$rack->name.'/layout',
+        '/room/'.$room->id.'/rack/'.$rack->name.'/layout',
+        '/room/'.$room->alias.'/rack/'.$rack->id.'/layout',
+        '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$rack->name.'/layout',
+        '/room/'.$room->alias.'/rack/'.$rack->name.'/layout';
 
 my $layout_3_6 = $t->load_fixture('rack_0a_layout_3_6');
 
@@ -233,8 +244,9 @@ $t->get_ok($t->tx->res->headers->location)
 # start 19, width 4     originally start 1, width 2
 # start 42, width 1
 
-$t->get_ok("/rack/$rack_id/layouts")
+$t->get_ok("/rack/$rack_id/layout")
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_id => $rack_id, rack_unit_start => 3, hardware_product_id => $hw_product_storage->id }),
@@ -263,8 +275,9 @@ $t->post_ok('/layout', json => {
 # start 19, width 4     originally start 1, width 2
 # start 42, width 1
 
-$t->get_ok("/rack/$rack_id/layouts")
+$t->get_ok("/rack/$rack_id/layout")
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_id => $rack_id, rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
@@ -289,8 +302,9 @@ undef $layout_19_22;
 # start 20, width 4     originally start 1, width 2
 # start 42, width 1
 
-$t->get_ok("/rack/$rack_id/layouts")
+$t->get_ok("/rack/$rack_id/layout")
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
@@ -330,17 +344,17 @@ $t->get_ok('/layout/'.$layout_3_6->id)
 # start 20, width 4     # occupied by 'my device'
 # start 42, width 1
 
-$t->post_ok('/rack/'.$rack_id.'/layouts',
+$t->post_ok('/rack/'.$rack_id.'/layout',
         json => [{ rack_unit_start => 1, hardware_product_id => create_uuid_str }])
     ->status_is(409)
     ->json_cmp_deeply({ error => re(qr/^hardware_product_id ${\Conch::UUID::UUID_FORMAT} does not exist$/) });
 
-$t->post_ok('/rack/'.$rack_id.'/layouts',
+$t->post_ok('/rack/'.$rack_id.'/layout',
         json => [{ rack_unit_start => 42, hardware_product_id => $hw_product_compute->id }])
     ->status_is(409)
     ->json_is({ error => 'layout starting at rack_unit 42 will extend beyond the end of the rack' });
 
-$t->post_ok('/rack/'.$rack_id.'/layouts',
+$t->post_ok('/rack/'.$rack_id.'/layout',
         json => [
             { rack_unit_start => 1, hardware_product_id => $hw_product_compute->id },
             { rack_unit_start => 2, hardware_product_id => $hw_product_compute->id },
@@ -348,7 +362,7 @@ $t->post_ok('/rack/'.$rack_id.'/layouts',
     ->status_is(409)
     ->json_is({ error => 'layouts starting at rack_units 1 and 2 overlap' });
 
-$t->post_ok('/rack/'.$rack_id.'/layouts',
+$t->post_ok('/rack/'.$rack_id.'/layout',
         json => [
             # unchanged
             { rack_unit_start => 1, hardware_product_id => $hw_product_compute->id },
@@ -358,11 +372,12 @@ $t->post_ok('/rack/'.$rack_id.'/layouts',
             { rack_unit_start => 26, hardware_product_id => $hw_product_compute->id },
         ])
     ->status_is(303)
-    ->location_is('/rack/'.$rack_id.'/layouts')
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->log_debug_is('deleted 2 rack layouts, created 1 rack layouts for rack '.$rack_id);
 
-$t->get_ok('/rack/'.$rack_id.'/layouts')
+$t->get_ok('/rack/'.$rack_id.'/layout')
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
@@ -379,16 +394,17 @@ $t->get_ok('/rack/'.$rack_id.'/assignment')
         { rack_unit_start => 26, rack_unit_size => 2, hardware_product_name => $hw_product_compute->name, device_id => undef, device_asset_tag => undef },
     ]);
 
-$t->post_ok('/rack/'.$rack_id.'/layouts',
+$t->post_ok('/rack/'.$rack_id.'/layout',
         json => [
             { rack_unit_start => 3, hardware_product_id => $hw_product_compute->id },
         ])
     ->status_is(303)
-    ->location_is('/rack/'.$rack_id.'/layouts')
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->log_debug_is('unlocated 1 devices, deleted 3 rack layouts, created 1 rack layouts for rack '.$rack_id);
 
-$t->get_ok('/rack/'.$rack_id.'/layouts')
+$t->get_ok('/rack/'.$rack_id.'/layout')
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_unit_start => 3, hardware_product_id => $hw_product_compute->id }),
@@ -401,13 +417,14 @@ $t->get_ok('/rack/'.$rack_id.'/assignment')
         { rack_unit_start => 3, rack_unit_size => 2, hardware_product_name => $hw_product_compute->name, device_id => undef, device_asset_tag => undef },
     ]);
 
-$t->post_ok('/rack/'.$rack_id.'/layouts', json => [])
+$t->post_ok('/rack/'.$rack_id.'/layout', json => [])
     ->status_is(303)
-    ->location_is('/rack/'.$rack_id.'/layouts')
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->log_debug_is('deleted 1 rack layouts for rack '.$rack_id);
 
-$t->get_ok('/rack/'.$rack_id.'/layouts')
+$t->get_ok('/rack/'.$rack_id.'/layout')
     ->status_is(200)
+    ->location_is('/rack/'.$rack_id.'/layout')
     ->json_schema_is('RackLayouts')
     ->json_is([]);
 

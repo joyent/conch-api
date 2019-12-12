@@ -321,11 +321,10 @@ sub generate_set ($self, $set_name, @args) {
                 using => {
                     az => "room-${num}a",
                     alias => "room ${num}a",
+                    vendor_name => "ROOM:${num}.A",
                 },
                 requires => {
                     "datacenter_$num" => { our => 'datacenter_id', their => 'id' },
-                    # this is a hack: should be able to specify requirements without copying values.
-                    global_workspace => { our => 'vendor_name', their => 'name' },
                 },
             },
             rack_role_42u => {
@@ -601,6 +600,7 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 using => {
                     az => "datacenter_room_az_$num",
                     alias => "room alias $num",
+                    vendor_name => "ROOM:$num",
                     ($specification // {})->%*,
                 },
                 requires => {

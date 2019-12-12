@@ -858,6 +858,7 @@ $t->get_ok('/build/my first build/device')
 my $device1 = first { $_->isa('Conch::DB::Result::Device') } $t->generate_fixtures('device');
 my $rack_layout1 = first { $_->isa('Conch::DB::Result::RackLayout') } $t->generate_fixtures('rack_layouts');
 my $rack1 = $rack_layout1->rack;
+my $room1 = $rack1->datacenter_room;
 
 $t2->post_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(403)
@@ -870,6 +871,14 @@ $t_build_admin->post_ok('/build/my first build/rack/'.$rack1->id)
 $t->post_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(204)
     ->log_debug_is('adding rack '.$rack1->id.' to build my first build');
+
+$t->post_ok($_)
+    ->status_is(204)
+    foreach
+        '/build/'.$build->{id}.'/rack/'.$rack1->id,
+        '/build/'.$build->{id}.'/rack/'.$room1->vendor_name.':'.$rack1->name,
+        '/build/my first build/rack/'.$rack1->id,
+        '/build/my first build/rack/'.$room1->vendor_name.':'.$rack1->name;
 
 $t->get_ok('/build/my first build/rack')
     ->status_is(200)

@@ -68,7 +68,7 @@ Accepts the following optional query parameters:
 - Request: [request.json#/definitions/WorkspaceAddRack](../json-schema/request.json#/definitions/WorkspaceAddRack)
 - Response: Redirect to the workspace's racks
 
-### `DELETE /workspace/:workspace_id_or_name/rack/:rack_id`
+### `DELETE /workspace/:workspace_id_or_name/rack/:rack_id_or_name`
 
 - User requires the admin role
 - Response: `204 NO CONTENT`

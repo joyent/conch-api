@@ -242,13 +242,14 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "vendor_name" : {
-          "$ref" : "common.json#/definitions/non_empty_string"
+          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
         }
       },
       "required" : [
         "datacenter_id",
         "az",
-        "alias"
+        "alias",
+        "vendor_name"
       ],
       "type" : "object"
     },
@@ -266,7 +267,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "vendor_name" : {
-          "$ref" : "common.json#/definitions/non_empty_string"
+          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
         }
       },
       "type" : "object"

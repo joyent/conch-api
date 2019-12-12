@@ -73,38 +73,32 @@ sub get_pxe_devices ($c) {
     # production devices do not consider location, interface data to be canonical
     my $bad_phase = $c->req->query_params->param('phase_earlier_than') // 'production';
 
-    my @devices = $c->stash('workspace_rs')
+    my $rack_ids_rs = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
-        ->search_related('rack', undef, { join => { datacenter_room => 'datacenter' } })
-        ->related_resultset('device_locations')
-        # production devices do not consider location data to be canonical
-        ->search_related('device',
+        ->get_column('rack_id')
+        ->as_query;
+
+    my @devices = $c->db_devices
+        ->search(
+            # production devices do not consider location data to be canonical
             $bad_phase ? { 'device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] } } : ())
-        ->columns({
+        ->location_data('location')
+        ->add_columns({
             id => 'device.id',
             phase => 'device.phase',
-            'location.datacenter.name' => 'datacenter.region',
-            'location.datacenter.vendor_name' => 'datacenter.vendor_name',
-            'location.rack.name' => 'rack.name',
-            'location.rack.rack_unit_start' => 'device_locations.rack_unit_start',
             # pxe = the first (sorted by name) interface that is status=up
             'pxe.mac' => $c->db_devices->correlate('device_nics')->nic_pxe->as_query,
             # ipmi = the (newest) interface named ipmi1.
             ipmi_mac_ip => $c->db_devices->correlate('device_nics')->nic_ipmi->as_query,
         })
+        ->search({ 'rack.id' => { -in => $rack_ids_rs } })
         ->order_by('device.created')
         ->hri
         ->all;
 
     foreach my $device (@devices) {
-        if (Conch::DB::Result::Device->phase_cmp($device->{phase}, 'production') >= 0) {
-            delete $device->{location};
-        }
-        else {
-            # DBIC collapse is inconsistent here with handling the lack of a datacenter_room->datacenter
-            $device->{location}{datacenter} = undef
-                if $device->{location} and not defined $device->{location}{datacenter}{name};
-        }
+        delete $device->{location}
+            if Conch::DB::Result::Device->phase_cmp($device->{phase}, 'production') >= 0;
 
         my $ipmi = delete $device->{ipmi_mac_ip};
         $device->{ipmi} = $ipmi ? { mac => $ipmi->[0], ip => $ipmi->[1] } : undef;

@@ -176,8 +176,6 @@ subtest 'Devices with PXE data' => sub {
         },
     );
 
-    my $datacenter = $t->load_fixture('datacenter_0');
-
     $t->get_ok('/workspace/'.$global_ws_id.'/device/pxe')
         ->status_is(200)
         ->json_schema_is('WorkspaceDevicePXEs')
@@ -186,14 +184,11 @@ subtest 'Devices with PXE data' => sub {
                 id => $devices[0]->id,
                 phase => 'integration',
                 location => {
-                    datacenter => {
-                        name => $datacenter->region,
-                        vendor_name => $datacenter->vendor_name,
-                    },
-                    rack => {
-                        name => $layouts[0]->rack->name,
-                        rack_unit_start => $layouts[0]->rack_unit_start,
-                    },
+                    az => 'room-0a',
+                    datacenter_room => 'room 0a',
+                    rack => 'ROOM:0.A:rack.0a',
+                    rack_unit_start => $layouts[0]->rack_unit_start,
+                    target_hardware_product => superhashof({ alias => $layouts[0]->hardware_product->alias }),
                 },
                 ipmi => {
                     mac => '00:00:00:00:00:cc',
@@ -207,14 +202,11 @@ subtest 'Devices with PXE data' => sub {
                 id => $devices[1]->id,
                 phase => 'integration',
                 location => {
-                    datacenter => {
-                        name => $datacenter->region,
-                        vendor_name => $datacenter->vendor_name,
-                    },
-                    rack => {
-                        name => $layouts[1]->rack->name,
-                        rack_unit_start => $layouts[1]->rack_unit_start,
-                    },
+                    az => 'room-0a',
+                    datacenter_room => 'room 0a',
+                    rack => 'ROOM:0.A:rack.0a',
+                    rack_unit_start => $layouts[1]->rack_unit_start,
+                    target_hardware_product => superhashof({ alias => $layouts[1]->hardware_product->alias }),
                 },
                 ipmi => undef,
                 pxe => undef,

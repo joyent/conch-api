@@ -92,7 +92,7 @@ sub find_workspace_rack ($c) {
     });
 
     if (not $rs->exists) {
-        $c->log->debug('Could not find rack '.$c->stash('rack_id').' in or beneath workspace '.$c->stash('workspace_id'));
+        $c->log->debug('Could not find rack '.$c->stash('rack_id_or_name').' in or beneath workspace '.$c->stash('workspace_id'));
         return $c->status(404);
     }
 
@@ -156,7 +156,7 @@ sub remove ($c) {
     my $row = $c->stash('workspace_rack_rs')->single;
     $row->delete;
 
-    $c->log->debug('deleted workspace_rack entry for workspace_id '.$row->workspace_id.' and rack_id '.$c->stash('rack_id'));
+    $c->log->debug('deleted workspace_rack entry for workspace_id '.$row->workspace_id.' and rack_id '.$c->stash('rack_id_or_name'));
     return $c->status(204);
 }
 

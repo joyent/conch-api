@@ -2,6 +2,8 @@ package Conch::Controller::RackRole;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
+use Conch::UUID 'is_uuid';
+
 =pod
 
 =head1 NAME
@@ -18,21 +20,17 @@ the request URL) to look up a build, and stashes the result in C<rack_role>.
 =cut
 
 sub find_rack_role ($c) {
-    my $rack_role;
-    if ($c->stash('rack_role_id_or_name') =~ /^(.+?)\=(.+)$/) {
-        my ($key, $value) = ($1, $2);
-        if ($key ne 'name') {
-            $c->log->error("Unknown identifier '$key'");
-            return $c->status(404);
-        }
-
-        $c->log->debug("Looking up rack role using identifier '$key'");
-        $rack_role = $c->db_rack_roles->find({ name => $value }, { key => 'rack_role_name_key' });
+    my $rs;
+    if (is_uuid($c->stash('rack_role_id_or_name'))) {
+        $c->log->debug('looking up rack role by id');
+        $rs = $c->db_rack_roles->search({ id => $c->stash('rack_role_id_or_name') });
     }
     else {
-        $c->log->debug('looking up rack role by id');
-        $rack_role = $c->db_rack_roles->find($c->stash('rack_role_id_or_name'));
+        $c->log->debug('Looking up rack role by name');
+        $rs = $c->db_rack_roles->search({ name => $c->stash('rack_role_id_or_name') });
     }
+
+    my $rack_role = $rs->single;
 
     if (not $rack_role) {
         $c->log->debug('Could not find rack_role '.$c->stash('rack_role_id_or_name'));

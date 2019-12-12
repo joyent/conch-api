@@ -29,7 +29,7 @@ $t->get_ok('/rack_role/'.$role->id)
     ->json_schema_is('RackRole')
     ->json_cmp_deeply(superhashof({ name => 'rack_role 42U', rack_size => 42 }));
 
-$t->get_ok('/rack_role/name=rack_role 42U')
+$t->get_ok('/rack_role/rack_role 42U')
     ->status_is(200)
     ->json_schema_is('RackRole')
     ->json_cmp_deeply(superhashof({ name => 'rack_role 42U', rack_size => 42 }));

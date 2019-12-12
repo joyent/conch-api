@@ -1,6 +1,6 @@
 package Conch::Route::Rack;
 
-use Mojo::Base -strict;
+use Mojo::Base -strict, -signatures;
 
 =pod
 
@@ -22,34 +22,53 @@ sub routes {
 
     $rack->to({ controller => 'rack' });
 
-    # GET /rack
-    $rack->require_system_admin->get('/')->to('#get_all');
+    my $rack_with_system_admin = $rack->require_system_admin;
+
     # POST /rack
-    $rack->require_system_admin->post('/')->to('#create');
+    $rack_with_system_admin->post('/')->to('#create');
 
-    my $with_rack = $rack->under('/<rack_id:uuid>')->to('#find_rack');
+    # GET    /rack/:rack_id_or_name
+    # POST   /rack/:rack_id_or_name
+    # DELETE /rack/:rack_id_or_name
+    # GET    /rack/:rack_id_or_name/layout
+    # POST   /rack/:rack_id_or_name/layout
+    # GET    /rack/:rack_id_or_name/assignment
+    # POST   /rack/:rack_id_or_name/assignment
+    # DELETE /rack/:rack_id_or_name/assignment
+    # POST   /rack/:rack_id_or_name/phase?rack_only=<0|1>
+    $class->one_rack_routes($rack);
+}
 
-    # GET /rack/:rack_id
-    $with_rack->get('/')->to('#get');
-    # POST /rack/:rack_id
-    $with_rack->post('/')->to('#update');
-    # DELETE /rack/:rack_id
-    $with_rack->require_system_admin->delete('/')->to('#delete');
+=head2 one_rack_routes
 
-    # GET /rack/:rack_id/layouts
-    $with_rack->get('/layouts')->to('#get_layouts');
-    # POST /rack/:rack_id/layouts
-    $with_rack->post('/layouts')->to('#overwrite_layouts');
+Sets up the routes for working with just one rack, mounted under a provided route prefix.
 
-    # GET /rack/:rack_id/assignment
-    $with_rack->get('/assignment')->to('#get_assignment');
-    # POST /rack/:rack_id/assignment
-    $with_rack->post('/assignment')->to('#set_assignment');
-    # DELETE /rack/:rack_id/assignment
-    $with_rack->delete('/assignment')->to('#delete_assignment');
+=cut
 
-    # POST /rack/:rack_id/phase?rack_only=<0|1>
-    $with_rack->post('/phase')->to('#set_phase');
+sub one_rack_routes ($class, $r) {
+    my $one_rack = $r->under('/#rack_id_or_name')->to('#find_rack', controller => 'rack');
+
+    # GET .../rack/:rack_id_or_name
+    $one_rack->get('/')->to('#get');
+    # POST .../rack/:rack_id_or_name
+    $one_rack->post('/')->to('#update');
+    # DELETE .../rack/:rack_id_or_name
+    $one_rack->require_system_admin->delete('/')->to('#delete');
+
+    # GET .../rack/:rack_id_or_name/layout
+    $one_rack->get('/layout')->to('#get_layouts');
+    # POST .../rack/:rack_id_or_name/layout
+    $one_rack->post('/layout')->to('#overwrite_layouts');
+
+    # GET .../rack/:rack_id_or_name/assignment
+    $one_rack->get('/assignment')->to('#get_assignment');
+    # POST .../rack/:rack_id_or_name/assignment
+    $one_rack->post('/assignment')->to('#set_assignment');
+    # DELETE .../rack/:rack_id_or_name/assignment
+    $one_rack->delete('/assignment')->to('#delete_assignment');
+
+    # POST .../rack/:rack_id_or_name/phase?rack_only=<0|1>
+    $one_rack->post('/phase')->to('#set_phase');
 }
 
 1;
@@ -59,15 +78,9 @@ __END__
 
 All routes require authentication.
 
-=head3 C<GET /rack>
-
-=over 4
-
-=item * Requires system admin authorization
-
-=item * Response: F<response.yaml#/definitions/Racks>
-
-=back
+Take note: All routes that reference a specific rack (prefix C</rack/:rack_id>) are also
+available under C</rack/:rack_id_or_long_name> as well as
+C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =head3 C<POST /rack>
 
@@ -81,7 +94,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /rack/:rack_id>
+=head3 C<GET /rack/:rack_id_or_name>
 
 =over 4
 
@@ -91,7 +104,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /rack/:rack_id>
+=head3 C<POST /rack/:rack_id_or_name>
 
 =over 4
 
@@ -103,7 +116,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<DELETE /rack/:rack_id>
+=head3 C<DELETE /rack/:rack_id_or_name>
 
 =over 4
 
@@ -113,7 +126,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /rack/:rack_id/layouts>
+=head3 C<GET /rack/:rack_id_or_name/layout>
 
 =over 4
 
@@ -123,7 +136,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /rack/:rack_id/layouts>
+=head3 C<POST /rack/:rack_id_or_name/layout>
 
 =over 4
 
@@ -135,7 +148,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /rack/:rack_id/assignment>
+=head3 C<GET /rack/:rack_id_or_name/assignment>
 
 =over 4
 
@@ -145,7 +158,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /rack/:rack_id/assignment>
+=head3 C<POST /rack/:rack_id_or_name/assignment>
 
 =over 4
 
@@ -157,7 +170,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<DELETE /rack/:rack_id/assignment>
+=head3 C<DELETE /rack/:rack_id_or_name/assignment>
 
 This method requires a request body.
 
@@ -171,7 +184,7 @@ This method requires a request body.
 
 =back
 
-=head3 C<< POST /rack/:rack_id/phase?rack_only=<0|1> >>
+=head3 C<< POST /rack/:rack_id_or_name/phase?rack_only=<0|1> >>
 
 The query parameter C<rack_only> (defaults to C<0>) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.

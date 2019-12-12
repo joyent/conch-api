@@ -8,12 +8,15 @@ Conch::Route::Rack
 
 Sets up the routes for /rack:
 
+## one\_rack\_routes
+
+Sets up the routes for working with just one rack, mounted under a provided route prefix.
+
 All routes require authentication.
 
-### `GET /rack`
-
-- Requires system admin authorization
-- Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)
+Take note: All routes that reference a specific rack (prefix `/rack/:rack_id`) are also
+available under `/rack/:rack_id_or_long_name` as well as
+`/room/datacenter_room_id_or_alias/rack/:rack_id_or_name`.
 
 ### `POST /rack`
 
@@ -21,45 +24,45 @@ All routes require authentication.
 - Request: [request.json#/definitions/RackCreate](../json-schema/request.json#/definitions/RackCreate)
 - Response: Redirect to the created rack
 
-### `GET /rack/:rack_id`
+### `GET /rack/:rack_id_or_name`
 
 - User requires the read-only role on the rack
 - Response: [response.json#/definitions/Rack](../json-schema/response.json#/definitions/Rack)
 
-### `POST /rack/:rack_id`
+### `POST /rack/:rack_id_or_name`
 
 - User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackUpdate](../json-schema/request.json#/definitions/RackUpdate)
 - Response: Redirect to the updated rack
 
-### `DELETE /rack/:rack_id`
+### `DELETE /rack/:rack_id_or_name`
 
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
 
-### `GET /rack/:rack_id/layouts`
+### `GET /rack/:rack_id_or_name/layout`
 
 - User requires the read-only role on the rack
 - Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
 
-### `POST /rack/:rack_id/layouts`
+### `POST /rack/:rack_id_or_name/layout`
 
 - User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackLayouts](../json-schema/request.json#/definitions/RackLayouts)
 - Response: Redirect to the rack's layouts
 
-### `GET /rack/:rack_id/assignment`
+### `GET /rack/:rack_id_or_name/assignment`
 
 - User requires the read-only role on the rack
 - Response: [response.json#/definitions/RackAssignments](../json-schema/response.json#/definitions/RackAssignments)
 
-### `POST /rack/:rack_id/assignment`
+### `POST /rack/:rack_id_or_name/assignment`
 
 - User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackAssignmentUpdates](../json-schema/request.json#/definitions/RackAssignmentUpdates)
 - Response: Redirect to the updated rack assignment
 
-### `DELETE /rack/:rack_id/assignment`
+### `DELETE /rack/:rack_id_or_name/assignment`
 
 This method requires a request body.
 
@@ -67,7 +70,7 @@ This method requires a request body.
 - Request: [request.json#/definitions/RackAssignmentDeletes](../json-schema/request.json#/definitions/RackAssignmentDeletes)
 - Response: `204 NO CONTENT`
 
-### `POST /rack/:rack_id/phase?rack_only=<0|1>`
+### `POST /rack/:rack_id_or_name/phase?rack_only=<0|1>`
 
 The query parameter `rack_only` (defaults to `0`) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.

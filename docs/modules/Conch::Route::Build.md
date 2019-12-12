@@ -117,7 +117,7 @@ read-write role on the device (via a workspace or build; see ["routes" in Conch:
 - Requires system admin authorization or the read-only role on the build
 - Response: response.yaml#/Racks
 
-### `POST /build/:build_id_or_name/rack/:rack_id`
+### `POST /build/:build_id_or_name/rack/:rack_id_or_name`
 
 - Requires system admin authorization, or the read/write role on the build and the
 read-write role on a workspace or build that contains the rack

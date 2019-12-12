@@ -3,6 +3,7 @@ package Conch::Controller::DatacenterRoom;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::UUID 'is_uuid';
+use List::Util 'any';
 
 =pod
 
@@ -15,33 +16,36 @@ Conch::Controller::DatacenterRoom
 =head2 find_datacenter_room
 
 Chainable action that uses the C<datacenter_room_id_or_alias> value provided in the stash
-(usually via the request URL) to look up a datacenter_room, and stashes the result in
-C<datacenter_room>.
+(usually via the request URL) to look up a datacenter_room, and stashes the query to get to it
+in C<datacenter_room_rs>.
+
+If C<require_role> is provided, it is used as the minimum required role for the user to
+continue; otherwise the user must be a system admin.
 
 =cut
 
 sub find_datacenter_room ($c) {
     my $identifier = $c->stash('datacenter_room_id_or_alias');
-    my $rs = $c->db_datacenter_rooms;
-    if (is_uuid($identifier)) {
-        $c->stash('datacenter_room_id', $identifier);
-        $rs = $rs->search({ 'datacenter_room.id' => $identifier });
-    }
-    else {
-        $c->stash('datacenter_room_alias', $identifier);
-        $rs = $rs->search({ 'datacenter_room.alias' => $identifier });
-    }
+
+    my $rs = $c->db_datacenter_rooms->search({
+        'datacenter_room.'.(is_uuid($identifier) ? 'id' : 'alias') => $identifier,
+    });
 
     $c->log->debug('Looking up datacenter room '.$identifier);
-    my $room = $rs->single;
 
-    if (not $room) {
+    if (not $rs->exists) {
         $c->log->debug('Could not find datacenter room '.$identifier);
         return $c->status(404);
     }
 
+    if (not $c->is_system_admin
+            and not $rs->related_resultset('racks')->user_has_role($c->stash('user_id'), $c->stash('require_role'))) {
+        $c->log->debug('User lacks the required role ('.$c->stash('require_role').') for datacenter room '.$identifier);
+        return $c->status(403);
+    }
+
     $c->log->debug('Found datacenter room');
-    $c->stash('datacenter_room', $room);
+    $c->stash('datacenter_room_rs', $rs);
     return 1;
 }
 
@@ -69,7 +73,9 @@ Response uses the DatacenterRoomDetailed json schema.
 =cut
 
 sub get_one ($c) {
-    $c->status(200, $c->stash('datacenter_room'));
+    my $room = $c->stash('datacenter_room_rs')->single;
+    $c->res->headers->location('/room/'.$room->id);
+    $c->status(200, $room);
 }
 
 =head2 create
@@ -81,6 +87,15 @@ Create a new datacenter room.
 sub create ($c) {
     my $input = $c->validate_request('DatacenterRoomCreate');
     return if not $input;
+
+    return $c->status(409, { error => 'Datacenter does not exist' })
+        if not $c->db_datacenters->search({ id => $input->{datacenter_id} })->exists;
+
+    return $c->status(409, { error => 'a room already exists with that alias' })
+        if $c->db_datacenter_rooms->search({ alias => $input->{alias} })->exists;
+
+    return $c->status(409, { error => 'a room already exists with that vendor_name' })
+        if $c->db_datacenter_rooms->search({ vendor_name => $input->{vendor_name} })->exists;
 
     my $room = $c->db_datacenter_rooms->create($input);
     $c->log->debug('Created datacenter room '.$room->id);
@@ -97,9 +112,23 @@ sub update ($c) {
     my $input = $c->validate_request('DatacenterRoomUpdate');
     return if not $input;
 
-    $c->stash('datacenter_room')->update({ $input->%*, updated => \'now()' });
+    return $c->status(409, { error => 'Datacenter does not exist' })
+        if $input->{datacenter_id}
+            and not $c->db_datacenters->search({ id => $input->{datacenter_id} })->exists;
+
+    my $room = $c->stash('datacenter_room_rs')->single;
+
+    return $c->status(409, { error => 'a room already exists with that alias' })
+        if $input->{alias} and $input->{alias} ne $room->alias
+            and $c->db_datacenter_rooms->search({ alias => $input->{alias} })->exists;
+
+    return $c->status(409, { error => 'a room already exists with that vendor_name' })
+        if $input->{vendor_name} and $input->{vendor_name} ne $room->vendor_name
+            and $c->db_datacenter_rooms->search({ vendor_name => $input->{vendor_name} })->exists;
+
+    $room->update({ $input->%*, updated => \'now()' });
     $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id_or_alias'));
-    $c->status(303, '/room/'.$c->stash('datacenter_room')->id);
+    $c->status(303, '/room/'.$room->id);
 }
 
 =head2 delete
@@ -109,13 +138,13 @@ Permanently delete a datacenter room.
 =cut
 
 sub delete ($c) {
-    if ($c->stash('datacenter_room')->related_resultset('racks')->exists) {
+    if ($c->stash('datacenter_room_rs')->related_resultset('racks')->exists) {
         $c->log->debug('Cannot delete datacenter_room: in use by one or more racks');
         return $c->status(409, { error => 'cannot delete a datacenter_room when a rack is referencing it' });
     }
 
-    $c->stash('datacenter_room')->delete;
-    $c->log->debug('Deleted datacenter room '.$c->stash('datacenter_room')->id);
+    $c->stash('datacenter_room_rs')->delete;
+    $c->log->debug('Deleted datacenter room '.$c->stash('datacenter_room_id_or_alias'));
     return $c->status(204);
 }
 
@@ -126,38 +155,15 @@ Response uses the Racks json schema.
 =cut
 
 sub racks ($c) {
-    my @racks = $c->stash('datacenter_room')->related_resultset('racks')->all;
+    my $rs = $c->stash('datacenter_room_rs')->related_resultset('racks');
+
+    # filter the results by what the user is permitted to see. Depending on the size of the
+    # initial resultset, this could be slow!
+    $rs = $rs->with_user_role($c->stash('user_id'), 'ro') if not $c->is_system_admin;
+
+    my @racks = $rs->all;
     $c->log->debug('Found '.scalar(@racks).' racks for datacenter room '.$c->stash('datacenter_room_id_or_alias'));
     return $c->status(200, \@racks);
-}
-
-=head2 find_rack
-
-Response uses the Rack json schema.
-
-=cut
-
-sub find_rack ($c) {
-    my $rack_rs = $c->stash('datacenter_room')
-        ->related_resultset('racks')
-        ->search({ name => $c->stash('rack_name') });
-
-    if (not $rack_rs->exists) {
-        $c->log->debug('Could not find rack '.$c->stash('rack_name')
-            .' in room '.$c->stash('datacenter_room_id_or_alias'));
-        return $c->status(404);
-    }
-
-    if (not $c->is_system_admin and not $rack_rs->user_has_role($c->stash('user_id'), 'ro')) {
-        $c->log->debug('User lacks the required role (ro) for rack '.$c->stash('rack_name')
-            .' in room'.$c->stash('datacenter_room_id_or_alias'));
-        return $c->status(403);
-    }
-
-    my $rack = $rack_rs->single;
-    $c->log->debug('Found rack '.$rack->id);
-
-    $c->status(200, $rack);
 }
 
 1;

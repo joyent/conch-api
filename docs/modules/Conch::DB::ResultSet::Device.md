@@ -70,6 +70,11 @@ Modifies the resultset to add columns `rack_id`, `rack_unit_start` and `rack_nam
 
 Modifies the resultset to add the `sku` column.
 
+## location\_data
+
+Returns a resultset that provides location data ([response.json#/definitions/DeviceLocation](../json-schema/response.json#/definitions/DeviceLocation)),
+optionally returned under a hash using the provided key name.
+
 # LICENSING
 
 Copyright Joyent, Inc.
