@@ -1,7 +1,0 @@
-Hello,
-
-Your "<%= $organization %>" organization has been removed from the
-"<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>).
-
-Thank you,
-Joyent Build Ops Team

@@ -49,15 +49,14 @@ Query for workspace(s) with an extra field attached to the result, containing in
 the effective role the user has for the workspace.
 
 The indicated role is used directly, with no additional queries done (consequently "role\_via"
-will not appear in the serialized data).  This is intended to be used in preference to
+will not appear in the serialized data). This is intended to be used in preference to
 ["with\_role\_via\_data\_for\_user"](#with_role_via_data_for_user) when the user is a system admin.
 
 ## with\_role\_via\_data\_for\_user
 
 Query for workspace(s) with an extra field attached to the query which will signal the
-workspace serializer to include the "role", "role\_via\_workspace\_id" and
-"role\_via\_organization\_id" columns, containing information about the effective role the user
-has for the workspace.
+workspace serializer to include the "role" and "role\_via\_workspace\_id" columns, containing
+information about the effective role the user has for the workspace.
 
 Only one user\_id can be calculated at a time. If you need to generate workspace-and-role data
 for multiple users at once, you can manually do:
@@ -70,25 +69,15 @@ before serializing the workspace object.
 
 ## role\_via\_for\_user
 
-For a given workspace\_id and user\_id, find the user\_workspace\_role or
-organization\_workspace\_role row that is responsible for providing the user access to the
-workspace (the row with the greatest role that is attached to an ancestor workspace).
+For a given workspace\_id and user\_id, find the user\_workspace\_role row that is responsible for
+providing the user access to the workspace (the row with the greatest role that is attached to
+an ancestor workspace).
 
 How the role is calculated:
 
 - The role on the user\_organization\_role role is **not** used.
 - The number of workspaces between `$workspace_id` and the workspace attached to the
-user\_workspace\_role or organization\_workspace\_role row is **not** used.
-- When both a user\_workspace\_role and organization\_workspace\_role row are found with the same
-role, the record directly associated with the workspace (if there is one) is preferred;
-otherwise, the user\_workspace\_role row is preferred.
-
-## role\_via\_for\_organization
-
-For a given workspace\_id and organization\_id, find the organization\_workspace\_role row that is
-responsible for providing the organization access to the workspace (the
-organization\_workspace\_role with the greatest role that is attached to an ancestor
-workspace).
+user\_workspace\_role row is **not** used.
 
 ## admins
 
@@ -106,9 +95,6 @@ resultset first, if this is what you want.)
 Checks that the provided user\_id has (at least) the specified role in at least one workspace in
 the resultset. (Does not search recursively; add `->and_workspaces_above($workspace_id)`
 to your resultset first, if this is what you want.)
-
-Both direct `user_workspace_role` entries and joined
-`user_organization_role` -> `organization_workspace_role` entries are checked.
 
 Returns a boolean.
 

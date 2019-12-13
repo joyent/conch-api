@@ -91,7 +91,7 @@ and therefore other helpers).
 =head2 send_exception_to_rollbar
 
 Asynchronously send exception details to Rollbar (if the C<rollbar> C<access_token> is
-configured).  Returns a unique uuid suitable for logging, to correlate with the Rollbar entry
+configured). Returns a unique uuid suitable for logging, to correlate with the Rollbar entry
 thus created.
 
 =cut

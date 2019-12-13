@@ -14,7 +14,7 @@ IFS=$'\n\t'
 PREFIX=${PREFIX} LABEL=${LABEL} docker/builder.sh --file Dockerfile.dev .
 
 docker run \
-	--mount type=volume,src=${PREFIX}-conch-api-carton,dst=/app/conch/local \
-	--rm \
-	--name ${PREFIX}_${BUILDNUMBER} \
-	${PREFIX}/conch-api:${LABEL}
+    --mount type=volume,src=${PREFIX}-conch-api-carton,dst=/app/conch/local \
+    --rm \
+    --name ${PREFIX}_${BUILDNUMBER} \
+    ${PREFIX}/conch-api:${LABEL}

@@ -597,7 +597,7 @@
           "$ref" : "common.json#/definitions/device_serial_number"
         },
         "sku" : {
-          "type" : "string"
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "system_uuid" : {
           "oneOf" : [
@@ -798,7 +798,7 @@
           "$ref" : "common.json#/definitions/device_serial_number"
         },
         "sku" : {
-          "type" : "string"
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "system_uuid" : {
           "oneOf" : [
@@ -912,7 +912,7 @@
               "type" : "string"
             },
             "sku" : {
-              "type" : "string"
+              "$ref" : "common.json#/definitions/mojo_standard_placeholder"
             }
           },
           "required" : [
@@ -1221,7 +1221,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "sku" : {
-          "type" : "string"
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         }
       },
       "required" : [
@@ -1836,9 +1836,6 @@
           "minItems" : 1,
           "type" : "array",
           "uniqueItems" : true
-        },
-        "workspaces" : {
-          "$ref" : "/definitions/WorkspacesAndRoles"
         }
       },
       "required" : [
@@ -1847,7 +1844,6 @@
         "description",
         "created",
         "users",
-        "workspaces",
         "builds"
       ],
       "type" : "object"
@@ -2186,6 +2182,9 @@
           "format" : "date-time",
           "type" : "string"
         },
+        "user_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
         "version" : {
           "oneOf" : [
             {
@@ -2206,7 +2205,8 @@
         "ssh_port",
         "created",
         "updated",
-        "last_seen"
+        "last_seen",
+        "user_id"
       ],
       "type" : "object"
     },
@@ -2857,9 +2857,6 @@
         "role" : {
           "$ref" : "common.json#/definitions/role"
         },
-        "role_via_organization_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
         "role_via_workspace_id" : {
           "$ref" : "common.json#/definitions/uuid"
         }
@@ -2965,53 +2962,6 @@
             "location"
           ]
         },
-        "type" : "object"
-      },
-      "type" : "array",
-      "uniqueItems" : true
-    },
-    "WorkspaceOrganizations" : {
-      "items" : {
-        "additionalProperties" : false,
-        "properties" : {
-          "admins" : {
-            "items" : {
-              "$ref" : "/definitions/UserTerse"
-            },
-            "minItems" : 1,
-            "type" : "array",
-            "uniqueItems" : true
-          },
-          "description" : {
-            "oneOf" : [
-              {
-                "type" : "null"
-              },
-              {
-                "type" : "string"
-              }
-            ]
-          },
-          "id" : {
-            "$ref" : "common.json#/definitions/uuid"
-          },
-          "name" : {
-            "type" : "string"
-          },
-          "role" : {
-            "$ref" : "common.json#/definitions/role"
-          },
-          "role_via_workspace_id" : {
-            "$ref" : "common.json#/definitions/uuid"
-          }
-        },
-        "required" : [
-          "id",
-          "name",
-          "description",
-          "role",
-          "admins"
-        ],
         "type" : "object"
       },
       "type" : "array",
@@ -3157,6 +3107,9 @@
             "format" : "date-time",
             "type" : "string"
           },
+          "user_id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
           "version" : {
             "oneOf" : [
               {
@@ -3178,6 +3131,7 @@
           "created",
           "updated",
           "last_seen",
+          "user_id",
           "location",
           "num_devices"
         ],
@@ -3201,9 +3155,6 @@
           },
           "role" : {
             "$ref" : "common.json#/definitions/role"
-          },
-          "role_via_organization_id" : {
-            "$ref" : "common.json#/definitions/uuid"
           },
           "role_via_workspace_id" : {
             "$ref" : "common.json#/definitions/uuid"

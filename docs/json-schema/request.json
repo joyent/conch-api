@@ -152,7 +152,7 @@
             "$ref" : "common.json#/definitions/device_serial_number"
           },
           "sku" : {
-            "type" : "string"
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
           }
         },
         "required" : [
@@ -384,7 +384,17 @@
     },
     "DeviceSettings" : {
       "additionalProperties" : {
-        "$ref" : "common.json#/definitions/non_empty_string"
+        "anyOf" : [
+          {
+            "$ref" : "common.json#/definitions/non_empty_string"
+          },
+          {
+            "type" : "number"
+          },
+          {
+            "type" : "boolean"
+          }
+        ]
       },
       "minProperties" : 1,
       "propertyNames" : {
@@ -1106,22 +1116,6 @@
       "propertyNames" : {
         "$ref" : "common.json#/definitions/user_setting_key"
       },
-      "type" : "object"
-    },
-    "WorkspaceAddOrganization" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "organization_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "role" : {
-          "$ref" : "common.json#/definitions/role"
-        }
-      },
-      "required" : [
-        "organization_id",
-        "role"
-      ],
       "type" : "object"
     },
     "WorkspaceAddRack" : {

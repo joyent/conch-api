@@ -46,38 +46,28 @@ subtest preliminaries => sub {
         ->status_is(409)
         ->json_is({ error => 'relay serial deadbeef is not registered' });
 
-    $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
+    my $null_user = $t->generate_fixtures('user_account');
+    Test::Conch->new(pg => $t->pg)
+        ->authenticate(email => $null_user->email)
+        ->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
         ->status_is(201);
+
+    $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(409)
+        ->json_is({ error => 'relay serial deadbeef is not registered by user '.$ro_user->name });
+
+    $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
+        ->status_is(204);
 
     $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(404)
         ->log_error_is('Could not find device TEST');
-
-    my $device = $t->generate_fixtures('device', {
-        serial_number => 'TEST',
-        hardware_product_id => $hardware_product->id,
-    });
-
-    # deactivate product, create a new product with the same sku
-    $hardware_product->update({ deactivated => \'now()' });
-    my $new_compute = $t->app->db_hardware_products->create(do { my %cols = $hardware_product->get_columns; delete @cols{qw(id deactivated)}; \%cols });
-
-    $t->post_ok('/device/TEST', json => $report_data)
-        ->status_is(409)
-        ->json_is({ error => 'Report sku does not match expected hardware_product for device TEST' });
-
-    $t->post_ok('/device_report', json => $report_data)
-        ->status_is(409)
-        ->json_is({ error => 'Report sku does not match expected hardware_product for device TEST' });
-
-    $device->discard_changes;
-    is($device->health, 'error', 'bad reports flip device health to error');
-
-    # go back to the original hardware_product
-    $new_compute->update({ deactivated => \'now()' });
-    $hardware_product->update({ deactivated => undef });
 };
 
+my $device = $t->generate_fixtures('device', {
+    serial_number => 'TEST',
+    hardware_product_id => $hardware_product->id,
+});
 
 # create a validation plan with all current validations in it
 Conch::ValidationSystem->new(log => $t->app->log, schema => $t->app->schema)->load_validations;
@@ -499,6 +489,46 @@ subtest 'submit report for production device' => sub {
         [ $device->device_nics->active->order_by('mac')->hri->all ],
         \@device_interfaces,
         'device data was not updated in the database after moving its phase to production',
+    );
+};
+
+subtest 'hardware_product is different' => sub {
+    my $new_product = first { $_->isa('Conch::DB::Result::HardwareProduct') }
+        $t->generate_fixtures('hardware_product', {
+            sku => 'my_new_sku',
+            generation_name => 'something',
+            validation_plan_id => $full_validation_plan->id,
+        });
+
+    my $altered_report = from_json($report);
+    $altered_report->{sku} = 'my_new_sku';
+    $altered_report->{product_name} = 'something else';
+
+    $t->post_ok('/device/TEST', json => $altered_report)
+        ->status_is(200)
+        ->location_is('/device/'.$device->id)
+        ->json_schema_is('ValidationStateWithResults')
+        ->json_cmp_deeply(superhashof({
+            device_id => $device->id,
+            status => ignore,
+            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            results => [{
+                id => ignore,
+                validation_id => ignore,
+                category => Conch::Validation::DeviceProductName->category,
+                component => ignore,
+                hardware_product_id => $new_product->id,
+                hint => ignore,
+                message => ignore,
+                status => 'fail',
+            }],
+        }));
+
+    $device->discard_changes;
+    is(
+        $device->hardware_product_id,
+        $new_product->id,
+        'device was updated to reflect the hardware in the report',
     );
 };
 

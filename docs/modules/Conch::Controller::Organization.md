@@ -9,11 +9,6 @@ Conch::Controller::Organization
 If the user is a system admin, retrieve a list of all active organizations in the database;
 otherwise, limits the list to those organizations of which the user is a member.
 
-Note: the only workspaces and roles listed are those reachable via the organization, even if
-the user might have direct access to the workspace at a greater role. For comprehensive
-information about what workspaces the user can access, and at what role, please use `GET
-/workspace` or `GET /user/me`.
-
 Response uses the Organizations json schema.
 
 ## create
@@ -35,11 +30,6 @@ continue; otherwise the user must have the 'admin' role.
 
 Get the details of a single organization.
 Requires the 'admin' role on the organization.
-
-Note: the only workspaces and roles listed are those reachable via the organization, even if
-the user might have direct access to the workspace at a greater role. For comprehensive
-information about what workspaces the user can access, and at what role, please use
-`GET /workspace` or `GET /user/me`.
 
 Response uses the Organization json schema.
 

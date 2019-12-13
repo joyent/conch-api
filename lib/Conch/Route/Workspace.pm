@@ -75,17 +75,6 @@ sub routes {
         # DELETE /workspace/:workspace_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
         $with_workspace_admin->under('/user/#target_user_id_or_email')->to('user#find_user')
             ->delete('/')->to('workspace_user#remove');
-
-        # GET /workspace/:workspace_id_or_name/organization
-        $with_workspace_admin->get('/organization')->to('workspace_organization#list_workspace_organizations');
-
-        # POST /workspace/:workspace_id_or_name/organization?send_mail=<1|0>
-        $with_workspace_admin->post('/organization')->to('workspace_organization#add_workspace_organization');
-
-        # DELETE /workspace/:workspace_id_or_name/organization/:organization_id_or_name?send_mail=<1|0>
-        $with_workspace_admin->under('/organization/:organization_id_or_name')
-            ->to('organization#find_organization')
-            ->delete('/')->to('workspace_organization#remove_workspace_organization');
     }
 }
 

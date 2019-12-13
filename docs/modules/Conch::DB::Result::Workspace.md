@@ -52,12 +52,6 @@ size: 16
 
 # RELATIONS
 
-## organization\_workspace\_roles
-
-Type: has\_many
-
-Related object: [Conch::DB::Result::OrganizationWorkspaceRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganizationWorkspaceRole)
-
 ## parent\_workspace
 
 Type: belongs\_to
@@ -81,12 +75,6 @@ Related object: [Conch::DB::Result::WorkspaceRack](../modules/Conch%3A%3ADB%3A%3
 Type: has\_many
 
 Related object: [Conch::DB::Result::Workspace](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspace)
-
-## organizations
-
-Type: many\_to\_many
-
-Composing rels: ["organization\_workspace\_roles"](#organization_workspace_roles) -> organization
 
 ## racks
 
@@ -112,11 +100,6 @@ Accessor for informational column, which is by the serializer in the result data
 
 Accessor for informational column, which is used by the serializer to signal we should fetch
 and include inherited role data for the user.
-
-## organization\_id\_for\_role
-
-Accessor for informational column, which is used by the serializer to signal we should fetch
-and include inherited role data for the organization.
 
 # LICENSING
 

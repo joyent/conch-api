@@ -27,7 +27,11 @@ sub register ($c) {
         if $c->stash('relay_serial_number') ne $input->{serial};
 
     my $relay = $c->db_relays->find_or_new({ serial_number => delete $input->{serial} });
-    $relay->set_columns({ $input->%*, deactivated => undef });
+    $relay->set_columns({
+        $input->%*,
+        user_id => $c->stash('user_id'),
+        deactivated => undef,
+    });
 
     if (not $relay->in_storage) {
         $relay->insert;
@@ -38,11 +42,6 @@ sub register ($c) {
         $relay->update({ last_seen => \'now()' });
         $c->status(204);
     }
-
-    $relay->update_or_create_related('user_relay_connections', {
-        user_id => $c->stash('user_id'),
-        last_seen => \'now()',
-    });
 
     $c->res->headers->location($c->url_for('/relay/'.$relay->id));
     return;
@@ -84,7 +83,7 @@ sub find_relay ($c) {
     return $c->status(410) if not $rs->exists;
 
     if (not $c->is_system_admin) {
-        if (not $rs->search({ user_id => $c->stash('user_id') }, { join => 'user_relay_connections' })->exists) {
+        if (not $rs->search({ user_id => $c->stash('user_id') })->exists) {
             $c->log->debug('User cannot access unregistered relay '.$identifier);
             return $c->status(403);
         }
@@ -115,12 +114,10 @@ sub delete ($c) {
     my $rs = $c->stash('relay_rs');
 
     my $drc_count = $rs->related_resultset('device_relay_connections')->delete;
-    my $urc_count = $rs->related_resultset('user_relay_connections')->delete;
     $rs->deactivate;
 
     $c->log->debug('Deactivated relay '.$c->stash('relay_id_or_serial_number')
-        .', removing '.$drc_count.' associated device connections and '
-        .$urc_count.' associated user connections');
+        .', removing '.$drc_count.' associated device connections');
     return $c->status(204);
 }
 

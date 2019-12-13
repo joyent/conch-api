@@ -174,7 +174,7 @@ See ["\_generate\_definition" in Test::Conch::Fixtures](../modules/Test%3A%3ACon
 ## authenticate
 
 Authenticates a user in the current test instance. Uses default (superuser) credentials if not
-provided.  Optionally will bail out of **all** tests on failure.
+provided. Optionally will bail out of **all** tests on failure.
 
 This will set 'user' in the session (`$t->app->session('user')`), so a token is not needed
 on subsequent requests.

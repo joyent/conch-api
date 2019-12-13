@@ -38,6 +38,9 @@ sub _respond_with_jwt ($c, $user_id, $expires_delta = undef) {
     );
 
     return if $c->res->code;
+
+    $c->res->headers->last_modified(Mojo::Date->new($session_token->created->epoch));
+    $c->res->headers->expires(Mojo::Date->new($session_token->expires->epoch));
     return $c->status(200, { jwt_token => $jwt });
 }
 
@@ -220,6 +223,8 @@ sub session_login ($c) {
         ->search({ user_id => $c->stash('user_id') })
         ->search(\[ '(expires - now()) >= (now() - created)' ]);
     if (my $token = $token_rs->order_by({ -desc => 'created' })->rows(1)->single) {
+        $c->res->headers->last_modified(Mojo::Date->new($token->created->epoch));
+        $c->res->headers->expires(Mojo::Date->new($token->expires->epoch));
         return $c->status(200, { jwt_token => $c->generate_jwt_from_token($token) });
     }
 

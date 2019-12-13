@@ -86,6 +86,15 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
+## user\_id
+
+```
+data_type: 'uuid'
+is_foreign_key: 1
+is_nullable: 0
+size: 16
+```
+
 # PRIMARY KEY
 
 - ["id"](#id)
@@ -104,23 +113,17 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::DeviceRelayConnection](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceRelayConnection)
 
-## user\_relay\_connections
+## user\_account
 
-Type: has\_many
+Type: belongs\_to
 
-Related object: [Conch::DB::Result::UserRelayConnection](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserRelayConnection)
+Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
 ## devices
 
 Type: many\_to\_many
 
 Composing rels: ["device\_relay\_connections"](#device_relay_connections) -> device
-
-## user\_accounts
-
-Type: many\_to\_many
-
-Composing rels: ["user\_relay\_connections"](#user_relay_connections) -> user\_account
 
 # LICENSING
 

@@ -586,12 +586,13 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 },
                 requires => {
                     "hardware_vendor_$num" => { our => 'hardware_vendor_id', their => 'id' },
-                    "validation_plan_$num" => { our => 'validation_plan_id', their => 'id' },
+                    $specification->{validation_plan_id} ? () :
+                        ("validation_plan_$num" => { our => 'validation_plan_id', their => 'id' }),
                 },
             },
         },
         [ 'hardware_vendor', $num, $vendor_spec ],
-        [ 'validation_plan', $num, {} ];
+        $specification->{validation_plan_id} ? () : [ 'validation_plan', $num, {} ];
     }
     elsif ($fixture_type eq 'datacenter_room') {
         return +{

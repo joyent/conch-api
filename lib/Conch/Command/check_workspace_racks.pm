@@ -17,8 +17,8 @@ check_workspace_racks - Utility to check all workspace_rack entries are correct 
 =head1 DESCRIPTION
 
 For all racks, checks that necessary C<workspace_rack> rows exist (for every parent to the
-workspace referenced by existing C<workspace_rack> entries).  Missing rows are populated,
-if C<--dry-run> not provided.  Errors are identified, if C<--verbose> is provided.
+workspace referenced by existing C<workspace_rack> entries). Missing rows are populated,
+if C<--dry-run> not provided. Errors are identified, if C<--verbose> is provided.
 
 =head1 EXIT CODE
 

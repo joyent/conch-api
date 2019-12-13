@@ -1,7 +1,0 @@
-Hello,
-
-Your access to the "<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>)
-via the "<%= $organization %>" organization has been adjusted to the "<%= $role %>" role.
-
-Thank you,
-Joyent Build Ops Team

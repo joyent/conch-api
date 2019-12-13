@@ -104,6 +104,12 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::Build](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ABuild)
 
+## relays
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::Relay](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARelay)
+
 ## user\_build\_roles
 
 Type: has\_many
@@ -115,12 +121,6 @@ Related object: [Conch::DB::Result::UserBuildRole](../modules/Conch%3A%3ADB%3A%3
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserOrganizationRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserOrganizationRole)
-
-## user\_relay\_connections
-
-Type: has\_many
-
-Related object: [Conch::DB::Result::UserRelayConnection](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserRelayConnection)
 
 ## user\_session\_tokens
 
@@ -151,12 +151,6 @@ Composing rels: ["user\_build\_roles"](#user_build_roles) -> build
 Type: many\_to\_many
 
 Composing rels: ["user\_organization\_roles"](#user_organization_roles) -> organization
-
-## relays
-
-Type: many\_to\_many
-
-Composing rels: ["user\_relay\_connections"](#user_relay_connections) -> relay
 
 ## workspaces
 

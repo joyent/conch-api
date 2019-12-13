@@ -71,18 +71,16 @@ my $relay0 = $t->app->db_relays->find({ serial_number => 'relay0' });
 my $relay1 = $t->app->db_relays->find({ serial_number => 'relay1' });
 
 cmp_deeply(
-    [ $relay0->user_relay_connections ],
-    [
-        methods(
-            user_id => $null_user->id,
-            first_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-        ),
-    ],
-    'user_relay_connection timestamps are set',
+    $relay0,
+    methods(
+        serial_number => 'relay0',
+        user_id => $null_user->id,
+        last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+    ),
+    'relay registration updates fields',
 );
 
-my $rs = $t->app->db_relays->search({ serial_number => 'relay0' })->rows(1)->prefetch('user_relay_connections');
+my $rs = $t->app->db_relays->search({ serial_number => 'relay0' })->rows(1);
 
 my ($relay_data) = $rs->hri->all;
 
@@ -92,11 +90,6 @@ $t->post_ok('/relay/relay0/register', json => { serial => 'relay0' })
 
 my ($new_relay_data) = $rs->hri->all;
 
-isnt(
-    $new_relay_data->{user_relay_connections}[0]{last_seen},
-    $relay_data->{user_relay_connections}[0]{last_seen},
-    'user_relay_connection.last_seen has been updated',
-);
 isnt($new_relay_data->{last_seen}, $relay_data->{last_seen}, 'relay.last_seen has been updated');
 is($new_relay_data->{updated}, $relay_data->{updated}, 'relay update timestamp did not change');
 
@@ -119,6 +112,7 @@ $t->get_ok('/relay/'.$relay0->id)
         created => $relay0->created,
         updated => $relay0->updated,
         last_seen => $relay0->last_seen,
+        user_id => $null_user->id,
     });
 
 $t->get_ok('/relay/relay0')
@@ -134,6 +128,7 @@ $t->get_ok('/relay/relay0')
         created => $relay0->created,
         updated => $relay0->updated,
         last_seen => $relay0->last_seen,
+        user_id => $null_user->id,
     });
 
 $t->get_ok('/relay')
@@ -154,6 +149,7 @@ $t_super->get_ok('/relay')
             created => str(($relay0, $relay1)[$_]->created),
             updated => str(($relay0, $relay1)[$_]->updated),
             last_seen => str(($relay0, $relay1)[$_]->last_seen),
+            user_id => $null_user->id,
         }, (0..1)
     ]);
 
@@ -177,11 +173,16 @@ $t_super->get_ok('/relay')
     $t2->get_ok('/relay/relay0')
         ->status_is(200)
         ->json_schema_is('Relay')
-        ->json_cmp_deeply({ (map +($_ => str($relay0->$_)), qw(id serial_number name version ipaddr ssh_port created updated)), last_seen => ignore });
+        ->json_cmp_deeply({
+            (map +($_ => str($relay0->$_)), qw(id serial_number name version ipaddr ssh_port created)),
+            last_seen => ignore,
+            updated => ignore,
+            user_id => $other_user->id,
+        });
+    isnt($t2->tx->res->json->{updated}, $relay0->updated, 'updated timestamp has changed');
 }
 
-$relay0->user_relay_connections->update({
-    first_seen => '1999-01-01',
+$relay0->update({
     last_seen => '1999-01-01',
 });
 
@@ -204,8 +205,7 @@ $t_super->get_ok('/relay')
         })), 'version was updated');
 
 my $y2000 = Conch::Time->new(year => 2000);
-cmp_ok(($relay0->user_relay_connections)[0]->first_seen, '<', $y2000, 'urc first_seen was not updated');
-cmp_ok(($relay0->user_relay_connections)[0]->last_seen, '>', $y2000, 'urc last_seen was updated');
+cmp_ok($relay0->last_seen, '>', $y2000, 'relay last_seen was updated');
 
 # now register the relays on various devices in both workspace racks...
 
@@ -272,6 +272,7 @@ subtest list => sub {
                     az => 'room-1a',
                 },
                 last_seen => '2018-01-02T00:00:00.000Z',
+                user_id => $null_user->id,
                 num_devices => 2,
             },
             {
@@ -290,6 +291,7 @@ subtest list => sub {
                     az => 'room-0a',
                 },
                 last_seen => '2018-01-04T00:00:00.000Z',
+                user_id => $null_user->id,
                 num_devices => 3,
             },
         ]);
@@ -376,7 +378,7 @@ subtest delete => sub {
 
     $t_super->delete_ok('/relay/'.$relay0->id)
         ->status_is(204)
-        ->log_debug_is('Deactivated relay '.$relay0->id.', removing 2 associated device connections and 2 associated user connections');
+        ->log_debug_is('Deactivated relay '.$relay0->id.', removing 2 associated device connections');
 
     $t_super->get_ok('/relay/'.$relay0->id)
         ->status_is(410);

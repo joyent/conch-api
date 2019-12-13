@@ -287,7 +287,7 @@ my $json_spec_schema = $_validator->schema->data;
 
 $t->get_ok('/schema/REQUEST/hello')
     ->status_is(404)
-    ->json_is({ error => 'Not Found' })
+    ->json_is({ error => 'Route Not Found' })
     ->log_error_is('no endpoint found for: GET /schema/REQUEST/hello');
 
 $t->get_ok('/schema/request/hello')

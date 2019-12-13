@@ -37,20 +37,17 @@ sub process ($c) {
     return $c->status(409, { error => 'Could not find hardware product with sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
 
     if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
+        my $relay_rs = $c->db_relays->active->search({ serial_number => $relay_serial });
         return $c->status(409, { error => 'relay serial '.$relay_serial.' is not registered' })
-            if not $c->db_relays->active->search({ serial_number => $relay_serial })->exists;
+            if not $relay_rs->exists;
+        return $c->status(409, { error => 'relay serial '.$relay_serial.' is not registered by user '.$c->stash('user')->name })
+            if not $relay_rs->search({ user_id => $c->stash('user_id') })->exists;
     }
 
     my $device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
     if (not $device) {
         $c->log->error('Could not find device '.$c->stash('device_serial_number'));
         return $c->status(404);
-    }
-
-    if ($hardware_product_id ne $device->hardware_product_id) {
-        $device->health('error');
-        $device->update({ updated => \'now()' }) if $device->is_changed;
-        return $c->status(409, { error => 'Report sku does not match expected hardware_product for device '.$c->stash('device_serial_number') });
     }
 
     if ($device->phase eq 'decommissioned') {
@@ -73,6 +70,7 @@ sub process ($c) {
     my $prev_uptime = $device->uptime_since;
     $c->txn_wrapper(sub ($c) {
         $device->update({
+            hardware_product_id => $hardware_product_id,
             system_uuid => $unserialized_report->{system_uuid},
             last_seen   => \'now()',
             exists $unserialized_report->{uptime_since} ? ( uptime_since => $unserialized_report->{uptime_since} ) : (),

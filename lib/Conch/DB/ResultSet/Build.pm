@@ -19,7 +19,7 @@ Interface to queries involving builds.
 
 =head2 admins
 
-All the 'admin' users for the provided build(s).  Pass a true argument to also include all
+All the 'admin' users for the provided build(s). Pass a true argument to also include all
 system admin users in the result.
 
 =cut
@@ -94,14 +94,16 @@ sub user_has_role ($self, $user_id, $role) {
     my $via_user_rs = $self
         ->search_related('user_build_roles', { user_id => $user_id })
         ->with_role($role)
-        ->related_resultset('user_account');
+        ->related_resultset('user_account')
+        ->columns(['id']);
 
     my $via_org_rs = $self
         ->related_resultset('organization_build_roles')
         ->with_role($role)
         ->related_resultset('organization')
         ->search_related('user_organization_roles', { user_id => $user_id })
-        ->related_resultset('user_account');
+        ->related_resultset('user_account')
+        ->columns(['id']);
 
     return $via_user_rs->union_all($via_org_rs)->exists;
 }

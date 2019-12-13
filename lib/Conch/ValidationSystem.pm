@@ -258,7 +258,7 @@ sub update_validation_plans ($self) {
             }
         }
 
-        # now we have a list of active validations we want.  add any that aren't already present.
+        # now we have a list of active validations we want. add any that aren't already present.
         foreach my $want_validation (@add_active_validations) {
             next if $existing_active_validations{$want_validation->module};
             $self->log->info('adding '.$want_validation->name.' version '

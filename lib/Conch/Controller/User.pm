@@ -342,7 +342,6 @@ sub get ($c) {
         ->prefetch({
                 user_workspace_roles => 'workspace',
                 user_organization_roles => { organization => {
-                        organization_workspace_roles => 'workspace',
                         organization_build_roles => 'build',
                     } },
                 user_build_roles => 'build',
@@ -441,7 +440,6 @@ sub list ($c) {
         ->prefetch({
                 user_workspace_roles => 'workspace',
                 user_organization_roles => { organization => {
-                        organization_workspace_roles => 'workspace',
                         organization_build_roles => 'build',
                     } },
                 user_build_roles => 'build',
@@ -615,6 +613,8 @@ sub create_api_token ($c) {
     my ($token, $jwt) = $c->generate_jwt($user->id, $expires_abs, $input->{name});
     return if $c->res->code;
 
+    $c->res->headers->last_modified(Mojo::Date->new($token->created->epoch));
+    $c->res->headers->expires(Mojo::Date->new($token->expires->epoch));
     $c->res->headers->location($c->url_for('/user/'
         .($user->id eq $c->stash('user_id') ? 'me' : $user->id)
         .'/token/'.$input->{name}));

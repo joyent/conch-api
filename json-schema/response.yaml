@@ -133,7 +133,7 @@ definitions:
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       sku:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       health:
         $ref: common.yaml#/definitions/device_health
       hostname:
@@ -363,7 +363,7 @@ definitions:
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       sku:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       health:
         $ref: common.yaml#/definitions/device_health
       hostname:
@@ -573,7 +573,7 @@ definitions:
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       sku:
-        type: string
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
   WorkspaceDevicePXEs:
     type: array
     uniqueItems: true
@@ -673,7 +673,7 @@ definitions:
             description: Hardware product alias
             type: string
           sku:
-            type: string
+            $ref: common.yaml#/definitions/mojo_standard_placeholder
           hardware_vendor_id:
             $ref: common.yaml#/definitions/uuid
   DeviceSetting:
@@ -1085,6 +1085,7 @@ definitions:
         - created
         - updated
         - last_seen
+        - user_id
         - location
         - num_devices
       properties:
@@ -1117,6 +1118,8 @@ definitions:
         last_seen:
           type: string
           format: date-time
+        user_id:
+          $ref: common.yaml#/definitions/uuid
         location:
           $comment: location should not be considered canonical when device 'phase' is 'production' or later
           description: Last reported location of the relay
@@ -1167,8 +1170,6 @@ definitions:
         $ref: common.yaml#/definitions/role
       role_via_workspace_id:
         $ref: common.yaml#/definitions/uuid
-      role_via_organization_id:
-        $ref: common.yaml#/definitions/uuid
   WorkspacesAndRoles:
     type: array
     uniqueItems: true
@@ -1195,8 +1196,6 @@ definitions:
         role:
           $ref: common.yaml#/definitions/role
         role_via_workspace_id:
-          $ref: common.yaml#/definitions/uuid
-        role_via_organization_id:
           $ref: common.yaml#/definitions/uuid
   Datacenters:
     type: array
@@ -1286,6 +1285,7 @@ definitions:
       - created
       - updated
       - last_seen
+      - user_id
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -1316,6 +1316,8 @@ definitions:
         oneOf:
           - type: string
           - type: 'null'
+      user_id:
+        $ref: common.yaml#/definitions/uuid
   Version:
     type: object
     additionalProperties: false
@@ -1800,7 +1802,6 @@ definitions:
       - description
       - created
       - users
-      - workspaces
       - builds
     properties:
       id:
@@ -1835,8 +1836,6 @@ definitions:
               $ref: common.yaml#/definitions/email_address
             role:
               $ref: common.yaml#/definitions/role
-      workspaces:
-        $ref: /definitions/WorkspacesAndRoles
       builds:
         type: array
         uniqueItems: true
@@ -1864,37 +1863,6 @@ definitions:
     uniqueItems: true
     items:
       $ref: /definitions/Organization
-  WorkspaceOrganizations:
-    type: array
-    uniqueItems: true
-    items:
-      type: object
-      additionalProperties: false
-      required:
-        - id
-        - name
-        - description
-        - role
-        - admins
-      properties:
-        id:
-          $ref: common.yaml#/definitions/uuid
-        name:
-          type: string
-        description:
-          oneOf:
-            - type: 'null'
-            - type: string
-        role:
-          $ref: common.yaml#/definitions/role
-        role_via_workspace_id:
-          $ref: common.yaml#/definitions/uuid
-        admins:
-          type: array
-          uniqueItems: true
-          minItems: 1
-          items:
-            $ref: /definitions/UserTerse
   Build:
     type: object
     additionalProperties: false

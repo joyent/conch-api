@@ -32,7 +32,7 @@ and therefore other helpers).
 ## send\_exception\_to\_rollbar
 
 Asynchronously send exception details to Rollbar (if the `rollbar` `access_token` is
-configured).  Returns a unique uuid suitable for logging, to correlate with the Rollbar entry
+configured). Returns a unique uuid suitable for logging, to correlate with the Rollbar entry
 thus created.
 
 ## send\_message\_to\_rollbar

@@ -554,7 +554,6 @@ $t->get_ok('/organization/my first organization')
             { (map +($_ => $org_admin->$_), qw(id name email)), role => 'admin' },
             { (map +($_ => $org_member->$_), qw(id name email)), role => 'ro' },
         ],
-        workspaces => [],
         builds => [ +{ $build->%{qw(id name description)}, role => 'ro' } ],
     });
 

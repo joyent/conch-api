@@ -15,8 +15,8 @@ bin/conch check_workspace_racks [long options...]
 # DESCRIPTION
 
 For all racks, checks that necessary `workspace_rack` rows exist (for every parent to the
-workspace referenced by existing `workspace_rack` entries).  Missing rows are populated,
-if `--dry-run` not provided.  Errors are identified, if `--verbose` is provided.
+workspace referenced by existing `workspace_rack` entries). Missing rows are populated,
+if `--dry-run` not provided. Errors are identified, if `--verbose` is provided.
 
 # EXIT CODE
 

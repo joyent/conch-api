@@ -24,7 +24,7 @@ parent workspaces.
 
 This is a nested query which searches all workspaces and builds in the database, so only use
 this query when its impact is outweighed by the impact of filtering a large resultset of
-devices in the database.  (That is, usually you should start with a single device and then
+devices in the database. (That is, usually you should start with a single device and then
 apply C<< $device_rs->user_has_role($user_id, $role) >> to it.)
 
 =cut
@@ -92,7 +92,8 @@ sub user_has_role ($self, $user_id, $role) {
         ->related_resultset('build')
         ->search_related('user_build_roles', { user_id => $user_id })
         ->with_role($role)
-        ->related_resultset('user_account');
+        ->related_resultset('user_account')
+        ->columns(['id']);
 
     my $via_org_rs = $self
         ->related_resultset('build')
@@ -100,13 +101,13 @@ sub user_has_role ($self, $user_id, $role) {
         ->with_role($role)
         ->related_resultset('organization')
         ->search_related('user_organization_roles', { user_id => $user_id })
-        ->related_resultset('user_account');
+        ->related_resultset('user_account')
+        ->columns(['id']);
 
     return 1 if $via_user_rs->union_all($via_org_rs)->exists;
 
     # this checks:
     # device -> rack -> workspace -> user_workspace_role -> user
-    # device -> rack -> workspace -> organization_workspace_role -> organization -> user
     # device -> rack -> build -> user_build_role -> user
     # device -> rack -> build -> organization_build_role -> organization -> user
     $self
@@ -135,12 +136,15 @@ sub devices_without_location ($self) {
 Restrict results to those that have sent a device report proxied by a relay
 registered using the provided user's credentials.
 
+Note: this is not accurate if the relay is now registered to a different user than that which
+sent the report.
+
 =cut
 
 sub devices_reported_by_user_relay ($self, $user_id) {
     $self->search(
-        { 'user_relay_connections.user_id' => $user_id },
-        { join => { device_relay_connections => { relay => 'user_relay_connections' } } },
+        { 'relay.user_id' => $user_id },
+        { join => { device_relay_connections => 'relay' } },
     );
 }
 
@@ -172,7 +176,7 @@ sub latest_device_report ($self) {
 
 =head2 device_settings_as_hash
 
-Returns a hash of all (active) device settings for the specified device(s).  (Will return
+Returns a hash of all (active) device settings for the specified device(s). (Will return
 merged results when passed a resultset referencing multiple devices, which is probably not what
 you want, so don't do that.)
 

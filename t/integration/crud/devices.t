@@ -396,9 +396,7 @@ subtest 'located device' => sub {
             ->status_is(403)
             ->log_debug_is('User cannot access requested device(s)');
 
-        my $org = $t->generate_fixtures('organization');
-        $org->create_related('user_organization_roles', { user_id => $null_user->id, role => 'ro' });
-        $global_ws->create_related('organization_workspace_roles', { organization_id => $org->id, role => 'ro' });
+        $global_ws->create_related('user_workspace_roles', { user_id => $null_user->id, role => 'ro' });
 
         $t->get_ok('/device/'.$located_device_id)
             ->status_is(200)
@@ -885,11 +883,6 @@ subtest 'Device settings' => sub {
         ->json_schema_is('RequestValidationError')
         ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
 
-    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 1 })
-        ->status_is(400)
-        ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/foo', message => re(qr/expected string/i) } ]);
-
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => 'bar', baz => 'quux' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
@@ -901,6 +894,22 @@ subtest 'Device settings' => sub {
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'baz' })
         ->status_is(204);
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 2 })
+        ->status_is(204);
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings')
+        ->status_is(200)
+        ->json_schema_is('DeviceSettings')
+        ->json_is({ foo => 2 });
+
+    $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => JSON::PP::true })
+        ->status_is(204);
+
+    $t->get_ok('/device/LOCATED_DEVICE/settings')
+        ->status_is(200)
+        ->json_schema_is('DeviceSettings')
+        ->json_is({ foo => 1 });
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'bar' })
         ->status_is(204);
@@ -1023,16 +1032,14 @@ subtest 'Device PXE' => sub {
     $t_super->authenticate(email => $super_user->email);
     my $layout = $t_super->load_fixture('rack_0a_layout_3_6');
 
-    my $relay = $t_super->app->db_relays->create({ serial_number => 'my_relay' });
-
     my $device_pxe = $t_super->app->db_devices->create({
         serial_number => 'PXE_TEST',
         hardware_product_id => $layout->hardware_product_id,
         health => 'unknown',
         device_relay_connections => [{
             relay => {
-                id => $relay->id,
-                user_relay_connections => [ { user_id => $super_user->id } ],
+                serial_number => 'my_relay',
+                user_id => $super_user->id,
             }
         }],
         device_nics => [

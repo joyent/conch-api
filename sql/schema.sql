@@ -468,19 +468,6 @@ CREATE TABLE public.organization_build_role (
 ALTER TABLE public.organization_build_role OWNER TO conch;
 
 --
--- Name: organization_workspace_role; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.organization_workspace_role (
-    organization_id uuid NOT NULL,
-    workspace_id uuid NOT NULL,
-    role public.role_enum DEFAULT 'ro'::public.role_enum NOT NULL
-);
-
-
-ALTER TABLE public.organization_workspace_role OWNER TO conch;
-
---
 -- Name: rack; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -548,6 +535,7 @@ CREATE TABLE public.relay (
     updated timestamp with time zone DEFAULT now() NOT NULL,
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     last_seen timestamp with time zone DEFAULT now() NOT NULL,
+    user_id uuid NOT NULL,
     CONSTRAINT relay_ssh_port_check CHECK ((ssh_port >= 0))
 );
 
@@ -600,20 +588,6 @@ CREATE TABLE public.user_organization_role (
 
 
 ALTER TABLE public.user_organization_role OWNER TO conch;
-
---
--- Name: user_relay_connection; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.user_relay_connection (
-    user_id uuid NOT NULL,
-    first_seen timestamp with time zone DEFAULT now() NOT NULL,
-    last_seen timestamp with time zone DEFAULT now() NOT NULL,
-    relay_id uuid NOT NULL
-);
-
-
-ALTER TABLE public.user_relay_connection OWNER TO conch;
 
 --
 -- Name: user_session_token; Type: TABLE; Schema: public; Owner: conch
@@ -968,14 +942,6 @@ ALTER TABLE ONLY public.organization
 
 
 --
--- Name: organization_workspace_role organization_workspace_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.organization_workspace_role
-    ADD CONSTRAINT organization_workspace_role_pkey PRIMARY KEY (organization_id, workspace_id);
-
-
---
 -- Name: rack rack_datacenter_room_id_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1069,14 +1035,6 @@ ALTER TABLE ONLY public.user_build_role
 
 ALTER TABLE ONLY public.user_organization_role
     ADD CONSTRAINT user_organization_role_pkey PRIMARY KEY (user_id, organization_id);
-
-
---
--- Name: user_relay_connection user_relay_connection_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_relay_connection
-    ADD CONSTRAINT user_relay_connection_pkey PRIMARY KEY (user_id, relay_id);
 
 
 --
@@ -1352,13 +1310,6 @@ CREATE UNIQUE INDEX organization_name_key ON public.organization USING btree (na
 
 
 --
--- Name: organization_workspace_role_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX organization_workspace_role_workspace_id_idx ON public.organization_workspace_role USING btree (workspace_id);
-
-
---
 -- Name: rack_build_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1394,6 +1345,13 @@ CREATE INDEX rack_rack_role_id_idx ON public.rack USING btree (rack_role_id);
 
 
 --
+-- Name: relay_user_id; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX relay_user_id ON public.relay USING btree (user_id);
+
+
+--
 -- Name: user_account_email_key; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1419,13 +1377,6 @@ CREATE INDEX user_build_role_build_id_idx ON public.user_build_role USING btree 
 --
 
 CREATE INDEX user_organization_role_organization_id_idx ON public.user_organization_role USING btree (organization_id);
-
-
---
--- Name: user_relay_connection_relay_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX user_relay_connection_relay_id_idx ON public.user_relay_connection USING btree (relay_id);
 
 
 --
@@ -1726,22 +1677,6 @@ ALTER TABLE ONLY public.organization_build_role
 
 
 --
--- Name: organization_workspace_role organization_workspace_role_organization_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.organization_workspace_role
-    ADD CONSTRAINT organization_workspace_role_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organization(id);
-
-
---
--- Name: organization_workspace_role organization_workspace_role_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.organization_workspace_role
-    ADD CONSTRAINT organization_workspace_role_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspace(id);
-
-
---
 -- Name: rack rack_build_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1790,6 +1725,14 @@ ALTER TABLE ONLY public.rack
 
 
 --
+-- Name: relay relay_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.relay
+    ADD CONSTRAINT relay_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_account(id);
+
+
+--
 -- Name: user_build_role user_build_role_build_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1819,22 +1762,6 @@ ALTER TABLE ONLY public.user_organization_role
 
 ALTER TABLE ONLY public.user_organization_role
     ADD CONSTRAINT user_organization_role_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_account(id);
-
-
---
--- Name: user_relay_connection user_relay_connection_relay_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_relay_connection
-    ADD CONSTRAINT user_relay_connection_relay_id_fkey FOREIGN KEY (relay_id) REFERENCES public.relay(id);
-
-
---
--- Name: user_relay_connection user_relay_connection_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_relay_connection
-    ADD CONSTRAINT user_relay_connection_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_account(id);
 
 
 --
@@ -2086,13 +2013,6 @@ GRANT SELECT ON TABLE public.organization_build_role TO conch_read_only;
 
 
 --
--- Name: TABLE organization_workspace_role; Type: ACL; Schema: public; Owner: conch
---
-
-GRANT SELECT ON TABLE public.organization_workspace_role TO conch_read_only;
-
-
---
 -- Name: TABLE rack; Type: ACL; Schema: public; Owner: conch
 --
 
@@ -2139,13 +2059,6 @@ GRANT SELECT ON TABLE public.user_build_role TO conch_read_only;
 --
 
 GRANT SELECT ON TABLE public.user_organization_role TO conch_read_only;
-
-
---
--- Name: TABLE user_relay_connection; Type: ACL; Schema: public; Owner: conch
---
-
-GRANT SELECT ON TABLE public.user_relay_connection TO conch_read_only;
 
 
 --
