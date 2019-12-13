@@ -61,6 +61,22 @@ SELECT run_migration(140, $$
         from hardware_product_profile
         where hardware_product_profile.hardware_product_id = hardware_product.id;
 
+    update hardware_product set purpose = 'not yet working entry' where purpose is null;
+    update hardware_product set bios_firmware = '' where bios_firmware is null;
+    update hardware_product set cpu_num = 0 where cpu_num is null;
+    update hardware_product set cpu_type = '' where cpu_type is null;
+    update hardware_product set dimms_num = 0 where dimms_num is null;
+    update hardware_product set ram_total = 0 where ram_total is null;
+    update hardware_product set nics_num = 0 where nics_num is null;
+    update hardware_product set sata_hdd_num = 0 where sata_hdd_num is null;
+    update hardware_product set sas_hdd_num = 0 where sas_hdd_num is null;
+    update hardware_product set sata_ssd_num = 0 where sata_ssd_num is null;
+    update hardware_product set psu_total = 0 where psu_total is null;
+    update hardware_product set usb_num = 0 where usb_num is null;
+    update hardware_product set sas_ssd_num = 0 where sas_ssd_num is null;
+    update hardware_product set nvme_ssd_num = 0 where nvme_ssd_num is null;
+    update hardware_product set raid_lun_num = 0 where raid_lun_num is null;
+
     alter table hardware_product
         alter column purpose set not null,
         alter column bios_firmware set not null,
