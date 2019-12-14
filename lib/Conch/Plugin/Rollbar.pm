@@ -227,7 +227,7 @@ sub _get_extra_data ($c) {
 sub _create_notifier ($app, $config) {
     my $access_token = $config->{rollbar}{access_token};
     if (not $access_token) {
-        $app->log->warn('Unable to send exception to Rollbar - no access token configured');
+        $app->log->warn('Unable to send message to Rollbar - no access token configured');
         return;
     }
     WebService::Rollbar::Notifier->new(
