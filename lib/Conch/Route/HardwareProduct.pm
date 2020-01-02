@@ -23,7 +23,7 @@ sub routes {
     $hardware_product->to({ controller => 'hardware_product' });
 
     # GET /hardware_product
-    $hardware_product->get('/')->to('#list');
+    $hardware_product->get('/')->to('#get_all');
 
     # POST /hardware_product
     $hardware_product->require_system_admin->post('/')->to('#create');

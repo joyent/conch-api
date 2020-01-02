@@ -4,7 +4,7 @@ Conch::Controller::WorkspaceRelay
 
 # METHODS
 
-## list
+## get\_all
 
 List all relays located in the indicated workspace and sub-workspaces beneath it.
 Note that this information is only accurate if the device the relay(s) reported

@@ -14,7 +14,7 @@ If the workspace name is provided, `workspace_id` is looked up and stashed.
 `require_role` is used as the minimum required role for the user to continue; otherwise the
 user must be a system admin.
 
-## list
+## get\_all
 
 Get a list of all workspaces available to the currently authenticated user.
 

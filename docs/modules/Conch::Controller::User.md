@@ -102,7 +102,7 @@ Sends an email to the affected user, unless `?send_mail=0` is included in the qu
 The response uses the UserError json schema for some error conditions; on success, redirects to
 `GET /user/:id`.
 
-## list
+## get\_all
 
 List all active users and their workspaces, builds and organizations. System admin only.
 Response uses the UsersDetailed json schema.

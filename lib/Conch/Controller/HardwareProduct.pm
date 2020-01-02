@@ -12,7 +12,7 @@ Conch::Controller::HardwareProduct
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
 Get a list of all available hardware products.
 
@@ -20,7 +20,7 @@ Response uses the HardwareProducts json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my @hardware_products_raw = $c->db_hardware_products
         ->active
         ->order_by('name')

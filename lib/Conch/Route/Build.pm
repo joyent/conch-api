@@ -23,7 +23,7 @@ sub routes {
     $build->to({ controller => 'build' });
 
     # GET /build
-    $build->get('/')->to('#list');
+    $build->get('/')->to('#get_all');
 
     # POST /build
     $build->require_system_admin->post('/')->to('#create');
@@ -47,7 +47,7 @@ sub routes {
         $with_build_admin->post('/')->to('#update');
 
         # GET /build/:build_id_or_name/user
-        $with_build_admin->get('/user')->to('#list_users');
+        $with_build_admin->get('/user')->to('#get_users');
 
         # POST /build/:build_id_or_name/user?send_mail=<1|0>
         $with_build_admin->post('/user')->to('#add_user');
@@ -61,7 +61,7 @@ sub routes {
             my $build_organization = $with_build_admin->any('/organization');
 
             # GET /build/:build_id_or_name/organization
-            $build_organization->get('/')->to('#list_organizations');
+            $build_organization->get('/')->to('#get_organizations');
 
             # POST /build/:build_id_or_name/organization?send_mail=<1|0>
             $build_organization->post('/')->to('#add_organization');

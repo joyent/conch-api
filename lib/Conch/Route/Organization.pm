@@ -23,7 +23,7 @@ sub routes {
     $organization->to({ controller => 'organization' });
 
     # GET /organization
-    $organization->get('/')->to('#list');
+    $organization->get('/')->to('#get_all');
 
     # POST /organization
     $organization->require_system_admin->post('/')->to('#create');

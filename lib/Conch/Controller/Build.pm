@@ -12,7 +12,7 @@ Conch::Controller::Build
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
 If the user is a system admin, retrieve a list of all builds in the database; otherwise,
 limits the list to those build of which the user is a member.
@@ -21,7 +21,7 @@ Response uses the Builds json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my $params = $c->validate_query_params('WithDeviceHealth');
     return if not $params;
 
@@ -229,7 +229,7 @@ sub update ($c) {
     $c->status(303, '/build/'.$build->id);
 }
 
-=head2 list_users
+=head2 get_users
 
 Get a list of user members of the current build. (Does not include users who can access the
 build via an organization.)
@@ -240,7 +240,7 @@ Response uses the BuildUsers json schema.
 
 =cut
 
-sub list_users ($c) {
+sub get_users ($c) {
     my $rs = $c->stash('build_rs')
         ->related_resultset('user_build_roles')
         ->related_resultset('user_account')
@@ -399,7 +399,7 @@ sub remove_user ($c) {
     return $c->status(204);
 }
 
-=head2 list_organizations
+=head2 get_organizations
 
 Get a list of organization members of the current build.
 Requires the 'admin' role on the build.
@@ -408,7 +408,7 @@ Response uses the BuildOrganizations json schema.
 
 =cut
 
-sub list_organizations ($c) {
+sub get_organizations ($c) {
     my $rs = $c->db_organizations
         ->search(
             {

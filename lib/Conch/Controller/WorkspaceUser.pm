@@ -10,7 +10,7 @@ Conch::Controller::WorkspaceUser
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
 Get a list of users for the indicated workspace (not including system admin users).
 Requires the 'admin' role on the workspace.
@@ -19,7 +19,7 @@ Response uses the WorkspaceUsers json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my $workspace_id = $c->stash('workspace_id');
 
     # users who can access any ancestor of this workspace (directly)

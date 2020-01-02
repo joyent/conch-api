@@ -4,7 +4,7 @@ Conch::Controller::HardwareProduct
 
 # METHODS
 
-## list
+## get\_all
 
 Get a list of all available hardware products.
 

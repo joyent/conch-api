@@ -14,7 +14,7 @@ Controller for managing Validation Plans
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
 List all available Validation Plans.
 
@@ -22,7 +22,7 @@ Response uses the ValidationPlans json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my @validation_plans = $c->db_validation_plans->active->order_by('name')->all;
     $c->log->debug('Found '.scalar(@validation_plans).' validation plans');
     $c->status(200, \@validation_plans);
@@ -65,7 +65,7 @@ sub get ($c) {
     return $c->status(200, $c->stash('validation_plan'));
 }
 
-=head2 list_validations
+=head2 get_validations
 
 List all Validations associated with the Validation Plan, both active and deactivated.
 
@@ -73,7 +73,7 @@ Response uses the Validations json schema.
 
 =cut
 
-sub list_validations ($c) {
+sub get_validations ($c) {
     my @validations = $c->stash('validation_plan')
         ->related_resultset('validation_plan_members')
         ->related_resultset('validation')

@@ -47,7 +47,7 @@ sub register ($c) {
     return;
 }
 
-=head2 list
+=head2 get_all
 
 Retrieve a list of all active relays in the database.
 
@@ -55,7 +55,7 @@ Response uses the Relays json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     $c->status(200, [ $c->db_relays->active->order_by('serial_number')->all ]);
 }
 

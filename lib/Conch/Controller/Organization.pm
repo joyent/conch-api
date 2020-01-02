@@ -12,7 +12,7 @@ Conch::Controller::Organization
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
 If the user is a system admin, retrieve a list of all active organizations in the database;
 otherwise, limits the list to those organizations of which the user is a member.
@@ -21,7 +21,7 @@ Response uses the Organizations json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my $rs = $c->db_organizations
         ->active
         ->prefetch({

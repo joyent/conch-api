@@ -75,10 +75,10 @@ sub all_routes (
     });
 
     # POST /login
-    $root->post('/login')->to('login#session_login');
+    $root->post('/login')->to('login#login');
 
     # POST /logout
-    $root->post('/logout')->to('login#session_logout');
+    $root->post('/logout')->to('login#logout');
 
     Conch::Route::Schema->routes($root->any('/schema'));
 

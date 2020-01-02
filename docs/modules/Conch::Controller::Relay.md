@@ -9,7 +9,7 @@ Conch::Controller::Relay
 Registers a relay and connects it with the current user. The relay is created if the relay does
 not already exist, or is updated with additional payload information otherwise.
 
-## list
+## get\_all
 
 Retrieve a list of all active relays in the database.
 

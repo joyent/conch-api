@@ -25,7 +25,7 @@ sub routes {
     $v->to({ controller => 'validation' });
 
     # GET /validation
-    $v->get('/')->to('#list');
+    $v->get('/')->to('#get_all');
 
     {
         my $with_validation = $v->under('/:validation_id_or_name')->to('#find_validation');
@@ -40,7 +40,7 @@ sub routes {
     $vp->to({ controller => 'validation_plan' });
 
     # GET /validation_plan
-    $vp->get('/')->to('#list');
+    $vp->get('/')->to('#get_all');
 
     {
         my $with_plan = $vp->under('/:validation_plan_id_or_name')->to('#find_validation_plan');
@@ -49,7 +49,7 @@ sub routes {
         $with_plan->get('/')->to('#get');
 
         # GET /validation_plan/:validation_plan_id_or_name/validation
-        $with_plan->get('/validation')->to('#list_validations');
+        $with_plan->get('/validation')->to('#get_validations');
     }
 
     {

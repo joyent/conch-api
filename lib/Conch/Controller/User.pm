@@ -262,7 +262,7 @@ sub change_own_password ($c) {
     $rs = $rs->login_only if $clear_tokens ne 'all';
     $rs->delete;
 
-    # processing continues with Conch::Controller::Login::session_logout
+    # processing continues with Conch::Controller::Login::logout
     return 1;
 }
 
@@ -430,14 +430,14 @@ sub update ($c) {
     $c->status(303, '/user/'.$user->id);
 }
 
-=head2 list
+=head2 get_all
 
 List all active users and their workspaces, builds and organizations. System admin only.
 Response uses the UsersDetailed json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my $user_rs = $c->db_user_accounts
         ->active
         ->prefetch({

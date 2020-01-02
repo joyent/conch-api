@@ -22,12 +22,12 @@ Handle the details of authenticating the user, with one of the following options
 Does not terminate the connection if authentication is successful, allowing for chaining to
 subsequent routes and actions.
 
-## session\_login
+## login
 
 Handles the act of logging in, given a user and password in the form.
 Response uses the Login json schema, containing a JWT.
 
-## session\_logout
+## logout
 
 Logs a user out by expiring their session
 

@@ -10,7 +10,7 @@ Conch::Controller::WorkspaceRelay
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
 List all relays located in the indicated workspace and sub-workspaces beneath it.
 Note that this information is only accurate if the device the relay(s) reported
@@ -22,7 +22,7 @@ Response uses the WorkspaceRelays json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my $params = $c->validate_query_params('WorkspaceRelays');
     return if not $params;
 

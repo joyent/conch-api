@@ -14,7 +14,7 @@ Controller for managing Validations, B<NOT> executing them.
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
 List all Validations.
 
@@ -22,7 +22,7 @@ Response uses the Validations json schema (including deactivated ones).
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my $rs = $c->db_validations->order_by([ qw(name version) ]);
     $c->status(200, [ $rs->all ]);
 }

@@ -4,7 +4,7 @@ Conch::Controller::Organization
 
 # METHODS
 
-## list
+## get\_all
 
 If the user is a system admin, retrieve a list of all active organizations in the database;
 otherwise, limits the list to those organizations of which the user is a member.

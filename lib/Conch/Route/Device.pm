@@ -94,7 +94,7 @@ sub routes {
         # POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id
         $with_device_ro->post('/validation_plan/<validation_plan_id:uuid>')->to('device_validation#run_validation_plan');
         # GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...
-        $with_device->get('/validation_state')->to('device_validation#list_validation_states');
+        $with_device->get('/validation_state')->to('device_validation#get_validation_states');
 
         {
             my $with_device_interface = $with_device_phase_earlier_than_prod

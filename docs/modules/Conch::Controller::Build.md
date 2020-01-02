@@ -4,7 +4,7 @@ Conch::Controller::Build
 
 # METHODS
 
-## list
+## get\_all
 
 If the user is a system admin, retrieve a list of all builds in the database; otherwise,
 limits the list to those build of which the user is a member.
@@ -37,7 +37,7 @@ Response uses the Build json schema.
 Modifies a build attribute: one or more of name, description, started, completed.
 Requires the 'admin' role on the build.
 
-## list\_users
+## get\_users
 
 Get a list of user members of the current build. (Does not include users who can access the
 build via an organization.)
@@ -66,7 +66,7 @@ to the user and to all build admins.
 
 This endpoint is nearly identical to ["remove\_user" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#remove_user).
 
-## list\_organizations
+## get\_organizations
 
 Get a list of organization members of the current build.
 Requires the 'admin' role on the build.

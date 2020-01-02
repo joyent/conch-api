@@ -4,7 +4,7 @@ Conch::Controller::WorkspaceRack
 
 # METHODS
 
-## list
+## get\_all
 
 Get a list of racks for the indicated workspace.
 

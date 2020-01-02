@@ -4,7 +4,7 @@ Conch::Controller::WorkspaceUser
 
 # METHODS
 
-## list
+## get\_all
 
 Get a list of users for the indicated workspace (not including system admin users).
 Requires the 'admin' role on the workspace.
