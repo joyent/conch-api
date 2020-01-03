@@ -33,4 +33,20 @@ subtest '/device/:id/interface/:iface_name/:field validation' => sub {
     );
 };
 
+subtest 'device report validation' => sub {
+    my $validator = JSON::Validator->new
+        ->load_and_validate_schema('json-schema/device_report.yaml',
+            { schema => 'http://json-schema.org/draft-07/schema#' });
+
+    cmp_deeply(
+        [ $validator->validate({ '' => {} },
+                $validator->get('/definitions/DeviceReport_v2.38/properties/disks')) ],
+        [ methods(
+            path => '/',
+            message => re(qr{/propertyName/ String does not match '?\^\\S\+\$'?}i),
+        ) ],
+        'bad disk entries are rejected',
+    );
+};
+
 done_testing;

@@ -266,7 +266,7 @@ definitions:
         description: the contents of the device report. Given its age we cannot provide a schema.
         anyOf:
           - type: 'null'
-          - $ref: device_report.yaml#/definitions/DeviceReport_v2.29
+          # - $ref: device_report.yaml#/definitions/DeviceReport_v2.38
           - type: object  # TODO: remove this loose alternative when we purge historical db records
       invalid_report:
         description: this could be anything, from encoded json to random junk
