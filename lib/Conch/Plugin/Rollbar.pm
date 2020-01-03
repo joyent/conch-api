@@ -84,6 +84,13 @@ sub _record_exception ($c, $exception, @) {
     my $rollbar_id = Data::UUID->new->create_str;
     my $request_id = length($c->req->url) ? $c->req->request_id : undef;
 
+    # see https://docs.rollbar.com/docs/grouping-algorithm
+    my $fingerprint = join(':',
+        $exception->message,
+        map join(',', $_->@{qw(filename method lineno)}), @frames,
+    );
+    $fingerprint = Digest::SHA::sha1_hex($fingerprint) if length($fingerprint) > 40;
+
     # Payload documented at https://rollbar.com/docs/api/items_post/
     my $exception_payload = {
         access_token => $access_token,
@@ -130,9 +137,7 @@ sub _record_exception ($c, $exception, @) {
                 },
             },
 
-            # see https://docs.rollbar.com/docs/grouping-algorithm
-            fingerprint => join(':', map join(',', $_->@{qw(filename method lineno)}), @frames),
-
+            fingerprint => $fingerprint,
             uuid => $rollbar_id,
         }
     };
