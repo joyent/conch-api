@@ -44,6 +44,7 @@ definitions:
                 - type: 'null'
       disks:
         type: object
+        additionalProperties: false
         propertyNames:
           $ref: common.yaml#/definitions/disk_serial_number
         additionalProperties:
