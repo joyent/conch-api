@@ -5,6 +5,7 @@
 * [Conch::Command::check_validation_plans](../modules/Conch::Command::check_validation_plans)
 * [Conch::Command::check_workspace_racks](../modules/Conch::Command::check_workspace_racks)
 * [Conch::Command::clean_roles](../modules/Conch::Command::clean_roles)
+* [Conch::Command::copy_user_data](../modules/Conch::Command::copy_user_data)
 * [Conch::Command::create_token](../modules/Conch::Command::create_token)
 * [Conch::Command::create_user](../modules/Conch::Command::create_user)
 * [Conch::Command::fix_usernames](../modules/Conch::Command::fix_usernames)
