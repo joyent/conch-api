@@ -127,15 +127,24 @@ subtest 'device report validation' => sub {
         ->load_and_validate_schema('json-schema/device_report.yaml',
             { schema => 'http://json-schema.org/draft-07/schema#' });
 
-    my $schema = $validator->get('/definitions/DeviceReport_v3.0.0/properties/system_uuid');
-
     cmp_deeply(
-        [ $validator->validate('00000000-0000-0000-0000-000000000000', $schema) ],
+        [ $validator->validate('00000000-0000-0000-0000-000000000000',
+                $validator->get('/definitions/DeviceReport_v3.0.0/properties/system_uuid')) ],
         [ methods(
             path => '/',
             message => re(qr/should not match/i),
         ) ],
         'all-zero system_uuids are rejected',
+    );
+
+    cmp_deeply(
+        [ $validator->validate({ '' => {} },
+                $validator->get('/definitions/DeviceReport_v3.0.0/properties/disks')) ],
+        [ methods(
+            path => '/',
+            message => re(qr{/propertyName/ String does not match '?\^\\S\+\$'?}i),
+        ) ],
+        'bad disk entries are rejected',
     );
 };
 

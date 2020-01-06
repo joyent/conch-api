@@ -121,14 +121,15 @@ sub set_settings ($c) {
     my $input = $c->validate_request('UserSettings');
     return if not $input;
 
-    my $user = $c->stash('target_user');
+    my $rs = $c->stash('target_user')->related_resultset('user_settings');
 
-    # deactivate *all* settings first
-    $user->related_resultset('user_settings')->active->deactivate;
+    $c->schema->txn_do(sub {
+        # deactivate *all* settings first
+        $rs->active->deactivate;
 
-    # store new settings
-    $user->related_resultset('user_settings')
-        ->populate([ pairmap { +{ name => $a, value => $b } } $input->%* ]);
+        # store new settings
+        $rs->populate([ pairmap { +{ name => $a, value => $b } } $input->%* ]);
+    });
 
     $c->status(204);
 }
@@ -154,11 +155,13 @@ sub set_setting ($c) {
     my $settings_rs = $c->db_user_settings->search({ user_id => $c->stash('target_user')->id });
 
     # return early if the setting exists and is not being altered
-    my $existing_setting = $settings_rs->active->search({ name => $key })->single;
-    return $c->status(204) if $existing_setting and $existing_setting->value eq $value;
+    my $existing_value = $settings_rs->active->search({ name => $key })->get_column('value')->single;
+    return $c->status(204) if $existing_value and $existing_value eq $value;
 
-    $existing_setting->self_rs->deactivate if $existing_setting;
-    $settings_rs->create({ name => $key, value => $value });
+    $c->schema->txn_do(sub {
+        $settings_rs->search({ name => $key })->active->deactivate;
+        $settings_rs->create({ name => $key, value => $value });
+    });
 
     return $c->status(204);
 }

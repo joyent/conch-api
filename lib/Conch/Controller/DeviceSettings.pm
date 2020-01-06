@@ -40,13 +40,15 @@ sub set_all ($c) {
         return $c->status(403);
     }
 
-    # deactivate existing settings with the same keys
-    $settings_rs->search({ name => { -in => [ keys $input->%* ] } })
-        ->active
-        ->deactivate;
+    $c->schema->txn_do(sub {
+        # deactivate existing settings with the same keys
+        $settings_rs->search({ name => { -in => [ keys $input->%* ] } })
+            ->active
+            ->deactivate;
 
-    # store new settings
-    $settings_rs->populate([ pairmap { +{ name => $a, value => $b } } $input->%* ]);
+        # store new settings
+        $settings_rs->populate([ pairmap { +{ name => $a, value => $b } } $input->%* ]);
+    });
 
     $c->status(204);
 }
@@ -71,13 +73,13 @@ sub set_single ($c) {
     # we cannot do device_rs->related_resultset, or ->create loses device_id
     my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
 
-    my $existing_setting = $settings_rs->active->search({ name => $setting_key })->single;
+    my $existing_value = $settings_rs->active->search({ name => $setting_key })->get_column('value')->single;
 
     # return early if the setting exists and is not being altered
-    return $c->status(204) if $existing_setting and $existing_setting->value eq $setting_value;
+    return $c->status(204) if $existing_value and $existing_value eq $setting_value;
 
     # overwriting existing non-tag keys requires 'admin'; otherwise only require 'rw'.
-    my $requires_role = $existing_setting && $setting_key !~ /^tag\./ ? 'admin' : 'rw';
+    my $requires_role = $existing_value && $setting_key !~ /^tag\./ ? 'admin' : 'rw';
 
     # 'rw' already checked by find_device
     if ($requires_role eq 'admin'
@@ -88,8 +90,10 @@ sub set_single ($c) {
         return $c->status(403);
     }
 
-    $existing_setting->self_rs->deactivate if $existing_setting;
-    $settings_rs->create({ name => $setting_key, value => $setting_value });
+    $c->schema->txn_do(sub {
+        $settings_rs->search({ name => $setting_key })->active->deactivate;
+        $settings_rs->create({ name => $setting_key, value => $setting_value });
+    });
 
     $c->status(204);
 }

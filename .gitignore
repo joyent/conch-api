@@ -16,6 +16,7 @@ tags
 /nytprof
 /nytprof.log
 /local/
+/local*
 
 # used by the docker-compose file
 /postgres
