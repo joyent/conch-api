@@ -4,7 +4,7 @@ package Conch::Command::fix_usernames;
 
 =head1 NAME
 
-fix_usernames - fixes old usernames in the database
+fix_usernames - fixes old usernames in the database (one-off for v3 launch)
 
 =head1 SYNOPSIS
 

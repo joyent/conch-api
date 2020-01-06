@@ -54,6 +54,10 @@ Conch-specific commands are:
 
     Collapse duplicate validation\_result rows together
 
+- [new\_organizations](../modules/Conch%3A%3ACommand%3A%3Anew_organizations)
+
+    create new organization data
+
 - [thin\_device\_reports](../modules/Conch%3A%3ACommand%3A%3Athin_device_reports)
 
     remove unwanted device reports

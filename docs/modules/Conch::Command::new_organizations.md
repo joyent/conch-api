@@ -1,13 +1,11 @@
 # NAME
 
-workspace\_to\_build - convert workspace content to a build (one-off for v3 launch)
+new\_organizations - Create new organization data (one-off for v3 launch)
 
 # SYNOPSIS
 
 ```
-bin/conch workspace_to_build [long options...] <workspace name> [workspace name] ...
-
-    -n --dry-run  dry-run (no changes are made)
+bin/conch new_organizations [long options...]
 
     --help        print usage message and exit
 ```

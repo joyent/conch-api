@@ -4,7 +4,7 @@ package Conch::Command::workspace_to_build;
 
 =head1 NAME
 
-workspace_to_build - convert workspace content to a build
+workspace_to_build - convert workspace content to a build (one-off for v3 launch)
 
 =head1 SYNOPSIS
 
@@ -38,16 +38,9 @@ sub run ($self, @opts) {
     my @workspace_names = @ARGV;
 
     my $admin_id = $self->app->db_user_accounts->search({ email => 'ether@joyent.com' })->get_column('id')->single;
-    my $company_org = $self->app->db_organizations->find_or_create({
-        name => 'Joyent',
-        description => 'Joyent employees',
-        user_organization_roles => [ { user_id => $admin_id, role => 'admin' } ],
-    });
-    my $dcops_org = $self->app->db_organizations->find_or_create({
-        name => 'DCOps',
-        description => 'Datacenter Operations personnnel',
-        user_organization_roles => [ { user_id => $admin_id, role => 'admin' } ],
-    });
+    my $joyent_org = $self->app->db_organizations->find({ name => 'Joyent' });
+    my $samsung_org = $self->app->db_organizations->find({ name => 'Samsung' });
+    my $dcops_org = $self->app->db_organizations->find({ name => 'DCOps' });
 
     my $spares = $self->app->db_builds->find_or_create({
         name => 'spares',
@@ -56,14 +49,11 @@ sub run ($self, @opts) {
             user_id => $admin_id,
             role => 'admin',
         }],
-        organization_build_roles => [{
-            organization_id => $company_org->id,
-            role => 'ro',
-        }],
-        organization_build_roles => [{
-            organization_id => $dcops_org->id,
-            role => 'rw',
-        }],
+        organization_build_roles => [
+            { organization_id => $joyent_org->id, role => 'ro' },
+            { organization_id => $samsung_org->id, role => 'ro' },
+            { organization_id => $dcops_org->id, role => 'rw' },
+        ],
     });
 
     my $workspace_rs = $self->app->db_workspaces;
@@ -117,14 +107,11 @@ sub run ($self, @opts) {
                         },
                         @user_roles,
                     ],
-                    organization_build_roles => [{
-                        organization_id => $company_org->id,
-                        role => 'ro',
-                    }],
-                    organization_build_roles => [{
-                        organization_id => $dcops_org->id,
-                        role => 'rw',
-                    }],
+                    organization_build_roles => [
+                        { organization_id => $joyent_org->id, role => 'ro' },
+                        { organization_id => $samsung_org->id, role => 'ro' },
+                        { organization_id => $dcops_org->id, role => 'rw' },
+                    ],
                 });
             }
 
