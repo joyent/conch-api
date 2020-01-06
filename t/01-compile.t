@@ -13,7 +13,7 @@ my @module_files = sort map s{^lib/}{}r, grep -f && /\.pm$/, map keys $_->%*,
 my @scripts = sort
     grep -f && -x, map keys $_->%*,
     map path($_)->visit(sub { $_[1]->{$_[0]} = 1 }, { recurse => 1 }),
-    grep -d && $_ ne '.git' && $_ ne 'local', glob('*');
+    grep -d && $_ ne '.git' && !/^local/, glob('*');
 
 
 # no fake home requested

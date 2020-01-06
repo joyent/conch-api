@@ -25,6 +25,7 @@ nytprof.log
 
 # Carton-installed dependency folder
 local/
+/local*
 
 
 # deploy files

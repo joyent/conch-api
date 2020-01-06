@@ -1,7 +1,7 @@
 ---
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
-  DeviceReport_v2.29:
+  DeviceReport_v2.38:
     description: the contents of a posted device report from relays and reporters
     type: object
     required:
@@ -37,36 +37,37 @@ definitions:
                 - type: 'null'
       disks:
         type: object
-        patternProperties:
-          ^\S+$:
-            description: device_disk.serial_number
-            type: object
-            properties:
-              slot:
-                $ref: common.yaml#/definitions/int_or_stringy_int
-              size:
-                type: integer
-              vendor:
-                type: string
-              model:
-                type: string
-              firmware:
-                type: string
-              transport:
-                type: string
-              health:
-                type: string  # TODO: enum?
-              drive_type:
-                type: string
-              temp:
-                $ref: common.yaml#/definitions/int_or_stringy_int
-              enclosure:
-                $ref: common.yaml#/definitions/int_or_stringy_int
-              hba:
-                $ref: common.yaml#/definitions/int_or_stringy_int
-              block_sz:
-                type: integer
-              # any additional fields are not currently used.
+        propertyNames:
+          type: string
+          pattern: ^\S+$
+        additionalProperties:
+          type: object
+          properties:
+            slot:
+              $ref: common.yaml#/definitions/int_or_stringy_int
+            size:
+              type: integer
+            vendor:
+              type: string
+            model:
+              type: string
+            firmware:
+              type: string
+            transport:
+              type: string
+            health:
+              type: string  # TODO: enum?
+            drive_type:
+              type: string
+            temp:
+              $ref: common.yaml#/definitions/int_or_stringy_int
+            enclosure:
+              $ref: common.yaml#/definitions/int_or_stringy_int
+            hba:
+              $ref: common.yaml#/definitions/int_or_stringy_int
+            block_sz:
+              type: integer
+            # any additional fields are not currently used.
       device_type:
         type: string
         enum:

@@ -88,14 +88,15 @@ sub set_settings ($c) {
     my $input = $c->validate_input('UserSettings');
     return if not $input;
 
-    my $user = $c->stash('target_user');
+    my $rs = $c->stash('target_user')->related_resultset('user_settings');
 
-    # deactivate *all* settings first
-    $user->related_resultset('user_settings')->active->deactivate;
+    $c->schema->txn_do(sub {
+        # deactivate *all* settings first
+        $rs->active->deactivate;
 
-    # store new settings
-    $user->related_resultset('user_settings')
-        ->populate([ pairmap { +{ name => $a, value => to_json($b) } } $input->%* ]);
+        # store new settings
+        $rs->populate([ pairmap { +{ name => $a, value => to_json($b) } } $input->%* ]);
+    });
 
     $c->status(204);
 }
@@ -116,12 +117,13 @@ sub set_setting ($c) {
     my $value = $input->{$key};
     return $c->status(400, { error => 'Setting key in request object must match name in the URL (\''.$key.'\')' }) if not $value;
 
-    my $user = $c->stash('target_user');
+    my $settings_rs = $c->db_user_settings->search({ user_id => $c->stash('target_user')->id });
 
-    # FIXME? we should have a unique constraint on user_id+name
-    # rather than creating additional rows.
-    $user->search_related('user_settings', { name => $key })->active->deactivate;
-    $user->create_related('user_settings', { name => $key, value => to_json($value) });
+    $c->schema->txn_do(sub {
+        $settings_rs->search({ name => $key })->active->deactivate;
+        $settings_rs->create({ name => $key, value => to_json($value) });
+    });
+
     return $c->status(204);
 }
 
