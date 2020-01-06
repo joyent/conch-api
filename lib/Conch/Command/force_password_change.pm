@@ -52,7 +52,7 @@ sub run ($self, @opts) {
 
     my $user_count = $users_rs->update({ force_password_change => 1 });
     my $token_count = $token_rs->update({ expires => \'now()' });
-    say $user_count, ' users updated.', $token_count, ' session tokens expired.';
+    say 0+$user_count, ' users updated; ', 0+$token_count, ' session tokens expired.';
 }
 
 1;
