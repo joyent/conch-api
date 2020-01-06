@@ -42,19 +42,29 @@ sub run ($self, @opts) {
     my $samsung_org = $self->app->db_organizations->find({ name => 'Samsung' });
     my $dcops_org = $self->app->db_organizations->find({ name => 'DCOps' });
 
-    my $spares = $self->app->db_builds->find_or_create({
-        name => 'spares',
-        description => 'holding area for entities not yet part of an active build',
-        user_build_roles => [{
-            user_id => $admin_id,
-            role => 'admin',
-        }],
-        organization_build_roles => [
-            { organization_id => $joyent_org->id, role => 'ro' },
-            { organization_id => $samsung_org->id, role => 'ro' },
-            { organization_id => $dcops_org->id, role => 'rw' },
-        ],
-    });
+    my $spares = $self->app->db_builds
+        ->prefetch([ qw(user_build_roles organization_build_roles) ])
+        ->find({ name => 'spares' });
+    if (not $spares) {
+        $spares = $self->app->db_builds->create({
+            name => 'spares',
+            description => 'holding area for entities not yet part of an active build',
+            user_build_roles => [{
+                user_id => $admin_id,
+                role => 'admin',
+            }],
+            organization_build_roles => [
+                { organization_id => $joyent_org->id, role => 'ro' },
+                { organization_id => $samsung_org->id, role => 'ro' },
+                { organization_id => $dcops_org->id, role => 'rw' },
+            ],
+        });
+    }
+    else {
+        $spares->add_to_organization_build_roles({ organization_id => $joyent_org->id, role => 'ro' }) if not grep $_->organization_id eq $joyent_org->id, $spares->organization_build_roles;
+        $spares->add_to_organization_build_roles({ organization_id => $samsung_org->id, role => 'ro' }) if not grep $_->organization_id eq $samsung_org->id, $spares->organization_build_roles;
+        $spares->add_to_organization_build_roles({ organization_id => $dcops_org->id, role => 'rw' }) if not grep $_->organization_id eq $dcops_org->id, $spares->organization_build_roles;
+    }
 
     my $workspace_rs = $self->app->db_workspaces;
 
@@ -63,7 +73,9 @@ sub run ($self, @opts) {
             my $workspace = $workspace_rs->find({ name => $workspace_name });
             die 'cannot find workspace '.$workspace_name if not $workspace;
 
-            my $build = $self->app->db_builds->find({ name => $workspace_name });
+            my $build = $self->app->db_builds
+                ->prefetch('organization_build_roles')
+                ->find({ name => $workspace_name });
 
             if (not $build) {
                 # find the earliest create date of each rack and device in the workspace and
@@ -86,26 +98,12 @@ sub run ($self, @opts) {
                     ->hri
                     ->get_column('created');
 
-                # some of these may be collapsed into organization_build_role entries
-                # later on, but for now, just copy all user_workspace_role -> user_build_role
-                my @user_roles = $self->app->db_workspaces
-                    ->and_workspaces_above($workspace->id)
-                    ->search_related('user_workspace_roles', { user_id => { '!=' => $admin_id } })
-                    ->columns([ 'user_id', { role => { max => 'role' } } ])
-                    ->group_by(['user_id'])
-                    ->hri
-                    ->all;
-
                 $build = $self->app->db_builds->create({
                     name => $workspace_name,
                     description => $workspace->description,
                     started => minstr($device_created_rs->single, $rack_created_rs->single),
                     user_build_roles => [
-                        {
-                            user_id => $admin_id,
-                            role => 'admin',
-                        },
-                        @user_roles,
+                        { user_id => $admin_id, role => 'admin' },
                     ],
                     organization_build_roles => [
                         { organization_id => $joyent_org->id, role => 'ro' },
@@ -113,6 +111,11 @@ sub run ($self, @opts) {
                         { organization_id => $dcops_org->id, role => 'rw' },
                     ],
                 });
+            }
+            else {
+                $build->add_to_organization_build_roles({ organization_id => $joyent_org->id, role => 'ro' }) if not grep $_->organization_id eq $joyent_org->id, $build->organization_build_roles;
+                $build->add_to_organization_build_roles({ organization_id => $samsung_org->id, role => 'ro' }) if not grep $_->organization_id eq $samsung_org->id, $build->organization_build_roles;
+                $build->add_to_organization_build_roles({ organization_id => $dcops_org->id, role => 'rw' }) if not grep $_->organization_id eq $dcops_org->id, $build->organization_build_roles;
             }
 
             # now put all of the workspace's racks into the build, if they weren't already in
@@ -130,6 +133,10 @@ sub run ($self, @opts) {
                 )->update({ build_id => $build->id });
         });
     }
+
+    # all remaining racks without a build are moved to the 'spares' build
+    $self->app->db_racks->search({ build_id => undef })
+        ->update({ build_id => $spares->id });
 }
 
 1;
