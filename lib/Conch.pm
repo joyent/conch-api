@@ -115,6 +115,7 @@ Helper method for setting the response status code and json content.
 
         if (not $payload) {
             # no content - hopefully we set an appropriate response code (e.g. 204, 30x)
+            # (note that before_render will not run!)
             $c->rendered($code);
             return 0;
         }
@@ -178,6 +179,7 @@ Helper method for setting the response status code and json content.
 
     $self->plugin(NYTProf => $self->config) if $self->feature('nytprof');
     $self->plugin('Conch::Plugin::Rollbar', $self->config) if $self->feature('rollbar');
+    $self->plugin('Conch::Plugin::DeprecatedAction', $self->config);
 
 =head2 startup_time
 

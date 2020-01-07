@@ -101,6 +101,7 @@ subtest 'device totals' => sub {
 
     $t->get_ok("/workspace/$global_ws_id/device-totals")
         ->status_is(200)
+        ->header_is('X-Deprecated', 'this endpoint is deprecated and will be removed in api v3.1')
         ->json_schema_is('DeviceTotals')
         ->json_is({
             all => [
@@ -121,6 +122,7 @@ subtest 'device totals' => sub {
 
     $t->get_ok("/workspace/$global_ws_id/device-totals.circ")
         ->status_is(200)
+        ->header_is('X-Deprecated', 'this endpoint is deprecated and will be removed in api v3.1')
         ->json_schema_is('DeviceTotalsCirconus')
         ->json_is({
             'Switch Vendor' => {
