@@ -20,7 +20,7 @@ See ["schema"](#schema); can be used interchangeably with it.
 ## ro\_schema
 
 Provides (guaranteed) read-only access to the database via [DBIx::Class](https://metacpan.org/pod/DBIx::Class).  Returns a
-[Conch::DB](/modules/Conch::DB) object that persists for the lifetime of the application.
+[Conch::DB](/modules/Conch::DB) object that persists for the lifetime of the request (**not the application**).
 
 Note that because of the use of `AutoCommit => 0`, database errors must be explicitly
 cleared with `->txn_rollback`; see ["ReadOnly-(boolean)" in DBD::Pg](https://metacpan.org/pod/DBD::Pg#ReadOnly--boolean).
