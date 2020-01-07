@@ -41,7 +41,7 @@ that persists for the lifetime of the application.
     my $_rw_schema;
     $app->helper(schema => sub ($c) {
         return $_rw_schema if $_rw_schema;
-        my $app_name = $c->app->moniker.'-'.$c->version_tag.' ('.$$.')';
+        my $app_name = join(' ', $c->app->moniker, ($ARGV[0] // ()), $c->version_tag, '('.$$.')');
         $_rw_schema = Conch::DB->connect(
             $db_credentials->@{qw(dsn username password)},
             +{
@@ -69,7 +69,7 @@ L<Conch::DB> object that persists for the lifetime of the application.
     my $_ro_schema;
     $app->helper(ro_schema => sub ($c) {
         return $_ro_schema if $_ro_schema;
-        my $app_name = $c->app->moniker.'-'.$c->version_tag.' ('.$$.')';
+        my $app_name = join(' ', $c->app->moniker, ($ARGV[0] // ()), $c->version_tag, '('.$$.')');
         $_ro_schema = Conch::DB->connect(
             $db_credentials->@{qw(dsn ro_username ro_password)},
             +{
