@@ -1,6 +1,6 @@
 # NAME
 
-fix\_usernames - fixes old usernames in the database
+fix\_usernames - fixes old usernames in the database (one-off for v3 launch)
 
 # SYNOPSIS
 

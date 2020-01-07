@@ -30,6 +30,10 @@ Conch-specific commands are:
 
     Clean up unnecessary user\_workspace\_role entries
 
+- [copy\_user\_data](../modules/Conch%3A%3ACommand%3A%3Acopy_user_data)
+
+    Copy user records and authentication tokens between databases
+
 - [create\_token](../modules/Conch%3A%3ACommand%3A%3Acreate_token)
 
     Create a new application token
@@ -49,6 +53,10 @@ Conch-specific commands are:
 - [merge\_validation\_results](../modules/Conch%3A%3ACommand%3A%3Amerge_validation_results)
 
     Collapse duplicate validation\_result rows together
+
+- [new\_organizations](../modules/Conch%3A%3ACommand%3A%3Anew_organizations)
+
+    create new organization data
 
 - [thin\_device\_reports](../modules/Conch%3A%3ACommand%3A%3Athin_device_reports)
 
