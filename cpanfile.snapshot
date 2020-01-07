@@ -3654,6 +3654,17 @@ DISTRIBUTIONS
     requirements:
       ExtUtils::MakeMaker 0
       Test::More 0
+  Time-Local-1.28
+    pathname: D/DR/DROLSKY/Time-Local-1.28.tar.gz
+    provides:
+      Time::Local 1.28
+    requirements:
+      Carp 0
+      Exporter 0
+      ExtUtils::MakeMaker 0
+      constant 0
+      parent 0
+      strict 0
   Time-Moment-0.44
     pathname: C/CH/CHANSEN/Time-Moment-0.44.tar.gz
     provides:
