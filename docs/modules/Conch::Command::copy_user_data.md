@@ -28,7 +28,7 @@ pg_dump -U conch  --inserts -t user_account -t user_session_token conch | psql -
 carton exec bin/conch copy_user_data --from conch_staging_$(date '+%Y%m%d')_user_bak --to conch_prod_$(date '+%Y%m%d')
 
 carton exec hypnotoad -s bin/conch
-psql -U postgres --command="rename database conch conch_staging_$(date '+%Y%m%d')_bak; rename database conch_prod_$(date '+%Y%m%d') conch"
+psql -U postgres --command="alter database conch rename to conch_staging_$(date '+%Y%m%d')_bak; alter database conch_prod_$(date '+%Y%m%d') rename to conch"
 carton exec hypnotoad bin/conch
 ```
 
