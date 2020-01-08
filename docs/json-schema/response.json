@@ -59,11 +59,33 @@
           },
           "type" : "object"
         },
+        "device_phases" : {
+          "additionalProperties" : {
+            "$ref" : "common.json#/definitions/non_negative_integer"
+          },
+          "maxProperties" : 5,
+          "minProperties" : 5,
+          "propertyNames" : {
+            "$ref" : "common.json#/definitions/device_phase"
+          },
+          "type" : "object"
+        },
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "rack_phases" : {
+          "additionalProperties" : {
+            "$ref" : "common.json#/definitions/non_negative_integer"
+          },
+          "maxProperties" : 5,
+          "minProperties" : 5,
+          "propertyNames" : {
+            "$ref" : "common.json#/definitions/device_phase"
+          },
+          "type" : "object"
         },
         "started" : {
           "oneOf" : [

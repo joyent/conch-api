@@ -12,8 +12,11 @@ All routes require authentication.
 
 ### `GET /build`
 
-Takes one optional query parameter `device_health` (defaults to false) to include
-correlated counts of devices having each health value.
+Supports the following optional query parameters:
+
+- `with_device_health` - includes correlated counts of devices having each health value
+- `with_device_phases` - includes correlated counts of devices having each phase value
+- `with_rack_phases` - includes correlated counts of racks having each phase value
 
 - Response: response.yaml#/Builds
 
@@ -25,8 +28,11 @@ correlated counts of devices having each health value.
 
 ### `GET /build/:build_id_or_name`
 
-Takes one optional query parameter `device_health` (defaults to false) to include counts
-of devices having each health value.
+Supports the following optional query parameters:
+
+- `with_device_health` - includes correlated counts of devices having each health value
+- `with_device_phases` - includes correlated counts of devices having each phase value
+- `with_rack_phases` - includes correlated counts of racks having each phase value
 
 - Requires system admin authorization or the read-only role on the build
 - Response: response.yaml#/Build

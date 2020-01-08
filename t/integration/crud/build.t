@@ -763,7 +763,7 @@ $t->get_ok('/build/our second build/device?active_minutes=5')
     ->json_schema_is('Devices')
     ->json_is($devices);
 
-$t->get_ok('/build?with_device_health')
+$t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases')
     ->status_is(200)
     ->json_schema_is('Builds')
     ->json_is([
@@ -775,6 +775,20 @@ $t->get_ok('/build?with_device_health')
                 unknown => 0,
                 pass => 0,
             },
+            device_phases => {
+                integration => 0,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
+            rack_phases => {
+                integration => 0,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
         },
         {
             $build2->%*,
@@ -784,10 +798,24 @@ $t->get_ok('/build?with_device_health')
                 unknown => 1,
                 pass => 0,
             },
+            device_phases => {
+                integration => 1,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
+            rack_phases => {
+                integration => 0,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
         },
     ]);
 
-$t->get_ok('/build/our second build?with_device_health')
+$t->get_ok('/build/our second build?with_device_health&with_device_phases&with_rack_phases')
     ->status_is(200)
     ->json_schema_is('Build')
     ->json_is({
@@ -797,6 +825,20 @@ $t->get_ok('/build/our second build?with_device_health')
             fail => 0,
             unknown => 1,
             pass => 0,
+        },
+        device_phases => {
+            integration => 1,
+            installation => 0,
+            production => 0,
+            diagnostics => 0,
+            decommissioned => 0,
+        },
+        rack_phases => {
+            integration => 0,
+            installation => 0,
+            production => 0,
+            diagnostics => 0,
+            decommissioned => 0,
         },
     });
 
@@ -994,6 +1036,58 @@ $t->get_ok('/build/our second build/rack')
         superhashof({ id => $rack2->id }),
     ]);
 
+$t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases')
+    ->status_is(200)
+    ->json_schema_is('Builds')
+    ->json_is([
+        {
+            $build->%*,
+            device_health => {
+                error => 0,
+                fail => 0,
+                unknown => 1,
+                pass => 0,
+            },
+            device_phases => {
+                integration => 1,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
+            rack_phases => {
+                integration => 1,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
+        },
+        {
+            $build2->%*,
+            device_health => {
+                error => 0,
+                fail => 0,
+                unknown => 1,
+                pass => 0,
+            },
+            device_phases => {
+                integration => 1,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
+            rack_phases => {
+                integration => 1,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
+        },
+    ]);
+
 $t->post_ok('/build/my first build', json => { completed => undef })
     ->status_is(303)
     ->location_is('/build/'.$build->{id})
@@ -1013,6 +1107,8 @@ $t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) 
     ->status_is(303)
     ->location_is('/build/'.$build->{id})
     ->log_info_is("build $build->{id} (my first build) completed; 0 users had role converted from rw to ro");
+
+$build->{completed} = $now->minus_days(1)->to_string;
 
 $device1->update({ phase => 'production' });
 
@@ -1041,6 +1137,58 @@ $t->get_ok('/build/my first build/device?phase_earlier_than=')
             (map +('build_'.$_ => $build->{$_}), qw(id name)),
             (map +($_ => undef), qw(rack_id rack_name rack_unit_start)),
         }),
+    ]);
+
+$t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases')
+    ->status_is(200)
+    ->json_schema_is('Builds')
+    ->json_is([
+        {
+            $build->%*,
+            device_health => {
+                error => 0,
+                fail => 0,
+                unknown => 0,
+                pass => 1,
+            },
+            device_phases => {
+                integration => 1,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
+            rack_phases => {
+                integration => 1,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
+        },
+        {
+            $build2->%*,
+            device_health => {
+                error => 0,
+                fail => 0,
+                unknown => 1,
+                pass => 0,
+            },
+            device_phases => {
+                integration => 1,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
+            rack_phases => {
+                integration => 1,
+                installation => 0,
+                production => 0,
+                diagnostics => 0,
+                decommissioned => 0,
+            },
+        },
     ]);
 
 $device1->update({ phase => 'integration' });

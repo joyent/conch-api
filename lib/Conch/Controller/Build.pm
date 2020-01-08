@@ -22,7 +22,7 @@ Response uses the Builds json schema.
 =cut
 
 sub get_all ($c) {
-    my $params = $c->validate_query_params('WithDeviceHealth');
+    my $params = $c->validate_query_params('WithDeviceRackData');
     return if not $params;
 
     my $rs = $c->db_builds
@@ -30,9 +30,13 @@ sub get_all ($c) {
         ->prefetch([ { user_build_roles => 'user_account' }, 'completed_user' ])
         ->order_by([qw(build.name user_account.name)]);
 
-    $rs = $rs->with_device_health_counts
-        if !exists $params->{with_device_health} ? 0
-           : length $params->{with_device_health} ? $params->{with_device_health} : 1;
+    foreach my $type (qw(device_health device_phase rack_phase)) {
+        my $method = 'with_'.$type.'_counts';
+        my $param = 'with_'.$type.($type =~ /phase$/ ? 's' : '');
+        $rs = $rs->$method
+            if !exists $params->{$param} ? 0
+               : length $params->{$param} ? $params->{$param} : 1;
+    }
 
     return $c->status(200, [ $rs->all ]) if $c->is_system_admin;
 
@@ -152,7 +156,7 @@ Response uses the Build json schema.
 =cut
 
 sub get ($c) {
-    my $params = $c->validate_query_params('WithDeviceHealth');
+    my $params = $c->validate_query_params('WithDeviceRackData');
     return if not $params;
 
     my $rs = $c->stash('build_rs')
@@ -160,9 +164,13 @@ sub get ($c) {
         ->prefetch([ { user_build_roles => 'user_account' }, 'completed_user' ])
         ->order_by('user_account.name');
 
-    $rs = $rs->with_device_health_counts
-        if !exists $params->{with_device_health} ? 0
-           : length $params->{with_device_health} ? $params->{with_device_health} : 1;
+    foreach my $type (qw(device_health device_phase rack_phase)) {
+        my $method = 'with_'.$type.'_counts';
+        my $param = 'with_'.$type.($type =~ /phase$/ ? 's' : '');
+        $rs = $rs->$method
+            if !exists $params->{$param} ? 0
+               : length $params->{$param} ? $params->{$param} : 1;
+    }
 
     $c->status(200, ($rs->all)[0]);
 }

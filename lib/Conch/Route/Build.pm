@@ -112,8 +112,17 @@ All routes require authentication.
 
 =head3 C<GET /build>
 
-Takes one optional query parameter C<< device_health >> (defaults to false) to include
-correlated counts of devices having each health value.
+Supports the following optional query parameters:
+
+=over 4
+
+=item * C<with_device_health> - includes correlated counts of devices having each health value
+
+=item * C<with_device_phases> - includes correlated counts of devices having each phase value
+
+=item * C<with_rack_phases> - includes correlated counts of racks having each phase value
+
+=back
 
 =over 4
 
@@ -135,8 +144,17 @@ correlated counts of devices having each health value.
 
 =head3 C<GET /build/:build_id_or_name>
 
-Takes one optional query parameter C<< device_health >> (defaults to false) to include counts
-of devices having each health value.
+Supports the following optional query parameters:
+
+=over 4
+
+=item * C<with_device_health> - includes correlated counts of devices having each health value
+
+=item * C<with_device_phases> - includes correlated counts of devices having each phase value
+
+=item * C<with_rack_phases> - includes correlated counts of racks having each phase value
+
+=back
 
 =over 4
 

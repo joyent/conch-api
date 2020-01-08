@@ -38,7 +38,7 @@ definitions:
       - unknown
       - pass
   device_phase:
-    description: corresponds to device_phase_enum in the database
+    description: corresponds to device_phase_enum in the database (also used for racks)
     type: string
     enum:
       - integration

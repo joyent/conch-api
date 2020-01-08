@@ -2008,6 +2008,22 @@ definitions:
           $ref: common.yaml#/definitions/device_health
         additionalProperties:
           $ref: common.yaml#/definitions/non_negative_integer
+      device_phases:
+        type: object
+        minProperties: 5
+        maxProperties: 5
+        propertyNames:
+          $ref: common.yaml#/definitions/device_phase
+        additionalProperties:
+          $ref: common.yaml#/definitions/non_negative_integer
+      rack_phases:
+        type: object
+        minProperties: 5
+        maxProperties: 5
+        propertyNames:
+          $ref: common.yaml#/definitions/device_phase
+        additionalProperties:
+          $ref: common.yaml#/definitions/non_negative_integer
   Builds:
     type: array
     uniqueItems: true

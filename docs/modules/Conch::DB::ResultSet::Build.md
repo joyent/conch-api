@@ -27,8 +27,18 @@ Returns a boolean.
 
 ## with\_device\_health\_counts
 
-Modifies the resultset to add on a column named `device_health`) containing an array of arrays
+Modifies the resultset to add on a column named `device_health` containing an array of arrays
 of correlated counts of device.health values for each build.
+
+## with\_device\_phase\_counts
+
+Modifies the resultset to add on a column named `device_phases` containing an array of arrays
+of correlated counts of device.phase values for each build.
+
+## with\_rack\_phase\_counts
+
+Modifies the resultset to add on a column named `rack_phases` containing an array of arrays
+of correlated counts of rack.phase values for each build.
 
 # LICENSING
 
