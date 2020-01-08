@@ -1907,7 +1907,55 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: /definitions/Organization
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - description
+        - created
+        - admins
+        - builds
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        name:
+          $ref: common.yaml#/definitions/mojo_standard_placeholder
+        description:
+          oneOf:
+            - type: 'null'
+            - type: string
+        created:
+          type: string
+          format: date-time
+        admins:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            $ref: /definitions/UserTerse
+        builds:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - name
+              - description
+              - role
+            properties:
+              id:
+                $ref: common.yaml#/definitions/uuid
+              name:
+                $ref: common.yaml#/definitions/mojo_standard_placeholder
+              description:
+                oneOf:
+                  - type: string
+                  - type: 'null'
+              role:
+                $ref: common.yaml#/definitions/role
   Build:
     type: object
     additionalProperties: false

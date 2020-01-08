@@ -1880,7 +1880,81 @@
     },
     "Organizations" : {
       "items" : {
-        "$ref" : "/definitions/Organization"
+        "additionalProperties" : false,
+        "properties" : {
+          "admins" : {
+            "items" : {
+              "$ref" : "/definitions/UserTerse"
+            },
+            "minItems" : 1,
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "builds" : {
+            "items" : {
+              "additionalProperties" : false,
+              "properties" : {
+                "description" : {
+                  "oneOf" : [
+                    {
+                      "type" : "string"
+                    },
+                    {
+                      "type" : "null"
+                    }
+                  ]
+                },
+                "id" : {
+                  "$ref" : "common.json#/definitions/uuid"
+                },
+                "name" : {
+                  "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+                },
+                "role" : {
+                  "$ref" : "common.json#/definitions/role"
+                }
+              },
+              "required" : [
+                "id",
+                "name",
+                "description",
+                "role"
+              ],
+              "type" : "object"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "created" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "description" : {
+            "oneOf" : [
+              {
+                "type" : "null"
+              },
+              {
+                "type" : "string"
+              }
+            ]
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "name" : {
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+          }
+        },
+        "required" : [
+          "id",
+          "name",
+          "description",
+          "created",
+          "admins",
+          "builds"
+        ],
+        "type" : "object"
       },
       "type" : "array",
       "uniqueItems" : true

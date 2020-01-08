@@ -6,8 +6,10 @@ Conch::Controller::Organization
 
 ## get\_all
 
-If the user is a system admin, retrieve a list of all active organizations in the database;
-otherwise, limits the list to those organizations of which the user is a member.
+Retrieve a list of organization details (including each organization's admins).
+
+If the user is a system admin, all active organizations are retrieved; otherwise, limits the
+list to those organizations of which the user is a member.
 
 Response uses the Organizations json schema.
 
@@ -28,7 +30,7 @@ continue; otherwise the user must have the 'admin' role.
 
 ## get
 
-Get the details of a single organization.
+Get the details of a single organization, including its members.
 Requires the 'admin' role on the organization.
 
 Response uses the Organization json schema.
