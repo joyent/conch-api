@@ -15,7 +15,8 @@ Conch::Controller::HardwareVendor
 =head2 find_hardware_vendor
 
 Chainable action that uses the C<hardware_vendor_id_or_name> value provided in the stash
-(usually via the request URL) to look up a build, and stashes the result in C<hardware_vendor>.
+(usually via the request URL) to look up a hardware vendor, and stashes the result in
+C<hardware_vendor>.
 
 =cut
 

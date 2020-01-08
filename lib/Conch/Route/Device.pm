@@ -148,13 +148,13 @@ Supports the following query parameters:
 
 =over 4
 
-=item * C</device?hostname=:hostname>
+=item * C<hostname=:hostname>
 
-=item * C</device?mac=:macaddr>
+=item * C<mac=:macaddr>
 
-=item * C</device?ipaddr=:ipaddr>
+=item * C<ipaddr=:ipaddr>
 
-=item * C</device?:setting_key=:setting_value>
+=item * C<:setting_key=:setting_value>
 
 =back
 

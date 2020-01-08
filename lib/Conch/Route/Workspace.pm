@@ -141,9 +141,9 @@ Accepts the following optional query parameters:
 
 =item * C<< validated=<1|0> >> show only devices where the C<validated> attribute is set/not-set
 
-=item * C<< health=<value> >> show only devices with the health matching the provided value
+=item * C<health=:value> show only devices with the health matching the provided value
 
-=item * C<active_minutes=X> show only devices which have reported within the last X minutes (this is different from all active devices)
+=item * C<active_minutes=:X> show only devices which have reported within the last X minutes (this is different from all active devices)
 
 =item * C<ids_only=1> only return device IDs, not full device details
 

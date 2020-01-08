@@ -89,7 +89,7 @@ sub create ($c) {
 =head2 find_organization
 
 Chainable action that uses the C<organization_id_or_name> value provided in the stash (usually
-via the request URL) to look up a build, and stashes the query to get to it in
+via the request URL) to look up an organization, and stashes the query to get to it in
 C<organization_rs>.
 
 If C<require_role> is provided, it is used as the minimum required role for the user to

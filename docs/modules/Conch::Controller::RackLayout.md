@@ -7,7 +7,7 @@ Conch::Controller::RackLayout
 ## find\_rack\_layout
 
 Chainable action that uses the `layout_id` value provided in the stash (usually via the
-request URL) to look up a build, and stashes the query to get to it in `layout_rs`.
+request URL) to look up a layout, and stashes the query to get to it in `layout_rs`.
 
 ## create
 

@@ -28,10 +28,10 @@ using a relay that registered with that user's credentials.
 
 Supports the following query parameters:
 
-- `/device?hostname=:hostname`
-- `/device?mac=:macaddr`
-- `/device?ipaddr=:ipaddr`
-- `/device?:setting_key=:setting_value`
+- `hostname=:hostname`
+- `mac=:macaddr`
+- `ipaddr=:ipaddr`
+- `:setting_key=:setting_value`
 
 The value of `:setting_key` and `:setting_value` are a device setting key and
 value. For information on how to create a setting key or set its value see
