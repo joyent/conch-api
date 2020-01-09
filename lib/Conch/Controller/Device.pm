@@ -170,7 +170,7 @@ sub get ($c) {
             $c->stash('device_rs')
                 ->related_resultset('device_disks')
                 ->active
-                ->order_by('serial_number')
+                ->order_by('slot')
                 ->all
         ];
     }
