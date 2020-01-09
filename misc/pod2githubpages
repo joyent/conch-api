@@ -2,6 +2,7 @@
 use v5.26;
 use strict;
 use warnings;
+use feature 'unicode_strings';
 
 # This is like pod2github or pod2markdown, but takes a list of filename(s)
 # as arguments and outputs markdown documents in the right location(s)
@@ -30,6 +31,15 @@ around 'Pod::Markdown::format_perldoc_url' => sub {
     if ($url =~ /^\Q${\ $self->perldoc_url_prefix }\E/ and -x "bin/$'") {
         $url = '../scripts/'.$';
     }
+
+    if ($url =~ /#/) {
+        my ($base, $fragment) = split(/#/, $url);
+        my $new_fragment = lc($_[1])    # lower-case
+            =~ s/[^\w -]//gr            # strip verything but word chars, space and -
+            =~ tr/ /-/r;                # spaces become -
+        $url = $base.'#'.$new_fragment;
+    }
+
     return $url;
 };
 
