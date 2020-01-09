@@ -20,6 +20,7 @@ copy_user_data - copy user data (user records and authentication tokens) between
 
 Use this script after restoring a database backup to a separate database, before swapping it into place to go live. e.g.:
 
+    : on db server
     psql -U postgres --command="create database conch_prod_$(date '+%Y%m%d) owner conch"
     pg_restore -U postgres -d conch_prod_$(date '+%Y%m%d') -j 3 -v /path/to/$(date '+%Y-%m-%d')T00:00:00Z; date
 
@@ -28,9 +29,14 @@ Use this script after restoring a database backup to a separate database, before
     pg_dump -U conch  --inserts -t user_account -t user_session_token conch | psql -U conch conch_staging_$(date '+%Y%m%d')_user_bak
     carton exec bin/conch copy_user_data --from conch_staging_$(date '+%Y%m%d')_user_bak --to conch_prod_$(date '+%Y%m%d')
 
-    carton exec hypnotoad -s bin/conch
-    psql -U postgres --command="rename database conch conch_staging_$(date '+%Y%m%d')_bak; rename database conch_prod_$(date '+%Y%m%d') conch"
-    carton exec hypnotoad bin/conch
+    : on api server
+    svcadm disable conch
+
+    : on db server
+    psql -U postgres --command="alter database conch rename to conch_staging_$(date '+%Y%m%d')_bak; alter database conch_prod_$(date '+%Y%m%d') rename to conch"
+
+    : on api server
+    svcadm enable conch
 
 =cut
 

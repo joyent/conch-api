@@ -17,7 +17,7 @@ helpers, routes and everything else.
 
 ## startup\_time
 
-Stores a [Conch::Time](/modules/Conch%3A%3ATime) instance representing the time the server started accepting requests.
+Stores a [Conch::Time](/modules/Conch::Time) instance representing the time the server started accepting requests.
 
 # LICENSING
 
