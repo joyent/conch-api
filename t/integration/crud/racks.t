@@ -607,5 +607,28 @@ $t->get_ok($_)
         '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$rack->name.'/assignment',
         '/room/'.$room->alias.'/rack/'.$rack->name.'/assignment';
 
+$t->get_ok('/rack/'.$rack->id.'/layout')
+    ->status_is(200)
+    ->location_is('/rack/'.$rack->id.'/layout')
+    ->json_schema_is('RackLayouts');
+my $layouts = $t->tx->res->json;
+
+$t->get_ok($_)
+    ->status_is(200)
+    ->location_is('/layout/'.$layouts->[0]{id})
+    ->json_schema_is('RackLayout')
+    ->json_is($layouts->[0])
+    ->log_debug_is('Found rack layout '.(split('/'))[-1].' in rack id '.$rack->id)
+    foreach map +(
+        '/rack/'.$rack->id.'/layout/'.$layouts->[0]{$_},
+        '/rack/'.$room->vendor_name.':'.$rack->name.'/layout/'.$layouts->[0]{$_},
+        '/room/'.$room->id.'/rack/'.$rack->id.'/layout/'.$layouts->[0]{$_},
+        '/room/'.$room->id.'/rack/'.$room->vendor_name.':'.$rack->name.'/layout/'.$layouts->[0]{id},
+        '/room/'.$room->id.'/rack/'.$rack->name.'/layout/'.$layouts->[0]{$_},
+        '/room/'.$room->alias.'/rack/'.$rack->id.'/layout/'.$layouts->[0]{$_},
+        '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$rack->name.'/layout/'.$layouts->[0]{$_},
+        '/room/'.$room->alias.'/rack/'.$rack->name.'/layout/'.$layouts->[0]{$_},
+    ), qw(id rack_unit_start);
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

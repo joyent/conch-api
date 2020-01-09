@@ -72,10 +72,19 @@ $t->get_ok('/layout')
 my $initial_layouts = $t->tx->res->json;
 my $layout_width_4 = $initial_layouts->[2];    # start 11, width 4.
 
-$t->get_ok("/layout/$initial_layouts->[0]{id}")
+$t->get_ok($_)
     ->status_is(200)
     ->json_schema_is('RackLayout')
-    ->json_is($initial_layouts->[0]);
+    ->json_is($initial_layouts->[0])
+    ->log_debug_is('Found rack layout '.(split('/'))[-1].((split('/'))[1] eq 'rack' ? ' in rack id '.(split('/'))[2] : ''))
+    foreach
+        '/layout/'.$initial_layouts->[0]{id},
+        '/rack/'.$racks[0]->id.'/layout/'.$initial_layouts->[0]{id},
+        '/rack/'.$racks[0]->id.'/layout/1';
+
+$t->get_ok('/layout/1')
+    ->status_is(400)
+    ->json_is({ error => 'cannot look up layout by rack_unit_start without qualifying by rack' });
 
 $t->post_ok('/layout', json => { wat => 'wat' })
     ->status_is(400)

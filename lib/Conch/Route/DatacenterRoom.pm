@@ -55,6 +55,9 @@ sub routes {
     # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment
     # DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment
     # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/phase?rack_only=<0|1>
+    # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
+    # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
+    # DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
     Conch::Route::Rack->one_rack_routes(
         $room->under('/:datacenter_room_id_or_alias')
             ->to('#find_datacenter_room', require_role => 'none')
@@ -239,6 +242,18 @@ only the rack's phase, or all the rack's devices' phases as well.
 =item * Response: Redirect to the updated rack
 
 =back
+
+=head3 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+
+See L<Conch::Route::RackLayout/C<GET /layout/:layout_id>>.
+
+=head3 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+
+See L<Conch::Route::RackLayout/C<POST /layout/:layout_id>>.
+
+=head3 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+
+See L<Conch::Route::RackLayout/C<DELETE /layout/:layout_id>>.
 
 =head1 LICENSING
 

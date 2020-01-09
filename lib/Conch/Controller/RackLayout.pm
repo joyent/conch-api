@@ -3,6 +3,7 @@ package Conch::Controller::RackLayout;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use List::Util 'any';
+use Conch::UUID 'is_uuid';
 
 =pod
 
@@ -14,19 +15,46 @@ Conch::Controller::RackLayout
 
 =head2 find_rack_layout
 
-Chainable action that uses the C<layout_id> value provided in the stash (usually via the
-request URL) to look up a layout, and stashes the query to get to it in C<layout_rs>.
+Chainable action that uses the C<layout_id_or_rack_unit_start> value provided in the stash
+(usually via the request URL) to look up a layout, and stashes the query to get to it in
+C<layout_rs>.
 
 =cut
 
 sub find_rack_layout ($c) {
-    my $layout_rs = $c->db_rack_layouts->search({ 'rack_layout.id' => $c->stash('layout_id') });
+    my $identifier = $c->stash('layout_id_or_rack_unit_start');
+
+    # .../rack/.../layout/:id -- ok
+    # .../rack/.../layout/:rack_unit_start -- ok
+    # /layout/:id -- ok
+    # /layout/:rack_unit_start -- not ok
+
+    my $layout_rs;
+    if (is_uuid($identifier)) {
+        $layout_rs = $c->db_rack_layouts->search({
+            $c->stash('rack_id') ? ( 'rack_layout.rack_id' => $c->stash('rack_id') ) : (),
+            'rack_layout.id' => $identifier,
+        });
+    }
+    elsif ($identifier =~ /^[0-9]+$/) {
+        return $c->status(400, { error => 'cannot look up layout by rack_unit_start without qualifying by rack' }) if not $c->stash('rack_id');
+        $layout_rs = $c->db_rack_layouts->search({
+            'rack_layout.rack_id' => $c->stash('rack_id'),
+            'rack_layout.rack_unit_start' => $identifier,
+        });
+    }
+    else {
+        return $c->status(400, { error => 'invalid layout identifier '.$identifier });
+    }
+
     if (not $layout_rs->exists) {
-        $c->log->debug('Could not find rack layout '.$c->stash('layout_id'));
+        $c->log->debug('Could not find rack layout '.$identifier
+            .($c->stash('rack_id') ? ' in rack id '.$c->stash('rack_id') : ''));
         return $c->status(404);
     }
 
-    $c->log->debug('Found rack layout '.$c->stash('layout_id'));
+    $c->log->debug('Found rack layout '.$identifier
+        .($c->stash('rack_id') ? ' in rack id '.$c->stash('rack_id') : ''));
     $c->stash('rack_layout_rs', $layout_rs);
     return 1;
 }
@@ -96,11 +124,14 @@ Response uses the RackLayout json schema.
 =cut
 
 sub get ($c) {
-    my $rs = $c->stash('rack_layout_rs')
+    my $layout = $c->stash('rack_layout_rs')
         ->with_rack_unit_size
         ->with_rack_name
-        ->with_sku;
-    $c->status(200, $rs->single);
+        ->with_sku
+        ->single;
+
+    $c->res->headers->location('/layout/'.$layout->id);
+    $c->status(200, $layout);
 }
 
 =head2 get_all
@@ -229,7 +260,8 @@ sub delete ($c) {
     }
 
     $c->stash('rack_layout_rs')->delete;
-    $c->log->debug('Deleted rack layout '.$c->stash('layout_id'));
+    $c->log->debug('Deleted rack layout '.$c->stash('layout_id_or_rack_unit_start')
+        .($c->stash('rack_id') ? ' in rack id '.$c->stash('rack_id') : ''));
     return $c->status(204);
 }
 

@@ -27,6 +27,9 @@ sub routes {
     # POST /rack
     $rack_with_system_admin->post('/')->to('#create');
 
+    # for these endpoints, rack name must be a long name (room_vendor_name:rack_name) --
+    # short name is only supported when room qualifier is included (see /room/* endpoints)
+
     # GET    /rack/:rack_id_or_name
     # POST   /rack/:rack_id_or_name
     # DELETE /rack/:rack_id_or_name
@@ -36,6 +39,9 @@ sub routes {
     # POST   /rack/:rack_id_or_name/assignment
     # DELETE /rack/:rack_id_or_name/assignment
     # POST   /rack/:rack_id_or_name/phase?rack_only=<0|1>
+    # GET    /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
+    # POST   /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
+    # DELETE /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
     $class->one_rack_routes($rack);
 }
 
@@ -69,6 +75,11 @@ sub one_rack_routes ($class, $r) {
 
     # POST .../rack/:rack_id_or_name/phase?rack_only=<0|1>
     $one_rack->post('/phase')->to('#set_phase');
+
+    # GET .../rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
+    # POST .../rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
+    # DELETE .../rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
+    Conch::Route::RackLayout->one_layout_routes($one_rack->any('/layout'));
 }
 
 1;
@@ -198,6 +209,18 @@ only the rack's phase, or all the rack's devices' phases as well.
 =item * Response: Redirect to the updated rack
 
 =back
+
+=head3 C<GET /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+
+See L<Conch::Route::RackLayout/C<GET /layout/:layout_id>>.
+
+=head3 C<POST /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+
+See L<Conch::Route::RackLayout/C<POST /layout/:layout_id>>.
+
+=head3 C<DELETE /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+
+See L<Conch::Route::RackLayout/C<DELETE /layout/:layout_id>>.
 
 =head1 LICENSING
 
