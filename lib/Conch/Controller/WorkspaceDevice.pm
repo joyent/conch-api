@@ -196,7 +196,7 @@ sub device_totals ($c) {
         }},
         circ => { json => \%circ },
     );
-};
+}
 
 1;
 __END__

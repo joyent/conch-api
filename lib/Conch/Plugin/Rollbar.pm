@@ -238,7 +238,7 @@ sub _request_data($c) {
                 # we only go one level deep, to avoid leaking potentially secret data.
                 map {
                     my $val = $c->stash($_);
-                    $_ => ref $val ? ($val.'') : $val;
+                    $_ => ref $val ? $val.'' : $val;
                 }
                 grep $_ ne 'exception' && $_ ne 'snapshot' && !/^mojo\./,
                 keys $c->stash->%*,
@@ -283,7 +283,7 @@ sub _create_notifier ($app, $config) {
                 my $request_id = length($tx->req->url) ? $tx->req->request_id : undef;
                 local $Conch::Log::REQUEST_ID = $request_id;
                 $ua->server->app->log->error('Unable to send exception to Rollbar.'
-                    .($err->{code} ? (' HTTP '.$err->{code}) : '')
+                    .($err->{code} ? ' HTTP '.$err->{code} : '')
                     ." '$err->{message}'");
             }
         },
