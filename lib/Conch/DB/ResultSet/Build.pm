@@ -110,7 +110,7 @@ sub user_has_role ($self, $user_id, $role) {
 
 =head2 with_device_health_counts
 
-Modifies the resultset to add on a column named C<device_health>) containing an array of arrays
+Modifies the resultset to add on a column named C<device_health> containing an array of arrays
 of correlated counts of device.health values for each build.
 
 =cut
@@ -121,6 +121,36 @@ sub with_device_health_counts ($self) {
         ->group_by('health');
 
     $self->add_columns({ device_health => { array => $health_rs->as_query } });
+}
+
+=head2 with_device_phase_counts
+
+Modifies the resultset to add on a column named C<device_phases> containing an array of arrays
+of correlated counts of device.phase values for each build.
+
+=cut
+
+sub with_device_phase_counts ($self) {
+    my $phases_rs = $self->correlate('devices')
+        ->search(undef, { select => [ \'array[phase::text, count(*)::text]' ] })
+        ->group_by('phase');
+
+    $self->add_columns({ device_phases => { array => $phases_rs->as_query } });
+}
+
+=head2 with_rack_phase_counts
+
+Modifies the resultset to add on a column named C<rack_phases> containing an array of arrays
+of correlated counts of rack.phase values for each build.
+
+=cut
+
+sub with_rack_phase_counts ($self) {
+    my $phases_rs = $self->correlate('racks')
+        ->search(undef, { select => [ \'array[phase::text, count(*)::text]' ] })
+        ->group_by('phase');
+
+    $self->add_columns({ rack_phases => { array => $phases_rs->as_query } });
 }
 
 1;

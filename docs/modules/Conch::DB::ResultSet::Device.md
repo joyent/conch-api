@@ -67,11 +67,16 @@ you want, so don't do that.)
 
 ## with\_device\_location
 
-Modifies the resultset to add columns `rack_id`, `rack_unit_start` and `rack_name`.
+Modifies the resultset to add columns `rack_id`, `rack_name` (the full rack name including
+room data) and `rack_unit_start`.
 
 ## with\_sku
 
 Modifies the resultset to add the `sku` column.
+
+## with\_build\_name
+
+Modifies the resultset to add the `build_name` column.
 
 ## location\_data
 

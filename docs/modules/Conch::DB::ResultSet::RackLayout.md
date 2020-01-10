@@ -12,6 +12,14 @@ Interface to queries involving rack layouts.
 
 Chainable resultset that adds `rack_unit_size` to the results.
 
+## with\_rack\_name
+
+Modifies the resultset to add the `rack_name` column (the full rack name).
+
+## with\_sku
+
+Modifies the resultset to add the `sku` column.
+
 # LICENSING
 
 Copyright Joyent, Inc.

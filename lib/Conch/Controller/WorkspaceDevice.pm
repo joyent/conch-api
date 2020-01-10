@@ -12,7 +12,7 @@ Conch::Controller::WorkspaceDevice
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
 Get a list of all devices in the indicated workspace.
 
@@ -32,7 +32,7 @@ C<serials_only=1>.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my $params = $c->validate_query_params('WorkspaceDevices');
     return if not $params;
 
@@ -56,7 +56,7 @@ sub list ($c) {
 
     $devices_rs = $params->{ids_only} ? $devices_rs->get_column('id')
         : $params->{serials_only} ? $devices_rs->get_column('serial_number')
-        : $devices_rs->with_device_location->with_sku;
+        : $devices_rs->with_device_location->with_sku->with_build_name;
 
     my @devices = $devices_rs->all;
 

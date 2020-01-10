@@ -104,6 +104,7 @@
 * [Conch::Plugin::AuthHelpers](../modules/Conch::Plugin::AuthHelpers)
 * [Conch::Plugin::ClientVerification](../modules/Conch::Plugin::ClientVerification)
 * [Conch::Plugin::Database](../modules/Conch::Plugin::Database)
+* [Conch::Plugin::DeprecatedAction](../modules/Conch::Plugin::DeprecatedAction)
 * [Conch::Plugin::Features](../modules/Conch::Plugin::Features)
 * [Conch::Plugin::GitVersion](../modules/Conch::Plugin::GitVersion)
 * [Conch::Plugin::JsonValidator](../modules/Conch::Plugin::JsonValidator)

@@ -261,11 +261,27 @@ sub TO_JSON ($self) {
       : undef;
 
     if ($self->has_column_loaded('device_health')) {
-        my @health_enum = $self->related_resultset('devices')->result_source->column_info('health')->{extra}{list}->@*;
-        $data->{device_health}->@{@health_enum} = (0)x@health_enum;
+        my @enum = $self->related_resultset('devices')->result_source->column_info('health')->{extra}{list}->@*;
+        $data->{device_health}->@{@enum} = (0)x@enum;
 
-        my %health_data = map $_->@*, $self->get_column('device_health')->@*;
-        $data->{device_health}->@{keys %health_data} = map int, values %health_data;
+        my %column_data = map $_->@*, $self->get_column('device_health')->@*;
+        $data->{device_health}->@{keys %column_data} = map int, values %column_data;
+    }
+
+    if ($self->has_column_loaded('device_phases')) {
+        my @enum = $self->related_resultset('devices')->result_source->column_info('phase')->{extra}{list}->@*;
+        $data->{device_phases}->@{@enum} = (0)x@enum;
+
+        my %column_data = map $_->@*, $self->get_column('device_phases')->@*;
+        $data->{device_phases}->@{keys %column_data} = map int, values %column_data;
+    }
+
+    if ($self->has_column_loaded('rack_phases')) {
+        my @enum = $self->related_resultset('racks')->result_source->column_info('phase')->{extra}{list}->@*;
+        $data->{rack_phases}->@{@enum} = (0)x@enum;
+
+        my %column_data = map $_->@*, $self->get_column('rack_phases')->@*;
+        $data->{rack_phases}->@{keys %column_data} = map int, values %column_data;
     }
 
     return $data;

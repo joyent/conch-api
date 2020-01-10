@@ -131,7 +131,13 @@ Response uses the Rack json schema.
 
 sub get ($c) {
     $c->res->headers->location('/rack/'.$c->stash('rack_id'));
-    $c->status(200, $c->stash('rack_rs')->single);
+    my $rs = $c->stash('rack_rs')
+        ->with_build_name
+        ->with_full_rack_name
+        ->with_datacenter_room_alias
+        ->with_rack_role_name;
+
+    $c->status(200, $rs->single);
 }
 
 =head2 get_layouts
@@ -145,7 +151,10 @@ Response uses the RackLayouts json schema.
 sub get_layouts ($c) {
     my @layouts = $c->stash('rack_rs')
         ->related_resultset('rack_layouts')
+        ->as_subselect_rs
         ->with_rack_unit_size
+        ->with_rack_name
+        ->with_sku
         ->order_by('rack_unit_start')
         ->all;
 
@@ -284,10 +293,14 @@ sub update ($c) {
         }
     }
 
+    $c->res->headers->location('/rack/'.$rack->id);
+
     $rack->set_columns($input);
-    $rack->update({ updated => \'now()' }) if $rack->is_changed;
+    return $c->status(204) if not $rack->is_changed;
+
+    $rack->update({ updated => \'now()' });
     $c->log->debug('Updated rack '.$rack->id);
-    return $c->status(303, '/rack/'.$rack->id);
+    return $c->status(303);
 }
 
 =head2 delete
@@ -325,6 +338,7 @@ sub get_assignment ($c) {
                 device_id => 'device.id',
                 device_asset_tag => 'device.asset_tag',
                 hardware_product_name => 'hardware_product.name',
+                sku => 'hardware_product.sku',
                 rack_unit_size => 'hardware_product.rack_unit_size',
             },
         })
@@ -516,7 +530,9 @@ sub set_phase ($c) {
     return if not $input;
 
     my $rack = $c->stash('rack_rs')->single;
-    $rack->update({ phase => $input->{phase}, updated => \'now()' });
+    $rack->set_columns($input);
+
+    $rack->update({ updated => \'now()' }) if $rack->is_changed;
     $c->log->debug('set the phase for rack '.$rack->id.' to '.$input->{phase});
 
     if (not $params->{rack_only} // 0) {

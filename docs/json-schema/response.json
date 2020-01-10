@@ -59,11 +59,33 @@
           },
           "type" : "object"
         },
+        "device_phases" : {
+          "additionalProperties" : {
+            "$ref" : "common.json#/definitions/non_negative_integer"
+          },
+          "maxProperties" : 5,
+          "minProperties" : 5,
+          "propertyNames" : {
+            "$ref" : "common.json#/definitions/device_phase"
+          },
+          "type" : "object"
+        },
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "rack_phases" : {
+          "additionalProperties" : {
+            "$ref" : "common.json#/definitions/non_negative_integer"
+          },
+          "maxProperties" : 5,
+          "minProperties" : 5,
+          "propertyNames" : {
+            "$ref" : "common.json#/definitions/device_phase"
+          },
+          "type" : "object"
         },
         "started" : {
           "oneOf" : [
@@ -319,6 +341,16 @@
             },
             {
               "$ref" : "common.json#/definitions/uuid"
+            }
+          ]
+        },
+        "build_name" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/mojo_standard_placeholder"
             }
           ]
         },
@@ -653,6 +685,7 @@
         "phase",
         "links",
         "build_id",
+        "build_name",
         "latest_report"
       ],
       "then" : {
@@ -719,6 +752,16 @@
             }
           ]
         },
+        "build_name" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+            }
+          ]
+        },
         "created" : {
           "format" : "date-time",
           "type" : "string"
@@ -775,6 +818,7 @@
           ]
         },
         "rack_name" : {
+          "description" : "rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)",
           "oneOf" : [
             {
               "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
@@ -853,7 +897,8 @@
         "validated",
         "phase",
         "links",
-        "build_id"
+        "build_id",
+        "build_name"
       ],
       "then" : {
         "required" : [
@@ -1134,6 +1179,13 @@
         ]
       },
       "type" : "object"
+    },
+    "DevicePXEs" : {
+      "items" : {
+        "$ref" : "/definitions/DevicePXE"
+      },
+      "type" : "array",
+      "uniqueItems" : true
     },
     "DevicePhase" : {
       "additionalProperties" : false,
@@ -1850,7 +1902,81 @@
     },
     "Organizations" : {
       "items" : {
-        "$ref" : "/definitions/Organization"
+        "additionalProperties" : false,
+        "properties" : {
+          "admins" : {
+            "items" : {
+              "$ref" : "/definitions/UserTerse"
+            },
+            "minItems" : 1,
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "builds" : {
+            "items" : {
+              "additionalProperties" : false,
+              "properties" : {
+                "description" : {
+                  "oneOf" : [
+                    {
+                      "type" : "string"
+                    },
+                    {
+                      "type" : "null"
+                    }
+                  ]
+                },
+                "id" : {
+                  "$ref" : "common.json#/definitions/uuid"
+                },
+                "name" : {
+                  "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+                },
+                "role" : {
+                  "$ref" : "common.json#/definitions/role"
+                }
+              },
+              "required" : [
+                "id",
+                "name",
+                "description",
+                "role"
+              ],
+              "type" : "object"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          },
+          "created" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "description" : {
+            "oneOf" : [
+              {
+                "type" : "null"
+              },
+              {
+                "type" : "string"
+              }
+            ]
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "name" : {
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+          }
+        },
+        "required" : [
+          "id",
+          "name",
+          "description",
+          "created",
+          "admins",
+          "builds"
+        ],
+        "type" : "object"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -1945,12 +2071,28 @@
             }
           ]
         },
+        "build_name" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+            }
+          ]
+        },
         "created" : {
           "format" : "date-time",
           "type" : "string"
         },
+        "datacenter_room_alias" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
         "datacenter_room_id" : {
           "$ref" : "common.json#/definitions/uuid"
+        },
+        "full_rack_name" : {
+          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
         },
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
@@ -1963,6 +2105,9 @@
         },
         "rack_role_id" : {
           "$ref" : "common.json#/definitions/uuid"
+        },
+        "rack_role_name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "serial_number" : {
           "oneOf" : [
@@ -1982,14 +2127,18 @@
       "required" : [
         "id",
         "name",
+        "full_rack_name",
         "datacenter_room_id",
+        "datacenter_room_alias",
         "rack_role_id",
+        "rack_role_name",
         "serial_number",
         "asset_tag",
         "phase",
         "created",
         "updated",
-        "build_id"
+        "build_id",
+        "build_name"
       ],
       "type" : "object"
     },
@@ -2024,12 +2173,16 @@
         },
         "rack_unit_start" : {
           "$ref" : "common.json#/definitions/positive_integer"
+        },
+        "sku" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         }
       },
       "required" : [
         "device_id",
         "device_asset_tag",
         "hardware_product_name",
+        "sku",
         "rack_unit_start",
         "rack_unit_size"
       ],
@@ -2058,11 +2211,17 @@
         "rack_id" : {
           "$ref" : "common.json#/definitions/uuid"
         },
+        "rack_name" : {
+          "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
+        },
         "rack_unit_size" : {
           "$ref" : "common.json#/definitions/positive_integer"
         },
         "rack_unit_start" : {
           "$ref" : "common.json#/definitions/positive_integer"
+        },
+        "sku" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "updated" : {
           "format" : "date-time",
@@ -2072,7 +2231,9 @@
       "required" : [
         "id",
         "rack_id",
+        "rack_name",
         "hardware_product_id",
+        "sku",
         "rack_unit_start",
         "rack_unit_size",
         "created",

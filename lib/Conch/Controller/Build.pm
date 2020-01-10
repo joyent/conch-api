@@ -12,7 +12,7 @@ Conch::Controller::Build
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
 If the user is a system admin, retrieve a list of all builds in the database; otherwise,
 limits the list to those build of which the user is a member.
@@ -21,8 +21,8 @@ Response uses the Builds json schema.
 
 =cut
 
-sub list ($c) {
-    my $params = $c->validate_query_params('WithDeviceHealth');
+sub get_all ($c) {
+    my $params = $c->validate_query_params('WithDeviceRackData');
     return if not $params;
 
     my $rs = $c->db_builds
@@ -30,9 +30,13 @@ sub list ($c) {
         ->prefetch([ { user_build_roles => 'user_account' }, 'completed_user' ])
         ->order_by([qw(build.name user_account.name)]);
 
-    $rs = $rs->with_device_health_counts
-        if !exists $params->{with_device_health} ? 0
-           : length $params->{with_device_health} ? $params->{with_device_health} : 1;
+    foreach my $type (qw(device_health device_phase rack_phase)) {
+        my $method = 'with_'.$type.'_counts';
+        my $param = 'with_'.$type.($type =~ /phase$/ ? 's' : '');
+        $rs = $rs->$method
+            if !exists $params->{$param} ? 0
+               : length $params->{$param} ? $params->{$param} : 1;
+    }
 
     return $c->status(200, [ $rs->all ]) if $c->is_system_admin;
 
@@ -152,7 +156,7 @@ Response uses the Build json schema.
 =cut
 
 sub get ($c) {
-    my $params = $c->validate_query_params('WithDeviceHealth');
+    my $params = $c->validate_query_params('WithDeviceRackData');
     return if not $params;
 
     my $rs = $c->stash('build_rs')
@@ -160,9 +164,13 @@ sub get ($c) {
         ->prefetch([ { user_build_roles => 'user_account' }, 'completed_user' ])
         ->order_by('user_account.name');
 
-    $rs = $rs->with_device_health_counts
-        if !exists $params->{with_device_health} ? 0
-           : length $params->{with_device_health} ? $params->{with_device_health} : 1;
+    foreach my $type (qw(device_health device_phase rack_phase)) {
+        my $method = 'with_'.$type.'_counts';
+        my $param = 'with_'.$type.($type =~ /phase$/ ? 's' : '');
+        $rs = $rs->$method
+            if !exists $params->{$param} ? 0
+               : length $params->{$param} ? $params->{$param} : 1;
+    }
 
     $c->status(200, ($rs->all)[0]);
 }
@@ -229,7 +237,7 @@ sub update ($c) {
     $c->status(303, '/build/'.$build->id);
 }
 
-=head2 list_users
+=head2 get_users
 
 Get a list of user members of the current build. (Does not include users who can access the
 build via an organization.)
@@ -240,7 +248,7 @@ Response uses the BuildUsers json schema.
 
 =cut
 
-sub list_users ($c) {
+sub get_users ($c) {
     my $rs = $c->stash('build_rs')
         ->related_resultset('user_build_roles')
         ->related_resultset('user_account')
@@ -399,7 +407,7 @@ sub remove_user ($c) {
     return $c->status(204);
 }
 
-=head2 list_organizations
+=head2 get_organizations
 
 Get a list of organization members of the current build.
 Requires the 'admin' role on the build.
@@ -408,7 +416,7 @@ Response uses the BuildOrganizations json schema.
 
 =cut
 
-sub list_organizations ($c) {
+sub get_organizations ($c) {
     my $rs = $c->db_organizations
         ->search(
             {
@@ -616,6 +624,44 @@ sub remove_organization ($c) {
     return $c->status(204);
 }
 
+=head2 find_devices
+
+Chainable action that stashes the query to get to all devices in C<build_devices_rs>.
+
+If C<phase_earlier_than> is provided (defaulting to C<production>), location data is omitted
+for devices in the provided phase (or later) (and build racks are not used to find such devices
+for such phases).
+
+=cut
+
+sub find_devices ($c) {
+    my $params = $c->validate_query_params('BuildDevices');
+    return if not $params;
+
+    # production devices do not consider location, interface data to be canonical
+    my $bad_phase = $params->{phase_earlier_than} // 'production';
+
+    my $build_id = $c->stash('build_id') // { '=' => $c->stash('build_rs')->get_column('id')->as_query };
+
+    # this query is carefully constructed to be efficient.
+    # don't mess with it without checking with DBIC_TRACE=1.
+    my $rs = $c->db_devices->search(
+        { -or => [
+            { 'device.build_id' => $build_id },
+            {
+                'device.build_id' => undef,
+                'rack.build_id' => $build_id,
+                $bad_phase ? ('device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] }) : (),
+            },
+        ] },
+        { join => { device_location => 'rack' } },
+    )
+    ->order_by('device.created');
+
+    $c->stash('build_devices_rs', $rs);
+    return 1;
+}
+
 =head2 get_devices
 
 Get the devices in this build. (Does not includes devices located in rack(s) in this build if
@@ -641,25 +687,7 @@ sub get_devices ($c) {
     my $params = $c->validate_query_params('BuildDevices');
     return if not $params;
 
-    # production devices do not consider location, interface data to be canonical
-    my $bad_phase = $params->{phase_earlier_than} // 'production';
-
-    my $build_id = $c->stash('build_id') // { '=' => $c->stash('build_rs')->get_column('id')->as_query };
-
-    # this query is carefully constructed to be efficient.
-    # don't mess with it without checking with DBIC_TRACE=1.
-    my $rs = $c->db_devices->search(
-        { -or => [
-            { 'device.build_id' => $build_id },
-            {
-                'device.build_id' => undef,
-                'rack.build_id' => $build_id,
-                $bad_phase ? ('device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] }) : (),
-            },
-        ] },
-        { join => { device_location => 'rack' } },
-    )
-    ->order_by('device.created');
+    my $rs = $c->stash('build_devices_rs');
 
     $rs = $rs->search({ health => $params->{health} }) if $params->{health};
 
@@ -668,9 +696,41 @@ sub get_devices ($c) {
 
     $rs = $params->{ids_only} ? $rs->get_column('id')
         : $params->{serials_only} ? $rs->get_column('serial_number')
-        : $rs->with_device_location->with_sku;
+        : $rs->with_device_location->with_sku->with_build_name;
 
     $c->status(200, [ $rs->all ]);
+}
+
+=head2 get_pxe_devices
+
+Response uses the DevicePXEs json schema.
+
+=cut
+
+sub get_pxe_devices ($c) {
+    my @devices = $c->stash('build_devices_rs')
+        ->location_data('location')
+        ->add_columns({
+            id => 'device.id',
+            phase => 'device.phase',
+            # pxe = the first (sorted by name) interface that is status=up
+            'pxe.mac' => $c->db_devices->correlate('device_nics')->nic_pxe->as_query,
+            # ipmi = the (newest) interface named ipmi1.
+            ipmi_mac_ip => $c->db_devices->correlate('device_nics')->nic_ipmi->as_query,
+        })
+        ->hri
+        ->all;
+
+    foreach my $device (@devices) {
+        # production devices do not consider location data to be canonical
+        delete $device->{location}
+            if Conch::DB::Result::Device->phase_cmp($device->{phase}, 'production') >= 0;
+
+        my $ipmi = delete $device->{ipmi_mac_ip};
+        $device->{ipmi} = $ipmi ? { mac => $ipmi->[0], ip => $ipmi->[1] } : undef;
+    }
+
+    $c->status(200, \@devices);
 }
 
 =head2 create_and_add_devices
@@ -827,7 +887,15 @@ Response uses the Racks json schema.
 =cut
 
 sub get_racks ($c) {
-    $c->status(200, [ $c->stash('build_rs')->related_resultset('racks')->all ]);
+    my $rs = $c->stash('build_rs')
+        ->related_resultset('racks')
+        ->add_columns({ build_name => 'build.name' })
+        ->with_full_rack_name
+        ->with_datacenter_room_alias
+        ->with_rack_role_name
+        ->order_by('racks.name');
+
+    $c->status(200, [ $rs->all ]);
 }
 
 =head2 add_rack

@@ -78,6 +78,11 @@ $t->get_ok($t->tx->res->headers->location)
     });
 my $organization = $t->tx->res->json;
 
+my $organizations = [ +{
+    $organization->%{qw(id name description created builds)},
+    admins => [ map +{ $_->%{qw(id name email) } }, ($organization->{users})->@* ],
+} ];
+
 $t->get_ok('/organization/my first organization')
     ->status_is(200)
     ->json_schema_is('Organization')
@@ -86,7 +91,7 @@ $t->get_ok('/organization/my first organization')
 $t->get_ok('/organization')
     ->status_is(200)
     ->json_schema_is('Organizations')
-    ->json_is([ $organization ]);
+    ->json_is($organizations);
 
 $t->delete_ok('/organization/my first organization/user/'.$admin_user->email)
     ->status_is(409)
@@ -105,19 +110,24 @@ $t->get_ok('/organization')
     ->status_is(200)
     ->json_schema_is('Organizations')
     ->json_cmp_deeply([
-        $organization,
+        $organizations->@*,
         {
             id => re(Conch::UUID::UUID_FORMAT),
             name => 'our second organization',
             description => 'funky',
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            users => [
-                { (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' },
-            ],
+            admins => [ +{ (map +($_ => $admin_user->$_), qw(id name email)) } ],
             builds => [],
         },
     ]);
-my $organization2 = $t->tx->res->json->[1];
+my $organization2 = +{
+    $t->tx->res->json->[1]->%{qw(id name description created builds)},
+    users => [ +{ (map +($_ => $admin_user->$_), qw(id name email)), role => 'admin' } ],
+};
+push $organizations->@*, +{
+    $t->tx->res->json->[1]->%{qw(id name description created builds)},
+    admins => [ +{ (map +($_ => $admin_user->$_), qw(id name email)) } ],
+};
 
 $t->post_ok('/organization/our second organization', json => { name => 'my first organization' })
     ->status_is(409)
@@ -126,7 +136,7 @@ $t->post_ok('/organization/our second organization', json => { name => 'my first
 $t->post_ok('/organization/our second organization', json => { description => 'more funky' })
     ->status_is(303)
     ->location_is('/organization/'.$organization2->{id});
-$organization2->{description} = 'more funky';
+$organization2->{description} = $organizations->[1]{description} = 'more funky';
 
 my $new_user = $t->generate_fixtures('user_account');
 
@@ -200,16 +210,25 @@ $t->get_ok('/organization/my first organization')
     ->json_schema_is('Organization')
     ->json_is($organization);
 
-# non-admin user can only see the organization(s) he is a member of
-$t2->get_ok('/organization')
-    ->status_is(200)
-    ->json_schema_is('Organizations')
-    ->json_is([ $organization ]);
-
 $t->get_ok('/organization/my first organization')
     ->status_is(200)
     ->json_schema_is('Organization')
     ->json_is($organization);
+
+$t->get_ok('/organization')
+    ->status_is(200)
+    ->json_schema_is('Organizations')
+    ->json_is($organizations);
+
+# non-admin user can only see the organization(s) he is a member of
+$t2->get_ok('/organization')
+    ->status_is(200)
+    ->json_schema_is('Organizations')
+    ->json_is([ $organizations->[0] ]);
+
+$t2->get_ok('/organization/my first organization')
+    ->status_is(403)
+    ->log_debug_is('User lacks the required role (admin) for organization my first organization');
 
 $t2->delete_ok('/organization/my first organization')
     ->status_is(403)
@@ -296,6 +315,7 @@ $t->post_ok('/organization/'.$organization->{id}.'/user', json => {
         }
     ]);
 $organization->{users}[1]{role} = 'admin';
+push $organizations->[0]{admins}->@*, +{ (map +($_ => $new_user->$_), qw(id name email)) };
 
 $t->get_ok('/organization/my first organization')
     ->status_is(200)
@@ -306,6 +326,16 @@ $t2->get_ok('/organization/my first organization')
     ->status_is(200)
     ->json_schema_is('Organization')
     ->json_is($organization);
+
+$t->get_ok('/organization')
+    ->status_is(200)
+    ->json_schema_is('Organizations')
+    ->json_is($organizations);
+
+$t2->get_ok('/organization')
+    ->status_is(200)
+    ->json_schema_is('Organizations')
+    ->json_is([ $organizations->[0] ]);
 
 $t2->post_ok('/organization/'.$organization->{id}.'/user', json => {
         email => $new_user2->email,
@@ -375,26 +405,17 @@ $t->get_ok('/organization/my first organization')
 $t->get_ok('/organization')
     ->status_is(200)
     ->json_schema_is('Organizations')
-    ->json_is([ $organization, $organization2 ]);
+    ->json_is($organizations);
 
 $t2->get_ok('/organization/my first organization')
     ->status_is(200)
     ->json_schema_is('Organization')
-    ->json_is({
-        $organization->%*,
-        builds => [],
-    });
+    ->json_is($organization);
 
 $t2->get_ok('/organization')
     ->status_is(200)
     ->json_schema_is('Organizations')
-    ->json_is([
-        {
-            $organization->%*,
-            builds => [],
-        },
-        # user is not a member of organization2
-    ]);
+    ->json_is([ $organizations->[0] ]);
 
 $t->get_ok('/user/'.$admin_user->email)
     ->status_is(200)
@@ -437,7 +458,7 @@ $t_admin_user->authenticate(email => $admin_user->email);
 $t->get_ok('/organization')
     ->status_is(200)
     ->json_schema_is('Organizations')
-    ->json_is([ $organization, $organization2 ]);
+    ->json_is($organizations);
 
 $t->delete_ok('/organization/my first organization/user/foo@bar.com')
     ->status_is(404)
@@ -455,6 +476,7 @@ $t->delete_ok('/organization/foo')
 $t->delete_ok('/organization/our second organization')
     ->status_is(204)
     ->log_debug_is('Deactivated organization our second organization, removing 1 user memberships and removing from 0 builds');
+pop $organizations->@*;
 
 $t->delete_ok('/organization/our second organization')
     ->status_is(410);
@@ -465,11 +487,12 @@ $t->get_ok('/organization/our second organization')
 $t->get_ok('/organization')
     ->status_is(200)
     ->json_schema_is('Organizations')
-    ->json_is([ $organization ]);
+    ->json_is($organizations);
 
 $t->delete_ok('/organization/my first organization')
     ->status_is(204)
     ->log_debug_is('Deactivated organization my first organization, removing 2 user memberships and removing from 0 builds');
+pop $organizations->@*;
 
 $t->get_ok('/organization')
     ->status_is(200)

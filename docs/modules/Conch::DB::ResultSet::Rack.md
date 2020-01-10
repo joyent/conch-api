@@ -31,6 +31,22 @@ build associated with the rack(s).
 
 Returns a boolean.
 
+## with\_build\_name
+
+Modifies the resultset to add the `build_name` column.
+
+## with\_full\_rack\_name
+
+Modifies the resultset to add the `full_rack_name` column.
+
+## with\_datacenter\_room\_alias
+
+Modifies the resultset to add the `datacenter_room_alias` column.
+
+## with\_rack\_role\_name
+
+Modifies the resultset to add the `rack_role_name` column.
+
 # LICENSING
 
 Copyright Joyent, Inc.

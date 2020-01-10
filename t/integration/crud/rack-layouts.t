@@ -28,11 +28,13 @@ my $hw_product_storage = $t->load_fixture('hardware_product_storage');  # rack_u
 # start 11, width 4
 
 my $fake_id = create_uuid_str();
+my @racks = $t->app->db_racks->search({ name => [qw(rack.0a rack.1a)] })->prefetch('datacenter_room')->order_by('name')->all;
+my $rack_id = $racks[0]->id;
 
 $t->get_ok('/layout')
     ->status_is(200)
     ->json_schema_is('RackLayouts')
-    ->json_cmp_deeply(bag(
+    ->json_cmp_deeply([
         map +{
             $_->%*,
             id => re(Conch::UUID::UUID_FORMAT),
@@ -40,19 +42,49 @@ $t->get_ok('/layout')
             updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         },
         (map +(
-            { rack_id => $_, rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id },
-            { rack_id => $_, rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
-            { rack_id => $_, rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
-        ), my $rack_id = $t->load_fixture('rack_0a')->id, $t->load_fixture('rack_1a')->id)
-    ));
+            {
+                rack_id => $_->id,
+                rack_name => $_->datacenter_room->vendor_name.':'.$_->name,
+                rack_unit_start => 1,
+                rack_unit_size => 2,
+                hardware_product_id => $hw_product_compute->id,
+                sku => $hw_product_compute->sku,
+            },
+            {
+                rack_id => $_->id,
+                rack_name => $_->datacenter_room->vendor_name.':'.$_->name,
+                rack_unit_start => 3,
+                rack_unit_size => 4,
+                hardware_product_id => $hw_product_storage->id,
+                sku => $hw_product_storage->sku,
+            },
+            {
+                rack_id => $_->id,
+                rack_name => $_->datacenter_room->vendor_name.':'.$_->name,
+                rack_unit_start => 11,
+                rack_unit_size => 4,
+                hardware_product_id => $hw_product_storage->id,
+                sku => $hw_product_storage->sku,
+            },
+        ), @racks)
+    ]);
 
 my $initial_layouts = $t->tx->res->json;
 my $layout_width_4 = $initial_layouts->[2];    # start 11, width 4.
 
-$t->get_ok("/layout/$initial_layouts->[0]{id}")
+$t->get_ok($_)
     ->status_is(200)
     ->json_schema_is('RackLayout')
-    ->json_is($initial_layouts->[0]);
+    ->json_is($initial_layouts->[0])
+    ->log_debug_is('Found rack layout '.(split('/'))[-1].((split('/'))[1] eq 'rack' ? ' in rack id '.(split('/'))[2] : ''))
+    foreach
+        '/layout/'.$initial_layouts->[0]{id},
+        '/rack/'.$racks[0]->id.'/layout/'.$initial_layouts->[0]{id},
+        '/rack/'.$racks[0]->id.'/layout/1';
+
+$t->get_ok('/layout/1')
+    ->status_is(400)
+    ->json_is({ error => 'cannot look up layout by rack_unit_start without qualifying by rack' });
 
 $t->post_ok('/layout', json => { wat => 'wat' })
     ->status_is(400)
@@ -68,12 +100,13 @@ $t->get_ok("/rack/$rack_id/layout")
             $_->%*,
             id => re(Conch::UUID::UUID_FORMAT),
             rack_id => $rack_id,
+            rack_name => 'ROOM:0.A:rack.0a',
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         },
-        { rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id },
-        { rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
-        { rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
+        { rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id, sku => $hw_product_compute->sku },
+        { rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id, sku => $hw_product_storage->sku },
+        { rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id, sku => $hw_product_storage->sku },
     ]);
 
 my $layout_1_2 = $t->load_fixture('rack_0a_layout_1_2');
@@ -183,13 +216,14 @@ $t->get_ok($_)
             $_->%*,
             id => re(Conch::UUID::UUID_FORMAT),
             rack_id => $rack_id,
+            rack_name => 'ROOM:0.A:rack.0a',
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         },
-        { rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id },
-        { rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
-        { rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id },
-        { rack_unit_start => 42, rack_unit_size => 1, hardware_product_id => $hw_product_switch->id },
+        { rack_unit_start => 1, rack_unit_size => 2, hardware_product_id => $hw_product_compute->id, sku => $hw_product_compute->sku },
+        { rack_unit_start => 3, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id, sku => $hw_product_storage->sku },
+        { rack_unit_start => 11, rack_unit_size => 4, hardware_product_id => $hw_product_storage->id, sku => $hw_product_storage->sku },
+        { rack_unit_start => 42, rack_unit_size => 1, hardware_product_id => $hw_product_switch->id, sku => $hw_product_switch->sku },
     ])
     foreach
         '/rack/'.$rack_id.'/layout',
@@ -389,9 +423,30 @@ $t->get_ok('/rack/'.$rack_id.'/assignment')
     ->status_is(200)
     ->json_schema_is('RackAssignments')
     ->json_cmp_deeply([
-        { rack_unit_start => 1, rack_unit_size => 2, hardware_product_name => $hw_product_compute->name, device_id => undef, device_asset_tag => undef },
-        { rack_unit_start => 20, rack_unit_size => 4, hardware_product_name => $hw_product_storage->name, device_id => $device->id, device_asset_tag => undef },
-        { rack_unit_start => 26, rack_unit_size => 2, hardware_product_name => $hw_product_compute->name, device_id => undef, device_asset_tag => undef },
+        {
+            rack_unit_start => 1,
+            rack_unit_size => 2,
+            hardware_product_name => $hw_product_compute->name,
+            sku => $hw_product_compute->sku,
+            device_id => undef,
+            device_asset_tag => undef,
+        },
+        {
+            rack_unit_start => 20,
+            rack_unit_size => 4,
+            hardware_product_name => $hw_product_storage->name,
+            sku => $hw_product_storage->sku,
+            device_id => $device->id,
+            device_asset_tag => undef,
+        },
+        {
+            rack_unit_start => 26,
+            rack_unit_size => 2,
+            hardware_product_name => $hw_product_compute->name,
+            sku => $hw_product_compute->sku,
+            device_id => undef,
+            device_asset_tag => undef,
+        },
     ]);
 
 $t->post_ok('/rack/'.$rack_id.'/layout',
@@ -414,7 +469,14 @@ $t->get_ok('/rack/'.$rack_id.'/assignment')
     ->status_is(200)
     ->json_schema_is('RackAssignments')
     ->json_cmp_deeply([
-        { rack_unit_start => 3, rack_unit_size => 2, hardware_product_name => $hw_product_compute->name, device_id => undef, device_asset_tag => undef },
+        {
+            rack_unit_start => 3,
+            rack_unit_size => 2,
+            hardware_product_name => $hw_product_compute->name,
+            sku => $hw_product_compute->sku,
+            device_id => undef,
+            device_asset_tag => undef,
+        },
     ]);
 
 $t->post_ok('/rack/'.$rack_id.'/layout', json => [])

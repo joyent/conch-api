@@ -4,7 +4,7 @@ Conch::Controller::Build
 
 # METHODS
 
-## list
+## get\_all
 
 If the user is a system admin, retrieve a list of all builds in the database; otherwise,
 limits the list to those build of which the user is a member.
@@ -37,7 +37,7 @@ Response uses the Build json schema.
 Modifies a build attribute: one or more of name, description, started, completed.
 Requires the 'admin' role on the build.
 
-## list\_users
+## get\_users
 
 Get a list of user members of the current build. (Does not include users who can access the
 build via an organization.)
@@ -66,7 +66,7 @@ to the user and to all build admins.
 
 This endpoint is nearly identical to ["remove\_user" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#remove_user).
 
-## list\_organizations
+## get\_organizations
 
 Get a list of organization members of the current build.
 Requires the 'admin' role on the build.
@@ -90,6 +90,14 @@ Requires the 'admin' role on the build.
 Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
 to all organization members and to all build admins.
 
+## find\_devices
+
+Chainable action that stashes the query to get to all devices in `build_devices_rs`.
+
+If `phase_earlier_than` is provided (defaulting to `production`), location data is omitted
+for devices in the provided phase (or later) (and build racks are not used to find such devices
+for such phases).
+
 ## get\_devices
 
 Get the devices in this build. (Does not includes devices located in rack(s) in this build if
@@ -110,6 +118,10 @@ serials_only=1      only return device serial numbers, not full data
 
 Response uses the Devices json schema, or DeviceIds iff `ids_only=1`, or DeviceSerials iff
 `serials_only=1`.
+
+## get\_pxe\_devices
+
+Response uses the DevicePXEs json schema.
 
 ## create\_and\_add\_devices
 

@@ -81,7 +81,7 @@ subtest 'read-only database handle' => sub {
             my ($name) = $dbh->selectrow_array('select application_name from pg_stat_activity where pid = pg_backend_pid()');
             return $name;
         }),
-        qr/^conch-${\ $t->API_VERSION_RE } \($$\)$/,
+        qr/^conch ${\ $t->API_VERSION_RE } \($$\)$/,
         'can properly identify the query process by app and pid in pg_stat_activity',
     );
 
@@ -110,7 +110,7 @@ subtest 'read-only database handle' => sub {
             my ($name) = $dbh->selectrow_array('select application_name from pg_stat_activity where pid = pg_backend_pid()');
             return $name;
         }),
-        qr/^conch-${\ $t->API_VERSION_RE } \($$\)$/,
+        qr/^conch ${\ $t->API_VERSION_RE } \($$\)$/,
         'can properly identify the query process by app and pid in pg_stat_activity',
     );
 

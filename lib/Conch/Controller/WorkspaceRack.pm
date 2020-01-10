@@ -12,7 +12,7 @@ Conch::Controller::WorkspaceRack
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
 Get a list of racks for the indicated workspace.
 
@@ -20,7 +20,7 @@ Response uses the WorkspaceRackSummary json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my $racks_rs = $c->stash('workspace_rs')
         ->related_resultset('workspace_racks')
         ->related_resultset('rack');

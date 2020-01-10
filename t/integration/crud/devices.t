@@ -155,7 +155,7 @@ subtest 'unlocated device with a registered relay' => sub {
             system_uuid => ignore,
             phase => 'integration',
             links => [],
-            build_id => $build->id,
+            (map +('build_'.$_ => $build->$_), qw(id name)),
             (map +($_ => undef), qw(asset_tag uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product->id,
@@ -314,12 +314,12 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_schema_is('DetailedDevice');
 
     foreach my $query (@post_queries) {
-        $t2->post_ok($query->@*);
-        if ($query->[0] =~ /settings|validated/) {
+        $t2->post_ok($query->@*)
+            ->location_is('/device/'.$test_device_id);
+        if ($query->[0] =~ /settings|validated|phase/) {
             $t2->status_is(204);
         } else {
-            $t2->status_is(303)
-                ->location_is('/device/'.$test_device_id);
+            $t2->status_is(303);
         }
     }
 
@@ -363,7 +363,7 @@ subtest 'located device' => sub {
             health => 'unknown',
             phase => 'integration',
             links => [],
-            build_id => undef,
+            (map +('build_'.$_ => undef), qw(id name)),
             (map +($_ => undef), qw(asset_tag hostname last_seen system_uuid uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated)),
             hardware_product_id => $hardware_product->id,
@@ -548,7 +548,7 @@ subtest 'located device' => sub {
         ->log_debug_is('User has rw access to device '.$located_device_id.' via role entry');
 
     $located_device->update({ phase => 'production' });
-    $device_data->{build_id} = $build->id;
+    $device_data->@{qw(build_id build_name)} = map $build->$_, qw(id name);
     $device_data->{phase} = 'production';
     delete $device_data->@{qw(location nics disks)};
 
@@ -821,7 +821,7 @@ subtest 'mutate device attributes' => sub {
     $t->post_ok('/device/TEST/build', json => { build_id => $build2->id })
         ->status_is(303)
         ->location_is('/device/'.$test_device_id);
-    $detailed_device->{build_id} = $build2->id;
+    $detailed_device->@{qw(build_id build_name)} = map $build2->$_, qw(id name);
 
     $ubr->delete;
 

@@ -4,7 +4,7 @@ Conch::Controller::WorkspaceDevice
 
 # METHODS
 
-## list
+## get\_all
 
 Get a list of all devices in the indicated workspace.
 

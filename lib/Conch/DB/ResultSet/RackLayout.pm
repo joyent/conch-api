@@ -28,6 +28,28 @@ sub with_rack_unit_size ($self) {
     });
 }
 
+=head2 with_rack_name
+
+Modifies the resultset to add the C<rack_name> column (the full rack name).
+
+=cut
+
+sub with_rack_name ($self) {
+    $self->search(undef, { join => { rack => 'datacenter_room' } })
+        ->add_columns({ rack_name => \q{datacenter_room.vendor_name || ':' || rack.name} });
+}
+
+=head2 with_sku
+
+Modifies the resultset to add the C<sku> column.
+
+=cut
+
+sub with_sku ($self) {
+    $self->search(undef, { join => 'hardware_product' })
+        ->add_columns({ sku => 'hardware_product.sku' });
+}
+
 1;
 __END__
 

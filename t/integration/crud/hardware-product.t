@@ -31,7 +31,7 @@ my $validation_plan_id = $products->[0]{validation_plan_id};
 
 $t->get_ok('/hardware_product/'.create_uuid_str())
     ->status_is(404)
-    ->log_debug_like(qr/^Could not find hardware product with id ${\Conch::UUID::UUID_FORMAT}$/);
+    ->log_debug_like(qr/^Looking up a hardware_product by id ${\Conch::UUID::UUID_FORMAT}$/);
 
 $t->get_ok("/hardware_product/$hw_id")
     ->status_is(200)
@@ -176,18 +176,39 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply($new_product);
 
-$t->get_ok('/hardware_product/foo=sungo')
+$t->get_ok('/hardware_product/foo')
     ->status_is(404)
-    ->log_error_is('no endpoint found for: GET /hardware_product/foo=sungo');
+    ->log_debug_is('Looking up a hardware_product by sku,name,alias foo');
 
-$t->get_ok('/hardware_product/name=sungo')
-    ->status_is(404)
-    ->log_debug_is('Could not find hardware product with name sungo');
-
-$t->get_ok('/hardware_product/name=sungo2')
+$t->get_ok($_)
     ->status_is(200)
+    ->location_is('/hardware_product/'.$new_product->{id})
     ->json_schema_is('HardwareProduct')
-    ->json_cmp_deeply($new_product);
+    ->json_cmp_deeply($new_product)
+    foreach
+        '/hardware_product/'.$new_product->{id},
+        '/hardware_product/my sku',     # sku
+        '/hardware_product/sungo2',     # name  TODO: remove later
+        '/hardware_product/sungo';      # alias TODO: remove later
+
+$t->post_ok('/hardware_product', json => {
+        name => 'sungo3',
+        alias => 'my sku',  # these two fields are
+        sku => 'sungo',     # flipped from the other product
+        hardware_vendor_id => $vendor_id,
+        rack_unit_size => 2,
+        validation_plan_id => $validation_plan_id,
+        purpose => 'myself',
+        bios_firmware => '1.2.3',
+        cpu_num => 2,
+        cpu_type => 'fooey',
+    })
+    ->status_is(303)
+    ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
+
+$t->get_ok('/hardware_product/sungo')
+    ->status_is(409)
+    ->json_is({ error => 'there is more than one match' });
 
 subtest 'delete a hardware product' => sub {
     $t->delete_ok("/hardware_product/$new_hw_id")
@@ -195,6 +216,9 @@ subtest 'delete a hardware product' => sub {
 
     $t->get_ok("/hardware_product/$new_hw_id")
         ->status_is(410);
+
+    $t->delete_ok('/hardware_product/sungo')
+        ->status_is(204);
 
     $t->get_ok('/hardware_product')
         ->status_is(200)

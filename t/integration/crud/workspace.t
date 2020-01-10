@@ -29,6 +29,7 @@ subtest 'Workspaces' => sub {
 
     $t->get_ok('/workspace')
         ->status_is(200)
+        ->header_is('X-Deprecated', 'this endpoint is deprecated and will be removed in api v3.1')
         ->json_schema_is('WorkspacesAndRoles')
         ->json_is([{
             id          => $global_ws_id,

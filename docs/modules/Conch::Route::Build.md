@@ -12,8 +12,11 @@ All routes require authentication.
 
 ### `GET /build`
 
-Takes one optional query parameter `device_health` (defaults to false) to include
-correlated counts of devices having each health value.
+Supports the following optional query parameters:
+
+- `with_device_health` - includes correlated counts of devices having each health value
+- `with_device_phases` - includes correlated counts of devices having each phase value
+- `with_rack_phases` - includes correlated counts of racks having each phase value
 
 - Response: response.yaml#/Builds
 
@@ -25,8 +28,11 @@ correlated counts of devices having each health value.
 
 ### `GET /build/:build_id_or_name`
 
-Takes one optional query parameter `device_health` (defaults to false) to include counts
-of devices having each health value.
+Supports the following optional query parameters:
+
+- `with_device_health` - includes correlated counts of devices having each health value
+- `with_device_phases` - includes correlated counts of devices having each phase value
+- `with_rack_phases` - includes correlated counts of racks having each phase value
 
 - Requires system admin authorization or the read-only role on the build
 - Response: response.yaml#/Build
@@ -85,13 +91,18 @@ an email to the organization members and build admins.
 
 Accepts the following optional query parameters:
 
-- `health=<value>` show only devices with the health matching the provided value
+- `health=:value` show only devices with the health matching the provided value
 (can be used more than once)
-- `active_minutes=X` show only devices which have reported within the last X minutes
+- `active_minutes=:X` show only devices which have reported within the last X minutes
 - `ids_only=1` only return device IDs, not full device details
 
 - Requires system admin authorization or the read-only role on the build
 - Response: [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices), [response.json#/definitions/DeviceIds](../json-schema/response.json#/definitions/DeviceIds) or [response.json#/definitions/DeviceSerials](../json-schema/response.json#/definitions/DeviceSerials)
+
+### `GET /build/:build_id_or_name/device/pxe`
+
+- Requires system admin authorization or the read-only role on the build
+- Response: [response.json#/definitions/DevicePXEs](../json-schema/response.json#/definitions/DevicePXEs)
 
 ### `POST /build/:build_id_or_name/device`
 

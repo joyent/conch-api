@@ -79,6 +79,18 @@ only the rack's phase, or all the rack's devices' phases as well.
 - Request: [request.json#/definitions/RackPhase](../json-schema/request.json#/definitions/RackPhase)
 - Response: Redirect to the updated rack
 
+### `GET /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
+
+See ["`GET /layout/:layout_id`" in Conch::Route::RackLayout](../modules/Conch%3A%3ARoute%3A%3ARackLayout#get-layoutlayout_id).
+
+### `POST /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
+
+See ["`POST /layout/:layout_id`" in Conch::Route::RackLayout](../modules/Conch%3A%3ARoute%3A%3ARackLayout#post-layoutlayout_id).
+
+### `DELETE /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
+
+See ["`DELETE /layout/:layout_id`" in Conch::Route::RackLayout](../modules/Conch%3A%3ARoute%3A%3ARackLayout#delete-layoutlayout_id).
+
 # LICENSING
 
 Copyright Joyent, Inc.

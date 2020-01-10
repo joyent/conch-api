@@ -187,10 +187,16 @@
       },
       "type" : "object"
     },
-    "WithDeviceHealth" : {
+    "WithDeviceRackData" : {
       "additionalProperties" : false,
       "properties" : {
         "with_device_health" : {
+          "$ref" : "/definitions/boolean_integer_or_flag"
+        },
+        "with_device_phases" : {
+          "$ref" : "/definitions/boolean_integer_or_flag"
+        },
+        "with_rack_phases" : {
           "$ref" : "/definitions/boolean_integer_or_flag"
         }
       },

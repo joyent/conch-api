@@ -69,7 +69,7 @@ sub find_workspace ($c) {
     return 1;
 }
 
-=head2 list
+=head2 get_all
 
 Get a list of all workspaces available to the currently authenticated user.
 
@@ -77,7 +77,7 @@ Response uses the WorkspacesAndRoles json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     if ($c->is_system_admin) {
         my $rs = $c->db_workspaces->add_role_column('admin');
         return $c->status(200, [ $rs->all ]);

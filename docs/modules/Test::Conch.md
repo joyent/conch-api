@@ -169,7 +169,7 @@ or, to get all the defaults with no overrides:
 $t->generate_fixtures('device_location');
 ```
 
-See ["\_generate\_definition" in Test::Conch::Fixtures](../modules/Test%3A%3AConch%3A%3AFixtures#generate_definition) for the list of recognized types.
+See ["\_generate\_definition" in Test::Conch::Fixtures](../modules/Test%3A%3AConch%3A%3AFixtures#_generate_definition) for the list of recognized types.
 
 ## authenticate
 

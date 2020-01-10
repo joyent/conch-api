@@ -117,6 +117,7 @@ definitions:
       - phase
       - links
       - build_id
+      - build_name
       - latest_report
     properties:
       id:
@@ -174,6 +175,10 @@ definitions:
         oneOf:
           - type: 'null'
           - $ref: common.yaml#/definitions/uuid
+      build_name:
+        oneOf:
+          - type: 'null'
+          - $ref: common.yaml#/definitions/mojo_standard_placeholder
       location:
         $comment: location is included only when device 'phase' is earlier than 'production'
         oneOf:
@@ -348,6 +353,7 @@ definitions:
       - phase
       - links
       - build_id
+      - build_name
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -404,11 +410,16 @@ definitions:
         oneOf:
           - type: 'null'
           - $ref: common.yaml#/definitions/uuid
+      build_name:
+        oneOf:
+          - type: 'null'
+          - $ref: common.yaml#/definitions/mojo_standard_placeholder
       rack_id:
         oneOf:
           - $ref: common.yaml#/definitions/uuid
           - type: 'null'
       rack_name:
+        description: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
         oneOf:
           - $ref: common.yaml#/definitions/mojo_relaxed_placeholder
           - type: 'null'
@@ -549,6 +560,11 @@ definitions:
       not:
         required:
           - location
+  DevicePXEs:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: /definitions/DevicePXE
   DevicePhase:
     type: object
     additionalProperties: false
@@ -590,6 +606,10 @@ definitions:
           $ref: common.yaml#/definitions/uuid
         phase:
           $ref: common.yaml#/definitions/device_phase
+        # differs from DevicePXEs in that location is always present in the result, if the element
+        # itself is present, because presence in the workspace is only determined via the rack
+        # (location), where phase_earlier_than would remove the entire result, as well as nullify
+        # 'location'
         location:
           $ref: /definitions/DeviceLocation
         ipmi:
@@ -647,7 +667,7 @@ definitions:
         # description: datacenter_room.alias
         $ref: common.yaml#/definitions/mojo_standard_placeholder
       rack:
-        # description: rack.full_name (datacenter_room.vendor_name + ':' + rack.name)
+        # description: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
         $ref: common.yaml#/definitions/mojo_relaxed_placeholder
       rack_unit_start:
         $ref: common.yaml#/definitions/positive_integer
@@ -1337,23 +1357,34 @@ definitions:
     required:
       - id
       - name
+      - full_rack_name
       - datacenter_room_id
+      - datacenter_room_alias
       - rack_role_id
+      - rack_role_name
       - serial_number
       - asset_tag
       - phase
       - created
       - updated
       - build_id
+      - build_name
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
       name:
         $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+      full_rack_name:
+        # description: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
+        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
       datacenter_room_id:
         $ref: common.yaml#/definitions/uuid
+      datacenter_room_alias:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       rack_role_id:
         $ref: common.yaml#/definitions/uuid
+      rack_role_name:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       serial_number:
         oneOf:
           - type: string
@@ -1374,6 +1405,10 @@ definitions:
         oneOf:
           - type: 'null'
           - $ref: common.yaml#/definitions/uuid
+      build_name:
+        oneOf:
+          - type: 'null'
+          - $ref: common.yaml#/definitions/mojo_standard_placeholder
   RackRole:
     type: object
     additionalProperties: false
@@ -1412,7 +1447,9 @@ definitions:
     required:
       - id
       - rack_id
+      - rack_name
       - hardware_product_id
+      - sku
       - rack_unit_start
       - rack_unit_size
       - created
@@ -1422,8 +1459,13 @@ definitions:
         $ref: common.yaml#/definitions/uuid
       rack_id:
         $ref: common.yaml#/definitions/uuid
+      rack_name:
+        # description: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
+        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
+      sku:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       rack_unit_start:
         $ref: common.yaml#/definitions/positive_integer
       rack_unit_size:
@@ -1446,6 +1488,7 @@ definitions:
       - device_id
       - device_asset_tag
       - hardware_product_name
+      - sku
       - rack_unit_start
       - rack_unit_size
     properties:
@@ -1459,6 +1502,8 @@ definitions:
           - type: 'null'
       hardware_product_name:
         type: string
+      sku:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       rack_unit_start:
         $ref: common.yaml#/definitions/positive_integer
       rack_unit_size:
@@ -1862,7 +1907,55 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: /definitions/Organization
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - description
+        - created
+        - admins
+        - builds
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        name:
+          $ref: common.yaml#/definitions/mojo_standard_placeholder
+        description:
+          oneOf:
+            - type: 'null'
+            - type: string
+        created:
+          type: string
+          format: date-time
+        admins:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            $ref: /definitions/UserTerse
+        builds:
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - name
+              - description
+              - role
+            properties:
+              id:
+                $ref: common.yaml#/definitions/uuid
+              name:
+                $ref: common.yaml#/definitions/mojo_standard_placeholder
+              description:
+                oneOf:
+                  - type: string
+                  - type: 'null'
+              role:
+                $ref: common.yaml#/definitions/role
   Build:
     type: object
     additionalProperties: false
@@ -1913,6 +2006,22 @@ definitions:
         maxProperties: 4
         propertyNames:
           $ref: common.yaml#/definitions/device_health
+        additionalProperties:
+          $ref: common.yaml#/definitions/non_negative_integer
+      device_phases:
+        type: object
+        minProperties: 5
+        maxProperties: 5
+        propertyNames:
+          $ref: common.yaml#/definitions/device_phase
+        additionalProperties:
+          $ref: common.yaml#/definitions/non_negative_integer
+      rack_phases:
+        type: object
+        minProperties: 5
+        maxProperties: 5
+        propertyNames:
+          $ref: common.yaml#/definitions/device_phase
         additionalProperties:
           $ref: common.yaml#/definitions/non_negative_integer
   Builds:

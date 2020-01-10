@@ -190,8 +190,9 @@ use experimental 'signatures';
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
-    $data->{rack_unit_size} = $self->get_column('rack_unit_size')
-        if $self->has_column_loaded('rack_unit_size');
+    foreach my $key (qw(rack_unit_size rack_name sku)) {
+        $data->{$key} = $self->get_column($key) if $self->has_column_loaded($key);
+    }
 
     return $data;
 }

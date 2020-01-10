@@ -133,6 +133,7 @@ subtest 'Assign device to a location' => sub {
                 device_id => $test->id,
                 device_asset_tag => undef,
                 hardware_product_name => $hardware_product_compute->name,
+                sku => $hardware_product_compute->sku,
             },
             {
                 rack_unit_start => 3,
@@ -140,6 +141,7 @@ subtest 'Assign device to a location' => sub {
                 device_id => $new_device->id,
                 device_asset_tag => undef,
                 hardware_product_name => $hardware_product_storage->name,
+                sku => $hardware_product_storage->sku,
             },
             {
                 rack_unit_start => 11,
@@ -147,6 +149,7 @@ subtest 'Assign device to a location' => sub {
                 device_id => undef,
                 device_asset_tag => undef,
                 hardware_product_name => $hardware_product_storage->name,
+                sku => $hardware_product_storage->sku,
             },
         ]);
 

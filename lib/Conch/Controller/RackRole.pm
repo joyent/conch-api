@@ -15,7 +15,7 @@ Conch::Controller::RackRole
 =head2 find_rack_role
 
 Chainable action that uses the C<rack_role_id_or_name> value provided in the stash (usually via
-the request URL) to look up a build, and stashes the result in C<rack_role>.
+the request URL) to look up a rack role, and stashes the result in C<rack_role>.
 
 =cut
 
@@ -126,10 +126,14 @@ sub update ($c) {
         }
     }
 
+    $c->res->headers->location('/rack_role/'.$rack_role->id);
+
     $rack_role->set_columns($input);
+    return $c->status(204) if not $rack_role->is_changed;
+
     $rack_role->update({ updated => \'now()' }) if $rack_role->is_changed;
     $c->log->debug('Updated rack role '.$rack_role->id);
-    $c->status(303, '/rack_role/'.$rack_role->id);
+    $c->status(303);
 }
 
 =head2 delete

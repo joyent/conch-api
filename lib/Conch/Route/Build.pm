@@ -23,7 +23,7 @@ sub routes {
     $build->to({ controller => 'build' });
 
     # GET /build
-    $build->get('/')->to('#list');
+    $build->get('/')->to('#get_all');
 
     # POST /build
     $build->require_system_admin->post('/')->to('#create');
@@ -47,7 +47,7 @@ sub routes {
         $with_build_admin->post('/')->to('#update');
 
         # GET /build/:build_id_or_name/user
-        $with_build_admin->get('/user')->to('#list_users');
+        $with_build_admin->get('/user')->to('#get_users');
 
         # POST /build/:build_id_or_name/user?send_mail=<1|0>
         $with_build_admin->post('/user')->to('#add_user');
@@ -61,7 +61,7 @@ sub routes {
             my $build_organization = $with_build_admin->any('/organization');
 
             # GET /build/:build_id_or_name/organization
-            $build_organization->get('/')->to('#list_organizations');
+            $build_organization->get('/')->to('#get_organizations');
 
             # POST /build/:build_id_or_name/organization?send_mail=<1|0>
             $build_organization->post('/')->to('#add_organization');
@@ -72,8 +72,13 @@ sub routes {
                 ->delete('/')->to('build#remove_organization');
         }
 
+        my $build_devices = $with_build_ro->under('/device')->to('#find_devices');
+
         # GET /build/:build_id_or_name/device
-        $with_build_ro->get('/device')->to('#get_devices');
+        $build_devices->get('/')->to('#get_devices');
+
+        # GET /build/:build_id_or_name/device/pxe
+        $build_devices->get('/pxe')->to('#get_pxe_devices');
 
         # POST /build/:build_id_or_name/device
         $with_build_rw->post('/device')->to('#create_and_add_devices', require_role => 'rw');
@@ -107,8 +112,17 @@ All routes require authentication.
 
 =head3 C<GET /build>
 
-Takes one optional query parameter C<< device_health >> (defaults to false) to include
-correlated counts of devices having each health value.
+Supports the following optional query parameters:
+
+=over 4
+
+=item * C<with_device_health> - includes correlated counts of devices having each health value
+
+=item * C<with_device_phases> - includes correlated counts of devices having each phase value
+
+=item * C<with_rack_phases> - includes correlated counts of racks having each phase value
+
+=back
 
 =over 4
 
@@ -130,8 +144,17 @@ correlated counts of devices having each health value.
 
 =head3 C<GET /build/:build_id_or_name>
 
-Takes one optional query parameter C<< device_health >> (defaults to false) to include counts
-of devices having each health value.
+Supports the following optional query parameters:
+
+=over 4
+
+=item * C<with_device_health> - includes correlated counts of devices having each health value
+
+=item * C<with_device_phases> - includes correlated counts of devices having each phase value
+
+=item * C<with_rack_phases> - includes correlated counts of racks having each phase value
+
+=back
 
 =over 4
 
@@ -235,10 +258,10 @@ Accepts the following optional query parameters:
 
 =over 4
 
-=item * C<< health=<value> >> show only devices with the health matching the provided value
+=item * C<health=:value> show only devices with the health matching the provided value
 (can be used more than once)
 
-=item * C<active_minutes=X> show only devices which have reported within the last X minutes
+=item * C<active_minutes=:X> show only devices which have reported within the last X minutes
 
 =item * C<ids_only=1> only return device IDs, not full device details
 
@@ -249,6 +272,16 @@ Accepts the following optional query parameters:
 =item * Requires system admin authorization or the read-only role on the build
 
 =item * Response: F<response.yaml#/definitions/Devices>, F<response.yaml#/definitions/DeviceIds> or F<response.yaml#/definitions/DeviceSerials>
+
+=back
+
+=head3 C<GET /build/:build_id_or_name/device/pxe>
+
+=over 4
+
+=item * Requires system admin authorization or the read-only role on the build
+
+=item * Response: F<response.yaml#/definitions/DevicePXEs>
 
 =back
 

@@ -1,6 +1,6 @@
 package Conch::Route::RackLayout;
 
-use Mojo::Base -strict;
+use Mojo::Base -strict, -signatures;
 
 =pod
 
@@ -27,13 +27,26 @@ sub routes {
     # POST /layout
     $layout->post('/')->to('#create');
 
-    my $with_layout = $layout->under('/<layout_id:uuid>')->to('#find_rack_layout');
-
     # GET /layout/:layout_id
-    $with_layout->get('/')->to('#get');
     # POST /layout/:layout_id
-    $with_layout->post('/')->to('#update');
     # DELETE /layout/:layout_id
+    $class->one_layout_routes($layout);
+}
+
+=head2 one_layout_routes
+
+Sets up the routes for working with just one layout, mounted under a provided route prefix.
+
+=cut
+
+sub one_layout_routes ($class, $r) {
+    my $with_layout = $r->under('/:layout_id_or_rack_unit_start')->to('#find_rack_layout', controller => 'rack_layout');
+
+    # GET .../layout/:layout_id_or_rack_unit_start
+    $with_layout->get('/')->to('#get');
+    # POST .../layout/:layout_id_or_rack_unit_start
+    $with_layout->post('/')->to('#update');
+    # DELETE .../layout/:layout_id_or_rack_unit_start
     $with_layout->delete('/')->to('#delete');
 }
 

@@ -6,7 +6,7 @@ Controller for managing Validation Plans
 
 # METHODS
 
-## list
+## get\_all
 
 List all available Validation Plans.
 
@@ -24,7 +24,7 @@ Get the (active) Validation Plan specified by uuid or name.
 
 Response uses the ValidationPlan json schema.
 
-## list\_validations
+## get\_validations
 
 List all Validations associated with the Validation Plan, both active and deactivated.
 

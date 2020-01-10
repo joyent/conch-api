@@ -6,7 +6,7 @@ Controller for managing Validations, **NOT** executing them.
 
 # METHODS
 
-## list
+## get\_all
 
 List all Validations.
 

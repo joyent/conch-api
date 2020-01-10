@@ -138,7 +138,7 @@ thus created.
             {
                 fingerprint => $fingerprint,
                 uuid => $rollbar_id,
-                _get_extra_data($c)->%*,
+                _request_data($c)->%*,
             },
         );
 
@@ -178,7 +178,7 @@ A string or data structure of fingerprint data for grouping occurrences is optio
                 fingerprint => $fingerprint,
                 uuid => $rollbar_id,
                 level => $severity,
-                _get_extra_data($c)->%*,
+                _request_data($c)->%*,
             },
         );
 
@@ -186,7 +186,7 @@ A string or data structure of fingerprint data for grouping occurrences is optio
     });
 }
 
-sub _get_extra_data ($c) {
+sub _request_data($c) {
     my $user = $c->stash('user');
     my $headers = $c->req->headers->to_hash(1);
     delete $headers->@{qw(Authorization Cookie jwt_token)};

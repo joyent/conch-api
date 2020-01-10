@@ -75,15 +75,15 @@ sub all_routes (
     });
 
     # POST /login
-    $root->post('/login')->to('login#session_login');
+    $root->post('/login')->to('login#login');
 
     # POST /logout
-    $root->post('/logout')->to('login#session_logout');
+    $root->post('/logout')->to('login#logout');
 
     Conch::Route::Schema->routes($root->any('/schema'));
 
     # GET /workspace/:workspace/device-totals
-    $root->get('/workspace/:workspace/device-totals')->to('workspace_device#device_totals');
+    $root->get('/workspace/:workspace/device-totals')->to('workspace_device#device_totals', deprecated => 'v3.1');
 
     # all routes after this point require authentication
 
@@ -92,7 +92,7 @@ sub all_routes (
     $secured->get('/me', sub ($c) { $c->status(204) });
     $secured->post('/refresh_token')->to('login#refresh_token');
 
-    Conch::Route::Workspace->routes($secured->any('/workspace'));
+    Conch::Route::Workspace->routes($secured->any('/workspace')->to(deprecated => 'v3.1'));
     Conch::Route::Device->routes($secured->any('/device'), $app);
     Conch::Route::DeviceReport->routes($secured->any('/device_report'));
     Conch::Route::Relay->routes($secured->any('/relay'));

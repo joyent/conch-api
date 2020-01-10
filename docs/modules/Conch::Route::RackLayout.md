@@ -8,6 +8,10 @@ Conch::Route::RackLayout
 
 Sets up the routes for /layout:
 
+## one\_layout\_routes
+
+Sets up the routes for working with just one layout, mounted under a provided route prefix.
+
 All routes require authentication.
 
 ### `GET /layout`

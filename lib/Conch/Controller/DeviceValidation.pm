@@ -12,7 +12,7 @@ Conch::Controller::DeviceValidation
 
 =head1 METHODS
 
-=head2 list_validation_states
+=head2 get_validation_states
 
 Get the latest validation states for a device. Accepts the query parameter C<status>,
 indicating the desired status(es) to search for -- one or more of: pass, fail, error.
@@ -23,7 +23,7 @@ Response uses the ValidationStatesWithResults json schema.
 
 =cut
 
-sub list_validation_states ($c) {
+sub get_validation_states ($c) {
     my $params = $c->validate_query_params('GetValidationStates');
     return if not $params;
 

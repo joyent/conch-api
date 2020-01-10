@@ -12,33 +12,43 @@ Conch::Controller::Organization
 
 =head1 METHODS
 
-=head2 list
+=head2 get_all
 
-If the user is a system admin, retrieve a list of all active organizations in the database;
-otherwise, limits the list to those organizations of which the user is a member.
+Retrieve a list of organization details (including each organization's admins).
+
+If the user is a system admin, all active organizations are retrieved; otherwise, limits the
+list to those organizations of which the user is a member.
 
 Response uses the Organizations json schema.
 
 =cut
 
-sub list ($c) {
+sub get_all ($c) {
     my $rs = $c->db_organizations
         ->active
+        ->search({ 'user_organization_roles.role' => 'admin' })
         ->prefetch({
                 user_organization_roles => 'user_account',
                 organization_build_roles => 'build',
             })
         ->order_by([ map $_.'.name', qw(organization user_account build) ]);
 
-    return $c->status(200, [ $rs->all ]) if $c->is_system_admin;
-
-    # normal users can only see organizations in which they are a member
-    $rs = $rs->search({ 'organization.id' => { -in =>
+    if (not $c->is_system_admin) {
+        # normal users can only see organizations in which they are a member
+        $rs = $rs->search({ 'organization.id' => { -in =>
                 $c->db_user_organization_roles->search({ user_id => $c->stash('user_id') })
-                ->get_column('organization_id')->as_query
+                    ->get_column('organization_id')->as_query
             } });
+    }
 
-    $c->status(200, [ $rs->all ]);
+    my @data =
+        map +{
+            admins => [ map +{ $_->%{qw(id name email)} }, (delete $_->{users})->@* ],
+            $_->%*,
+        },
+        map $_->TO_JSON, $rs->all;
+
+    $c->status(200, \@data);
 }
 
 =head2 create
@@ -79,7 +89,7 @@ sub create ($c) {
 =head2 find_organization
 
 Chainable action that uses the C<organization_id_or_name> value provided in the stash (usually
-via the request URL) to look up a build, and stashes the query to get to it in
+via the request URL) to look up an organization, and stashes the query to get to it in
 C<organization_rs>.
 
 If C<require_role> is provided, it is used as the minimum required role for the user to
@@ -121,7 +131,7 @@ sub find_organization ($c) {
 
 =head2 get
 
-Get the details of a single organization.
+Get the details of a single organization, including its members.
 Requires the 'admin' role on the organization.
 
 Response uses the Organization json schema.

@@ -38,8 +38,12 @@ $t->get_ok($_)
     ->json_cmp_deeply(superhashof({
         id => $rack->id,
         name => 'rack.0a',
+        full_rack_name => 'ROOM:0.A:rack.0a',
         datacenter_room_id => $room->id,
+        datacenter_room_alias => 'room 0a',
         rack_role_id => re(Conch::UUID::UUID_FORMAT),
+        rack_role_name => 'rack_role 42U',
+        (map +('build_'.$_ => $rack->build->$_), qw(id name)),
     }))
     foreach
         '/rack/'.$rack->id,
@@ -126,14 +130,17 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_cmp_deeply({
         id => re(Conch::UUID::UUID_FORMAT),
         name => 'r4ck',
+        full_rack_name => 'ROOM:0.A:r4ck',
         datacenter_room_id => $room->id,
+        datacenter_room_alias => 'room 0a',
         rack_role_id => $rack->rack_role_id,
+        rack_role_name => 'rack_role 42U',
         serial_number => 'abc',
         asset_tag => undef,
         phase => 'integration',
         created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-        build_id => $build->id,
+        (map +('build_'.$_ => $build->$_), qw(id name)),
     });
 my $new_rack = $t->tx->res->json;
 
@@ -199,7 +206,7 @@ $t->post_ok("/rack/$new_rack->{id}", json => {
 $new_rack->@{qw(name serial_number asset_tag)} = qw(rack abc deadbeef);
 
 $t->post_ok($_, json => { rack_role_id => $small_rack_role->id })
-    ->status_is(303)
+    ->status_is($_ eq '/rack/'.$new_rack->{id} ? 303 : 204)
     ->location_is('/rack/'.$new_rack->{id})
     foreach
         '/rack/'.$new_rack->{id},
@@ -218,7 +225,10 @@ $t->get_ok($t->tx->res->headers->location)
         name => 'rack',
         serial_number => 'abc',
         asset_tag => 'deadbeef',
+        datacenter_room_id => $room->id,
+        datacenter_room_alias => 'room 0a',
         rack_role_id => $small_rack_role->id,
+        rack_role_name => $small_rack_role->name,
     }));
 
 $t->get_ok($_)
@@ -285,6 +295,7 @@ $t->get_ok('/rack/'.$rack->id.'/assignment')
             device_id => undef,
             device_asset_tag => undef,
             hardware_product_name => $hardware_product_compute->name,
+            sku => $hardware_product_compute->sku,
         },
         {
             rack_unit_start => 3,
@@ -292,6 +303,7 @@ $t->get_ok('/rack/'.$rack->id.'/assignment')
             device_id => undef,
             device_asset_tag => undef,
             hardware_product_name => $hardware_product_storage->name,
+            sku => $hardware_product_storage->sku,
         },
         {
             rack_unit_start => 11,
@@ -299,6 +311,7 @@ $t->get_ok('/rack/'.$rack->id.'/assignment')
             device_id => undef,
             device_asset_tag => undef,
             hardware_product_name => $hardware_product_storage->name,
+            sku => $hardware_product_storage->sku,
         },
     ]);
 my $assignments = $t->tx->res->json;
@@ -593,6 +606,29 @@ $t->get_ok($_)
         '/room/'.$room->alias.'/rack/'.$rack->id.'/assignment',
         '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$rack->name.'/assignment',
         '/room/'.$room->alias.'/rack/'.$rack->name.'/assignment';
+
+$t->get_ok('/rack/'.$rack->id.'/layout')
+    ->status_is(200)
+    ->location_is('/rack/'.$rack->id.'/layout')
+    ->json_schema_is('RackLayouts');
+my $layouts = $t->tx->res->json;
+
+$t->get_ok($_)
+    ->status_is(200)
+    ->location_is('/layout/'.$layouts->[0]{id})
+    ->json_schema_is('RackLayout')
+    ->json_is($layouts->[0])
+    ->log_debug_is('Found rack layout '.(split('/'))[-1].' in rack id '.$rack->id)
+    foreach map +(
+        '/rack/'.$rack->id.'/layout/'.$layouts->[0]{$_},
+        '/rack/'.$room->vendor_name.':'.$rack->name.'/layout/'.$layouts->[0]{$_},
+        '/room/'.$room->id.'/rack/'.$rack->id.'/layout/'.$layouts->[0]{$_},
+        '/room/'.$room->id.'/rack/'.$room->vendor_name.':'.$rack->name.'/layout/'.$layouts->[0]{id},
+        '/room/'.$room->id.'/rack/'.$rack->name.'/layout/'.$layouts->[0]{$_},
+        '/room/'.$room->alias.'/rack/'.$rack->id.'/layout/'.$layouts->[0]{$_},
+        '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$rack->name.'/layout/'.$layouts->[0]{$_},
+        '/room/'.$room->alias.'/rack/'.$rack->name.'/layout/'.$layouts->[0]{$_},
+    ), qw(id rack_unit_start);
 
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

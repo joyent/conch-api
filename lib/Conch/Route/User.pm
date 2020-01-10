@@ -38,7 +38,7 @@ sub routes {
         # POST /user/me/password?clear_tokens=<login_only|none|all>
         # (after changing password, (possibly) pass through to logging out too)
         $user->under('/me/password')->to('#change_own_password')
-            ->post('/')->to('login#session_logout');
+            ->post('/')->to('login#logout');
 
         {
             my $user_me_settings = $user_me->any('/settings');
@@ -98,7 +98,7 @@ sub routes {
         $user_with_target->delete('/password')->to('#reset_user_password');
 
         # GET /user
-        $user->require_system_admin->get('/')->to('#list');
+        $user->require_system_admin->get('/')->to('#get_all');
         # POST /user?send_mail=<1|0>
         $user->require_system_admin->post('/')->to('#create');
 

@@ -20,35 +20,23 @@ All routes require authentication.
 - Request: [request.json#/definitions/HardwareProductCreate](../json-schema/request.json#/definitions/HardwareProductCreate)
 - Response: Redirect to the created hardware product
 
-### `GET /hardware_product/:hardware_product_id`
+### `GET /hardware_product/:hardware_product_id_or_other`
 
-### `GET /hardware_product/name=:hardware_product_name`
-
-### `GET /hardware_product/alias=:hardware_product_alias`
-
-### `GET /hardware_product/sku=:hardware_product_sku`
+Identifiers accepted: `id`, `sku`, `name` and `alias`.
 
 - Response: [response.json#/definitions/HardwareProduct](../json-schema/response.json#/definitions/HardwareProduct)
 
-### `POST /hardware_product/:hardware_product_id`
+### `POST /hardware_product/:hardware_product_id_or_other`
 
-### `POST /hardware_product/name=:hardware_product_name`
-
-### `POST /hardware_product/alias=:hardware_product_alias`
-
-### `POST /hardware_product/sku=:hardware_product_sku`
+Identifiers accepted: `id`, `sku`, `name` and `alias`.
 
 - Requires system admin authorization
 - Request: [request.json#/definitions/HardwareProductUpdate](../json-schema/request.json#/definitions/HardwareProductUpdate)
 - Response: Redirect to the updated hardware product
 
-### `DELETE /hardware_product/:hardware_product_id`
+### `DELETE /hardware_product/:hardware_product_id_or_other`
 
-### `DELETE /hardware_product/name=:hardware_product_name`
-
-### `DELETE /hardware_product/alias=:hardware_product_alias`
-
-### `DELETE /hardware_product/sku=:hardware_product_sku`
+Identifiers accepted: `id`, `sku`, `name` and `alias`.
 
 - Requires system admin authorization
 - Response: `204 NO CONTENT`

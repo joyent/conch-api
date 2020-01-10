@@ -115,6 +115,7 @@ sub find_device ($c) {
         }
     }
 
+    $c->res->headers->location('/device/'.$device_id);
     return 1;
 }
 
@@ -137,7 +138,7 @@ sub get ($c) {
     # TODO: this is really a weak etag. requires https://github.com/mojolicious/mojo/pull/1420
     return $c->status(304) if $c->is_fresh(etag => $etag);
 
-    my $device = $c->stash('device_rs')->with_sku->single;
+    my $device = $c->stash('device_rs')->with_sku->with_build_name->single;
     my $latest_report = $c->stash('device_rs')->latest_device_report->get_column('report')->single;
 
     my $detailed_device = +{
@@ -169,7 +170,7 @@ sub get ($c) {
             $c->stash('device_rs')
                 ->related_resultset('device_disks')
                 ->active
-                ->order_by('serial_number')
+                ->order_by('slot')
                 ->all
         ];
     }
@@ -244,6 +245,7 @@ sub lookup_by_other_attribute ($c) {
     my @devices = $device_rs
         ->with_device_location
         ->with_sku
+        ->with_build_name
         ->order_by('device.created')
         ->all;
 
@@ -302,10 +304,13 @@ sub set_asset_tag ($c) {
 
     my $device = $c->stash('device_rs')->single;
 
-    $device->update({ asset_tag => $input->{asset_tag}, updated => \'now()' });
+    $device->set_columns($input);
+    return $c->status(204) if not $device->is_changed;
+
+    $device->update({ updated => \'now()' });
     $c->log->debug('Set the asset tag for device '.$device->id.' to '.($input->{asset_tag} // 'null'));
 
-    $c->status(303, '/device/'.$device->id);
+    $c->status(303);
 }
 
 =head2 set_validated
@@ -325,7 +330,7 @@ sub set_validated ($c) {
     $device->update({ validated => \'now()', updated => \'now()' });
     $c->log->debug('Marked the device '.$device_id.' as validated');
 
-    $c->status(303, '/device/'.$device_id);
+    $c->status(303);
 }
 
 =head2 get_phase
@@ -363,10 +368,15 @@ sub set_phase ($c) {
     my $input = $c->validate_request('DevicePhase');
     return if not $input;
 
-    $c->stash('device_rs')->update({ phase => $input->{phase}, updated => \'now()' });
+    my $device = $c->stash('device_rs')->single;
+
+    $device->set_columns($input);
+    return $c->status(204) if not $device->is_changed;
+
+    $device->update({ updated => \'now()' });
     $c->log->debug('Set the phase for device '.$c->stash('device_id').' to '.$input->{phase});
 
-    $c->status(303, '/device/'.$c->stash('device_id'));
+    $c->status(303);
 }
 
 =head2 add_links
@@ -387,7 +397,7 @@ sub add_links ($c) {
             updated => \'now()',
         });
 
-    $c->status(303, '/device/'.$c->stash('device_id'));
+    $c->status(303);
 }
 
 =head2 remove_links
@@ -416,6 +426,8 @@ sub set_build ($c) {
     return if not $input;
 
     my $device = $c->stash('device_rs')->single;
+    return $c->status(204) if $device->build_id and $device->build_id eq $input->{build_id};
+
     if (not $c->is_system_admin) {
         if ($device->build_id and not $device->related_resultset('build')->user_has_role($c->stash('user_id'), 'rw')) {
             $c->log->debug('User lacks the required role (rw) for existing build '.$device->build_id);
@@ -429,7 +441,7 @@ sub set_build ($c) {
     }
 
     $device->update({ build_id => $input->{build_id}, updated => \'now()' });
-    $c->status(303, '/device/'.$c->stash('device_id'));
+    $c->status(303);
 }
 
 1;

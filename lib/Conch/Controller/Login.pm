@@ -157,14 +157,14 @@ sub authenticate ($c) {
     return $c->status(401);
 }
 
-=head2 session_login
+=head2 login
 
 Handles the act of logging in, given a user and password in the form.
 Response uses the Login json schema, containing a JWT.
 
 =cut
 
-sub session_login ($c) {
+sub login ($c) {
     my $input = $c->validate_request('Login');
     return if not $input;
 
@@ -231,13 +231,13 @@ sub session_login ($c) {
     return $c->_respond_with_jwt($user->id);
 }
 
-=head2 session_logout
+=head2 logout
 
 Logs a user out by expiring their session
 
 =cut
 
-sub session_logout ($c) {
+sub logout ($c) {
     $c->session(expires => 1);
 
     # expire this user's token

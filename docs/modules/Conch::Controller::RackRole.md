@@ -7,7 +7,7 @@ Conch::Controller::RackRole
 ## find\_rack\_role
 
 Chainable action that uses the `rack_role_id_or_name` value provided in the stash (usually via
-the request URL) to look up a build, and stashes the result in `rack_role`.
+the request URL) to look up a rack role, and stashes the result in `rack_role`.
 
 ## create
 

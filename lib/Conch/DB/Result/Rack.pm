@@ -294,6 +294,18 @@ __PACKAGE__->add_columns(
     '+phase' => { retrieve_on_insert => 1 },
 );
 
+use experimental 'signatures';
+
+sub TO_JSON ($self) {
+    my $data = $self->next::method(@_);
+
+    foreach my $key (qw(build_name datacenter_room_alias rack_role_name full_rack_name)) {
+        $data->{$key} = $self->get_column($key) if $self->has_column_loaded($key);
+    }
+
+    return $data;
+}
+
 1;
 __END__
 

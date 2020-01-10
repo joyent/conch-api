@@ -24,7 +24,7 @@ sub routes {
     my $workspace = shift;    # secured, under /workspace
 
     # GET /workspace
-    $workspace->get('/')->to('workspace#list');
+    $workspace->get('/')->to('workspace#get_all');
 
     {
         # chainable actions that extract and look up workspace_id from the path
@@ -43,13 +43,13 @@ sub routes {
         $with_workspace->post('/child')->to('workspace#create_sub_workspace');
 
         # GET /workspace/:workspace_id_or_name/device?<various query params>
-        $with_workspace->get('/device')->to('workspace_device#list');
+        $with_workspace->get('/device')->to('workspace_device#get_all');
 
         # GET /workspace/:workspace_id_or_name/device/pxe
         $with_workspace->get('/device/pxe')->to('workspace_device#get_pxe_devices');
 
         # GET /workspace/:workspace_id_or_name/rack
-        $with_workspace->get('/rack')->to('workspace_rack#list');
+        $with_workspace->get('/rack')->to('workspace_rack#get_all');
         # POST /workspace/:workspace_id_or_name/rack
         $with_workspace_admin->post('/rack')->to('workspace_rack#add');
 
@@ -63,12 +63,12 @@ sub routes {
         }
 
         # GET /workspace/:workspace_id_or_name/relay
-        $with_workspace->get('/relay')->to('workspace_relay#list');
+        $with_workspace->get('/relay')->to('workspace_relay#get_all');
         # GET /workspace/:workspace_id_or_name/relay/<relay_id:uuid>/device
         $with_workspace->get('/relay/<relay_id:uuid>/device')->to('workspace_relay#get_relay_devices');
 
         # GET /workspace/:workspace_id_or_name/user
-        $with_workspace_admin->get('/user')->to('workspace_user#list');
+        $with_workspace_admin->get('/user')->to('workspace_user#get_all');
 
         # POST /workspace/:workspace_id_or_name/user?send_mail=<1|0>
         $with_workspace_admin->post('/user')->to('workspace_user#add_user');
@@ -141,9 +141,9 @@ Accepts the following optional query parameters:
 
 =item * C<< validated=<1|0> >> show only devices where the C<validated> attribute is set/not-set
 
-=item * C<< health=<value> >> show only devices with the health matching the provided value
+=item * C<health=:value> show only devices with the health matching the provided value
 
-=item * C<active_minutes=X> show only devices which have reported within the last X minutes (this is different from all active devices)
+=item * C<active_minutes=:X> show only devices which have reported within the last X minutes (this is different from all active devices)
 
 =item * C<ids_only=1> only return device IDs, not full device details
 
