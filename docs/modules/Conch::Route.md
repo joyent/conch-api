@@ -20,6 +20,11 @@ These are available on the root router. See ["Shortcuts" in Mojolicious::Guides:
 
 Chainable route that aborts with HTTP 403 if the user is not a system admin.
 
+## find\_user\_from\_payload
+
+Chainable route that looks up the user by `user_id` or `email` in the JSON payload,
+aborting with HTTP 410 or HTTP 404 if not found.
+
 # ROUTE ENDPOINTS
 
 Unless otherwise specified, all routes require authentication.

@@ -57,7 +57,7 @@ Chainable route that aborts with HTTP 403 if the user is not a system admin.
 =cut
 
     $root->add_shortcut(require_system_admin => sub ($r) {
-        $r->any(sub ($c) {
+        $r->under('/', sub ($c) {
             return $c->status(401)
                 if not $c->stash('user') or not $c->stash('user_id');
 
@@ -67,7 +67,26 @@ Chainable route that aborts with HTTP 403 if the user is not a system admin.
             }
 
             return 1;
-        })->under;
+        });
+    });
+
+=head2 find_user_from_payload
+
+Chainable route that looks up the user by C<user_id> or C<email> in the JSON payload,
+aborting with HTTP 410 or HTTP 404 if not found.
+
+=cut
+
+    # provides a route to chain to that looks up the user provided in the payload
+    $root->add_shortcut(find_user_from_payload => sub ($r) {
+        $r->under('/', sub ($c) {
+            my $input = $c->validate_request('UserIdOrEmail');
+            return if not $input;
+
+            $c->stash('target_user_id_or_email', $input->{user_id} // $input->{email});
+            return 1;
+        })
+        ->under('/')->to('user#find_user');
     });
 
     # allow routes to be specified as, e.g. ->get('/<device_id:uuid>')->to(...)

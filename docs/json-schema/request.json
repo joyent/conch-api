@@ -1085,6 +1085,30 @@
       },
       "type" : "object"
     },
+    "UserIdOrEmail" : {
+      "additionalProperties" : true,
+      "oneOf" : [
+        {
+          "required" : [
+            "user_id"
+          ]
+        },
+        {
+          "required" : [
+            "email"
+          ]
+        }
+      ],
+      "properties" : {
+        "email" : {
+          "$ref" : "common.json#/definitions/email_address"
+        },
+        "user_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        }
+      },
+      "type" : "object"
+    },
     "UserPassword" : {
       "additionalProperties" : false,
       "properties" : {

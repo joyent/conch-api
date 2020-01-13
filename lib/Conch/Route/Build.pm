@@ -50,7 +50,7 @@ sub routes {
         $with_build_admin->get('/user')->to('#get_users');
 
         # POST /build/:build_id_or_name/user?send_mail=<1|0>
-        $with_build_admin->post('/user')->to('#add_user');
+        $with_build_admin->find_user_from_payload->post('/user')->to('build#add_user');
 
         # DELETE /build/:build_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
         $with_build_admin

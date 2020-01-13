@@ -40,7 +40,7 @@ sub find_user ($c) {
     if ($user->deactivated) {
         return $c->status(410, {
             error => 'user is deactivated',
-            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
+            $c->is_system_admin ? ( user => { map +($_ => $user->$_), qw(id email name created deactivated) } ) : (),
         });
     }
 

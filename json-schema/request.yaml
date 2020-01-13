@@ -369,6 +369,19 @@ definitions:
         $ref: common.yaml#/definitions/email_address
       password:
         $ref: common.yaml#/definitions/non_empty_string
+  UserIdOrEmail:
+    type: object
+    additionalProperties: true
+    oneOf:
+      - required:
+        - user_id
+      - required:
+        - email
+    properties:
+      user_id:
+        $ref: common.yaml#/definitions/uuid
+      email:
+        $ref: common.yaml#/definitions/email_address
   UserPassword:
     type: object
     additionalProperties: false

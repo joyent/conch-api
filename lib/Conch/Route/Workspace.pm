@@ -71,7 +71,7 @@ sub routes {
         $with_workspace_admin->get('/user')->to('workspace_user#get_all');
 
         # POST /workspace/:workspace_id_or_name/user?send_mail=<1|0>
-        $with_workspace_admin->post('/user')->to('workspace_user#add_user');
+        $with_workspace_admin->find_user_from_payload->post('/user')->to('workspace_user#add_user');
         # DELETE /workspace/:workspace_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
         $with_workspace_admin->under('/user/#target_user_id_or_email')->to('user#find_user')
             ->delete('/')->to('workspace_user#remove');

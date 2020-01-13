@@ -44,7 +44,7 @@ sub routes {
         $with_organization->require_system_admin->delete('/')->to('#delete');
 
         # POST /organization/:organization_id_or_name/user?send_mail=<1|0>
-        $with_organization->post('/user')->to('#add_user');
+        $with_organization->find_user_from_payload->post('/user')->to('organization#add_user');
 
         # DELETE /organization/:organization_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
         $with_organization->under('/user/#target_user_id_or_email')->to('user#find_user')
