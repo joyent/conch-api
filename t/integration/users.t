@@ -170,6 +170,32 @@ subtest 'User' => sub {
             TEST3 => 'test3',
         });
 
+    $t->post_ok('/user/me', json => { is_admin => JSON::PP::true })
+        ->status_is(403)
+        ->email_not_sent;
+
+    $t->post_ok('/user/me', json => $_)
+        ->status_is(409)
+        ->json_is({ error => 'duplicate user found' })
+        ->email_not_sent
+            foreach
+                { email => 'conch@conch.joyent.us' },
+                { email => 'cONcH@cONCh.joyent.us' },
+                { name => 'conch' };
+
+    $t->post_ok('/user/me', json => { email => 'rO_USer@cONCh.joyent.us', name => 'rO_USer' })
+        ->status_is(303)
+        ->location_is('/user/'.$ro_user->id)
+        ->email_cmp_deeply({
+            To => '"rO_USer" <rO_USer@cONCh.joyent.us>',
+            From => 'noreply@127.0.0.1',
+            Subject => 'Your Conch account has been updated',
+            body => re(qr/^Your account at \Q$JOYENT\E has been updated:\R\R {7}email: ro_user\@conch.joyent.us -> rO_USer\@cONCh.joyent.us\R {8}name: ro_user -> rO_USer\R\R/m),
+        });
+
+    $ro_user->discard_changes;
+
+    # re-authenticate as the same user
     $t->authenticate(email => $ro_user->email);
     my @login_token = ($t->tx->res->json->{jwt_token});
     {
@@ -314,7 +340,7 @@ subtest 'User' => sub {
 
     $t->post_ok('/login', json => { email => $ro_user->email, password => 'øƕḩẳȋ' })
         ->status_is(200)
-        ->log_info_is('user ro_user ('.$ro_user->email.') logged in');
+        ->log_info_is('user rO_USer ('.$ro_user->email.') logged in');
 
     $t->post_ok('/user/me/password?clear_tokens=all', json => { password => 'another password' })
         ->status_is(204, 'changed password again');

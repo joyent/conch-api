@@ -385,6 +385,8 @@ sub update ($c) {
     return $c->status(400, { error => 'user email "'.$input->{email}.'" is not a valid RFC822 address' })
         if exists $input->{email} and not Email::Valid->address($input->{email});
 
+    my $is_system_admin = $c->is_system_admin;
+
     my $user = $c->stash('target_user');
     my %orig_columns = $user->get_columns;
     $user->set_columns($input);
@@ -392,19 +394,16 @@ sub update ($c) {
 
     return $c->status(204) if not keys %dirty_columns;
 
-    if (exists $dirty_columns{email} and fc $input->{email} ne fc $orig_columns{email}
-            and my $dupe_user = $c->db_user_accounts->active->find_by_email($input->{email})) {
-        return $c->status(409, {
-            error => 'duplicate user found',
-            user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) },
-        });
-    }
+    return $c->status(403) if $dirty_columns{is_admin} and not $is_system_admin;
 
-    if (exists $dirty_columns{name}
-            and my $dupe_user = $c->db_user_accounts->active->search({ name => $input->{name} })->single) {
+    if (my $dupe_user =
+            (exists $dirty_columns{email} && (fc $input->{email} ne fc $orig_columns{email})
+                && $c->db_user_accounts->active->find_by_email($input->{email}))
+            || (exists $dirty_columns{name}
+                && $c->db_user_accounts->active->search({ name => $input->{name} })->single) ) {
         return $c->status(409, {
             error => 'duplicate user found',
-            user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) },
+            $is_system_admin ? ( user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) } ) : (),
         });
     }
 

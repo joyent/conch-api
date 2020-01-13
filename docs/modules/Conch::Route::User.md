@@ -14,6 +14,16 @@ All routes require authentication.
 
 - Response: [response.json#/definitions/UserDetailed](../json-schema/response.json#/definitions/UserDetailed)
 
+### `POST /user/:target_user_id_or_email?send_mail=<1|0>`
+
+Optionally take the query parameter `send_mail` (defaults to `1`) to send
+an email telling the user their account was updated
+
+- Request: [request.json#/definitions/UpdateUser](../json-schema/request.json#/definitions/UpdateUser)
+- Success Response: Redirect to the user that was updated
+- Error response on duplicate user: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError) (only if the
+calling user is a system admin)
+
 ### `POST /user/me/revoke?send_mail=<1|0>&login_only=<0|1>&api_only=<0|1>`
 
 Optionally accepts the following query parameters:
@@ -84,18 +94,19 @@ otherwise, the user is logged out.
 
 ### `GET /user/:target_user_id_or_email`
 
-- Requires system admin authorization
+- Requires system admin authorization (when updating a different account than one's own)
 - Response: [response.json#/definitions/UserDetailed](../json-schema/response.json#/definitions/UserDetailed)
 
 ### `POST /user/:target_user_id_or_email?send_mail=<1|0>`
 
 Optionally take the query parameter `send_mail` (defaults to `1`) to send
-an email telling the user their tokens were revoked
+an email telling the user their account was updated
 
 - Requires system admin authorization
 - Request: [request.json#/definitions/UpdateUser](../json-schema/request.json#/definitions/UpdateUser)
 - Success Response: Redirect to the user that was updated
-- Error response on duplicate user: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError)
+- Error response on duplicate user: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError) (only if the
+calling user is a system admin)
 
 ### `DELETE /user/:target_user_id_or_email?clear_tokens=<1|0>`
 

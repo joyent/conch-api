@@ -32,6 +32,9 @@ sub routes {
         # GET /user/me
         $user_me->get('/')->to('#get');
 
+        # POST /user/me?send_mail=<1|0>
+        $user_me->post('/')->to('#update');
+
         # POST /user/me/revoke?send_mail=<1|0>&login_only=<0|1>&api_only=<0|1>
         $user_me->post('/revoke')->to('#revoke_user_tokens');
 
@@ -133,6 +136,22 @@ All routes require authentication.
 =over 4
 
 =item * Response: F<response.yaml#/definitions/UserDetailed>
+
+=back
+
+=head3 C<< POST /user/:target_user_id_or_email?send_mail=<1|0> >>
+
+Optionally take the query parameter C<send_mail> (defaults to C<1>) to send
+an email telling the user their account was updated
+
+=over 4
+
+=item * Request: F<request.yaml#/definitions/UpdateUser>
+
+=item * Success Response: Redirect to the user that was updated
+
+=item * Error response on duplicate user: F<response.yaml#/definitions/UserError> (only if the
+calling user is a system admin)
 
 =back
 
@@ -270,7 +289,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Requires system admin authorization
+=item * Requires system admin authorization (when updating a different account than one's own)
 
 =item * Response: F<response.yaml#/definitions/UserDetailed>
 
@@ -279,7 +298,7 @@ otherwise, the user is logged out.
 =head3 C<< POST /user/:target_user_id_or_email?send_mail=<1|0> >>
 
 Optionally take the query parameter C<send_mail> (defaults to C<1>) to send
-an email telling the user their tokens were revoked
+an email telling the user their account was updated
 
 =over 4
 
@@ -289,7 +308,8 @@ an email telling the user their tokens were revoked
 
 =item * Success Response: Redirect to the user that was updated
 
-=item * Error response on duplicate user: F<response.yaml#/definitions/UserError>
+=item * Error response on duplicate user: F<response.yaml#/definitions/UserError> (only if the
+calling user is a system admin)
 
 =back
 
