@@ -12,7 +12,7 @@ Conch::Route::Datacenter
 
 =head2 routes
 
-Sets up the routes for /dc:
+Sets up the routes for /dc.
 
 =cut
 
@@ -44,9 +44,11 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
-=head3 C<GET /dc>
+=head2 C<GET /dc>
 
 =over 4
 
@@ -56,7 +58,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /dc>
+=head2 C<POST /dc>
 
 =over 4
 
@@ -68,7 +70,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /dc/:datacenter_id>
+=head2 C<GET /dc/:datacenter_id>
 
 =over 4
 
@@ -78,7 +80,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /dc/:datacenter_id>
+=head2 C<POST /dc/:datacenter_id>
 
 =over 4
 
@@ -90,7 +92,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<DELETE /dc/:datacenter_id>
+=head2 C<DELETE /dc/:datacenter_id>
 
 =over 4
 
@@ -100,7 +102,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /dc/:datacenter_id/rooms>
+=head2 C<GET /dc/:datacenter_id/rooms>
 
 =over 4
 
@@ -110,7 +112,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /room>
+=head2 C<GET /room>
 
 =over 4
 

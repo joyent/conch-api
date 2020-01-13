@@ -12,7 +12,7 @@ Conch::Route::HardwareProduct
 
 =head2 routes
 
-Sets up the routes for /hardware_product:
+Sets up the routes for /hardware_product.
 
 =cut
 
@@ -49,9 +49,11 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
-=head3 C<GET /hardware_product>
+=head2 C<GET /hardware_product>
 
 =over 4
 
@@ -59,7 +61,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /hardware_product>
+=head2 C<POST /hardware_product>
 
 =over 4
 
@@ -71,7 +73,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /hardware_product/:hardware_product_id_or_other>
+=head2 C<GET /hardware_product/:hardware_product_id_or_other>
 
 Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
@@ -81,7 +83,7 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =back
 
-=head3 C<POST /hardware_product/:hardware_product_id_or_other>
+=head2 C<POST /hardware_product/:hardware_product_id_or_other>
 
 Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
@@ -95,7 +97,7 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =back
 
-=head3 C<DELETE /hardware_product/:hardware_product_id_or_other>
+=head2 C<DELETE /hardware_product/:hardware_product_id_or_other>
 
 Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 

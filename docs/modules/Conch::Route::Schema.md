@@ -8,11 +8,13 @@ Conch::Route::Schema
 
 Sets up the routes for /schema.
 
-### `GET /schema/query_params/:schema_name`
+# ROUTE ENDPOINTS
 
-### `GET /schema/request/:schema_name`
+## `GET /schema/query_params/:schema_name`
 
-### `GET /schema/response/:schema_name`
+## `GET /schema/request/:schema_name`
+
+## `GET /schema/response/:schema_name`
 
 Returns the schema specified by type and name.
 

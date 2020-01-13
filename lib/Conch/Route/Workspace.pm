@@ -83,12 +83,14 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
 Users will require access to the workspace (or one of its ancestors) at a minimum
 L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.
 
-=head3 C<GET /workspace>
+=head2 C<GET /workspace>
 
 =over 4
 
@@ -98,7 +100,7 @@ L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.
 
 =back
 
-=head3 C<GET /workspace/:workspace_id_or_name>
+=head2 C<GET /workspace/:workspace_id_or_name>
 
 =over 4
 
@@ -108,7 +110,7 @@ L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.
 
 =back
 
-=head3 C<GET /workspace/:workspace_id_or_name/child>
+=head2 C<GET /workspace/:workspace_id_or_name/child>
 
 =over 4
 
@@ -118,7 +120,7 @@ L<role|Conch::DB::Result::UserWorkspaceRole/role>, as indicated.
 
 =back
 
-=head3 C<< POST /workspace/:workspace_id_or_name/child?send_mail=<1|0> >>
+=head2 C<< POST /workspace/:workspace_id_or_name/child?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to C<1>) to send
 an email to the parent workspace admins.
@@ -133,7 +135,7 @@ an email to the parent workspace admins.
 
 =back
 
-=head3 C<GET /workspace/:workspace_id_or_name/device>
+=head2 C<GET /workspace/:workspace_id_or_name/device>
 
 Accepts the following optional query parameters:
 
@@ -157,7 +159,7 @@ Accepts the following optional query parameters:
 
 =back
 
-=head3 C<GET /workspace/:workspace_id_or_name/device/pxe>
+=head2 C<GET /workspace/:workspace_id_or_name/device/pxe>
 
 =over 4
 
@@ -167,7 +169,7 @@ Accepts the following optional query parameters:
 
 =back
 
-=head3 C<GET /workspace/:workspace_id_or_name/rack>
+=head2 C<GET /workspace/:workspace_id_or_name/rack>
 
 =over 4
 
@@ -177,7 +179,7 @@ Accepts the following optional query parameters:
 
 =back
 
-=head3 C<POST /workspace/:workspace_id_or_name/rack>
+=head2 C<POST /workspace/:workspace_id_or_name/rack>
 
 =over 4
 
@@ -189,7 +191,7 @@ Accepts the following optional query parameters:
 
 =back
 
-=head3 C<DELETE /workspace/:workspace_id_or_name/rack/:rack_id_or_name>
+=head2 C<DELETE /workspace/:workspace_id_or_name/rack/:rack_id_or_name>
 
 =over 4
 
@@ -199,7 +201,7 @@ Accepts the following optional query parameters:
 
 =back
 
-=head3 C<GET /workspace/:workspace_id_or_name/relay>
+=head2 C<GET /workspace/:workspace_id_or_name/relay>
 
 Takes one query optional parameter, C<?active_minutes=X> to constrain results to
 those updated with in the last C<X> minutes.
@@ -212,7 +214,7 @@ those updated with in the last C<X> minutes.
 
 =back
 
-=head3 C<GET /workspace/:workspace_id_or_name/relay/:relay_id/device>
+=head2 C<GET /workspace/:workspace_id_or_name/relay/:relay_id/device>
 
 =over 4
 
@@ -222,7 +224,7 @@ those updated with in the last C<X> minutes.
 
 =back
 
-=head3 C<GET /workspace/:workspace_id_or_name/user>
+=head2 C<GET /workspace/:workspace_id_or_name/user>
 
 =over 4
 
@@ -232,7 +234,7 @@ those updated with in the last C<X> minutes.
 
 =back
 
-=head3 C<< POST /workspace/:workspace_id_or_name/user?send_mail=<1|0> >>
+=head2 C<< POST /workspace/:workspace_id_or_name/user?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to C<1>) to send
 an email to the user and workspace admins.
@@ -247,7 +249,7 @@ an email to the user and workspace admins.
 
 =back
 
-=head3 C<< DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0> >>
+=head2 C<< DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to C<1>) to send
 an email to the user and workspace admins.
@@ -260,7 +262,7 @@ an email to the user and workspace admins.
 
 =back
 
-=head3 C<GET /workspace/:workspace_id_or_name/organization>
+=head2 C<GET /workspace/:workspace_id_or_name/organization>
 
 =over 4
 
@@ -270,7 +272,7 @@ an email to the user and workspace admins.
 
 =back
 
-=head3 C<< POST /workspace/:workspace_id_or_name/organization?send_mail=<1|0> >>
+=head2 C<< POST /workspace/:workspace_id_or_name/organization?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
 an email to the organization members and workspace admins.
@@ -285,7 +287,7 @@ an email to the organization members and workspace admins.
 
 =back
 
-=head3 C<< DELETE /workspace/:workspace_id_or_name/organization/:organization_id_or_name?send_mail=<1|0> >>
+=head2 C<< DELETE /workspace/:workspace_id_or_name/organization/:organization_id_or_name?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
 an email to the organization members and workspace admins.

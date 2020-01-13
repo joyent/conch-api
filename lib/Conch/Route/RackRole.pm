@@ -12,7 +12,7 @@ Conch::Route::RackRole
 
 =head2 routes
 
-Sets up the routes for /rack_role:
+Sets up the routes for /rack_role.
 
 =cut
 
@@ -42,9 +42,11 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
-=head3 C<GET /rack_role>
+=head2 C<GET /rack_role>
 
 =over 4
 
@@ -52,7 +54,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /rack_role>
+=head2 C<POST /rack_role>
 
 =over 4
 
@@ -64,7 +66,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /rack_role/:rack_role_id_or_name>
+=head2 C<GET /rack_role/:rack_role_id_or_name>
 
 =over 4
 
@@ -72,7 +74,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /rack_role/:rack_role_id_or_name>
+=head2 C<POST /rack_role/:rack_role_id_or_name>
 
 =over 4
 
@@ -84,7 +86,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<DELETE /rack_role/:rack_role_id_or_name>
+=head2 C<DELETE /rack_role/:rack_role_id_or_name>
 
 =over 4
 

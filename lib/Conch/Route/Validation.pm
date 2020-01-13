@@ -12,7 +12,7 @@ Conch::Route::Validation
 
 =head2 routes
 
-Sets up the routes for /validation, /validation_plan and /validation_state:
+Sets up the routes for /validation, /validation_plan and /validation_state.
 
 =cut
 
@@ -66,9 +66,11 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
-=head3 C<GET /validation>
+=head2 C<GET /validation>
 
 =over 4
 
@@ -76,7 +78,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /validation/:validation_id_or_name>
+=head2 C<GET /validation/:validation_id_or_name>
 
 =over 4
 
@@ -84,7 +86,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /validation_plan>
+=head2 C<GET /validation_plan>
 
 =over 4
 
@@ -92,7 +94,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /validation_plan/:validation_plan_id_or_name>
+=head2 C<GET /validation_plan/:validation_plan_id_or_name>
 
 =over 4
 
@@ -100,7 +102,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /validation_plan/:validation_plan_id_or_name/validation>
+=head2 C<GET /validation_plan/:validation_plan_id_or_name/validation>
 
 =over 4
 
@@ -108,7 +110,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /validation_state/:validation_state_id>
+=head2 C<GET /validation_state/:validation_state_id>
 
 =over 4
 

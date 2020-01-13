@@ -12,7 +12,7 @@ Conch::Route::User
 
 =head2 routes
 
-Sets up the routes for /user:
+Sets up the routes for /user.
 
 =cut
 
@@ -129,9 +129,11 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
-=head3 C<GET /user/me>
+=head2 C<GET /user/me>
 
 =over 4
 
@@ -139,7 +141,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<< POST /user/:target_user_id_or_email?send_mail=<1|0> >>
+=head2 C<< POST /user/:target_user_id_or_email?send_mail=<1|0> >>
 
 Optionally take the query parameter C<send_mail> (defaults to C<1>) to send
 an email telling the user their account was updated
@@ -155,7 +157,7 @@ calling user is a system admin)
 
 =back
 
-=head3 C<< POST /user/me/revoke?send_mail=<1|0>&login_only=<0|1>&api_only=<0|1> >>
+=head2 C<< POST /user/me/revoke?send_mail=<1|0>&login_only=<0|1>&api_only=<0|1> >>
 
 Optionally accepts the following query parameters:
 
@@ -180,7 +182,7 @@ C<api_only> and C<login_only> cannot both be C<1>.
 
 =back
 
-=head3 C<< POST /user/me/password?clear_tokens=<login_only|none|all> >>
+=head2 C<< POST /user/me/password?clear_tokens=<login_only|none|all> >>
 
 Optionally takes a query parameter C<clear_tokens>, to also revoke the session
 tokens for the user, forcing the user to log in again. Possible options are:
@@ -207,7 +209,7 @@ otherwise, the user is logged out.
 =back
 
 
-=head3 C<GET /user/me/settings>
+=head2 C<GET /user/me/settings>
 
 =over 4
 
@@ -215,7 +217,7 @@ otherwise, the user is logged out.
 
 =back
 
-=head3 C<POST /user/me/settings>
+=head2 C<POST /user/me/settings>
 
 =over 4
 
@@ -225,7 +227,7 @@ otherwise, the user is logged out.
 
 =back
 
-=head3 C<GET /user/me/settings/:key>
+=head2 C<GET /user/me/settings/:key>
 
 =over 4
 
@@ -233,7 +235,7 @@ otherwise, the user is logged out.
 
 =back
 
-=head3 C<POST /user/me/settings/:key>
+=head2 C<POST /user/me/settings/:key>
 
 =over 4
 
@@ -243,7 +245,7 @@ otherwise, the user is logged out.
 
 =back
 
-=head3 C<DELETE /user/me/settings/:key>
+=head2 C<DELETE /user/me/settings/:key>
 
 =over 4
 
@@ -251,7 +253,7 @@ otherwise, the user is logged out.
 
 =back
 
-=head3 C<GET /user/me/token>
+=head2 C<GET /user/me/token>
 
 =over 4
 
@@ -259,7 +261,7 @@ otherwise, the user is logged out.
 
 =back
 
-=head3 C<POST /user/me/token>
+=head2 C<POST /user/me/token>
 
 =over 4
 
@@ -269,7 +271,7 @@ otherwise, the user is logged out.
 
 =back
 
-=head3 C<GET /user/me/token/:token_name>
+=head2 C<GET /user/me/token/:token_name>
 
 =over 4
 
@@ -277,7 +279,7 @@ otherwise, the user is logged out.
 
 =back
 
-=head3 C<DELETE /user/me/token/:token_name>
+=head2 C<DELETE /user/me/token/:token_name>
 
 =over 4
 
@@ -285,7 +287,7 @@ otherwise, the user is logged out.
 
 =back
 
-=head3 C<GET /user/:target_user_id_or_email>
+=head2 C<GET /user/:target_user_id_or_email>
 
 =over 4
 
@@ -295,7 +297,7 @@ otherwise, the user is logged out.
 
 =back
 
-=head3 C<< POST /user/:target_user_id_or_email?send_mail=<1|0> >>
+=head2 C<< POST /user/:target_user_id_or_email?send_mail=<1|0> >>
 
 Optionally take the query parameter C<send_mail> (defaults to C<1>) to send
 an email telling the user their account was updated
@@ -313,7 +315,7 @@ calling user is a system admin)
 
 =back
 
-=head3 C<< DELETE /user/:target_user_id_or_email?clear_tokens=<1|0> >>
+=head2 C<< DELETE /user/:target_user_id_or_email?clear_tokens=<1|0> >>
 
 When a user is deleted, all role entries (workspace, build, organization) are removed and are
 unrecoverable.
@@ -329,7 +331,7 @@ revoke all session tokens for the user forcing all tools to log in again.
 
 =back
 
-=head3 C<< POST /user/:target_user_id_or_email/revoke?login_only=<0|1>&api_only=<0|1> >>
+=head2 C<< POST /user/:target_user_id_or_email/revoke?login_only=<0|1>&api_only=<0|1> >>
 
 Optionally accepts the following query parameters:
 
@@ -352,7 +354,7 @@ C<api_only> and C<login_only> cannot both be C<1>.
 
 =back
 
-=head3 C<< DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0> >>
+=head2 C<< DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0> >>
 
 Optionally accepts the following query parameters:
 
@@ -382,7 +384,7 @@ Optionally accepts the following query parameters:
 
 =back
 
-=head3 C<GET /user>
+=head2 C<GET /user>
 
 =over 4
 
@@ -392,7 +394,7 @@ Optionally accepts the following query parameters:
 
 =back
 
-=head3 C<< POST /user?send_mail=<1|0> >>
+=head2 C<< POST /user?send_mail=<1|0> >>
 
 Optionally takes a query parameter, C<send_mail> (defaults to C<1>) to send an
 email to the user with the new password.
@@ -409,7 +411,7 @@ email to the user with the new password.
 
 =back
 
-=head3 C<GET /user/:target_user_id_or_email/token>
+=head2 C<GET /user/:target_user_id_or_email/token>
 
 =over 4
 
@@ -419,7 +421,7 @@ email to the user with the new password.
 
 =back
 
-=head3 C<GET /user/:target_user_id_or_email/token/:token_name>
+=head2 C<GET /user/:target_user_id_or_email/token/:token_name>
 
 =over 4
 
@@ -429,7 +431,7 @@ email to the user with the new password.
 
 =back
 
-=head3 C<DELETE /user/:target_user_id_or_email/token/:token_name>
+=head2 C<DELETE /user/:target_user_id_or_email/token/:token_name>
 
 =over 4
 

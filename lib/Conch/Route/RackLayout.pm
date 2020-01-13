@@ -12,7 +12,7 @@ Conch::Route::RackLayout
 
 =head2 routes
 
-Sets up the routes for /layout:
+Sets up the routes for /layout.
 
 =cut
 
@@ -55,9 +55,16 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
-=head3 C<GET /layout>
+Take note: All routes that reference a specific rack layout (prefix C</layout/:layout_id>) are
+also available under C</rack/:rack_id_or_long_name/layout/:layout_id_or_rack_unit_start> as
+well as
+C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>.
+
+=head2 C<GET /layout>
 
 =over 4
 
@@ -67,7 +74,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /layout>
+=head2 C<POST /layout>
 
 =over 4
 
@@ -79,7 +86,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /layout/:layout_id>
+=head2 C<GET /layout/:layout_id>
 
 =over 4
 
@@ -89,7 +96,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /layout/:layout_id>
+=head2 C<POST /layout/:layout_id>
 
 =over 4
 
@@ -101,7 +108,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<DELETE /layout/:layout_id>
+=head2 C<DELETE /layout/:layout_id>
 
 =over 4
 

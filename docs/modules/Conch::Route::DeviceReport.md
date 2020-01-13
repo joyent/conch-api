@@ -6,16 +6,18 @@ Conch::Route::DeviceReport
 
 ## routes
 
-Sets up the routes for /device\_report:
+Sets up the routes for /device\_report.
+
+# ROUTE ENDPOINTS
 
 All routes require authentication.
 
-### `POST /device_report`
+## `POST /device_report`
 
 - Request: [device_report.json#/definitions/DeviceReport](../json-schema/device_report.json#/definitions/DeviceReport)
 - Response: [response.json#/definitions/ReportValidationResults](../json-schema/response.json#/definitions/ReportValidationResults)
 
-### `GET /device_report/:device_report_id`
+## `GET /device_report/:device_report_id`
 
 - User requires the read-only role, as described in ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes).
 - Response: [response.json#/definitions/DeviceReportRow](../json-schema/response.json#/definitions/DeviceReportRow)

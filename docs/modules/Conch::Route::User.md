@@ -6,15 +6,17 @@ Conch::Route::User
 
 ## routes
 
-Sets up the routes for /user:
+Sets up the routes for /user.
+
+# ROUTE ENDPOINTS
 
 All routes require authentication.
 
-### `GET /user/me`
+## `GET /user/me`
 
 - Response: [response.json#/definitions/UserDetailed](../json-schema/response.json#/definitions/UserDetailed)
 
-### `POST /user/:target_user_id_or_email?send_mail=<1|0>`
+## `POST /user/:target_user_id_or_email?send_mail=<1|0>`
 
 Optionally take the query parameter `send_mail` (defaults to `1`) to send
 an email telling the user their account was updated
@@ -24,7 +26,7 @@ an email telling the user their account was updated
 - Error response on duplicate user: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError) (only if the
 calling user is a system admin)
 
-### `POST /user/me/revoke?send_mail=<1|0>&login_only=<0|1>&api_only=<0|1>`
+## `POST /user/me/revoke?send_mail=<1|0>&login_only=<0|1>&api_only=<0|1>`
 
 Optionally accepts the following query parameters:
 
@@ -38,7 +40,7 @@ By default it will revoke both login/session and API tokens.
 - Request: [request.json#/definitions/UserSettings](../json-schema/request.json#/definitions/UserSettings)
 - Response: `204 NO CONTENT`
 
-### `POST /user/me/password?clear_tokens=<login_only|none|all>`
+## `POST /user/me/password?clear_tokens=<login_only|none|all>`
 
 Optionally takes a query parameter `clear_tokens`, to also revoke the session
 tokens for the user, forcing the user to log in again. Possible options are:
@@ -53,51 +55,51 @@ otherwise, the user is logged out.
 - Request: [request.json#/definitions/UserSettings](../json-schema/request.json#/definitions/UserSettings)
 - Response: `204 NO CONTENT`
 
-### `GET /user/me/settings`
+## `GET /user/me/settings`
 
 - Response: [response.json#/definitions/UserSettings](../json-schema/response.json#/definitions/UserSettings)
 
-### `POST /user/me/settings`
+## `POST /user/me/settings`
 
 - Request: [request.json#/definitions/UserSettings](../json-schema/request.json#/definitions/UserSettings)
 - Response: `204 NO CONTENT`
 
-### `GET /user/me/settings/:key`
+## `GET /user/me/settings/:key`
 
 - Response: [response.json#/definitions/UserSetting](../json-schema/response.json#/definitions/UserSetting)
 
-### `POST /user/me/settings/:key`
+## `POST /user/me/settings/:key`
 
 - Request: [request.json#/definitions/UserSetting](../json-schema/request.json#/definitions/UserSetting)
 - Response: `204 NO CONTENT`
 
-### `DELETE /user/me/settings/:key`
+## `DELETE /user/me/settings/:key`
 
 - Response: `204 NO CONTENT`
 
-### `GET /user/me/token`
+## `GET /user/me/token`
 
 - Response: [response.json#/definitions/UserTokens](../json-schema/response.json#/definitions/UserTokens)
 
-### `POST /user/me/token`
+## `POST /user/me/token`
 
 - Request: [request.json#/definitions/NewUserToken](../json-schema/request.json#/definitions/NewUserToken)
 - Response: [response.json#/definitions/NewUserToken](../json-schema/response.json#/definitions/NewUserToken)
 
-### `GET /user/me/token/:token_name`
+## `GET /user/me/token/:token_name`
 
 - Response: [response.json#/definitions/UserToken](../json-schema/response.json#/definitions/UserToken)
 
-### `DELETE /user/me/token/:token_name`
+## `DELETE /user/me/token/:token_name`
 
 - Response: `204 NO CONTENT`
 
-### `GET /user/:target_user_id_or_email`
+## `GET /user/:target_user_id_or_email`
 
 - Requires system admin authorization (when updating a different account than one's own)
 - Response: [response.json#/definitions/UserDetailed](../json-schema/response.json#/definitions/UserDetailed)
 
-### `POST /user/:target_user_id_or_email?send_mail=<1|0>`
+## `POST /user/:target_user_id_or_email?send_mail=<1|0>`
 
 Optionally take the query parameter `send_mail` (defaults to `1`) to send
 an email telling the user their account was updated
@@ -108,7 +110,7 @@ an email telling the user their account was updated
 - Error response on duplicate user: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError) (only if the
 calling user is a system admin)
 
-### `DELETE /user/:target_user_id_or_email?clear_tokens=<1|0>`
+## `DELETE /user/:target_user_id_or_email?clear_tokens=<1|0>`
 
 When a user is deleted, all role entries (workspace, build, organization) are removed and are
 unrecoverable.
@@ -119,7 +121,7 @@ revoke all session tokens for the user forcing all tools to log in again.
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
 
-### `POST /user/:target_user_id_or_email/revoke?login_only=<0|1>&api_only=<0|1>`
+## `POST /user/:target_user_id_or_email/revoke?login_only=<0|1>&api_only=<0|1>`
 
 Optionally accepts the following query parameters:
 
@@ -132,7 +134,7 @@ By default it will revoke both login/session and API tokens. If both
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
 
-### `DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0>`
+## `DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0>`
 
 Optionally accepts the following query parameters:
 
@@ -145,12 +147,12 @@ Optionally accepts the following query parameters:
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
 
-### `GET /user`
+## `GET /user`
 
 - Requires system admin authorization
 - Response: [response.json#/definitions/UsersDetailed](../json-schema/response.json#/definitions/UsersDetailed)
 
-### `POST /user?send_mail=<1|0>`
+## `POST /user?send_mail=<1|0>`
 
 Optionally takes a query parameter, `send_mail` (defaults to `1`) to send an
 email to the user with the new password.
@@ -160,17 +162,17 @@ email to the user with the new password.
 - Success Response: [response.json#/definitions/User](../json-schema/response.json#/definitions/User)
 - Error response on duplicate user: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError)
 
-### `GET /user/:target_user_id_or_email/token`
+## `GET /user/:target_user_id_or_email/token`
 
 - Requires system admin authorization
 - Response: [response.json#/definitions/UserTokens](../json-schema/response.json#/definitions/UserTokens)
 
-### `GET /user/:target_user_id_or_email/token/:token_name`
+## `GET /user/:target_user_id_or_email/token/:token_name`
 
 - Requires system admin authorization
 - Response: [response.json#/definitions/UserTokens](../json-schema/response.json#/definitions/UserTokens)
 
-### `DELETE /user/:target_user_id_or_email/token/:token_name`
+## `DELETE /user/:target_user_id_or_email/token/:token_name`
 
 - Requires system admin authorization
 - Success Response: `204 NO CONTENT`

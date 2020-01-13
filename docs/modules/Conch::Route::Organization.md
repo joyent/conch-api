@@ -8,35 +8,37 @@ Conch::Route::Organization
 
 Sets up the routes for /organization.
 
+# ROUTE ENDPOINTS
+
 All routes require authentication.
 
-### `GET /organization`
+## `GET /organization`
 
 - Response: [response.json#/definitions/Organizations](../json-schema/response.json#/definitions/Organizations)
 
-### `POST /organization`
+## `POST /organization`
 
 - Requires system admin authorization
 - Request: [request.json#/definitions/OrganizationCreate](../json-schema/request.json#/definitions/OrganizationCreate)
 - Response: Redirect to the organization
 
-### `GET /organization/:organization_id_or_name`
+## `GET /organization/:organization_id_or_name`
 
 - Requires system admin authorization or the admin role on the organization
 - Response: [response.json#/definitions/Organization](../json-schema/response.json#/definitions/Organization)
 
-### `POST /organization/:organization_id_or_name`
+## `POST /organization/:organization_id_or_name`
 
 - Requires system admin authorization or the admin role on the organization
 - Request: request.yaml#/OrganizationUpdate
 - Response: Redirect to the organization
 
-### `DELETE /organization/:organization_id_or_name`
+## `DELETE /organization/:organization_id_or_name`
 
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
 
-### `POST /organization/:organization_id_or_name/user?send_mail=<1|0`>
+## `POST /organization/:organization_id_or_name/user?send_mail=<1|0`>
 
 Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the user.
@@ -45,7 +47,7 @@ an email to the user.
 - Request: [request.json#/definitions/OrganizationAddUser](../json-schema/request.json#/definitions/OrganizationAddUser)
 - Response: `204 NO CONTENT`
 
-### `DELETE /organization/:organization_id_or_name/user/#target_user_id_or_email?send_mail=<1|0`>
+## `DELETE /organization/:organization_id_or_name/user/#target_user_id_or_email?send_mail=<1|0`>
 
 Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the user.

@@ -12,7 +12,7 @@ Conch::Route::DatacenterRoom
 
 =head2 routes
 
-Sets up the routes for /room:
+Sets up the routes for /room.
 
 =cut
 
@@ -72,7 +72,9 @@ __END__
 
 All routes require authentication.
 
-=head3 C<GET /room>
+=head1 ROUTE ENDPOINTS
+
+=head2 C<GET /room>
 
 =over 4
 
@@ -82,7 +84,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /room>
+=head2 C<POST /room>
 
 =over 4
 
@@ -94,7 +96,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /room/:datacenter_room_id_or_alias>
+=head2 C<GET /room/:datacenter_room_id_or_alias>
 
 =over 4
 
@@ -105,7 +107,7 @@ the room
 
 =back
 
-=head3 C<POST /room/:datacenter_room_id_or_alias>
+=head2 C<POST /room/:datacenter_room_id_or_alias>
 
 =over 4
 
@@ -117,7 +119,7 @@ the room
 
 =back
 
-=head3 C<DELETE /room/:datacenter_room_id_or_alias>
+=head2 C<DELETE /room/:datacenter_room_id_or_alias>
 
 =over 4
 
@@ -127,7 +129,7 @@ the room
 
 =back
 
-=head3 C<GET /room/:datacenter_room_id_or_alias/rack>
+=head2 C<GET /room/:datacenter_room_id_or_alias/rack>
 
 =over 4
 
@@ -138,7 +140,7 @@ the room (in which case data returned is restricted to those racks)
 
 =back
 
-=head3 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
+=head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
 
 =over 4
 
@@ -148,7 +150,7 @@ the room (in which case data returned is restricted to those racks)
 
 =back
 
-=head3 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
+=head2 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
 
 =over 4
 
@@ -160,7 +162,7 @@ the room (in which case data returned is restricted to those racks)
 
 =back
 
-=head3 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
+=head2 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
 
 =over 4
 
@@ -170,7 +172,7 @@ the room (in which case data returned is restricted to those racks)
 
 =back
 
-=head3 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts>
+=head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts>
 
 =over 4
 
@@ -180,7 +182,7 @@ the room (in which case data returned is restricted to those racks)
 
 =back
 
-=head3 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts>
+=head2 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts>
 
 =over 4
 
@@ -192,7 +194,7 @@ the room (in which case data returned is restricted to those racks)
 
 =back
 
-=head3 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
+=head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
 
 =over 4
 
@@ -202,7 +204,7 @@ the room (in which case data returned is restricted to those racks)
 
 =back
 
-=head3 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
+=head2 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
 
 =over 4
 
@@ -214,7 +216,7 @@ the room (in which case data returned is restricted to those racks)
 
 =back
 
-=head3 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
+=head2 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
 
 This method requires a request body.
 
@@ -228,7 +230,7 @@ This method requires a request body.
 
 =back
 
-=head3 C<< POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/phase?rack_only=<0|1> >>
+=head2 C<< POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/phase?rack_only=<0|1> >>
 
 The query parameter C<rack_only> (defaults to C<0>) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.
@@ -243,15 +245,15 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =back
 
-=head3 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+=head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
 
 See L<Conch::Route::RackLayout/C<GET /layout/:layout_id>>.
 
-=head3 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+=head2 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
 
 See L<Conch::Route::RackLayout/C<POST /layout/:layout_id>>.
 
-=head3 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+=head2 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
 
 See L<Conch::Route::RackLayout/C<DELETE /layout/:layout_id>>.
 

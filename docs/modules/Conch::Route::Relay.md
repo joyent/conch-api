@@ -6,21 +6,23 @@ Conch::Route::Relay
 
 ## routes
 
-Sets up the routes for /relay:
+Sets up the routes for /relay.
+
+# ROUTE ENDPOINTS
 
 All routes require authentication.
 
-### `POST /relay/:relay_serial_number/register`
+## `POST /relay/:relay_serial_number/register`
 
 - Request: [request.json#/definitions/RegisterRelay](../json-schema/request.json#/definitions/RegisterRelay)
 - Response: `201 CREATED` or `204 NO CONTENT`, plus Location header
 
-### `GET /relay`
+## `GET /relay`
 
 - Requires system admin authorization
 - Response: [response.json#/definitions/Relays](../json-schema/response.json#/definitions/Relays)
 
-### `GET /relay/:relay_id_or_serial_number`
+## `GET /relay/:relay_id_or_serial_number`
 
 - Requires system admin authorization, or the user to have previously registered the relay.
 - Response: [response.json#/definitions/Relay](../json-schema/response.json#/definitions/Relay)

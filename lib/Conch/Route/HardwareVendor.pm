@@ -12,7 +12,7 @@ Conch::Route::HardwareVendor
 
 =head2 routes
 
-Sets up the routes for /hardware_vendor:
+Sets up the routes for /hardware_vendor.
 
 =cut
 
@@ -45,9 +45,11 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
-=head3 C<GET /hardware_vendor>
+=head2 C<GET /hardware_vendor>
 
 =over 4
 
@@ -55,7 +57,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /hardware_vendor/:hardware_vendor_id_or_name>
+=head2 C<GET /hardware_vendor/:hardware_vendor_id_or_name>
 
 =over 4
 
@@ -63,7 +65,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<DELETE /hardware_vendor/:hardware_vendor_id_or_name>
+=head2 C<DELETE /hardware_vendor/:hardware_vendor_id_or_name>
 
 =over 4
 
@@ -73,7 +75,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<POST /hardware_vendor/:hardware_vendor_name>
+=head2 C<POST /hardware_vendor/:hardware_vendor_name>
 
 =over 4
 

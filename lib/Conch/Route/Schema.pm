@@ -34,11 +34,13 @@ __END__
 
 =pod
 
-=head3 C<GET /schema/query_params/:schema_name>
+=head1 ROUTE ENDPOINTS
 
-=head3 C<GET /schema/request/:schema_name>
+=head2 C<GET /schema/query_params/:schema_name>
 
-=head3 C<GET /schema/response/:schema_name>
+=head2 C<GET /schema/request/:schema_name>
+
+=head2 C<GET /schema/response/:schema_name>
 
 Returns the schema specified by type and name.
 
