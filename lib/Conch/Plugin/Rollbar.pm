@@ -39,8 +39,7 @@ sub register ($self, $app, $config) {
     $app->hook(before_render => sub ($c, $args) {
         my $template = $args->{template};
 
-        if (my $exception = $c->stash('exception')
-                or ($template and $template =~ /exception/)) {
+        if (my $exception = $c->stash('exception')) {
             my $rollbar_id = $c->send_exception_to_rollbar($exception);
             $c->log->debug('exception sent to rollbar: id '.$rollbar_id) if $rollbar_id;
         }
