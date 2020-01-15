@@ -39,7 +39,7 @@ sub run ($self, @opts) {
     my $user = $self->app->db_user_accounts->active->find_by_email($opt->email);
     die 'cannot find user with email ', $opt->email if not $user;
 
-    my $expires_abs = time + (($self->app->config('jwt')//{})->{custom_token_expiry} // 86400*365*5);
+    my $expires_abs = time + (($self->app->config('authentication')//{})->{custom_token_expiry} // 86400*365*5);
     my ($token, $jwt) = $self->app->generate_jwt($user->id, $expires_abs, $opt->name);
     say $jwt;
 }

@@ -36,7 +36,7 @@ sub startup {
     my $self = shift;
 
     $self->sessions->cookie_name('conch');
-    $self->sessions->default_expiration(2592000);    # 30 days
+    $self->sessions->default_expiration(86400);     # 1 day
 
     $self->plugin('Config');
     $self->secrets(delete $self->config->{secrets});

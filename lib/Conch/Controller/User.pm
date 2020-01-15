@@ -610,7 +610,7 @@ sub create_api_token ($c) {
     my $user = $c->stash('target_user');
 
     # default expiration: 5 years
-    my $expires_abs = time + (($c->app->config('jwt')//{})->{custom_token_expiry} // 86400*365*5);
+    my $expires_abs = time + (($c->app->config('authentication')//{})->{custom_token_expiry} // 86400*365*5);
 
     my ($token, $jwt) = $c->generate_jwt($user->id, $expires_abs, $input->{name});
     return if $c->res->code;

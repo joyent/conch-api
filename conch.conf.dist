@@ -5,10 +5,12 @@
     # old ones.
     secrets => ["hunter2"],
 
-    jwt => {
-        # time in seconds for a JWT to be valid before requiring refresh or re-auth
+    authentication => {
+        # time in seconds for a login token and/or persistent session cookie to be valid before requiring refresh or re-auth
         system_admin_expiry => 2592000, # 30 days
         normal_expiry => 86400, # 1 day
+
+        # used for api tokens only
         custom_token_expiry => 86400*365*5, # 5 years
     },
 
