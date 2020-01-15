@@ -22,7 +22,7 @@ Create a response containing a login JWT, which the user should later present in
 =cut
 
 sub _respond_with_jwt ($c, $user_id, $expires_delta = undef) {
-    my $jwt_config = $c->app->config('jwt') || {};
+    my $jwt_config = $c->app->config('jwt') // {};
 
     my $expires_abs = time + (
         defined $expires_delta ? $expires_delta

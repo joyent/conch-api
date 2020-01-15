@@ -58,7 +58,7 @@ sub run ($self, @opts) {
 
     my $app = $self->app;
     my $app_name = join(' ', $app->moniker, 'copy_user_data', $app->version_tag, '('.$$.')');
-    my $db_credentials = Conch::DB::Util::get_credentials($app->config->{database}, $app->log);
+    my $db_credentials = Conch::DB::Util::get_credentials($app->config('database'), $app->log);
 
     my ($from_schema, $to_schema) = map Conch::DB->connect(
             $db_credentials->{dsn} =~ s/(?<=dbi:Pg:dbname=)([^;]+)(?=;host=)/$_/r,
