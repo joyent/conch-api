@@ -123,8 +123,8 @@ sub authenticate ($c) {
                     if ($c->req->url ne '/user/me/password') {
                         $c->log->debug('attempt to authenticate before changing insecure password');
 
-                        # ensure session and and all login JWTs expire in no more than 10 minutes
-                        $c->_update_session($user->id, time + 10 * 60);
+                        # ensure session and all login JWTs expire in no more than 10 minutes
+                        $c->_update_session($c->session('user'), time + 10 * 60);
                         $user->user_session_tokens->login_only
                             ->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $session_token;
 
@@ -191,7 +191,7 @@ sub login ($c) {
         });
         # password must be reset within 10 minutes
 
-        $c->_update_session($user->id, time + 10 * 60);
+        $c->_update_session($user->id, $input->{set_session} ? time + 10 * 60 : 0);
 
         # we logged the user in, but he must now change his password (within 10 minutes)
         $c->res->headers->location($c->url_for('/user/me/password'));
@@ -218,7 +218,7 @@ sub login ($c) {
         $c->res->headers->last_modified(Mojo::Date->new($token->created->epoch));
         $c->res->headers->expires(Mojo::Date->new($token->expires->epoch));
 
-        $c->_update_session($user->id, $token->expires->epoch);
+        $c->_update_session($user->id, $input->{set_session} ? $token->expires->epoch : 0);
 
         return $c->status(200, { jwt_token => $c->generate_jwt_from_token($token) });
     }
@@ -228,7 +228,7 @@ sub login ($c) {
         ($c->is_system_admin ? ($config->{system_admin_expiry} || 2592000)  # 30 days
             : ($config->{normal_expiry} || 86400));                         # 1 day
 
-    $c->_update_session($user->id, $expires_epoch);
+    $c->_update_session($user->id, $input->{set_session} ? $expires_epoch : 0);
 
     return $c->_respond_with_jwt($user->id, $expires_epoch);
 }

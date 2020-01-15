@@ -274,11 +274,29 @@ subtest 'User' => sub {
     $ro_user->related_resultset('user_session_tokens')->update({ created => '2000-01-01' });
 
     $ro_user->update({ password => '123' });
-    $t->post_ok('/login', json => { email => $ro_user->email, password => '123' })
+    $t->post_ok('/login', json => { email => $ro_user->email, password => '123', set_session => JSON::PP::false })
         ->status_is(200);
     push @login_token, $t->tx->res->json->{jwt_token};
 
     is($ro_user->related_resultset('user_session_tokens')->count, 2, 'a new token was created');
+
+    is($t->ua->cookie_jar->all->[0]->expires, 1, 'session cookie is expired');
+
+    $t->get_ok('/user/me')
+        ->status_is(401)
+        ->log_debug_is('auth failed: no credentials provided');
+
+    $t->post_ok('/login', json => { email => $ro_user->email, password => '123', set_session => JSON::PP::true })
+        ->status_is(200)
+        ->json_schema_is('Login');
+
+    is($ro_user->related_resultset('user_session_tokens')->count, 2, 'got second login token again');
+
+    cmp_deeply(
+        $t->ua->cookie_jar->all->[0]->expires,
+        within_tolerance(time + 60*60*24, plus_or_minus => 10),
+        'session expires approximately 1 day in the future',
+    );
 
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
@@ -353,7 +371,8 @@ subtest 'User' => sub {
         ->status_is(200)
         ->log_info_is('user rO_USer ('.$ro_user->email.') logged in');
 
-    $t->post_ok('/user/me/password?clear_tokens=all', json => { password => 'another password' })
+    $t->post_ok('/user/me/password?clear_tokens=all', { Authorization => 'Bearer '.$t->tx->res->json->{jwt_token} },
+            json => { password => 'another password' })
         ->status_is(204, 'changed password again');
 
     {
@@ -366,13 +385,14 @@ subtest 'User' => sub {
     $t->post_ok('/login', json => { user_id => $user_detailed->{id}, password => 'another password' })
         ->status_is(200, 'logged in using second new password, and user_id instead of email');
 
-    $t->post_ok('/user/me/password', json => { password => '123' })
+    $t->post_ok('/user/me/password', { Authorization => 'Bearer '.$t->tx->res->json->{jwt_token} },
+            json => { password => '123' })
         ->status_is(204, 'changed password back to original');
 
     $t->post_ok('/login', json => { email => $ro_user->email, password => '123' })
         ->status_is(200, 'logged in using original password');
 
-    $t->get_ok('/user/me/settings')
+    $t->get_ok('/user/me/settings', { Authorization => 'Bearer '.$t->tx->res->json->{jwt_token} })
         ->status_is(200, 'original password works again');
 
     # reset db password entry to '' so we don't have to remember our password string
@@ -393,7 +413,7 @@ subtest 'Log out' => sub {
 };
 
 subtest 'JWT authentication' => sub {
-    $t->authenticate(email => $ro_user->email, bailout => 0)
+    $t->post_ok('/login', json => { email => $ro_user->email, password => '..' })
         ->status_is(200)
         ->header_exists('Last-Modified')
         ->header_exists('Expires')
@@ -402,11 +422,11 @@ subtest 'JWT authentication' => sub {
 
     my $jwt_token = $t->tx->res->json->{jwt_token};
 
-    $t->reset_session;  # force JWT to be used to authenticate
+    is($t->ua->cookie_jar->all->[0]->expires, 1, 'session cookie is expired');
+
     $t->get_ok('/workspace', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(200, 'user can provide Authentication header with full JWT to authenticate');
 
-    $t->reset_session;
     # we're going to be cheeky here and hack the JWT to doctor it...
     # this only works because we have access to the symmetric secret embedded in the app.
     my $jwt_claims = Mojo::JWT->new(secret => $t->app->secrets->[0])->decode($jwt_token);
@@ -466,7 +486,10 @@ subtest 'JWT authentication' => sub {
     $t->post_ok('/refresh_token', { Authorization => "Bearer $new_jwt_token" })
         ->status_is(401, 'Cannot use after user revocation');
 
-    $t->authenticate(email => $ro_user->email, bailout => 0);
+    $t->post_ok('/login', json => { email => $ro_user->email, password => '..' })
+        ->status_is(200)
+        ->json_schema_is('Login');
+
     my $jwt_token_2 = $t->tx->res->json->{jwt_token};
     $t->post_ok('/user/me/revoke', { Authorization => "Bearer $jwt_token_2" })
         ->status_is(204, 'Revoke tokens for self')
@@ -653,11 +676,12 @@ subtest 'modify another user' => sub {
         ->json_is($new_user_data);
 
     my $t2 = Test::Conch->new(pg => $t->pg);
-    $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => '123' })
+    $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => '123', set_session => JSON::PP::true })
         ->status_is(200, 'new user can log in');
     my $jwt_token = $t2->tx->res->json->{jwt_token};
 
-    $t2->get_ok('/me')->status_is(204);
+    $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
+        ->status_is(204);
 
     $t2->post_ok('/user/me/token', json => { name => 'my api token' })
         ->header_exists('Last-Modified')
@@ -703,7 +727,7 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me', { Authorization => "Bearer $api_token" })
         ->status_is(401, 'new user cannot authenticate with the api token after api tokens are revoked');
 
-    $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => '123' })
+    $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => '123', set_session => JSON::PP::true })
         ->status_is(200, 'new user can still log in again');
     $jwt_token = $t2->tx->res->json->{jwt_token};
 
@@ -782,7 +806,7 @@ subtest 'modify another user' => sub {
         ->status_is(401)
         ->log_debug_is('password validation for untrusted@conch.joyent.us failed');
 
-    $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => $insecure_password })
+    $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => $insecure_password, set_session => JSON::PP::true })
         ->status_is(200)
         ->log_info_is('user UNTRUSTED (untrusted@conch.joyent.us) logging in with one-time insecure password')
         ->location_is('/user/me/password');
@@ -811,7 +835,7 @@ subtest 'modify another user' => sub {
     my $secure_password = $_new_password;
     is($secure_password, 'a more secure password', 'provided password was saved to the db');
 
-    $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => $secure_password })
+    $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => $secure_password, set_session => JSON::PP::true })
         ->status_is(200)
         ->log_info_is('user UNTRUSTED (untrusted@conch.joyent.us) logged in')
         ->json_has('/jwt_token')

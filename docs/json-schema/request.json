@@ -657,6 +657,10 @@
         "password" : {
           "$ref" : "common.json#/definitions/non_empty_string"
         },
+        "set_session" : {
+          "default" : false,
+          "type" : "boolean"
+        },
         "user_id" : {
           "$ref" : "common.json#/definitions/uuid"
         }

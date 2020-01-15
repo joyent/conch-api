@@ -369,6 +369,9 @@ definitions:
         $ref: common.yaml#/definitions/email_address
       password:
         $ref: common.yaml#/definitions/non_empty_string
+      set_session:
+        type: boolean
+        default: false
   UserIdOrEmail:
     type: object
     additionalProperties: true
