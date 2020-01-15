@@ -48,9 +48,8 @@ sub _respond_with_jwt ($c, $user_id, $expires_delta = undef) {
 
 Handle the details of authenticating the user, with one of the following options:
 
- * existing session for the user
  * signed JWT in the Authorization Bearer header
- * Old 'conch' session cookie
+ * existing session for the user (using the 'conch' session cookie)
 
 Does not terminate the connection if authentication is successful, allowing for chaining to
 subsequent routes and actions.
@@ -111,8 +110,11 @@ sub authenticate ($c) {
     if ($c->session('user')) {
         return $c->status(401, { error => 'user session is invalid' })
             if not is_uuid($c->session('user')) or ($user_id and $c->session('user') ne $user_id);
-        $c->log->debug('using session user='.$c->session('user'));
-        $user_id ||= $c->session('user');
+
+        if (not $user_id) {
+            $user_id = $c->session('user');
+            $c->log->debug('using session user='.$user_id);
+        }
     }
 
     # clear out all expired session tokens

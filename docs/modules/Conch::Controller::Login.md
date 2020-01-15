@@ -14,9 +14,8 @@ Create a response containing a login JWT, which the user should later present in
 Handle the details of authenticating the user, with one of the following options:
 
 ```
-* existing session for the user
 * signed JWT in the Authorization Bearer header
-* Old 'conch' session cookie
+* existing session for the user (using the 'conch' session cookie)
 ```
 
 Does not terminate the connection if authentication is successful, allowing for chaining to
