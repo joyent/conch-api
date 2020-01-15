@@ -266,11 +266,18 @@ subtest 'User' => sub {
             }, $super_user_data, $user_detailed),
         ]);
 
-    # get another JWT
+    is($ro_user->related_resultset('user_session_tokens')->count, 1, 'just 1 token presently');
+
+    # make the token look really old (not yet expired, but close to it)
+    $ro_user->related_resultset('user_session_tokens')->update({ created => '2000-01-01' });
+
     $ro_user->update({ password => '123' });
     $t->post_ok('/login', json => { email => $ro_user->email, password => '123' })
         ->status_is(200);
     push @login_token, $t->tx->res->json->{jwt_token};
+
+    is($ro_user->related_resultset('user_session_tokens')->count, 2, 'a new token was created');
+
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[1] })
