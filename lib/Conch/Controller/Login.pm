@@ -124,7 +124,7 @@ sub authenticate ($c) {
                         $c->log->debug('attempt to authenticate before changing insecure password');
 
                         # ensure session and and all login JWTs expire in no more than 10 minutes
-                        $c->session(expiration => 10 * 60);
+                        $c->_update_session($user->id, time + 10 * 60);
                         $user->user_session_tokens->login_only
                             ->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $session_token;
 
@@ -191,13 +191,7 @@ sub login ($c) {
         });
         # password must be reset within 10 minutes
 
-        if (not $c->feature('stop_conch_cookie_issue')) {
-            $c->session('user', $user->id);
-            $c->session('expires', time + 10 * 60);
-        }
-        else {
-            $c->session('expires', 1);
-        }
+        $c->_update_session($user->id, time + 10 * 60);
 
         # we logged the user in, but he must now change his password (within 10 minutes)
         $c->res->headers->location($c->url_for('/user/me/password'));
@@ -224,10 +218,7 @@ sub login ($c) {
         $c->res->headers->last_modified(Mojo::Date->new($token->created->epoch));
         $c->res->headers->expires(Mojo::Date->new($token->expires->epoch));
 
-        if (not $c->feature('stop_conch_cookie_issue')) {
-            $c->session('user', $user->id);
-            $c->session('expires', $token->expires->epoch);
-        }
+        $c->_update_session($user->id, $token->expires->epoch);
 
         return $c->status(200, { jwt_token => $c->generate_jwt_from_token($token) });
     }
@@ -237,22 +228,19 @@ sub login ($c) {
         ($c->is_system_admin ? ($config->{system_admin_expiry} || 2592000)  # 30 days
             : ($config->{normal_expiry} || 86400));                         # 1 day
 
-    if (not $c->feature('stop_conch_cookie_issue')) {
-        $c->session('user', $user->id);
-        $c->session('expires', $expires_epoch);
-    }
+    $c->_update_session($user->id, $expires_epoch);
 
     return $c->_respond_with_jwt($user->id, $expires_epoch);
 }
 
 =head2 logout
 
-Logs a user out by expiring their session
+Logs a user out by expiring their JWT and user session
 
 =cut
 
 sub logout ($c) {
-    $c->session(expires => 1);
+    $c->_update_session;
 
     # expire this user's token
     # (assuming we have the user's id, which we probably don't)
@@ -292,11 +280,20 @@ sub refresh_token ($c) {
         ($c->is_system_admin ? ($config->{system_admin_expiry} || 2592000)  # 30 days
             : ($config->{normal_expiry} || 86400));                         # 1 day
 
-    # renew the session
-    $c->session('expires', $expires_epoch)
-        if $c->session('user') and not $c->feature('stop_conch_cookie_issue');
+    # renew the session, if there is one
+    $c->_update_session($c->stash('user_id'), $expires_epoch);
 
     return $c->_respond_with_jwt($c->stash('user_id'), $expires_epoch);
+}
+
+sub _update_session ($c, $user_id = undef, $expires_epoch = 0) {
+    if (not $user_id or not $expires_epoch or $c->feature('stop_conch_cookie_issue')) {
+        $c->session('expires', 1);
+    }
+    else {
+        $c->session('user', $user_id);
+        $c->session('expires', $expires_epoch);
+    }
 }
 
 1;
