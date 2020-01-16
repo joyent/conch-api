@@ -226,7 +226,9 @@ subtest 'User' => sub {
                     { (map +($_ => $build1->$_), qw(id name description)), role => 'rw', role_via_organization_id => $organization->id },
                     { (map +($_ => $build2->$_), qw(id name description)), role => 'ro', role_via_organization_id => $organization->id },
                 ],
-            });
+            })
+            ->log_debug_is('attempting to authenticate with Authorization: Bearer header...');
+        ;
         $user_detailed = $t2->tx->res->json;
         # the superuser always sees parent workspace ids
         $user_detailed->{workspaces}[0]{parent_workspace_id} = $child_ws->parent_workspace_id;
@@ -324,12 +326,14 @@ subtest 'User' => sub {
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
-            ->status_is(401, 'main login token no longer works after changing password');
+            ->status_is(401, 'main login token no longer works after changing password')
+            ->log_debug_is('auth failed: JWT for user_id '.$ro_user->id.' could not be found');
     }
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[1] })
-            ->status_is(401, 'second login token no longer works after changing password');
+            ->status_is(401, 'second login token no longer works after changing password')
+            ->log_debug_is('auth failed: JWT for user_id '.$ro_user->id.' could not be found');
     }
 
     {
@@ -355,7 +359,8 @@ subtest 'User' => sub {
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$api_token })
-            ->status_is(401, 'api login token no longer works either');
+            ->status_is(401, 'api login token no longer works either')
+            ->log_debug_is('auth failed: JWT for user_id '.$ro_user->id.' could not be found');
     }
 
     $t->post_ok('/login', json => { user_id => $user_detailed->{id}, password => 'another password' })
@@ -383,7 +388,8 @@ subtest 'Log out' => sub {
     $t->post_ok('/logout')
         ->status_is(204);
     $t->get_ok('/workspace')
-        ->status_is(401);
+        ->status_is(401)
+        ->log_debug_is('auth failed: no credentials provided');
 };
 
 subtest 'JWT authentication' => sub {
@@ -411,8 +417,8 @@ subtest 'JWT authentication' => sub {
         expires => $jwt_claims->{exp},
     )->encode;
     $t->get_ok('/workspace', { Authorization => 'Bearer '.$hacked_jwt_token })
-        ->status_is(401, 'the user_id is verified in the JWT');
-    $t->log_debug_is('auth failed: JWT for user_id '.$bad_user_id.' could not be found');
+        ->status_is(401)
+        ->log_debug_is('auth failed: JWT for user_id '.$bad_user_id.' could not be found');
 
     $t->post_ok('/refresh_token', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(200)
@@ -421,11 +427,9 @@ subtest 'JWT authentication' => sub {
     my $new_jwt_token = $t->tx->res->json->{jwt_token};
     $t->get_ok('/workspace', { Authorization => 'Bearer '.$new_jwt_token })
         ->status_is(200, 'Can authenticate with new token');
-    $t->get_ok('/workspace', { Authorization => 'Bearer '.$jwt_token })
-        ->status_is(401, 'Cannot use old token');
-
     $t->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
-        ->status_is(401, 'Cannot reuse old JWT');
+        ->status_is(401, 'Cannot use old token')
+        ->log_debug_is('auth failed: JWT for user_id '.$ro_user->id.' could not be found');
 
     $t_super->get_ok('/me', { Authorization => 'Bearer '.$new_jwt_token })
         ->status_is(401, 'cannot use other user\'s JWT')
@@ -456,7 +460,9 @@ subtest 'JWT authentication' => sub {
         ]);
 
     $t->get_ok('/workspace', { Authorization => "Bearer $new_jwt_token" })
-        ->status_is(401, 'Cannot use after user revocation');
+        ->status_is(401, 'Cannot use token or session after user revocation')
+        ->log_debug_is('auth failed: JWT for user_id '.$ro_user->id.' could not be found');
+
     $t->post_ok('/refresh_token', { Authorization => "Bearer $new_jwt_token" })
         ->status_is(401, 'Cannot use after user revocation');
 
