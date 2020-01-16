@@ -118,26 +118,26 @@ sub authenticate ($c) {
 
             # api tokens are exempt from this check
             if ((not $session_token or $session_token->is_login)
-                    and $user->refuse_session_auth) {
-                if ($user->force_password_change) {
-                    if ($c->req->url ne '/user/me/password') {
-                        $c->log->debug('attempt to authenticate before changing insecure password');
+                and $user->force_password_change
+                and $c->req->url ne '/user/me/password'
+            ) {
+                $c->log->debug('attempt to authenticate before changing insecure password');
 
-                        # ensure session and all login JWTs expire in no more than 10 minutes
-                        $c->_update_session($c->session('user'), time + 10 * 60);
-                        $user->user_session_tokens->login_only
-                            ->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $session_token;
+                # ensure session and all login JWTs expire in no more than 10 minutes
+                $c->_update_session($c->session('user'), time + 10 * 60);
+                $user->user_session_tokens->login_only
+                    ->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $session_token;
 
-                        $c->res->headers->location($c->url_for('/user/me/password'));
-                        return $c->status(401);
-                    }
-                }
-                else {
-                    $c->log->debug('user\'s tokens were revoked - they must /login again');
-                    return $c->status(401);
-                }
+                $c->res->headers->location($c->url_for('/user/me/password'));
+                return $c->status(401);
             }
 
+            if (not $session_token and $user->refuse_session_auth) {
+                $c->log->debug('user attempting to authenticate with session, but refuse_session_auth is set');
+                return $c->status(401);
+            }
+
+            # the gauntlet has been successfully run!
             $c->stash('user_id', $user_id);
             $c->stash('user', $user);
             return 1;

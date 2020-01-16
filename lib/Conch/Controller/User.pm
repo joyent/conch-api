@@ -487,6 +487,7 @@ sub create ($c) {
     $input->{is_admin} = ($input->{is_admin} ? 1 : 0);
 
     # password will be hashed in constructor
+    # FIXME: should set force_password_change - see GH#975
     my $user = $c->db_user_accounts->create($input);
     $c->log->info('created user: '.$user->name.', email: '.$user->email.', id: '.$user->id);
 

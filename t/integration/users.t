@@ -298,6 +298,17 @@ subtest 'User' => sub {
         'session expires approximately 1 day in the future',
     );
 
+    $t->get_ok('/user/me')
+        ->status_is(200, 'can authenticate with the session again')
+        ->json_is('/id', $ro_user->id);
+
+    $ro_user->discard_changes;
+    $ro_user->update({ refuse_session_auth => 1 });
+
+    $t->get_ok('/user/me')
+        ->status_is(401)
+        ->log_debug_is('user attempting to authenticate with session, but refuse_session_auth is set');
+
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
         $t2->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[1] })
@@ -305,6 +316,7 @@ subtest 'User' => sub {
             ->json_schema_is('UserDetailed')
             ->json_cmp_deeply({
                 $user_detailed->%*,
+                refuse_session_auth => bool(1),
                 workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
@@ -318,18 +330,27 @@ subtest 'User' => sub {
             ->json_schema_is('UserDetailed')
             ->json_cmp_deeply({
                 $user_detailed->%*,
+                refuse_session_auth => bool(1),
                 workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
     }
 
-    $t->post_ok('/user/me/token', json => { name => 'an api token' })
+    $ro_user->discard_changes;
+    $ro_user->update({ refuse_session_auth => 0 });
+
+    $t->post_ok('/login', json => { email => $ro_user->email, password => '123', set_session => JSON::PP::true })
+        ->status_is(200);
+
+    is($ro_user->related_resultset('user_session_tokens')->count, 2, 'got second login token again');
+
+    $t->post_ok('/user/me/token', { Authorization => 'Bearer '.$login_token[0] }, json => { name => 'an api token' })
         ->status_is(201)
         ->location_is('/user/me/token/an api token');
     my $api_token = $t->tx->res->json->{token};
 
-    $t->post_ok('/user/me/password', json => { password => 'øƕḩẳȋ' })
+    $t->post_ok('/user/me/password', { Authorization => 'Bearer '.$login_token[0] }, json => { password => 'øƕḩẳȋ' })
         ->status_is(204, 'changed password')
         ->email_not_sent;
 
