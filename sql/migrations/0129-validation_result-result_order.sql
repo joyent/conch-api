@@ -1,5 +1,19 @@
 SELECT run_migration(129, $$
 
+    -- In order to speed up deployment time (this migration file takes many
+    -- tens of hours to run on a production database), we drop all historical
+    -- validation_results. The overall outcome of all the validations is still
+    -- captured in validation_state.status.  If it is desired to later load
+    -- that historical data back into the database, start with a backup of
+    -- production-v2, delete the following two lines from this file, and run
+    -- all migrations against that database, then copy the validation_state_member
+    -- and validation_result tables into the master database:
+    -- pg_dump -U postgres -t validation_result -t validation_state_member source_database | psql -U conch conch
+
+    truncate validation_state_member;
+    truncate validation_result;
+
+
     -- these are the two validation modules that can produce duplicate
     -- results, with the exception of the result_order.  For cpu_temperature
     -- at least, we can infer the component value; for switch_peers we cannot
