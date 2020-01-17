@@ -207,6 +207,8 @@ addresses and base URLs in user-facing content.
         if not $self->feature('no_db');
 
     Conch::Route->all_routes($self->routes, $self);
+
+    $self->log->info('Conch initialized at '.$self->version_tag);
 }
 
 1;
