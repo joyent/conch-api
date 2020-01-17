@@ -28,7 +28,7 @@ Response uses the LoginToken json schema, containing a JWT.
 
 ## logout
 
-Logs a user out by expiring their JWT and user session
+Logs a user out by expiring their JWT (if one was included with the request) and user session
 
 ## refresh\_token
 

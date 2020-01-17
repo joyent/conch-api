@@ -48,6 +48,14 @@ subsequent routes and actions.
 =cut
 
 sub authenticate ($c) {
+    my $result = $c->_check_authentication;
+    return 1 if $result;
+
+    $c->_update_session;
+    $c->status($c->req->url eq '/logout' ? 204 : 401);
+}
+
+sub _check_authentication ($c) {
     # ensure that responses from authenticated endpoints are not cached by a proxy without
     # first verifying their contents (and the user's authentication!) with the api
     $c->res->headers->cache_control('no-cache');
@@ -76,14 +84,14 @@ sub authenticate ($c) {
                 or not $jwt_claims->{token_id} or not is_uuid($jwt_claims->{token_id}
                 or not $jwt_claims->{exp} or $jwt_claims->{exp} !~ /^[0-9]+$/))) {
             $c->log->debug('auth failed: JWT could not be decoded');
-            return $c->status(401);
+            return 0;
         }
 
         $user_id = $jwt_claims->{user_id};
 
         if ($jwt_claims->{exp} <= time) {
             $c->log->debug('auth failed: JWT for user_id '.$user_id.' has expired');
-            return $c->status(401);
+            return 0;
         }
 
         if (not $session_token = $c->db_user_session_tokens
@@ -91,7 +99,7 @@ sub authenticate ($c) {
                 ->search({ id => $jwt_claims->{token_id}, user_id => $user_id })
                 ->single) {
             $c->log->debug('auth failed: JWT for user_id '.$user_id.' could not be found');
-            return $c->status(401);
+            return 0;
         }
 
         $session_token->update({ last_used => \'now()' });
@@ -99,8 +107,10 @@ sub authenticate ($c) {
     }
 
     if ($c->session('user_id')) {
-        return $c->status(401, { error => 'user session is invalid' })
-            if not is_uuid($c->session('user_id')) or ($user_id and $c->session('user_id') ne $user_id);
+        if (not is_uuid($c->session('user_id')) or ($user_id and $c->session('user_id') ne $user_id)) {
+            $c->log->debug('user session is invalid');
+            return 0;
+        }
 
         if (not $user_id) {
             $user_id = $c->session('user_id');
@@ -129,12 +139,12 @@ sub authenticate ($c) {
                     ->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $session_token;
 
                 $c->res->headers->location($c->url_for('/user/me/password'));
-                return $c->status(401);
+                return 0;
             }
 
             if (not $session_token and $user->refuse_session_auth) {
                 $c->log->debug('user attempting to authenticate with session, but refuse_session_auth is set');
-                return $c->status(401);
+                return 0;
             }
 
             # the gauntlet has been successfully run!
@@ -147,7 +157,7 @@ sub authenticate ($c) {
     }
 
     $c->log->debug('auth failed: no credentials provided');
-    return $c->status(401);
+    return 0;
 }
 
 =head2 login
@@ -235,15 +245,12 @@ sub login ($c) {
 
 =head2 logout
 
-Logs a user out by expiring their JWT and user session
+Logs a user out by expiring their JWT (if one was included with the request) and user session
 
 =cut
 
 sub logout ($c) {
-    $c->_update_session;
-
-    # expire this user's token
-    # (assuming we have the user's id, which we probably don't)
+    # expire this user's active token
     if ($c->stash('user_id') and $c->stash('token_id')) {
         $c->db_user_session_tokens
             ->search({ id => $c->stash('token_id'), user_id => $c->stash('user_id') })
@@ -254,6 +261,11 @@ sub logout ($c) {
     # delete all expired session tokens
     $c->db_user_session_tokens->expired->delete;
 
+    # delete session cookie and prevent a cached copy from being used
+    $c->_update_session;
+    $c->stash('user')->update({ refuse_session_auth => 1 });
+
+    $c->log->debug('logged out user_id '.$c->stash('user_id'));
     $c->status(204);
 }
 

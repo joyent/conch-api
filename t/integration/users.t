@@ -398,6 +398,7 @@ subtest 'User' => sub {
             ->json_schema_is('UserDetailed')
             ->json_cmp_deeply({
                 $user_detailed->%*,
+                refuse_session_auth => bool(1),
                 workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
@@ -429,7 +430,9 @@ subtest 'User' => sub {
     $t->post_ok('/login', json => { email => $ro_user->email, password => '123' })
         ->status_is(200, 'logged in using original password');
 
-    $t->get_ok('/user/me/settings', { Authorization => 'Bearer '.$t->tx->res->json->{jwt_token} })
+    @login_token = $t->tx->res->json->{jwt_token};
+
+    $t->get_ok('/user/me/settings', { Authorization => 'Bearer '.$login_token[0] })
         ->status_is(200, 'original password works again');
 
     # reset db password entry to '' so we don't have to remember our password string
@@ -439,12 +442,44 @@ subtest 'User' => sub {
     $ro_user->store_column('password', ''); # literal AcceptAll crypt value
     $ro_user->make_column_dirty('password');
     $ro_user->update;
-};
 
-subtest 'Log out' => sub {
+    $t->post_ok('/logout', { Authorization => 'Bearer '.$login_token[0] })
+        ->status_is(204)
+        ->log_debug_is('logged out user_id '.$ro_user->id);
+
+    $t->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
+        ->status_is(401);
+
+    $t->post_ok('/login', json => { user_id => $user_detailed->{id}, password => '..', set_session => JSON::PP::true })
+        ->status_is(200);
+
+    my $cookie = $t->tx->res->cookie('conch');
+    cmp_deeply($cookie->expires, within_tolerance(more_than => time + 10), 'got a valid session');
+
     $t->post_ok('/logout')
-        ->status_is(204);
-    $t->get_ok('/workspace')
+        ->status_is(204)
+        ->log_debug_is('using session user_id='.$ro_user->id)
+        ->log_debug_is('logged out user_id '.$ro_user->id);
+
+    is($t->tx->res->cookie('conch')->expires, 1, 'session is expired');
+
+    $t->get_ok('/me', { Cookie => $cookie->to_string })
+        ->status_is(401)
+        ->log_debug_is('user attempting to authenticate with session, but refuse_session_auth is set');
+
+    $t->get_ok('/me')
+        ->status_is(401)
+        ->log_debug_is('auth failed: no credentials provided');
+
+    $t->post_ok('/logout')
+        ->status_is(204)
+        ->log_debug_is('auth failed: no credentials provided');
+
+    $t->get_ok('/me', { Authorization => 'Bearer '.$login_token[0] })
+        ->status_is(401)
+        ->log_debug_is('auth failed: JWT for user_id '.$ro_user->id.' could not be found');
+
+    $t->get_ok('/me')
         ->status_is(401)
         ->log_debug_is('auth failed: no credentials provided');
 };
@@ -489,7 +524,10 @@ subtest 'JWT authentication' => sub {
 
     $t_super->get_ok('/me', { Authorization => 'Bearer '.$new_jwt_token })
         ->status_is(401, 'cannot use other user\'s JWT')
-        ->json_is({ error => 'user session is invalid' });
+        ->log_debug_is('user session is invalid');
+
+    is($t_super->tx->res->cookie('conch')->expires, 1, 'superuser session cookie was removed');
+    $t_super->authenticate(email => $super_user->email);
 
     $t_super->post_ok('/user/'.$ro_user->email.'/revoke?login_only=1&api_only=1')
         ->status_is(400)

@@ -57,7 +57,6 @@ Error responses will use:
 
 ## `POST /logout`
 
-- Does not require authentication.
 - Response: `204 NO CONTENT`
 
 ## `GET /workspace/:workspace/device-totals`
