@@ -21,26 +21,17 @@ Create a response containing a login JWT, which the user should later present in
 
 =cut
 
-sub _respond_with_jwt ($c, $user_id, $expires_delta = undef) {
-    my $jwt_config = $c->app->config('jwt') || {};
-
-    my $expires_abs = time + (
-        defined $expires_delta ? $expires_delta
-            # system admin default: 30 days
-      : $c->is_system_admin ? ($jwt_config->{system_admin_expiry} || 2592000)
-            # normal default: 1 day
-      : ($jwt_config->{normal_expiry} || 86400));
-
+sub _respond_with_jwt ($c, $user_id, $expires_epoch) {
     my ($session_token, $jwt) = $c->generate_jwt(
         $user_id,
-        $expires_abs,
+        $expires_epoch,
         'login_jwt_'.join('_', Time::HiRes::gettimeofday), # reasonably unique name
     );
 
     return if $c->res->code;
 
-    $c->res->headers->last_modified(Mojo::Date->new($session_token->created->epoch));
-    $c->res->headers->expires(Mojo::Date->new($session_token->expires->epoch));
+    $c->res->headers->last_modified(Mojo::Date->new(time));
+    $c->res->headers->expires(Mojo::Date->new($expires_epoch));
     return $c->status(200, { jwt_token => $jwt });
 }
 
@@ -48,9 +39,8 @@ sub _respond_with_jwt ($c, $user_id, $expires_delta = undef) {
 
 Handle the details of authenticating the user, with one of the following options:
 
- * existing session for the user
  * signed JWT in the Authorization Bearer header
- * Old 'conch' session cookie
+ * existing session for the user (using the 'conch' session cookie)
 
 Does not terminate the connection if authentication is successful, allowing for chaining to
 subsequent routes and actions.
@@ -108,11 +98,14 @@ sub authenticate ($c) {
         $c->stash('token_id', $jwt_claims->{token_id});
     }
 
-    if ($c->session('user')) {
+    if ($c->session('user_id')) {
         return $c->status(401, { error => 'user session is invalid' })
-            if not is_uuid($c->session('user')) or ($user_id and $c->session('user') ne $user_id);
-        $c->log->debug('using session user='.$c->session('user'));
-        $user_id ||= $c->session('user');
+            if not is_uuid($c->session('user_id')) or ($user_id and $c->session('user_id') ne $user_id);
+
+        if (not $user_id) {
+            $user_id = $c->session('user_id');
+            $c->log->debug('using session user_id='.$user_id);
+        }
     }
 
     # clear out all expired session tokens
@@ -125,26 +118,26 @@ sub authenticate ($c) {
 
             # api tokens are exempt from this check
             if ((not $session_token or $session_token->is_login)
-                    and $user->refuse_session_auth) {
-                if ($user->force_password_change) {
-                    if ($c->req->url ne '/user/me/password') {
-                        $c->log->debug('attempt to authenticate before changing insecure password');
+                and $user->force_password_change
+                and $c->req->url ne '/user/me/password'
+            ) {
+                $c->log->debug('attempt to authenticate before changing insecure password');
 
-                        # ensure session and and all login JWTs expire in no more than 10 minutes
-                        $c->session(expiration => 10 * 60);
-                        $user->user_session_tokens->login_only
-                            ->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $session_token;
+                # ensure session and all login JWTs expire in no more than 10 minutes
+                $c->_update_session($c->session('user_id'), time + 10 * 60);
+                $user->user_session_tokens->login_only
+                    ->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $session_token;
 
-                        $c->res->headers->location($c->url_for('/user/me/password'));
-                        return $c->status(401);
-                    }
-                }
-                else {
-                    $c->log->debug('user\'s tokens were revoked - they must /login again');
-                    return $c->status(401);
-                }
+                $c->res->headers->location($c->url_for('/user/me/password'));
+                return $c->status(401);
             }
 
+            if (not $session_token and $user->refuse_session_auth) {
+                $c->log->debug('user attempting to authenticate with session, but refuse_session_auth is set');
+                return $c->status(401);
+            }
+
+            # the gauntlet has been successfully run!
             $c->stash('user_id', $user_id);
             $c->stash('user', $user);
             return 1;
@@ -186,8 +179,6 @@ sub login ($c) {
     $c->stash('user_id', $user->id);
     $c->stash('user', $user);
 
-    $c->session(user => $user->id) if not $c->feature('stop_conch_cookie_issue');
-
     # clear out all expired session tokens
     $c->db_user_session_tokens->expired->delete;
 
@@ -199,11 +190,12 @@ sub login ($c) {
             password => Authen::Passphrase::RejectAll->new, # ensure password cannot be used again
         });
         # password must be reset within 10 minutes
-        $c->session(expires => time + 10 * 60);
+
+        $c->_update_session($user->id, $input->{set_session} ? time + 10 * 60 : 0);
 
         # we logged the user in, but he must now change his password (within 10 minutes)
         $c->res->headers->location($c->url_for('/user/me/password'));
-        return $c->_respond_with_jwt($user->id, 10 * 60);
+        return $c->_respond_with_jwt($user->id, time + 10 * 60);
     }
 
     $c->log->info('user '.$user->name.' ('.$user->email.') logged in');
@@ -225,20 +217,30 @@ sub login ($c) {
     if (my $token = $token_rs->order_by({ -desc => 'created' })->rows(1)->single) {
         $c->res->headers->last_modified(Mojo::Date->new($token->created->epoch));
         $c->res->headers->expires(Mojo::Date->new($token->expires->epoch));
+
+        $c->_update_session($user->id, $input->{set_session} ? $token->expires->epoch : 0);
+
         return $c->status(200, { jwt_token => $c->generate_jwt_from_token($token) });
     }
 
-    return $c->_respond_with_jwt($user->id);
+    my $config = $c->app->config('authentication') // {};
+    my $expires_epoch = time +
+        ($c->is_system_admin ? ($config->{system_admin_expiry} || 2592000)  # 30 days
+            : ($config->{normal_expiry} || 86400));                         # 1 day
+
+    $c->_update_session($user->id, $input->{set_session} ? $expires_epoch : 0);
+
+    return $c->_respond_with_jwt($user->id, $expires_epoch);
 }
 
 =head2 logout
 
-Logs a user out by expiring their session
+Logs a user out by expiring their JWT and user session
 
 =cut
 
 sub logout ($c) {
-    $c->session(expires => 1);
+    $c->_update_session;
 
     # expire this user's token
     # (assuming we have the user's id, which we probably don't)
@@ -257,15 +259,13 @@ sub logout ($c) {
 
 =head2 refresh_token
 
-Refresh a user's JWT token. Deletes the old token and expires the session.
+Refresh a user's JWT token and persistent user session, deleting the old token.
 
 =cut
 
 sub refresh_token ($c) {
     $c->validate_request('Null');
     return if $c->res->code;
-
-    $c->session('expires', 1) if $c->session('user');
 
     $c->db_user_session_tokens
             ->search({ id => $c->stash('token_id'), user_id => $c->stash('user_id') })
@@ -275,7 +275,25 @@ sub refresh_token ($c) {
     # clear out all expired session tokens
     $c->db_user_session_tokens->expired->delete;
 
-    return $c->_respond_with_jwt($c->stash('user_id'));
+    my $config = $c->app->config('authentication') // {};
+    my $expires_epoch = time +
+        ($c->is_system_admin ? ($config->{system_admin_expiry} || 2592000)  # 30 days
+            : ($config->{normal_expiry} || 86400));                         # 1 day
+
+    # renew the session, if there is one
+    $c->_update_session($c->stash('user_id'), $expires_epoch);
+
+    return $c->_respond_with_jwt($c->stash('user_id'), $expires_epoch);
+}
+
+sub _update_session ($c, $user_id = undef, $expires_epoch = 0) {
+    if (not $user_id or not $expires_epoch or $c->feature('stop_conch_cookie_issue')) {
+        $c->session('expires', 1);
+    }
+    else {
+        $c->session('user_id', $user_id);
+        $c->session('expires', $expires_epoch);
+    }
 }
 
 1;

@@ -46,9 +46,18 @@ sub all_routes (
     $app,   # the Conch app
 ) {
 
-    # provides a route to chain to that first checks the user is a system admin.
+=head1 SHORTCUTS
+
+These are available on the root router. See L<Mojolicious::Guides::Routing/Shortcuts>.
+
+=head2 require_system_admin
+
+Chainable route that aborts with HTTP 403 if the user is not a system admin.
+
+=cut
+
     $root->add_shortcut(require_system_admin => sub ($r) {
-        $r->any(sub ($c) {
+        $r->under('/', sub ($c) {
             return $c->status(401)
                 if not $c->stash('user') or not $c->stash('user_id');
 
@@ -58,7 +67,26 @@ sub all_routes (
             }
 
             return 1;
-        })->under;
+        });
+    });
+
+=head2 find_user_from_payload
+
+Chainable route that looks up the user by C<user_id> or C<email> in the JSON payload,
+aborting with HTTP 410 or HTTP 404 if not found.
+
+=cut
+
+    # provides a route to chain to that looks up the user provided in the payload
+    $root->add_shortcut(find_user_from_payload => sub ($r) {
+        $r->under('/', sub ($c) {
+            my $input = $c->validate_request('UserIdOrEmail');
+            return if not $input;
+
+            $c->stash('target_user_id_or_email', $input->{user_id} // $input->{email});
+            return 1;
+        })
+        ->under('/')->to('user#find_user');
     });
 
     # allow routes to be specified as, e.g. ->get('/<device_id:uuid>')->to(...)
@@ -132,26 +160,28 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 Unless otherwise specified, all routes require authentication.
 
 Full access is granted to system admin users, regardless of workspace, build or other role
 entries.
 
-Successful (http 2xx code) response structures are as described for each endpoint.
+Successful (HTTP 2xx code) response structures are as described for each endpoint.
 
 Error responses will use:
 
 =over
 
-=item * failure to validate query parameters: http 400, F<response.yaml#/definitions/QueryParamsValidationError>
+=item * failure to validate query parameters: HTTP 400, F<response.yaml#/definitions/QueryParamsValidationError>
 
-=item * failure to validate request body payload: http 400, F<response.yaml#/RequestValidationError>
+=item * failure to validate request body payload: HTTP 400, F<response.yaml#/RequestValidationError>
 
-=item * all other errors, unless specified: http 4xx, F<response.yaml#/Error>
+=item * all other errors, unless specified: HTTP 4xx, F<response.yaml#/Error>
 
 =back
 
-=head3 C<GET /ping>
+=head2 C<GET /ping>
 
 =over 4
 
@@ -161,7 +191,7 @@ Error responses will use:
 
 =back
 
-=head3 C<GET /version>
+=head2 C<GET /version>
 
 =over 4
 
@@ -171,7 +201,7 @@ Error responses will use:
 
 =back
 
-=head3 C<POST /login>
+=head2 C<POST /login>
 
 =over 4
 
@@ -181,7 +211,7 @@ Error responses will use:
 
 =back
 
-=head3 C<POST /logout>
+=head2 C<POST /logout>
 
 =over 4
 
@@ -191,9 +221,9 @@ Error responses will use:
 
 =back
 
-=head3 C<GET /workspace/:workspace/device-totals>
+=head2 C<GET /workspace/:workspace/device-totals>
 
-=head3 C<GET /workspace/:workspace/device-totals.circ>
+=head2 C<GET /workspace/:workspace/device-totals.circ>
 
 =over 4
 
@@ -205,7 +235,7 @@ Error responses will use:
 
 =back
 
-=head3 C<POST /refresh_token>
+=head2 C<POST /refresh_token>
 
 =over 4
 
@@ -215,47 +245,47 @@ Error responses will use:
 
 =back
 
-=head3 C<* /dc>, C<* /room>, C<* /rack_role>, C<* /rack>, C<* /layout>
+=head2 C<* /dc>, C<* /room>, C<* /rack_role>, C<* /rack>, C<* /layout>
 
 See L<Conch::Route::Datacenter/routes>
 
-=head3 C<* /device>
+=head2 C<* /device>
 
 See L<Conch::Route::Device/routes>
 
-=head3 C<* /device_report>
+=head2 C<* /device_report>
 
 See L<Conch::Route::DeviceReport/routes>
 
-=head3 C<* /hardware_product>
+=head2 C<* /hardware_product>
 
 See L<Conch::Route::HardwareProduct/routes>
 
-=head3 C<* /hardware_vendor>
+=head2 C<* /hardware_vendor>
 
 See L<Conch::Route::HardwareVendor/routes>
 
-=head3 C<* /organization>
+=head2 C<* /organization>
 
 See L<Conch::Route::Organization/routes>
 
-=head3 C<* /relay>
+=head2 C<* /relay>
 
 See L<Conch::Route::Relay/routes>
 
-=head3 C<* /schema>
+=head2 C<* /schema>
 
 See L<Conch::Route::Schema/routes>
 
-=head3 C<* /user>
+=head2 C<* /user>
 
 See L<Conch::Route::User/routes>
 
-=head3 C<* /validation>, C<* /validation_plan>, C<* /validation_state>
+=head2 C<* /validation>, C<* /validation_plan>, C<* /validation_state>
 
 See L<Conch::Route::Validation/routes>
 
-=head3 C<* /workspace>
+=head2 C<* /workspace>
 
 See L<Conch::Route::Workspace/routes>
 

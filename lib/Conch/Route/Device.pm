@@ -12,7 +12,7 @@ Conch::Route::Device
 
 =head2 routes
 
-Sets up the routes for /device:
+Sets up the routes for /device.
 
 =cut
 
@@ -121,6 +121,8 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
 The user's role (required for most endpoints) is determined by the build the device is
@@ -132,7 +134,7 @@ a L<role|Conch::DB::Result::UserWorkspaceRole/role> in that workspace).
 Full (admin-level) access is also granted to a device if a report was sent for that device
 using a relay that registered with that user's credentials.
 
-=head3 C<POST /device/:device_serial_number>
+=head2 C<POST /device/:device_serial_number>
 
 =over 4
 
@@ -142,7 +144,7 @@ using a relay that registered with that user's credentials.
 
 =back
 
-=head3 C<GET /device?:key=:value>
+=head2 C<GET /device?:key=:value>
 
 Supports the following query parameters:
 
@@ -168,7 +170,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id_or_serial_number>
+=head2 C<GET /device/:device_id_or_serial_number>
 
 =over 4
 
@@ -178,7 +180,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id_or_serial_number/pxe>
+=head2 C<GET /device/:device_id_or_serial_number/pxe>
 
 =over 4
 
@@ -188,7 +190,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id_or_serial_number/phase>
+=head2 C<GET /device/:device_id_or_serial_number/phase>
 
 =over 4
 
@@ -198,7 +200,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id_or_serial_number/sku>
+=head2 C<GET /device/:device_id_or_serial_number/sku>
 
 =over 4
 
@@ -208,7 +210,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id_or_serial_number/asset_tag>
+=head2 C<POST /device/:device_id_or_serial_number/asset_tag>
 
 =over 4
 
@@ -220,7 +222,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id_or_serial_number/validated>
+=head2 C<POST /device/:device_id_or_serial_number/validated>
 
 =over 4
 
@@ -232,7 +234,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id_or_serial_number/phase>
+=head2 C<POST /device/:device_id_or_serial_number/phase>
 
 =over 4
 
@@ -244,7 +246,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id_or_serial_number/links>
+=head2 C<POST /device/:device_id_or_serial_number/links>
 
 =over 4
 
@@ -256,7 +258,7 @@ below.
 
 =back
 
-=head3 C<DELETE /device/:device_id_or_serial_number/links>
+=head2 C<DELETE /device/:device_id_or_serial_number/links>
 
 =over 4
 
@@ -266,7 +268,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id_or_serial_number/build>
+=head2 C<POST /device/:device_id_or_serial_number/build>
 
 =over 4
 
@@ -278,7 +280,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id_or_serial_number/location>
+=head2 C<GET /device/:device_id_or_serial_number/location>
 
 =over 4
 
@@ -288,7 +290,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id_or_serial_number/location>
+=head2 C<POST /device/:device_id_or_serial_number/location>
 
 =over 4
 
@@ -300,7 +302,7 @@ below.
 
 =back
 
-=head3 C<DELETE /device/:device_id_or_serial_number/location>
+=head2 C<DELETE /device/:device_id_or_serial_number/location>
 
 =over 4
 
@@ -310,7 +312,7 @@ below.
 
 =back
 
-=head3 C<GET /device/:device_id_or_serial_number/settings>
+=head2 C<GET /device/:device_id_or_serial_number/settings>
 
 =over 4
 
@@ -320,7 +322,7 @@ below.
 
 =back
 
-=head3 C<POST /device/:device_id_or_serial_number/settings>
+=head2 C<POST /device/:device_id_or_serial_number/settings>
 
 =over 4
 
@@ -333,7 +335,7 @@ settings that do not start with C<tag.>.
 
 =back
 
-=head3 C<GET /device/:device_id_or_serial_number/settings/:key>
+=head2 C<GET /device/:device_id_or_serial_number/settings/:key>
 
 =over 4
 
@@ -343,7 +345,7 @@ settings that do not start with C<tag.>.
 
 =back
 
-=head3 C<POST /device/:device_id_or_serial_number/settings/:key>
+=head2 C<POST /device/:device_id_or_serial_number/settings/:key>
 
 =over 4
 
@@ -356,7 +358,7 @@ settings that do not start with C<tag.>.
 
 =back
 
-=head3 C<DELETE /device/:device_id_or_serial_number/settings/:key>
+=head2 C<DELETE /device/:device_id_or_serial_number/settings/:key>
 
 =over 4
 
@@ -367,7 +369,7 @@ otherwise.
 
 =back
 
-=head3 C<POST /device/:device_id_or_serial_number/validation/:validation_id>
+=head2 C<POST /device/:device_id_or_serial_number/validation/:validation_id>
 
 Does not store validation results.
 
@@ -381,7 +383,7 @@ Does not store validation results.
 
 =back
 
-=head3 C<POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id>
+=head2 C<POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id>
 
 Does not store validation results.
 
@@ -395,7 +397,7 @@ Does not store validation results.
 
 =back
 
-=head3 C<< GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=... >>
+=head2 C<< GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=... >>
 
 Accepts the query parameter C<status>, indicating the desired status(es)
 to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
@@ -408,7 +410,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =back
 
-=head3 C<GET /device/:device_id_or_serial_number/interface>
+=head2 C<GET /device/:device_id_or_serial_number/interface>
 
 =over 4
 
@@ -418,7 +420,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =back
 
-=head3 C<GET /device/:device_id_or_serial_number/interface/:interface_name>
+=head2 C<GET /device/:device_id_or_serial_number/interface/:interface_name>
 
 =over 4
 
@@ -428,7 +430,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =back
 
-=head3 C<GET /device/:device_id_or_serial_number/interface/:interface_name/:field>
+=head2 C<GET /device/:device_id_or_serial_number/interface/:interface_name/:field>
 
 =over 4
 

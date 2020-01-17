@@ -6,37 +6,44 @@ Conch::Route::RackLayout
 
 ## routes
 
-Sets up the routes for /layout:
+Sets up the routes for /layout.
 
 ## one\_layout\_routes
 
 Sets up the routes for working with just one layout, mounted under a provided route prefix.
 
+# ROUTE ENDPOINTS
+
 All routes require authentication.
 
-### `GET /layout`
+Take note: All routes that reference a specific rack layout (prefix `/layout/:layout_id`) are
+also available under `/rack/:rack_id_or_long_name/layout/:layout_id_or_rack_unit_start` as
+well as
+`/room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`.
+
+## `GET /layout`
 
 - Requires system admin authorization
 - Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
 
-### `POST /layout`
+## `POST /layout`
 
 - Requires system admin authorization
 - Request: [request.json#/definitions/RackLayoutCreate](../json-schema/request.json#/definitions/RackLayoutCreate)
 - Response: Redirect to the created rack layout
 
-### `GET /layout/:layout_id`
+## `GET /layout/:layout_id`
 
 - Requires system admin authorization
 - Response: [response.json#/definitions/RackLayout](../json-schema/response.json#/definitions/RackLayout)
 
-### `POST /layout/:layout_id`
+## `POST /layout/:layout_id`
 
 - Requires system admin authorization
 - Request: [request.json#/definitions/RackLayoutUpdate](../json-schema/request.json#/definitions/RackLayoutUpdate)
 - Response: Redirect to the update rack layout
 
-### `DELETE /layout/:layout_id`
+## `DELETE /layout/:layout_id`
 
 - Requires system admin authorization
 - Response: `204 NO CONTENT`

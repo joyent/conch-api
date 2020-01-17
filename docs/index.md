@@ -35,13 +35,13 @@ The majority of our endpoints consume and respond with JSON documents that
 conform to a set of JSON schema. These schema can be found in the [json-schema](json-schema)
 directory in the main repository, as well as on this documentation site.
 
-Successful (http 2xx code) response structures are as described for each endpoint.
+Successful (HTTP 2xx code) response structures are as described for each endpoint.
 
 Error responses will use:
 
-- failure to validate query parameters: http 400, [response.json#/definitions/QueryParamsValidationError](json-schema/response.json#/definitions/QueryParamsValidationError)
-- failure to validate request body payload: http 400, [response.json#/definitions/RequestValidationError](json-schema/response.json#/definitions/RequestValidationError)
-- all other errors, unless specified: http 4xx, [response.json#/definitions/Error](json-schema/response.json#/definitions/Error)
+- failure to validate query parameters: HTTP 400, [response.json#/definitions/QueryParamsValidationError](json-schema/response.json#/definitions/QueryParamsValidationError)
+- failure to validate request body payload: HTTP 400, [response.json#/definitions/RequestValidationError](json-schema/response.json#/definitions/RequestValidationError)
+- all other errors, unless specified: HTTP 4xx, [response.json#/definitions/Error](json-schema/response.json#/definitions/Error)
 
 Available routes are:
 

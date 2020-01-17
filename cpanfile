@@ -33,7 +33,7 @@ requires 'Net::DNS';    # not used directly, but Email::Valid sometimes demands 
 requires 'experimental', '0.020';
 
 # mojolicious and networking
-requires 'Mojolicious', '8.15';
+requires 'Mojolicious', '8.31';
 requires 'Mojo::Pg';
 requires 'Mojo::JWT';
 requires 'Mojolicious::Plugin::Util::RandomString', '0.07'; # memory leak: https://rt.cpan.org/Ticket/Display.html?id=125981

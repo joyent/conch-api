@@ -50,7 +50,7 @@ sub routes {
         $with_build_admin->get('/user')->to('#get_users');
 
         # POST /build/:build_id_or_name/user?send_mail=<1|0>
-        $with_build_admin->post('/user')->to('#add_user');
+        $with_build_admin->find_user_from_payload->post('/user')->to('build#add_user');
 
         # DELETE /build/:build_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
         $with_build_admin
@@ -108,9 +108,11 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
-=head3 C<GET /build>
+=head2 C<GET /build>
 
 Supports the following optional query parameters:
 
@@ -130,7 +132,7 @@ Supports the following optional query parameters:
 
 =back
 
-=head3 C<POST /build>
+=head2 C<POST /build>
 
 =over 4
 
@@ -142,7 +144,7 @@ Supports the following optional query parameters:
 
 =back
 
-=head3 C<GET /build/:build_id_or_name>
+=head2 C<GET /build/:build_id_or_name>
 
 Supports the following optional query parameters:
 
@@ -164,7 +166,7 @@ Supports the following optional query parameters:
 
 =back
 
-=head3 C<POST /build/:build_id_or_name>
+=head2 C<POST /build/:build_id_or_name>
 
 =over 4
 
@@ -176,7 +178,7 @@ Supports the following optional query parameters:
 
 =back
 
-=head3 C<GET /build/:build_id_or_name/user>
+=head2 C<GET /build/:build_id_or_name/user>
 
 =over 4
 
@@ -186,7 +188,7 @@ Supports the following optional query parameters:
 
 =back
 
-=head3 C<POST /build/:build_id_or_name/user?send_mail=<1|0>>
+=head2 C<POST /build/:build_id_or_name/user?send_mail=<1|0>>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
 an email to the user.
@@ -201,7 +203,7 @@ an email to the user.
 
 =back
 
-=head3 C<DELETE /build/:build_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>>
+=head2 C<DELETE /build/:build_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
 an email to the user.
@@ -214,7 +216,7 @@ an email to the user.
 
 =back
 
-=head3 C<GET /build/:build_id_or_name/organization>
+=head2 C<GET /build/:build_id_or_name/organization>
 
 =over 4
 
@@ -224,7 +226,7 @@ an email to the user.
 
 =back
 
-=head3 C<< POST /build/:build_id_or_name/organization?send_mail=<1|0> >>
+=head2 C<< POST /build/:build_id_or_name/organization?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
 an email to the organization members and build admins.
@@ -239,7 +241,7 @@ an email to the organization members and build admins.
 
 =back
 
-=head3 C<< DELETE /build/:build_id_or_name/organization/:organization_id_or_name?send_mail=<1|0> >>
+=head2 C<< DELETE /build/:build_id_or_name/organization/:organization_id_or_name?send_mail=<1|0> >>
 
 Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
 an email to the organization members and build admins.
@@ -252,7 +254,7 @@ an email to the organization members and build admins.
 
 =back
 
-=head3 C<GET /build/:build_id_or_name/device>
+=head2 C<GET /build/:build_id_or_name/device>
 
 Accepts the following optional query parameters:
 
@@ -275,7 +277,7 @@ Accepts the following optional query parameters:
 
 =back
 
-=head3 C<GET /build/:build_id_or_name/device/pxe>
+=head2 C<GET /build/:build_id_or_name/device/pxe>
 
 =over 4
 
@@ -285,7 +287,7 @@ Accepts the following optional query parameters:
 
 =back
 
-=head3 C<POST /build/:build_id_or_name/device>
+=head2 C<POST /build/:build_id_or_name/device>
 
 =over 4
 
@@ -299,7 +301,7 @@ L<Conch::Route::Device/routes>)
 
 =back
 
-=head3 C<POST /build/:build_id_or_name/device/:device_id_or_serial_number>
+=head2 C<POST /build/:build_id_or_name/device/:device_id_or_serial_number>
 
 =over 4
 
@@ -310,7 +312,7 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 
 =back
 
-=head3 C<DELETE /build/:build_id_or_name/device/:device_id_or_serial_number>
+=head2 C<DELETE /build/:build_id_or_name/device/:device_id_or_serial_number>
 
 =over 4
 
@@ -320,7 +322,7 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 
 =back
 
-=head3 C<GET /build/:build_id_or_name/rack>
+=head2 C<GET /build/:build_id_or_name/rack>
 
 =over 4
 
@@ -330,7 +332,7 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 
 =back
 
-=head3 C<POST /build/:build_id_or_name/rack/:rack_id_or_name>
+=head2 C<POST /build/:build_id_or_name/rack/:rack_id_or_name>
 
 =over 4
 

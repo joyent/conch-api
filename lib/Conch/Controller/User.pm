@@ -40,7 +40,7 @@ sub find_user ($c) {
     if ($user->deactivated) {
         return $c->status(410, {
             error => 'user is deactivated',
-            user => { map +($_ => $user->$_), qw(id email name created deactivated) },
+            $c->is_system_admin ? ( user => { map +($_ => $user->$_), qw(id email name created deactivated) } ) : (),
         });
     }
 
@@ -385,6 +385,8 @@ sub update ($c) {
     return $c->status(400, { error => 'user email "'.$input->{email}.'" is not a valid RFC822 address' })
         if exists $input->{email} and not Email::Valid->address($input->{email});
 
+    my $is_system_admin = $c->is_system_admin;
+
     my $user = $c->stash('target_user');
     my %orig_columns = $user->get_columns;
     $user->set_columns($input);
@@ -392,19 +394,16 @@ sub update ($c) {
 
     return $c->status(204) if not keys %dirty_columns;
 
-    if (exists $dirty_columns{email} and fc $input->{email} ne fc $orig_columns{email}
-            and my $dupe_user = $c->db_user_accounts->active->find_by_email($input->{email})) {
-        return $c->status(409, {
-            error => 'duplicate user found',
-            user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) },
-        });
-    }
+    return $c->status(403) if $dirty_columns{is_admin} and not $is_system_admin;
 
-    if (exists $dirty_columns{name}
-            and my $dupe_user = $c->db_user_accounts->active->search({ name => $input->{name} })->single) {
+    if (my $dupe_user =
+            (exists $dirty_columns{email} && (fc $input->{email} ne fc $orig_columns{email})
+                && $c->db_user_accounts->active->find_by_email($input->{email}))
+            || (exists $dirty_columns{name}
+                && $c->db_user_accounts->active->search({ name => $input->{name} })->single) ) {
         return $c->status(409, {
             error => 'duplicate user found',
-            user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) },
+            $is_system_admin ? ( user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) } ) : (),
         });
     }
 
@@ -488,6 +487,7 @@ sub create ($c) {
     $input->{is_admin} = ($input->{is_admin} ? 1 : 0);
 
     # password will be hashed in constructor
+    # FIXME: should set force_password_change - see GH#975
     my $user = $c->db_user_accounts->create($input);
     $c->log->info('created user: '.$user->name.', email: '.$user->email.', id: '.$user->id);
 
@@ -611,7 +611,7 @@ sub create_api_token ($c) {
     my $user = $c->stash('target_user');
 
     # default expiration: 5 years
-    my $expires_abs = time + (($c->app->config('jwt') || {})->{custom_token_expiry} // 86400*365*5);
+    my $expires_abs = time + (($c->app->config('authentication')//{})->{custom_token_expiry} // 86400*365*5);
 
     my ($token, $jwt) = $c->generate_jwt($user->id, $expires_abs, $input->{name});
     return if $c->res->code;

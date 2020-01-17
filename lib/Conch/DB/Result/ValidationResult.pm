@@ -143,6 +143,46 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<validation_result_all_columns_key>
+
+=over 4
+
+=item * L</device_id>
+
+=item * L</hardware_product_id>
+
+=item * L</validation_id>
+
+=item * L</message>
+
+=item * L</hint>
+
+=item * L</status>
+
+=item * L</category>
+
+=item * L</component>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint(
+  "validation_result_all_columns_key",
+  [
+    "device_id",
+    "hardware_product_id",
+    "validation_id",
+    "message",
+    "hint",
+    "status",
+    "category",
+    "component",
+  ],
+);
+
 =head1 RELATIONS
 
 =head2 device
@@ -221,7 +261,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:+l8wIgJwgE/xE72CF/Dr4Q
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cdTosC+PxDTHDZw4mNjetQ
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },

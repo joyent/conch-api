@@ -502,8 +502,8 @@ sub generate_fixtures ($self, @specification) {
 Authenticates a user in the current test instance. Uses default (superuser) credentials if not
 provided. Optionally will bail out of B<all> tests on failure.
 
-This will set 'user' in the session (C<< $t->app->session('user') >>), so a token is not needed
-on subsequent requests.
+This will set 'user' in the session (C<< $t->ua->cookie_jar >>, accessed internally via
+C<< $c->session('user_id') >>), so a token is not needed on subsequent requests.
 
 =cut
 
@@ -511,9 +511,10 @@ sub authenticate ($self, %args) {
     $args{bailout} //= 1 if not $args{email};
     $args{email} //= CONCH_EMAIL;
     $args{password} //= CONCH_PASSWORD; # note that if a fixture is used, everything is accepted (for speed)
+    $args{set_session} //= JSON::PP::true;
 
     local $Test::Builder::Level = $Test::Builder::Level + 1;
-    $self->post_ok('/login', json => { %args{qw(email password)} })
+    $self->post_ok('/login', json => { %args{qw(email password set_session)} })
         ->status_is(200, $args{message} // 'logged in as '.$args{email})
             or $args{bailout} and Test::More::BAIL_OUT('Failed to log in as '.$args{email});
 

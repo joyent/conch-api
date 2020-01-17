@@ -657,6 +657,10 @@
         "password" : {
           "$ref" : "common.json#/definitions/non_empty_string"
         },
+        "set_session" : {
+          "default" : false,
+          "type" : "boolean"
+        },
         "user_id" : {
           "$ref" : "common.json#/definitions/uuid"
         }
@@ -1081,6 +1085,30 @@
         },
         "name" : {
           "$ref" : "common.json#/definitions/non_empty_string"
+        }
+      },
+      "type" : "object"
+    },
+    "UserIdOrEmail" : {
+      "additionalProperties" : true,
+      "oneOf" : [
+        {
+          "required" : [
+            "user_id"
+          ]
+        },
+        {
+          "required" : [
+            "email"
+          ]
+        }
+      ],
+      "properties" : {
+        "email" : {
+          "$ref" : "common.json#/definitions/email_address"
+        },
+        "user_id" : {
+          "$ref" : "common.json#/definitions/uuid"
         }
       },
       "type" : "object"

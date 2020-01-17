@@ -35,11 +35,13 @@ and therefore other helpers).
 sub startup {
     my $self = shift;
 
-    # Configuration
-    $self->plugin('Config');
-    $self->secrets($self->config('secrets'));
     $self->sessions->cookie_name('conch');
-    $self->sessions->default_expiration(2592000);    # 30 days
+    $self->sessions->default_expiration(86400);     # 1 day
+    $self->sessions->samesite('Strict');            # do not send with cross-site requests
+    $self->sessions->secure(1) if $ENV{MOJO_MODE} eq 'production';  # https only
+
+    $self->plugin('Config');
+    $self->secrets(delete $self->config->{secrets});
 
     $self->plugin('Conch::Plugin::Features', $self->config);
     $self->plugin('Conch::Plugin::Logging', $self->config);
@@ -65,7 +67,7 @@ sub startup {
 
         if (ref $args->{json} eq 'ARRAY'
                 # TODO: skip if ?page_size is passed (and we actually used it).
-                and $args->{json}->@* >= ($c->app->config->{rollbar}{warn_payload_elements} // 35)
+                and $args->{json}->@* >= (($c->app->config('rollbar')//{})->{warn_payload_elements} // 35)
                 and $c->feature('rollbar')) {
             my $endpoint = join '#', map $_//'', ($c->match->stack->[-1]//{})->@{qw(controller action)};
             $c->send_message_to_rollbar(
@@ -79,7 +81,7 @@ sub startup {
         # do this after the response has been sent
         $c->on(finish => sub ($c) {
             my $body_size = $c->res->body_size;
-            if ($body_size >= ($c->app->config->{rollbar}{warn_payload_size} // 10000)
+            if ($body_size >= (($c->app->config('rollbar')//{})->{warn_payload_size} // 10000)
                     and $c->feature('rollbar')) {
                 my $endpoint = join '#', map $_//'', ($c->match->stack->[-1]//{})->@{qw(controller action)};
                 $c->send_message_to_rollbar(

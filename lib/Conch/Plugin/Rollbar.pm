@@ -39,8 +39,7 @@ sub register ($self, $app, $config) {
     $app->hook(before_render => sub ($c, $args) {
         my $template = $args->{template};
 
-        if (my $exception = $c->stash('exception')
-                or ($template and $template =~ /exception/)) {
+        if (my $exception = $c->stash('exception')) {
             my $rollbar_id = $c->send_exception_to_rollbar($exception);
             $c->log->debug('exception sent to rollbar: id '.$rollbar_id) if $rollbar_id;
         }
@@ -100,7 +99,7 @@ thus created.
     my $notifier;
 
     $app->helper(send_exception_to_rollbar => sub ($c, $exception) {
-        $notifier //= _create_notifier($c->app, $c->config);
+        $notifier //= _create_notifier($c->app, $c->app->config);
         return if not $notifier;
 
         my @frames = map +{
@@ -160,7 +159,7 @@ A string or data structure of fingerprint data for grouping occurrences is optio
         Carp::croak('severity must be one of: '.join(', ',@message_levels))
             if !$ENV{MOJO_MODE} and none { $severity eq $_ } @message_levels;
 
-        $notifier //= _create_notifier($c->app, $c->config);
+        $notifier //= _create_notifier($c->app, $c->app->config);
         return if not $notifier;
 
         my $rollbar_id = create_uuid_str();

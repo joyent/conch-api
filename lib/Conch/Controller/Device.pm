@@ -135,8 +135,7 @@ reflected in the checksum.
 sub get ($c) {
     # allow the (authenticated) client to cache the result based on updated time
     my $etag = Digest::MD5::md5_hex($c->stash('device_rs')->get_column('updated')->single);
-    # TODO: this is really a weak etag. requires https://github.com/mojolicious/mojo/pull/1420
-    return $c->status(304) if $c->is_fresh(etag => $etag);
+    return $c->status(304) if $c->is_fresh(etag => qq{W/"$etag"});
 
     my $device = $c->stash('device_rs')->with_sku->with_build_name->single;
     my $latest_report = $c->stash('device_rs')->latest_device_report->get_column('report')->single;

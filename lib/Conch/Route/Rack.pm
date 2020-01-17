@@ -12,7 +12,7 @@ Conch::Route::Rack
 
 =head2 routes
 
-Sets up the routes for /rack:
+Sets up the routes for /rack.
 
 =cut
 
@@ -87,13 +87,15 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
 Take note: All routes that reference a specific rack (prefix C</rack/:rack_id>) are also
 available under C</rack/:rack_id_or_long_name> as well as
 C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
-=head3 C<POST /rack>
+=head2 C<POST /rack>
 
 =over 4
 
@@ -105,7 +107,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =back
 
-=head3 C<GET /rack/:rack_id_or_name>
+=head2 C<GET /rack/:rack_id_or_name>
 
 =over 4
 
@@ -115,7 +117,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =back
 
-=head3 C<POST /rack/:rack_id_or_name>
+=head2 C<POST /rack/:rack_id_or_name>
 
 =over 4
 
@@ -127,7 +129,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =back
 
-=head3 C<DELETE /rack/:rack_id_or_name>
+=head2 C<DELETE /rack/:rack_id_or_name>
 
 =over 4
 
@@ -137,7 +139,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =back
 
-=head3 C<GET /rack/:rack_id_or_name/layout>
+=head2 C<GET /rack/:rack_id_or_name/layout>
 
 =over 4
 
@@ -147,7 +149,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =back
 
-=head3 C<POST /rack/:rack_id_or_name/layout>
+=head2 C<POST /rack/:rack_id_or_name/layout>
 
 =over 4
 
@@ -159,7 +161,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =back
 
-=head3 C<GET /rack/:rack_id_or_name/assignment>
+=head2 C<GET /rack/:rack_id_or_name/assignment>
 
 =over 4
 
@@ -169,7 +171,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =back
 
-=head3 C<POST /rack/:rack_id_or_name/assignment>
+=head2 C<POST /rack/:rack_id_or_name/assignment>
 
 =over 4
 
@@ -181,7 +183,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =back
 
-=head3 C<DELETE /rack/:rack_id_or_name/assignment>
+=head2 C<DELETE /rack/:rack_id_or_name/assignment>
 
 This method requires a request body.
 
@@ -195,7 +197,7 @@ This method requires a request body.
 
 =back
 
-=head3 C<< POST /rack/:rack_id_or_name/phase?rack_only=<0|1> >>
+=head2 C<< POST /rack/:rack_id_or_name/phase?rack_only=<0|1> >>
 
 The query parameter C<rack_only> (defaults to C<0>) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.
@@ -210,15 +212,15 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =back
 
-=head3 C<GET /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+=head2 C<GET /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
 
 See L<Conch::Route::RackLayout/C<GET /layout/:layout_id>>.
 
-=head3 C<POST /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+=head2 C<POST /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
 
 See L<Conch::Route::RackLayout/C<POST /layout/:layout_id>>.
 
-=head3 C<DELETE /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
+=head2 C<DELETE /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
 
 See L<Conch::Route::RackLayout/C<DELETE /layout/:layout_id>>.
 

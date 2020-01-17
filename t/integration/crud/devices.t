@@ -634,7 +634,7 @@ subtest 'caching' => sub {
     $t->get_ok('/device/TEST')
         ->status_is(200)
         ->header_is('Cache-Control', 'no-cache')
-        ->header_exists('ETag')
+        ->header_like('ETag', qr{^W/"[^"]+"$})
         ->json_schema_is('DetailedDevice')
         ->json_is($detailed_device);
 

@@ -12,7 +12,7 @@ Conch::Route::DeviceReport
 
 =head2 routes
 
-Sets up the routes for /device_report:
+Sets up the routes for /device_report.
 
 =cut
 
@@ -40,9 +40,11 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
-=head3 C<POST /device_report>
+=head2 C<POST /device_report>
 
 =over 4
 
@@ -52,7 +54,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /device_report/:device_report_id>
+=head2 C<GET /device_report/:device_report_id>
 
 =over 4
 

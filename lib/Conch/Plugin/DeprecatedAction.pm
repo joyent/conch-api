@@ -19,7 +19,7 @@ Mojo plugin to detect and report the usage of deprecated controller actions.
 
 Sets the C<X-Deprecated> header in the response.
 
-Also sends a message to rollbar when a deprecated action is invoked, if the
+Also sends a message to Rollbar when a deprecated action is invoked, if the
 C<report_deprecated_actions> feature is enabled.
 
 =cut

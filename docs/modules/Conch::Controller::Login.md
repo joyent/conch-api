@@ -14,9 +14,8 @@ Create a response containing a login JWT, which the user should later present in
 Handle the details of authenticating the user, with one of the following options:
 
 ```
-* existing session for the user
 * signed JWT in the Authorization Bearer header
-* Old 'conch' session cookie
+* existing session for the user (using the 'conch' session cookie)
 ```
 
 Does not terminate the connection if authentication is successful, allowing for chaining to
@@ -29,11 +28,11 @@ Response uses the Login json schema, containing a JWT.
 
 ## logout
 
-Logs a user out by expiring their session
+Logs a user out by expiring their JWT and user session
 
 ## refresh\_token
 
-Refresh a user's JWT token. Deletes the old token and expires the session.
+Refresh a user's JWT token and persistent user session, deleting the old token.
 
 # LICENSING
 

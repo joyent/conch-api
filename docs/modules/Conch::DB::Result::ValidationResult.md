@@ -93,6 +93,19 @@ size: 16
 
 - ["id"](#id)
 
+# UNIQUE CONSTRAINTS
+
+## `validation_result_all_columns_key`
+
+- ["device\_id"](#device_id)
+- ["hardware\_product\_id"](#hardware_product_id)
+- ["validation\_id"](#validation_id)
+- ["message"](#message)
+- ["hint"](#hint)
+- ["status"](#status)
+- ["category"](#category)
+- ["component"](#component)
+
 # RELATIONS
 
 ## device

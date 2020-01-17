@@ -12,7 +12,7 @@ Conch::Route::Relay
 
 =head2 routes
 
-Sets up the routes for /relay:
+Sets up the routes for /relay.
 
 =cut
 
@@ -42,9 +42,11 @@ __END__
 
 =pod
 
+=head1 ROUTE ENDPOINTS
+
 All routes require authentication.
 
-=head3 C<POST /relay/:relay_serial_number/register>
+=head2 C<POST /relay/:relay_serial_number/register>
 
 =over 4
 
@@ -54,7 +56,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /relay>
+=head2 C<GET /relay>
 
 =over 4
 
@@ -64,7 +66,7 @@ All routes require authentication.
 
 =back
 
-=head3 C<GET /relay/:relay_id_or_serial_number>
+=head2 C<GET /relay/:relay_id_or_serial_number>
 
 =over 4
 

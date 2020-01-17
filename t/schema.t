@@ -340,6 +340,7 @@ $t->get_ok('/schema/request/Login')
             user_id => { '$ref' => '/definitions/uuid' },
             email => { '$ref' => '/definitions/email_address' },
             password => { '$ref' => '/definitions/non_empty_string' },
+            set_session => { type => 'boolean', default => JSON::PP::false },
         },
         definitions => {
             non_empty_string => { type => 'string', minLength => 1 },

@@ -278,16 +278,7 @@ sub add_user ($c) {
     my $input = $c->validate_request('BuildAddUser');
     return if not $input;
 
-    my $user_rs = $c->db_user_accounts->active;
-    my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
-        : $input->{email} ? $user_rs->find_by_email($input->{email})
-        : undef;
-    if (not $user) {
-        $c->log->debug('Could not find user '.$input->@{qw(user_id email)});
-        return $c->status(404);
-    }
-
-    $c->stash('target_user', $user);
+    my $user = $c->stash('target_user');
     my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
 
     # check if the user already has access to this build
