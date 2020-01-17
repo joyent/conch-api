@@ -289,11 +289,10 @@ sub refresh_token ($c) {
 
 sub _update_session ($c, $user_id = undef, $expires_epoch = 0) {
     if (not $user_id or not $expires_epoch or $c->feature('stop_conch_cookie_issue')) {
-        $c->session('expires', 1);
+        $c->session(user_id => 'none', expires => 1);
     }
     else {
-        $c->session('user_id', $user_id);
-        $c->session('expires', $expires_epoch);
+        $c->session(user_id => $user_id, expires => $expires_epoch);
     }
 }
 
