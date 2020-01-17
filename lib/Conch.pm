@@ -37,6 +37,8 @@ sub startup {
 
     $self->sessions->cookie_name('conch');
     $self->sessions->default_expiration(86400);     # 1 day
+    $self->sessions->samesite('Strict');            # do not send with cross-site requests
+    $self->sessions->secure(1) if $ENV{MOJO_MODE} eq 'production';  # https only
 
     $self->plugin('Config');
     $self->secrets(delete $self->config->{secrets});
