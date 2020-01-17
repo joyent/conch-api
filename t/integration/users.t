@@ -865,7 +865,7 @@ subtest 'modify another user' => sub {
 
     $t2->get_ok('/me')
         ->status_is(204)
-        ->log_debug_is('using session user='.$new_user_id)
+        ->log_debug_is('using session user_id='.$new_user_id)
         ->log_debug_is('looking up user by id '.$new_user_id.': found UNTRUSTED (untrusted@conch.joyent.us)');
     is($t2->tx->res->body, '', '...with no extra response messages');
 

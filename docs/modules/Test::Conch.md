@@ -177,7 +177,7 @@ Authenticates a user in the current test instance. Uses default (superuser) cred
 provided. Optionally will bail out of **all** tests on failure.
 
 This will set 'user' in the session (`$t->ua->cookie_jar`, accessed internally via
-`$c->session('user')`), so a token is not needed on subsequent requests.
+`$c->session('user_id')`), so a token is not needed on subsequent requests.
 
 ## txn\_local
 

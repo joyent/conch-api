@@ -98,13 +98,13 @@ sub authenticate ($c) {
         $c->stash('token_id', $jwt_claims->{token_id});
     }
 
-    if ($c->session('user')) {
+    if ($c->session('user_id')) {
         return $c->status(401, { error => 'user session is invalid' })
-            if not is_uuid($c->session('user')) or ($user_id and $c->session('user') ne $user_id);
+            if not is_uuid($c->session('user_id')) or ($user_id and $c->session('user_id') ne $user_id);
 
         if (not $user_id) {
-            $user_id = $c->session('user');
-            $c->log->debug('using session user='.$user_id);
+            $user_id = $c->session('user_id');
+            $c->log->debug('using session user_id='.$user_id);
         }
     }
 
@@ -124,7 +124,7 @@ sub authenticate ($c) {
                 $c->log->debug('attempt to authenticate before changing insecure password');
 
                 # ensure session and all login JWTs expire in no more than 10 minutes
-                $c->_update_session($c->session('user'), time + 10 * 60);
+                $c->_update_session($c->session('user_id'), time + 10 * 60);
                 $user->user_session_tokens->login_only
                     ->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $session_token;
 
@@ -291,7 +291,7 @@ sub _update_session ($c, $user_id = undef, $expires_epoch = 0) {
         $c->session('expires', 1);
     }
     else {
-        $c->session('user', $user_id);
+        $c->session('user_id', $user_id);
         $c->session('expires', $expires_epoch);
     }
 }
