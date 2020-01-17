@@ -536,16 +536,44 @@ subtest 'JWT authentication' => sub {
         ->status_is(401)
         ->log_debug_is('auth failed: JWT for user_id '.$bad_user_id.' could not be found');
 
+    is($ro_user->related_resultset('user_session_tokens')->count, 1, 'just one token presently');
+    my $token_id = $ro_user->related_resultset('user_session_tokens')->get_column('id')->single;
+    is($t->tx->res->cookie('conch')->expires, 1, 'session is expired');
+
     $t->post_ok('/refresh_token', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(200)
         ->json_schema_is('LoginToken');
     my $new_jwt_token = $t->tx->res->json->{jwt_token};
 
-    $t->get_ok('/workspace', { Authorization => 'Bearer '.$new_jwt_token })
-        ->status_is(200, 'Can authenticate with new token');
+    is($ro_user->related_resultset('user_session_tokens')->count, 1, 'still just one token');
+    isnt(
+        $ro_user->related_resultset('user_session_tokens')->get_column('id')->single,
+        $token_id,
+        'but it is a different token than the original',
+    );
+    is($t->tx->res->cookie('conch')->expires, 1, 'session is still expired');
+
     $t->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
-        ->status_is(401, 'Cannot use old token')
+        ->status_is(401)
         ->log_debug_is('auth failed: JWT for user_id '.$ro_user->id.' could not be found');
+
+    $t->get_ok('/me', { Authorization => 'Bearer '.$new_jwt_token })
+        ->status_is(204);
+
+    $t->post_ok('/login', json => { user_id => $user_detailed->{id}, password => '..', set_session => JSON::PP::true })
+        ->status_is(200);
+
+    $t->get_ok('/me')
+        ->status_is(204)
+        ->log_debug_is('using session user_id='.$ro_user->id);
+
+    $t->post_ok('/refresh_token')
+        ->status_is(200)
+        ->json_schema_is('LoginToken')
+        ->log_debug_is('using session user_id='.$ro_user->id);
+    $new_jwt_token = $t->tx->res->json->{jwt_token};
+
+    cmp_deeply($t->tx->res->cookie('conch')->expires, within_tolerance(more_than => time + 10), 'session is still valid');
 
     $t_super->get_ok('/me', { Authorization => 'Bearer '.$new_jwt_token })
         ->status_is(401, 'cannot use other user\'s JWT')
@@ -577,7 +605,7 @@ subtest 'JWT authentication' => sub {
                 To => '"'.$ro_user->name.'" <'.$ro_user->email.'>',
                 From => 'noreply@127.0.0.1',
                 Subject => 'Your Conch tokens have been revoked',
-                body => re(qr/The following tokens at \Q$JOYENT\E have been reset:\R\R    1 login token\R\RYou should now log into \Qhttps:\/\/127.0.0.1\E using your login credentials\./m),
+                body => re(qr/The following tokens at \Q$JOYENT\E have been reset:\R\R    2 login tokens\R\RYou should now log into \Qhttps:\/\/127.0.0.1\E using your login credentials\./m),
             },
         ]);
 

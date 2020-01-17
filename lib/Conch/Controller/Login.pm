@@ -293,8 +293,8 @@ sub refresh_token ($c) {
         ($c->is_system_admin ? ($config->{system_admin_expiry} || 2592000)  # 30 days
             : ($config->{normal_expiry} || 86400));                         # 1 day
 
-    # renew the session, if there is one
-    $c->_update_session($c->stash('user_id'), $expires_epoch);
+    # renew the session, if it was previously valid
+    $c->_update_session($c->session('user_id'), $expires_epoch);
 
     return $c->_respond_with_jwt($c->stash('user_id'), $expires_epoch);
 }
