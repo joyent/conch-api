@@ -516,7 +516,7 @@ sub add_test_routes ($t) {
     );
 
     my $user = $t->load_fixture('super_user');
-    $t->authenticate->json_has('/jwt_token');
+    $t->authenticate->json_schema_is('LoginToken');
 
     cmp_deeply(
         decode_json((split(/\n/, $fake_log_file))[-1]),
@@ -712,7 +712,7 @@ sub add_test_routes ($t) {
     );
 
     my $user = $t->load_fixture('super_user');
-    $t->authenticate->json_has('/jwt_token');
+    $t->authenticate->json_schema_is('LoginToken');
 
     cmp_deeply(
         decode_json((split(/\n/, $fake_log_file))[-1]),

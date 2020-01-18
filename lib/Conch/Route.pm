@@ -207,7 +207,7 @@ Error responses will use:
 
 =item * Request: F<request.yaml#/definitions/Login>
 
-=item * Response: F<response.yaml#/definitions/Login>
+=item * Response: F<response.yaml#/definitions/LoginToken>
 
 =back
 
@@ -241,7 +241,7 @@ Error responses will use:
 
 =item * Request: F<request.yaml#/definitions/Null>
 
-=item * Response: F<response.yaml#/definitions/Login>
+=item * Response: F<response.yaml#/definitions/LoginToken>
 
 =back
 

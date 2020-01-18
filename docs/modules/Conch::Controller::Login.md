@@ -24,7 +24,7 @@ subsequent routes and actions.
 ## login
 
 Handles the act of logging in, given a user and password in the form.
-Response uses the Login json schema, containing a JWT.
+Response uses the LoginToken json schema, containing a JWT.
 
 ## logout
 
@@ -33,6 +33,7 @@ Logs a user out by expiring their JWT and user session
 ## refresh\_token
 
 Refresh a user's JWT token and persistent user session, deleting the old token.
+Response uses the LoginToken json schema, containing a JWT.
 
 # LICENSING
 

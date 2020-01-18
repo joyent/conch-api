@@ -312,17 +312,17 @@ $t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006
         properties => { status => { const => 'ok' } },
     });
 
-$t->get_ok('/schema/response/Login')
+$t->get_ok('/schema/response/LoginToken')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:response.Login.schema.json',
-        title => 'Login',
+        '$id' => 'urn:response.LoginToken.schema.json',
+        title => 'LoginToken',
         type => 'object',
         additionalProperties => bool(0),
         required => ['jwt_token'],
-        properties => { jwt_token => { type => 'string' } },
+        properties => { jwt_token => { type => 'string', pattern => '[^.]+\.[^.]+\.[^.]+' } },
     });
 
 $t->get_ok('/schema/request/Login')

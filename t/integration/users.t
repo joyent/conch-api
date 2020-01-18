@@ -288,7 +288,7 @@ subtest 'User' => sub {
 
     $t->post_ok('/login', json => { email => $ro_user->email, password => '123', set_session => JSON::PP::true })
         ->status_is(200)
-        ->json_schema_is('Login');
+        ->json_schema_is('LoginToken');
 
     is($ro_user->related_resultset('user_session_tokens')->count, 2, 'got second login token again');
 
@@ -438,8 +438,7 @@ subtest 'JWT authentication' => sub {
         ->status_is(200)
         ->header_exists('Last-Modified')
         ->header_exists('Expires')
-        ->json_schema_is('Login')
-        ->json_cmp_deeply({ jwt_token => re(qr/\..*\./) });
+        ->json_schema_is('LoginToken');
 
     my $jwt_token = $t->tx->res->json->{jwt_token};
 
@@ -463,9 +462,9 @@ subtest 'JWT authentication' => sub {
 
     $t->post_ok('/refresh_token', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(200)
-        ->json_has('/jwt_token');
-
+        ->json_schema_is('LoginToken');
     my $new_jwt_token = $t->tx->res->json->{jwt_token};
+
     $t->get_ok('/workspace', { Authorization => 'Bearer '.$new_jwt_token })
         ->status_is(200, 'Can authenticate with new token');
     $t->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
@@ -509,7 +508,7 @@ subtest 'JWT authentication' => sub {
 
     $t->post_ok('/login', json => { email => $ro_user->email, password => '..' })
         ->status_is(200)
-        ->json_schema_is('Login');
+        ->json_schema_is('LoginToken');
 
     my $jwt_token_2 = $t->tx->res->json->{jwt_token};
     $t->post_ok('/user/me/revoke', { Authorization => "Bearer $jwt_token_2" })
@@ -859,7 +858,7 @@ subtest 'modify another user' => sub {
     $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => $secure_password, set_session => JSON::PP::true })
         ->status_is(200)
         ->log_info_is('user UNTRUSTED (untrusted@conch.joyent.us) logged in')
-        ->json_has('/jwt_token')
+        ->json_schema_is('LoginToken')
         ->json_hasnt('/message');
     $jwt_token = $t2->tx->res->json->{jwt_token};
 

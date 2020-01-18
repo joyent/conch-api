@@ -89,7 +89,7 @@ definitions:
     properties:
       status:
         const: ok
-  Login:
+  LoginToken:
     type: object
     additionalProperties: false
     required:
@@ -97,6 +97,7 @@ definitions:
     properties:
       jwt_token:
         type: string
+        pattern: "[^.]+\\.[^.]+\\.[^.]+"
   DetailedDevice:
     type: object
     additionalProperties: false
@@ -1700,6 +1701,7 @@ definitions:
     properties:
       token:
         type: string
+        pattern: "[^.]+\\.[^.]+\\.[^.]+"
       created:
         type: string
         format: date-time

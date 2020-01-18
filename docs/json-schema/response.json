@@ -1732,10 +1732,11 @@
       ],
       "type" : "object"
     },
-    "Login" : {
+    "LoginToken" : {
       "additionalProperties" : false,
       "properties" : {
         "jwt_token" : {
+          "pattern" : "[^.]+\\.[^.]+\\.[^.]+",
           "type" : "string"
         }
       },
@@ -1790,6 +1791,7 @@
           "type" : "string"
         },
         "token" : {
+          "pattern" : "[^.]+\\.[^.]+\\.[^.]+",
           "type" : "string"
         }
       },
