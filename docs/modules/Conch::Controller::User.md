@@ -20,7 +20,7 @@ but this can be adjusted with query parameters:
 * C<?api_only=1>   login tokens are left alone; api tokens are removed
 ```
 
-If login tokens are affected, `user_session_auth` is also set for the user, which forces the
+If login tokens are affected, `refuse_session_auth` is also set for the user, which forces the
 user to change his password as soon as a login token is used again (but use of any existing api
 tokens is allowed).
 

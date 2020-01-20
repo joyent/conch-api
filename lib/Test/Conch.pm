@@ -502,8 +502,9 @@ sub generate_fixtures ($self, @specification) {
 Authenticates a user in the current test instance. Uses default (superuser) credentials if not
 provided. Optionally will bail out of B<all> tests on failure.
 
-This will set 'user' in the session (C<< $t->ua->cookie_jar >>, accessed internally via
-C<< $c->session('user_id') >>), so a token is not needed on subsequent requests.
+By default this will also set 'user_id' in the session (stored in C<< $t->ua->cookie_jar >>,
+accessed internally via C<< $c->session('user_id') >>), so a token is not needed on subsequent
+requests.
 
 =cut
 

@@ -176,8 +176,9 @@ See ["\_generate\_definition" in Test::Conch::Fixtures](../modules/Test%3A%3ACon
 Authenticates a user in the current test instance. Uses default (superuser) credentials if not
 provided. Optionally will bail out of **all** tests on failure.
 
-This will set 'user' in the session (`$t->ua->cookie_jar`, accessed internally via
-`$c->session('user_id')`), so a token is not needed on subsequent requests.
+By default this will also set 'user\_id' in the session (stored in `$t->ua->cookie_jar`,
+accessed internally via `$c->session('user_id')`), so a token is not needed on subsequent
+requests.
 
 ## txn\_local
 
