@@ -366,12 +366,34 @@ subtest 'User' => sub {
         ->location_is('/user/me/token/an api token');
     my $api_token = $t->tx->res->json->{token};
 
-    $t->post_ok('/user/me/password', { Authorization => 'Bearer '.$login_token[0] }, json => { password => 'øƕḩẳȋ' })
+    $t->post_ok('/user/me/password?clear_tokens=none', { Authorization => 'Bearer '.$login_token[0] }, json => { password => 'øƕḩẳȋ' })
         ->status_is(204, 'changed password')
+        ->log_debug_is('updated password for user rO_USer at their request')
         ->email_not_sent;
 
-    $t->get_ok('/user/me/settings')
-        ->status_is(401, 'session tokens revoked too')
+    $t->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
+        ->status_is(200, 'login token still works after changing password with clear_tokens=none')
+        ->json_schema_is('UserDetailed')
+        ->json_cmp_deeply({
+            $user_detailed->%*,
+            workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
+            last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        });
+
+    $t->get_ok('/me')
+        ->status_is(204, 'and the session cookie remains intact');
+
+    $t->post_ok('/user/me/password', { Authorization => 'Bearer '.$login_token[0] }, json => { password => 'øƕḩẳȋ' })
+        ->status_is(204, 'changed password')
+        ->log_debug_is('updated password for user rO_USer at their request; clearing login tokens')
+        ->email_not_sent;
+
+    $t->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
+        ->status_is(401, 'login token was removed');
+
+    $t->get_ok('/user/me')
+        ->status_is(401, 'session cookie revoked too')
         ->log_debug_is('auth failed: no credentials provided');
 
     $t->post_ok('/login', json => { email => $ro_user->email, password => '123' })
@@ -411,7 +433,9 @@ subtest 'User' => sub {
 
     $t->post_ok('/user/me/password?clear_tokens=all', { Authorization => 'Bearer '.$t->tx->res->json->{jwt_token} },
             json => { password => 'another password' })
-        ->status_is(204, 'changed password again');
+        ->status_is(204, 'changed password again')
+        ->log_debug_is('updated password for user rO_USer at their request; clearing all tokens')
+        ->email_not_sent;
 
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
@@ -425,7 +449,8 @@ subtest 'User' => sub {
 
     $t->post_ok('/user/me/password', { Authorization => 'Bearer '.$t->tx->res->json->{jwt_token} },
             json => { password => '123' })
-        ->status_is(204, 'changed password back to original');
+        ->status_is(204, 'changed password back to original')
+        ->email_not_sent;
 
     $t->post_ok('/login', json => { email => $ro_user->email, password => '123' })
         ->status_is(200, 'logged in using original password');
@@ -536,14 +561,17 @@ subtest 'JWT authentication' => sub {
         ->email_not_sent;
 
     $t_super->post_ok('/user/'.$ro_user->email.'/revoke?api_only=1')
-        ->status_is(204, 'Revoke api tokens for user')
+        ->status_is(204)
+        ->log_debug_is('revoking api tokens for user rO_USer, forcing them to /login again')
         ->email_not_sent;
 
-    $t->get_ok('/workspace', { Authorization => 'Bearer '.$new_jwt_token })
-        ->status_is(200, 'user can still use the login token');
+    $t->get_ok('/me', { Authorization => 'Bearer '.$new_jwt_token })
+        ->status_is(204, 'user can still use the login token')
+        ->log_debug_is('attempting to authenticate with Authorization: Bearer header...');
 
     $t_super->post_ok('/user/'.$ro_user->email.'/revoke')
-        ->status_is(204, 'Revoke all tokens for user')
+        ->status_is(204)
+        ->log_debug_is('revoking all tokens for user rO_USer, forcing them to /login again')
         ->email_cmp_deeply([
             {
                 To => '"'.$ro_user->name.'" <'.$ro_user->email.'>',
@@ -553,12 +581,13 @@ subtest 'JWT authentication' => sub {
             },
         ]);
 
-    $t->get_ok('/workspace', { Authorization => "Bearer $new_jwt_token" })
-        ->status_is(401, 'Cannot use token or session after user revocation')
+    $t->get_ok('/me', { Authorization => "Bearer $new_jwt_token" })
+        ->status_is(401, 'Cannot use token after user revocation')
         ->log_debug_is('auth failed: JWT for user_id '.$ro_user->id.' could not be found');
 
-    $t->post_ok('/refresh_token', { Authorization => "Bearer $new_jwt_token" })
-        ->status_is(401, 'Cannot use after user revocation');
+    $t->get_ok('/me')
+        ->status_is(401, 'Cannot use session after user revocation')
+        ->log_debug_is('auth failed: no credentials provided');
 
     $t->post_ok('/login', json => { email => $ro_user->email, password => '..' })
         ->status_is(200)
@@ -566,7 +595,8 @@ subtest 'JWT authentication' => sub {
 
     my $jwt_token_2 = $t->tx->res->json->{jwt_token};
     $t->post_ok('/user/me/revoke', { Authorization => "Bearer $jwt_token_2" })
-        ->status_is(204, 'Revoke tokens for self')
+        ->status_is(204)
+        ->log_debug_is('revoking all tokens for user rO_USer, forcing them to /login again')
         ->email_not_sent;
     $t->get_ok('/workspace', { Authorization => "Bearer $jwt_token_2" })
         ->status_is(401, 'Cannot use after self revocation');
@@ -771,7 +801,8 @@ subtest 'modify another user' => sub {
         ->location_is('/user/me/token/my second api token');
 
     $t_super->post_ok("/user/$new_user_id/revoke?login_only=1")
-        ->status_is(204, 'revoked login tokens for the new user')
+        ->status_is(204)
+        ->log_debug_is('revoking login tokens for user UNTRUSTED, forcing them to /login again')
         ->email_cmp_deeply({
             To => '"UNTRUSTED" <untrusted@conch.joyent.us>',
             From => 'noreply@127.0.0.1',
@@ -790,7 +821,8 @@ subtest 'modify another user' => sub {
 
 
     $t_super->post_ok("/user/$new_user_id/revoke?api_only=1")
-        ->status_is(204, 'revoked api tokens for the new user')
+        ->status_is(204)
+        ->log_debug_is('revoking api tokens for user UNTRUSTED, forcing them to /login again')
         ->email_cmp_deeply({
             To => '"UNTRUSTED" <untrusted@conch.joyent.us>',
             From => 'noreply@127.0.0.1',
@@ -904,7 +936,7 @@ subtest 'modify another user' => sub {
     $t2->post_ok('/user/me/password' => { Authorization => 'Bearer '.$jwt_token },
             json => { password => 'a more secure password' })
         ->status_is(204)
-        ->log_debug_is('updated password for user UNTRUSTED at their request');
+        ->log_debug_is('updated password for user UNTRUSTED at their request; clearing login tokens');
 
     my $secure_password = $_new_password;
     is($secure_password, 'a more secure password', 'provided password was saved to the db');
