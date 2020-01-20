@@ -13,6 +13,8 @@ use Test::Deep;
 use Test::Deep::NumberTolerant;
 use Time::HiRes 'time'; # time() now has µs precision
 use Test::Memory::Cycle;
+use MIME::Base64 'encode_base64';
+use Mojo::JSON 'encode_json';
 
 my $JOYENT = 'Joyent Conch (https://127.0.0.1)';
 
@@ -45,8 +47,6 @@ $t->post_ok('/login', json => { email => 'foo@bar.com', password => 'b' })
 my $now = Conch::Time->now;
 
 $t->authenticate(email => $ro_user->email);
-
-isa_ok($t->tx->res->cookie('conch'), 'Mojo::Cookie::Response');
 
 $ro_user->discard_changes;
 ok($ro_user->last_login >= $now, 'user last_login is updated');
@@ -238,6 +238,10 @@ subtest 'User' => sub {
         ->status_is(403)
         ->log_debug_is('User must be system admin');
 
+    # save cookie for nefarious purposes later on
+    my ($cookie_data, $signature) = split(/--(?!-)/, $t->tx->res->headers->set_cookie);
+    $signature =~ s/;.+$//;
+
     $t_super->get_ok('/user/me')
         ->status_is(200)
         ->json_schema_is('UserDetailed')
@@ -280,10 +284,22 @@ subtest 'User' => sub {
 
     is($ro_user->related_resultset('user_session_tokens')->count, 2, 'a new token was created');
 
-    is($t->ua->cookie_jar->all->[0]->expires, 1, 'session cookie is expired');
+    is($t->tx->res->cookie('conch')->expires, 1, 'session cookie is expired');
 
     $t->get_ok('/user/me')
         ->status_is(401)
+        ->log_debug_is('auth failed: no credentials provided');
+
+    # "mouhahaha," says the client, "I can pretend to be who I want!"
+    my $session_data = { user_id => $super_user->id, expires => time + 3600 };
+    $t->get_ok('/user/me', { Cookie => 'conch='.(encode_base64(encode_json($session_data), '') =~ y/=/-/r) })
+        ->status_is(401)
+        ->log_debug_is('Cookie "conch" is not signed')          # "curses, foiled!"
+        ->log_debug_is('auth failed: no credentials provided');
+
+    $t->get_ok('/user/me', { Cookie => 'conch='.(encode_base64(encode_json($session_data), '') =~ y/=/-/r).'--'.$signature })
+        ->status_is(401)
+        ->log_debug_is('Cookie "conch" has bad signature')      # "curses, foiled again!"
         ->log_debug_is('auth failed: no credentials provided');
 
     $t->post_ok('/login', json => { email => $ro_user->email, password => '123', set_session => JSON::PP::true })
@@ -293,7 +309,7 @@ subtest 'User' => sub {
     is($ro_user->related_resultset('user_session_tokens')->count, 2, 'got second login token again');
 
     cmp_deeply(
-        $t->ua->cookie_jar->all->[0]->expires,
+        $t->tx->res->cookie('conch')->expires,
         within_tolerance(time + 60*60*24, plus_or_minus => 10),
         'session expires approximately 1 day in the future',
     );
@@ -442,7 +458,7 @@ subtest 'JWT authentication' => sub {
 
     my $jwt_token = $t->tx->res->json->{jwt_token};
 
-    is($t->ua->cookie_jar->all->[0]->expires, 1, 'session cookie is expired');
+    is($t->tx->res->cookie('conch')->expires, 1, 'session cookie is expired');
 
     $t->get_ok('/workspace', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(200, 'user can provide Authentication header with full JWT to authenticate');
