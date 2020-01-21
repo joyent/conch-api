@@ -22,7 +22,7 @@ Sends exceptions to Rollbar.
 
 Listens to the `dispatch_message_payload` event (which is sent by the dispatch logger in
 [Conch::Plugin::Logging](../modules/Conch%3A%3APlugin%3A%3ALogging)). When an error response is generated (any 4xx response code other
-than 401, 403 or 404), and a request header matches a key in the `rollbar` config
+than 401 or 404), and a request header matches a key in the `rollbar` config
 `error_match_header`, and the header value matches the corresponding regular expression, a
 message is sent to Rollbar.
 

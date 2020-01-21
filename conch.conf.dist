@@ -53,7 +53,7 @@
         # environment => 'staging',
 
         # a hash of regexes that are matched against the named request header:
-        # if there is a match, all 4xx responses (other than 401, 403, 404) are
+        # if there is a match, all 4xx responses (other than 401, 404) are
         # forwarded to rollbar
         # error_match_header => {
         #   'X-Conch-UI' => qr/^v4.[3-9]/,      # forward errors for X-Conch-UI 4.3 and later
