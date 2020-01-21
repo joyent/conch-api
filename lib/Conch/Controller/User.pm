@@ -102,7 +102,7 @@ sub revoke_user_tokens ($c) {
 
         $c->send_mail(
             template_file => 'revoked_user_tokens',
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'Your Conch tokens have been revoked',
             token_names => \@token_names,
         );
@@ -328,7 +328,7 @@ sub reset_user_password ($c) {
 
     $c->send_mail(
         template_file => 'changed_user_password',
-        From => 'noreply@'.$c->host,
+        From => 'noreply',
         Subject => 'Your Conch password has changed',
         password => $update{password},
     ) if $params->{send_mail} // 1;
@@ -420,7 +420,7 @@ sub update ($c) {
 
         $c->send_mail(
             template_file => 'updated_user_account',
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'Your Conch account has been updated',
             orig_data => \%orig_columns,
             new_data => \%dirty_columns,
@@ -499,7 +499,7 @@ sub create ($c) {
         $c->stash('target_user', $user);
         $c->send_mail(
             template_file => 'new_user_account',
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'Welcome to Conch!',
             password => $input->{password},
         );

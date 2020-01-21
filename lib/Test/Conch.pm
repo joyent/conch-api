@@ -106,6 +106,10 @@ sub new {
                 $pg ? ( dsn => $pg->dsn, username => $pg->dbowner, ro_username => 'conch_read_only' )
                     : ( dsn => 'there is no database', username => '' )
             },
+            mail => {
+                from_host => 'joyent.com',
+                ($args->{config}//{})->{mail} ? delete($args->{config}{mail})->%* : (),
+            },
 
             secrets => ['********'],
             features => { audit => 1, no_db => ($pg ? 0 : 1) },

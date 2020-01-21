@@ -202,7 +202,7 @@ sub create_sub_workspace ($c) {
         $c->send_mail(
             template_file => 'workspace_subworkspace_create_admins',
             To => $c->construct_address_list(@admins),
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'We added a child workspace to your workspace',
             parent_workspace => $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single,
             workspace => $input->{name},

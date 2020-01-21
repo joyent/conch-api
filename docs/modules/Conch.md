@@ -30,8 +30,8 @@ Stores a [Conch::Time](../modules/Conch%3A%3ATime) instance representing the tim
 
 ## host
 
-Retrieves the ["host" in Mojo::URL](https://metacpan.org/pod/Mojo%3A%3AURL#host) portion of the request URL, suitable for constructing email
-addresses and base URLs in user-facing content.
+Retrieves the ["host" in Mojo::URL](https://metacpan.org/pod/Mojo%3A%3AURL#host) portion of the request URL, suitable for constructing base URLs
+in user-facing content.
 
 # LICENSING
 

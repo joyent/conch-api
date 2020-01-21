@@ -109,7 +109,7 @@ sub add_user ($c) {
             my $workspace_name = $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single;
             $c->send_mail(
                 template_file => 'workspace_user_update_user',
-                From => 'noreply@'.$c->host,
+                From => 'noreply',
                 Subject => 'Your Conch access has changed',
                 workspace => $workspace_name,
                 role => $input->{role},
@@ -120,7 +120,7 @@ sub add_user ($c) {
             $c->send_mail(
                 template_file => 'workspace_user_update_admins',
                 To => $c->construct_address_list(@admins),
-                From => 'noreply@'.$c->host,
+                From => 'noreply',
                 Subject => 'We modified a user\'s access to your workspace',
                 workspace => $workspace_name,
                 role => $input->{role},
@@ -140,7 +140,7 @@ sub add_user ($c) {
         my $workspace_name = $c->stash('workspace_name') // $c->stash('workspace_rs')->get_column('name')->single;
         $c->send_mail(
             template_file => 'workspace_user_add_user',
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'Your Conch access has changed',
             workspace => $workspace_name,
             role => $input->{role},
@@ -151,7 +151,7 @@ sub add_user ($c) {
         $c->send_mail(
             template_file => 'workspace_user_add_admins',
             To => $c->construct_address_list(@admins),
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'We added a user to your workspace',
             workspace => $workspace_name,
             role => $input->{role},
@@ -197,7 +197,7 @@ sub remove ($c) {
     if ($deleted > 0 and $params->{send_mail} // 1) {
         $c->send_mail(
             template_file => 'workspace_user_remove_user',
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'Your Conch workspaces have been updated',
             workspace => $workspace_name,
         );
@@ -207,7 +207,7 @@ sub remove ($c) {
         $c->send_mail(
             template_file => 'workspace_user_remove_admins',
             To => $c->construct_address_list(@admins),
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'We removed a user from your workspace',
             workspace => $workspace_name,
         ) if @admins;

@@ -38,6 +38,9 @@
             # ssl
             # ..etc
         },
+
+        # the host used for the From header in all email, if not provided
+        from_host => 'joyent.com',
     },
 
     rollbar => {

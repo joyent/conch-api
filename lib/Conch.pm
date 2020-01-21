@@ -193,8 +193,8 @@ Stores a L<Conch::Time> instance representing the time the server started accept
 
 =head2 host
 
-Retrieves the L<Mojo::URL/host> portion of the request URL, suitable for constructing email
-addresses and base URLs in user-facing content.
+Retrieves the L<Mojo::URL/host> portion of the request URL, suitable for constructing base URLs
+in user-facing content.
 
 =cut
 
