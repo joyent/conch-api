@@ -1,8 +1,6 @@
-# NAME
+# merge\_validation\_results - collapse duplicate validation\_result rows together
 
-merge\_validation\_results - collapse duplicate validation\_result rows together
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch merge_validation_results [long options...]
@@ -12,7 +10,7 @@ bin/conch merge_validation_results [long options...]
     --help        print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

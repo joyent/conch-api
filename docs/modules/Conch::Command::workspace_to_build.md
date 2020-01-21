@@ -1,8 +1,6 @@
-# NAME
+# workspace\_to\_build - convert workspace content to a build (one-off for v3 launch)
 
-workspace\_to\_build - convert workspace content to a build (one-off for v3 launch)
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch workspace_to_build [long options...] <workspace name> [workspace name] ...
@@ -12,7 +10,7 @@ bin/conch workspace_to_build [long options...] <workspace name> [workspace name]
     --help        print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

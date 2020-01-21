@@ -1,39 +1,37 @@
-# NAME
+# Conch - Initialization and helpers for Conch Mojo app
 
-Conch - Initialization and helpers for Conch Mojo app
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 Mojolicious::Commands->start_app('Conch');
 ```
 
-# METHODS
+## METHODS
 
-## startup
+### startup
 
 Used by Mojo in the startup process. Loads the config file and sets up the
 helpers, routes and everything else.
 
-# HELPERS
+## HELPERS
 
 These methods are made available on the `$c` object (the invocant of all controller methods,
 and therefore other helpers).
 
-## status
+### status
 
 Helper method for setting the response status code and json content.
 
-## startup\_time
+### startup\_time
 
 Stores a [Conch::Time](../modules/Conch%3A%3ATime) instance representing the time the server started accepting requests.
 
-## host
+### host
 
 Retrieves the ["host" in Mojo::URL](https://metacpan.org/pod/Mojo%3A%3AURL#host) portion of the request URL, suitable for constructing base URLs
 in user-facing content.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,4 +1,4 @@
-# DESCRIPTION
+## DESCRIPTION
 
 Automatically inflates/deflates timestamps in the database to [Conch::Time](../modules/Conch%3A%3ATime) objects (which is
 a subclass of [Time::Moment](https://metacpan.org/pod/Time%3A%3AMoment)).
@@ -8,7 +8,7 @@ modifications to the format used in `to_string`. All we need to do is rebless th
 [Time::Moment](https://metacpan.org/pod/Time%3A%3AMoment) object into [Conch::Time](../modules/Conch%3A%3ATime), and work around the bug in
 [RT#125975](https://rt.cpan.org/Ticket/Display.html?id=125975).
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,8 +1,6 @@
-# NAME
+# fix\_usernames - fixes old usernames in the database (one-off for v3 launch)
 
-fix\_usernames - fixes old usernames in the database (one-off for v3 launch)
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch fix_usernames [long options...]
@@ -12,7 +10,7 @@ bin/conch fix_usernames [long options...]
     --help        print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

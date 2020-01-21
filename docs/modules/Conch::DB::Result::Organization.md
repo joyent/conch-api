@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::Organization
 
-Conch::DB::Result::Organization
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `organization`
 
-# TABLE: `organization`
+## ACCESSORS
 
-# ACCESSORS
-
-## id
+### id
 
 ```
 data_type: 'uuid'
@@ -17,21 +15,21 @@ is_nullable: 0
 size: 16
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## description
+### description
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -40,50 +38,50 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## deactivated
+### deactivated
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# RELATIONS
+## RELATIONS
 
-## organization\_build\_roles
+### organization\_build\_roles
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::OrganizationBuildRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganizationBuildRole)
 
-## user\_organization\_roles
+### user\_organization\_roles
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserOrganizationRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserOrganizationRole)
 
-## builds
+### builds
 
 Type: many\_to\_many
 
 Composing rels: ["organization\_build\_roles"](#organization_build_roles) -> build
 
-## user\_accounts
+### user\_accounts
 
 Type: many\_to\_many
 
 Composing rels: ["user\_organization\_roles"](#user_organization_roles) -> user\_account
 
-# METHODS
+## METHODS
 
-## TO\_JSON
+### TO\_JSON
 
 Include information about the organization's admins and builds, if available.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::ValidationResult
 
-Conch::DB::Result::ValidationResult
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `validation_result`
 
-# TABLE: `validation_result`
+## ACCESSORS
 
-# ACCESSORS
-
-## id
+### id
 
 ```
 data_type: 'uuid'
@@ -17,7 +15,7 @@ is_nullable: 0
 size: 16
 ```
 
-## hardware\_product\_id
+### hardware\_product\_id
 
 ```
 data_type: 'uuid'
@@ -26,7 +24,7 @@ is_nullable: 0
 size: 16
 ```
 
-## validation\_id
+### validation\_id
 
 ```
 data_type: 'uuid'
@@ -35,21 +33,21 @@ is_nullable: 0
 size: 16
 ```
 
-## message
+### message
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## hint
+### hint
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## status
+### status
 
 ```
 data_type: 'enum'
@@ -57,21 +55,21 @@ extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pa
 is_nullable: 0
 ```
 
-## category
+### category
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## component
+### component
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -80,7 +78,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## device\_id
+### device\_id
 
 ```
 data_type: 'uuid'
@@ -89,13 +87,13 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `validation_result_all_columns_key`
+### `validation_result_all_columns_key`
 
 - ["device\_id"](#device_id)
 - ["hardware\_product\_id"](#hardware_product_id)
@@ -106,39 +104,39 @@ size: 16
 - ["category"](#category)
 - ["component"](#component)
 
-# RELATIONS
+## RELATIONS
 
-## device
+### device
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
-## hardware\_product
+### hardware\_product
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct)
 
-## validation
+### validation
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Validation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidation)
 
-## validation\_state\_members
+### validation\_state\_members
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationStateMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationStateMember)
 
-## validation\_states
+### validation\_states
 
 Type: many\_to\_many
 
 Composing rels: ["validation\_state\_members"](#validation_state_members) -> validation\_state
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::UserSetting
 
-Conch::DB::Result::UserSetting
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `user_setting`
 
-# TABLE: `user_setting`
+## ACCESSORS
 
-# ACCESSORS
-
-## id
+### id
 
 ```
 data_type: 'uuid'
@@ -17,7 +15,7 @@ is_nullable: 0
 size: 16
 ```
 
-## user\_id
+### user\_id
 
 ```
 data_type: 'uuid'
@@ -26,21 +24,21 @@ is_nullable: 0
 size: 16
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## value
+### value
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -49,26 +47,26 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## deactivated
+### deactivated
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# RELATIONS
+## RELATIONS
 
-## user\_account
+### user\_account
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

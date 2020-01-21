@@ -1,17 +1,15 @@
-# NAME
+# Conch::Controller::WorkspaceUser
 
-Conch::Controller::WorkspaceUser
+## METHODS
 
-# METHODS
-
-## get\_all
+### get\_all
 
 Get a list of users for the indicated workspace (not including system admin users).
 Requires the 'admin' role on the workspace.
 
 Response uses the WorkspaceUsers json schema.
 
-## add\_user
+### add\_user
 
 Adds a user to the indicated workspace, or upgrades an existing role entry to access the
 workspace.
@@ -20,7 +18,7 @@ Requires the 'admin' role on the workspace.
 Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
 to the user and to all workspace admins.
 
-## remove
+### remove
 
 Removes the indicated user from the workspace, as well as all sub-workspaces.
 Requires the 'admin' role for the workspace.
@@ -31,7 +29,7 @@ a parent workspace. When in doubt, check at `GET /user/<id or name>`.
 Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
 to the user and to all workspace admins.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

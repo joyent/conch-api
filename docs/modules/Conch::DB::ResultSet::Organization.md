@@ -1,19 +1,17 @@
-# NAME
+# Conch::DB::ResultSet::Organization
 
-Conch::DB::ResultSet::Organization
-
-# DESCRIPTION
+## DESCRIPTION
 
 Interface to queries involving organizations.
 
-# METHODS
+## METHODS
 
-## admins
+### admins
 
 All the 'admin' users for the provided organization(s). Pass a true argument to also include all
 system admin users in the result.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

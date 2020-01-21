@@ -1,8 +1,6 @@
-# NAME
+# clean\_roles - clean up unnecessary user\_workspace\_role entries
 
-clean\_roles - clean up unnecessary user\_workspace\_role entries
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch clean_roles [-nv] [long options...]
@@ -12,7 +10,7 @@ bin/conch clean_roles [-nv] [long options...]
     --help        print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::ValidationPlanMember
 
-Conch::DB::Result::ValidationPlanMember
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `validation_plan_member`
 
-# TABLE: `validation_plan_member`
+## ACCESSORS
 
-# ACCESSORS
-
-## validation\_id
+### validation\_id
 
 ```
 data_type: 'uuid'
@@ -17,7 +15,7 @@ is_nullable: 0
 size: 16
 ```
 
-## validation\_plan\_id
+### validation\_plan\_id
 
 ```
 data_type: 'uuid'
@@ -26,26 +24,26 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["validation\_id"](#validation_id)
 - ["validation\_plan\_id"](#validation_plan_id)
 
-# RELATIONS
+## RELATIONS
 
-## validation
+### validation
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Validation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidation)
 
-## validation\_plan
+### validation\_plan
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::ValidationPlan](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationPlan)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

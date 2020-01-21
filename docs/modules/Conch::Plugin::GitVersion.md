@@ -1,25 +1,23 @@
-# NAME
+# Conch::Plugin::GitVersion
 
-Conch::Plugin::GitVersion
-
-# DESCRIPTION
+## DESCRIPTION
 
 Mojo plugin registering the git version tag and hash for the repository
 
-# HELPERS
+## HELPERS
 
 These methods are made available on the `$c` object (the invocant of all controller methods,
 and therefore other helpers).
 
-## version\_tag
+### version\_tag
 
 Provides a string that uniquely describes the version and commit of the currently-running code.
 
-## version\_hash
+### version\_hash
 
 Provides the exact git SHA of the currently-running code.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

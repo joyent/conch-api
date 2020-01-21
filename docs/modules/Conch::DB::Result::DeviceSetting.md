@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::DeviceSetting
 
-Conch::DB::Result::DeviceSetting
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `device_setting`
 
-# TABLE: `device_setting`
+## ACCESSORS
 
-# ACCESSORS
-
-## id
+### id
 
 ```
 data_type: 'uuid'
@@ -17,14 +15,14 @@ is_nullable: 0
 size: 16
 ```
 
-## value
+### value
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -33,7 +31,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## updated
+### updated
 
 ```
 data_type: 'timestamp with time zone'
@@ -42,21 +40,21 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## deactivated
+### deactivated
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## device\_id
+### device\_id
 
 ```
 data_type: 'uuid'
@@ -65,19 +63,19 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# RELATIONS
+## RELATIONS
 
-## device
+### device
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

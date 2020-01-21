@@ -1,8 +1,6 @@
-# NAME
+# create\_user - create a new user, optionally sending an email
 
-create\_user - create a new user, optionally sending an email
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
   bin/conch create_user --email <email> --name <name> [--password <password>] [--send-email]
@@ -15,7 +13,7 @@ create\_user - create a new user, optionally sending an email
     --help    print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

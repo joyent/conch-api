@@ -1,12 +1,10 @@
-# NAME
+# conch
 
-conch
-
-# DESCRIPTION
+## DESCRIPTION
 
 Start script for conch Mojo app
 
-# SYNOPSIS
+## SYNOPSIS
 
 See `bin/conch --help` for full usage.
 
@@ -74,7 +72,7 @@ Conch-specific commands are:
 
     View all workspaces in their heirarchical order
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

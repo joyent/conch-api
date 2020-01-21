@@ -1,10 +1,8 @@
-# NAME
+# Conch::Controller::Device
 
-Conch::Controller::Device
+## METHODS
 
-# METHODS
-
-## find\_device
+### find\_device
 
 Chainable action that uses the `device_id`, `device_serial_number` or
 `device_id_or_serial_number` provided in the stash (usually via the request URL) to look up a
@@ -16,7 +14,7 @@ continue; otherwise the user must be a registered relay user or a system admin.
 If `phase_earlier_than` is provided, `409 CONFLICT` is returned if the device is in the
 provided phase (or later).
 
-## get
+### get
 
 Retrieves details about a single device. Response uses the DetailedDevice json schema.
 
@@ -27,7 +25,7 @@ device report has been submitted for this device (or columns directly on the dev
 updated). Updates to the device through other means (such as changing its location) may not be
 reflected in the checksum.
 
-## lookup\_by\_other\_attribute
+### lookup\_by\_other\_attribute
 
 Looks up one or more devices by query parameter. Supports:
 
@@ -41,45 +39,45 @@ Looks up one or more devices by query parameter. Supports:
 
 Response uses the Devices json schema.
 
-## get\_pxe
+### get\_pxe
 
 Gets PXE-specific information about a device.
 
 Response uses the DevicePXE json schema.
 
-## set\_asset\_tag
+### set\_asset\_tag
 
 Sets the `asset_tag` field on a device
 
-## set\_validated
+### set\_validated
 
 Sets the `validated` field on a device unless that field has already been set
 
-## get\_phase
+### get\_phase
 
 Gets just the device's phase. Response uses the DevicePhase json schema.
 
-## get\_sku
+### get\_sku
 
 Gets just the device's hardware\_product\_id and sku. Response uses the DeviceSku json schema.
 
-## set\_phase
+### set\_phase
 
-## add\_links
+### add\_links
 
 Appends the provided link(s) to the device record.
 
-## remove\_links
+### remove\_links
 
 Removes all links from the device record.
 
-## set\_build
+### set\_build
 
 Moves the device to a new build.
 
 Also requires read/write access to the old and new builds.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

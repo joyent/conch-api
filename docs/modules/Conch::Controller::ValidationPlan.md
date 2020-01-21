@@ -1,36 +1,34 @@
-# NAME
-
-Conch::Controller::Validation
+# Conch::Controller::Validation
 
 Controller for managing Validation Plans
 
-# METHODS
+## METHODS
 
-## get\_all
+### get\_all
 
 List all available Validation Plans.
 
 Response uses the ValidationPlans json schema.
 
-## find\_validation\_plan
+### find\_validation\_plan
 
 Chainable action that uses the `validation_plan_id_or_name` provided in the stash
 (usually via the request URL) to look up a validation\_plan, and stashes the result in
 `validation_plan`.
 
-## get
+### get
 
 Get the (active) Validation Plan specified by uuid or name.
 
 Response uses the ValidationPlan json schema.
 
-## get\_validations
+### get\_validations
 
 List all Validations associated with the Validation Plan, both active and deactivated.
 
 Response uses the Validations json schema.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

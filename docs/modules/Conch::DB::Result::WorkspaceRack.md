@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::WorkspaceRack
 
-Conch::DB::Result::WorkspaceRack
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `workspace_rack`
 
-# TABLE: `workspace_rack`
+## ACCESSORS
 
-# ACCESSORS
-
-## workspace\_id
+### workspace\_id
 
 ```
 data_type: 'uuid'
@@ -17,7 +15,7 @@ is_nullable: 0
 size: 16
 ```
 
-## rack\_id
+### rack\_id
 
 ```
 data_type: 'uuid'
@@ -26,26 +24,26 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["workspace\_id"](#workspace_id)
 - ["rack\_id"](#rack_id)
 
-# RELATIONS
+## RELATIONS
 
-## rack
+### rack
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack)
 
-## workspace
+### workspace
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Workspace](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspace)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

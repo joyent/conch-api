@@ -1,8 +1,6 @@
-# NAME
+# Conch::DB::ResultSet::Workspace
 
-Conch::DB::ResultSet::Workspace
-
-# DESCRIPTION
+## DESCRIPTION
 
 Interface to queries involving workspaces.
 
@@ -12,23 +10,23 @@ workspaces hang below as nodes and leaves.
 
 A parent workspace is "above" a given workspace; its children are "beneath".
 
-# METHODS
+## METHODS
 
-## workspaces\_beneath
+### workspaces\_beneath
 
 Chainable resultset that finds all sub-workspaces beneath the provided workspace id.
 
 The resultset does **not** include the original workspace itself -- see
 ["and\_workspaces\_beneath"](#and_workspaces_beneath) for that.
 
-## and\_workspaces\_beneath
+### and\_workspaces\_beneath
 
 As ["workspaces\_beneath"](#workspaces_beneath), but also includes the original workspace.
 
 `$workspace_id` can be a single workspace\_id, an arrayref of multiple distinct workspace\_ids,
 or a resultset, which must return a single column of distinct workspace\_id(s)).
 
-## workspaces\_above
+### workspaces\_above
 
 Chainable resultset that finds all workspaces above the provided workspace id (that is, all
 parent workspaces, up to the root).
@@ -36,14 +34,14 @@ parent workspaces, up to the root).
 The resultset does **not** include the original workspace itself -- see
 ["and\_workspaces\_above"](#and_workspaces_above) for that.
 
-## and\_workspaces\_above
+### and\_workspaces\_above
 
 As ["workspaces\_above"](#workspaces_above), but also includes the original workspace.
 
 `$workspace_id` can be a single workspace\_id, an arrayref of multiple distinct workspace\_ids,
 or a resultset, which must return a single column of distinct workspace\_id(s)).
 
-## add\_role\_column
+### add\_role\_column
 
 Query for workspace(s) with an extra field attached to the result, containing information about
 the effective role the user has for the workspace.
@@ -52,7 +50,7 @@ The indicated role is used directly, with no additional queries done (consequent
 will not appear in the serialized data). This is intended to be used in preference to
 ["with\_role\_via\_data\_for\_user"](#with_role_via_data_for_user) when the user is a system admin.
 
-## with\_role\_via\_data\_for\_user
+### with\_role\_via\_data\_for\_user
 
 Query for workspace(s) with an extra field attached to the query which will signal the
 workspace serializer to include the "role" and "role\_via\_workspace\_id" columns, containing
@@ -67,7 +65,7 @@ $workspace->user_id_for_role($user_id);
 
 before serializing the workspace object.
 
-## role\_via\_for\_user
+### role\_via\_for\_user
 
 For a given workspace\_id and user\_id, find the user\_workspace\_role row that is responsible for
 providing the user access to the workspace (the row with the greatest role that is attached to
@@ -79,18 +77,18 @@ How the role is calculated:
 - The number of workspaces between `$workspace_id` and the workspace attached to the
 user\_workspace\_role row is **not** used.
 
-## admins
+### admins
 
 All the 'admin' users for the provided workspace(s).  Pass a true argument to also include all
 system admin users in the result.
 
-## with\_user\_role
+### with\_user\_role
 
 Constrains the resultset to those where the provided user\_id has (at least) the specified role.
 (Does not search recursively; add `->and_workspaces_above($workspace_id)` to your
 resultset first, if this is what you want.)
 
-## user\_has\_role
+### user\_has\_role
 
 Checks that the provided user\_id has (at least) the specified role in at least one workspace in
 the resultset. (Does not search recursively; add `->and_workspaces_above($workspace_id)`
@@ -98,7 +96,7 @@ to your resultset first, if this is what you want.)
 
 Returns a boolean.
 
-## \_workspaces\_subquery
+### \_workspaces\_subquery
 
 Generate values for inserting into a recursive query.
 The first value is a string to be added after `WHERE <column>`; the remainder are bind
@@ -107,7 +105,7 @@ values to be used in `\[ $query_string, @binds ]`.
 `$workspace_id` can be a single workspace\_id, an arrayref of multiple distinct workspace\_ids,
 or a resultset (which must return a single column of distinct workspace\_id(s)).
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

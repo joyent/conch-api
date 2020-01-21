@@ -1,14 +1,12 @@
-# NAME
+# Conch::Validation - base class for writing Conch Validations
 
-Conch::Validation - base class for writing Conch Validations
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```perl
 package Conch::Validation::DeviceValidation;
-# either:
+## either:
     use Mojo::Base 'Conch::Validation';
-# or, if you want to use Moo features:
+## or, if you want to use Moo features:
     use Moo;
     use strictures 2;
     extends 'Conch::Validation';
@@ -31,7 +29,7 @@ sub validate {
 }
 ```
 
-# DESCRIPTION
+## DESCRIPTION
 
 [Conch::Validation](../modules/Conch%3A%3AValidation) provides the base class to define and execute Conch
 Validations. Validations extend this class by implementing a ["validate"](#validate)
@@ -54,31 +52,31 @@ functions tests that Validations define the required attributes and methods,
 and allow you to test the validation logic by running test cases against
 expected results.
 
-# CONSTANTS
+## CONSTANTS
 
-## name
+### name
 
 The validator name, provided by the validator module.
 
-## version
+### version
 
 The validator version, provided by the validator module.
 
-## description
+### description
 
 The validator description, provided by the validator module.
 
-## category
+### category
 
 The validator category, provided by the validator module.
 
-# METHODS
+## METHODS
 
-## log
+### log
 
 A logging object.
 
-## device
+### device
 
 [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice) object under validation.  Use in validation
 logic to dispatch on Device attributes.
@@ -92,7 +90,7 @@ Any additional data related to devices may be read as normal using [DBIx::Class]
 The result object is built using a read-only database handle, so attempts to alter the data
 will **not** be permitted.
 
-## device\_location
+### device\_location
 
 [Conch::DB::Result::DeviceLocation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceLocation) object for the device being validated.
 
@@ -104,12 +102,12 @@ my $datacenter_name = $self->device_location->rack->datacenter->name;
 my $rack_unit_start = $self->device_location->rack_unit_start;
 ```
 
-## has\_device\_location
+### has\_device\_location
 
 Returns a boolean whether the device under validation has been assigned a
 location.
 
-## hardware\_product
+### hardware\_product
 
 The [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct) object for the device being validated
 (originally determined by the sku reported for the device).
@@ -118,7 +116,7 @@ Any additional data related to hardware\_products may be read as normal using [D
 interfaces.  The result object is built using a read-only database handle, so attempts to alter
 the data will **not** be permitted.
 
-## hardware\_product\_name
+### hardware\_product\_name
 
 Get the expected hardware product name for the device under validation.
 
@@ -126,7 +124,7 @@ Get the expected hardware product name for the device under validation.
 if ($self->hardware_product_name eq 'Joyent-123') {...}
 ```
 
-## hardware\_legacy\_product\_name
+### hardware\_legacy\_product\_name
 
 Get the expected hardware legacy product name for the device under validation.
 
@@ -134,7 +132,7 @@ Get the expected hardware legacy product name for the device under validation.
 if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
 ```
 
-## hardware\_product\_generation
+### hardware\_product\_generation
 
 Get the expected hardware product generation for the device under validation.
 
@@ -142,7 +140,7 @@ Get the expected hardware product generation for the device under validation.
 if ($self->hardware_product_generation eq 'Joyent-123') {...}
 ```
 
-## hardware\_product\_sku
+### hardware\_product\_sku
 
 Get the expected hardware product SKU for the device under validation.
 
@@ -150,12 +148,12 @@ Get the expected hardware product SKU for the device under validation.
 if ($self->hardware_product_sku eq 'Joyent-123') {...}
 ```
 
-## hardware\_product\_specification
+### hardware\_product\_specification
 
 Get the expected hardware product specification for the device under
 validation. Returns a JSON string (for now).
 
-## hardware\_product\_vendor
+### hardware\_product\_vendor
 
 Get the expected hardware product vendor name for the device under validation.
 
@@ -163,27 +161,27 @@ Get the expected hardware product vendor name for the device under validation.
 if ($self->hardware_product_vendor eq 'Dell') {...}
 ```
 
-## device\_settings
+### device\_settings
 
 A key-value unblessed hashref of device settings stored for the device being validated.
 
-## validation\_results
+### validation\_results
 
 Get the list of all validation results.
 
-## validation\_result
+### validation\_result
 
 Get a validation result by (0-based) index.
 
-## failures
+### failures
 
 Get the list of validation results that were failures
 
-## successes
+### successes
 
 Get the list of validation results that were successful
 
-## error
+### error
 
 Get the list of validation results that have error status (halted execution).
 
@@ -191,11 +189,11 @@ _NOTE:_ Unless ["run"](#run) is called multiple times on the same validation obj
 without calling ["clear\_results"](#clear_results) between, there should be at most 1 error
 validation because execution is halted.
 
-## clear\_results
+### clear\_results
 
 Clear the stored validation results.
 
-## run
+### run
 
 Run the Validation with the specified input data.
 
@@ -203,7 +201,7 @@ Run the Validation with the specified input data.
 $validation->run($validation_data);
 ```
 
-## validate
+### validate
 
 Contains the validation logic for validations.
 
@@ -220,7 +218,7 @@ sub validate {
 }
 ```
 
-## register\_result
+### register\_result
 
 Register a Validation Result in the validation logic. ["register\_result"](#register_result) may be
 called as many times as desired in a ["validate"](#validate) method.
@@ -230,18 +228,18 @@ logic, provide an 'expected' value, the 'got' value, and a comparison operator.
 This declarative syntax allows for result deduplication and consistent messages.
 
 ```perl
-# direct comparison
+## direct comparison
 $self->register_result(expected => 'hello', got => 'hello');
 $self->register_result(expected => 42, got => 42);
 
-# specified comparison operator
+## specified comparison operator
 $self->register_result(expected => 1, got => 2, cmp => '>=');
 $self->register_result(expected => 'second', got => 'first', cmp => 'lt');
 
-# using 'like' to match with a regex
+## using 'like' to match with a regex
 $self->register_result(expected => qr/.+bar.+/, got => 'foobarbaz', cmpself => 'like');
 
-# using 'oneOf' to select one of multiple values
+## using 'oneOf' to select one of multiple values
 $self->register_result(expected => ['a', 'b', 'c' ], got => 'b', cmp => 'oneOf');
 ```
 
@@ -328,13 +326,13 @@ You may also provide the following attributes to override validation results
     );
     ```
 
-## register\_result\_cmp\_details
+### register\_result\_cmp\_details
 
 EXPERIMENTAL. A new way of registering validation results. Pass arguments as you would to
 ["cmp\_deeply" in Test::Deep](https://metacpan.org/pod/Test%3A%3ADeep#cmp_deeply), and a validation result is registered with the result and diagnostics
 as appropriate.
 
-## die
+### die
 
 Stop execution of the Validation immediately and record an error. The
 attributes 'level' and 'hint' may be specified.
@@ -345,7 +343,7 @@ $self->die('This validation cannot continue!', hint => 'Here's how to fix it');
 $self->die('This exception happend 3 frames up', level => 3);
 ```
 
-## fail
+### fail
 
 Record a failing validation result with a message and continues execution. This
 may be useful if you cannot validate some part of the input data but want to
@@ -366,7 +364,7 @@ $self->fail('I fail!',
 );
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

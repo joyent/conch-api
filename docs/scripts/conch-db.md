@@ -1,8 +1,6 @@
-# NAME
+# conch-db - commands to administrate a database
 
-conch-db - commands to administrate a database
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch-db [subcommand subcommand...] [-hnv] [long options...] [arguments]
@@ -32,11 +30,11 @@ used if set. Otherwise, the config file will be used to find database credential
                     randomly generated)
 ```
 
-# DESCRIPTION
+## DESCRIPTION
 
 Work with the Conch database. Run `bin/conch-db --help` for a list of options.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,21 +1,19 @@
-# NAME
+# Conch::DB::Result::Migration
 
-Conch::DB::Result::Migration
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `migration`
 
-# TABLE: `migration`
+## ACCESSORS
 
-# ACCESSORS
-
-## id
+### id
 
 ```
 data_type: 'integer'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -24,11 +22,11 @@ is_nullable: 1
 original: {default_value => \"now()"}
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

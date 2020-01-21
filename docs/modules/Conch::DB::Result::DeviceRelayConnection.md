@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::DeviceRelayConnection
 
-Conch::DB::Result::DeviceRelayConnection
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `device_relay_connection`
 
-# TABLE: `device_relay_connection`
+## ACCESSORS
 
-# ACCESSORS
-
-## first\_seen
+### first\_seen
 
 ```
 data_type: 'timestamp with time zone'
@@ -17,7 +15,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## last\_seen
+### last\_seen
 
 ```
 data_type: 'timestamp with time zone'
@@ -26,7 +24,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## relay\_id
+### relay\_id
 
 ```
 data_type: 'uuid'
@@ -35,7 +33,7 @@ is_nullable: 0
 size: 16
 ```
 
-## device\_id
+### device\_id
 
 ```
 data_type: 'uuid'
@@ -44,26 +42,26 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["device\_id"](#device_id)
 - ["relay\_id"](#relay_id)
 
-# RELATIONS
+## RELATIONS
 
-## device
+### device
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
-## relay
+### relay
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Relay](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARelay)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

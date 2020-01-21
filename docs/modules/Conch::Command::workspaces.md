@@ -1,8 +1,6 @@
-# NAME
+# workspaces - view the workspace hierarchy
 
-workspaces - view the workspace hierarchy
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch workspaces [long options...]
@@ -10,7 +8,7 @@ bin/conch workspaces [long options...]
     --help  print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,21 +1,19 @@
-# NAME
+# Conch::Plugin::DeprecationAction
 
-Conch::Plugin::DeprecationAction
-
-# DESCRIPTION
+## DESCRIPTION
 
 Mojo plugin to detect and report the usage of deprecated controller actions.
 
-# HOOKS
+## HOOKS
 
-## around\_action
+### around\_action
 
 Sets the `X-Deprecated` header in the response.
 
 Also sends a message to Rollbar when a deprecated action is invoked, if the
 `report_deprecated_actions` feature is enabled.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

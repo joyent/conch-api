@@ -1,10 +1,8 @@
-# NAME
+# Conch::Plugin::Features - Sets up a helper to access configured features
 
-Conch::Plugin::Features - Sets up a helper to access configured features
+## HELPERS
 
-# HELPERS
-
-## feature
+### feature
 
 Checks if a given feature name is enabled.
 
@@ -12,7 +10,7 @@ Checks if a given feature name is enabled.
 if ($c->feature('rollbar') { ... }
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,26 +1,24 @@
-# NAME
+# Conch::DB::ResultSet::RackLayout
 
-Conch::DB::ResultSet::RackLayout
-
-# DESCRIPTION
+## DESCRIPTION
 
 Interface to queries involving rack layouts.
 
-# METHODS
+## METHODS
 
-## with\_rack\_unit\_size
+### with\_rack\_unit\_size
 
 Chainable resultset that adds `rack_unit_size` to the results.
 
-## with\_rack\_name
+### with\_rack\_name
 
 Modifies the resultset to add the `rack_name` column (the full rack name).
 
-## with\_sku
+### with\_sku
 
 Modifies the resultset to add the `sku` column.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

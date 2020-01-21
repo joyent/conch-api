@@ -1,10 +1,8 @@
-# NAME
+# Test::Conch::Validation - Test Conch Validations
 
-Test::Conch::Validation - Test Conch Validations
+## EXPORTABLE FUNCTIONS
 
-# EXPORTABLE FUNCTIONS
-
-## test\_validation
+### test\_validation
 
 A function to test a Conch Validation using a collection of provided test cases.
 
@@ -101,7 +99,7 @@ test_validation(
 );
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

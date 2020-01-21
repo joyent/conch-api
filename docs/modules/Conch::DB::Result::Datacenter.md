@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::Datacenter
 
-Conch::DB::Result::Datacenter
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `datacenter`
 
-# TABLE: `datacenter`
+## ACCESSORS
 
-# ACCESSORS
-
-## id
+### id
 
 ```
 data_type: 'uuid'
@@ -17,35 +15,35 @@ is_nullable: 0
 size: 16
 ```
 
-## vendor
+### vendor
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## vendor\_name
+### vendor\_name
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## region
+### region
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## location
+### location
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -54,7 +52,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## updated
+### updated
 
 ```
 data_type: 'timestamp with time zone'
@@ -63,27 +61,27 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `datacenter_vendor_region_location_key`
+### `datacenter_vendor_region_location_key`
 
 - ["vendor"](#vendor)
 - ["region"](#region)
 - ["location"](#location)
 
-# RELATIONS
+## RELATIONS
 
-## datacenter\_rooms
+### datacenter\_rooms
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::DatacenterRoom](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADatacenterRoom)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

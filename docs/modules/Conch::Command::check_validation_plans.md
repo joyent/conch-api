@@ -1,8 +1,6 @@
-# NAME
+# check\_validation\_plans - Utility to check all validations and plans are up to date
 
-check\_validation\_plans - Utility to check all validations and plans are up to date
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch check_validation_plans [long options...]
@@ -10,7 +8,7 @@ bin/conch check_validation_plans [long options...]
     --help          print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

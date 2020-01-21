@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::RackRole
 
-Conch::DB::Result::RackRole
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `rack_role`
 
-# TABLE: `rack_role`
+## ACCESSORS
 
-# ACCESSORS
-
-## id
+### id
 
 ```
 data_type: 'uuid'
@@ -17,21 +15,21 @@ is_nullable: 0
 size: 16
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## rack\_size
+### rack\_size
 
 ```
 data_type: 'integer'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -40,7 +38,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## updated
+### updated
 
 ```
 data_type: 'timestamp with time zone'
@@ -49,30 +47,30 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `rack_role_name_key`
+### `rack_role_name_key`
 
 - ["name"](#name)
 
-## `rack_role_name_rack_size_key`
+### `rack_role_name_rack_size_key`
 
 - ["name"](#name)
 - ["rack\_size"](#rack_size)
 
-# RELATIONS
+## RELATIONS
 
-## racks
+### racks
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

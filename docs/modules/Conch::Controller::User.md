@@ -1,15 +1,13 @@
-# NAME
+# Conch::Controller::User
 
-Conch::Controller::User
+## METHODS
 
-# METHODS
-
-## find\_user
+### find\_user
 
 Chainable action that uses the `target_user_id_or_email` value provided in the stash (usually
 via the request URL) to look up a user, and stashes the result in `target_user`.
 
-## revoke\_user\_tokens
+### revoke\_user\_tokens
 
 Revoke a specified user's tokens and prevents future token authentication,
 forcing the user to /login again. By default **all** of a user's tokens are deleted,
@@ -29,33 +27,33 @@ System admin only (unless reached via /user/me).
 Sends an email to the affected user, unless `?send_mail=0` is included in the query (or
 revoking for oneself).
 
-## set\_settings
+### set\_settings
 
 Override the settings for a user with the provided payload
 
-## set\_setting
+### set\_setting
 
 Set the value of a single setting for the target user.
 
 FIXME: the key name is repeated in the URL and the payload :(
 
-## get\_settings
+### get\_settings
 
 Get the key/values of every setting for a user.
 
 Response uses the UserSettings json schema.
 
-## get\_setting
+### get\_setting
 
 Get the individual key/value pair for a setting for the target user.
 
 Response uses the UserSetting json schema.
 
-## delete\_setting
+### delete\_setting
 
 Delete a single setting for a user, provided it was set previously.
 
-## change\_own\_password
+### change\_own\_password
 
 Stores a new password for the current user.
 
@@ -70,7 +68,7 @@ forcing the user to log in again. Possible options are:
 
 When login tokens are cleared, the user is also logged out.
 
-## reset\_user\_password
+### reset\_user\_password
 
 Generates a new random password for a user. System admin only.
 
@@ -89,12 +87,12 @@ forcing the user to log in again. Possible options are:
 If all tokens are revoked, the user must also change their password after logging in, as they
 will not be able to log in with it again.
 
-## get
+### get
 
 Gets information about a user. System admin only (unless reached via /user/me).
 Response uses the UserDetailed json schema.
 
-## update
+### update
 
 Updates user attributes. System admin only.
 Sends an email to the affected user, unless `?send_mail=0` is included in the query.
@@ -102,12 +100,12 @@ Sends an email to the affected user, unless `?send_mail=0` is included in the qu
 The response uses the UserError json schema for some error conditions; on success, redirects to
 `GET /user/:id`.
 
-## get\_all
+### get\_all
 
 List all active users and their workspaces, builds and organizations. System admin only.
 Response uses the UsersDetailed json schema.
 
-## create
+### create
 
 Creates a user. System admin only.
 
@@ -116,7 +114,7 @@ email to the user with the new password.
 
 Response uses the NewUser json schema (or UserError for some error conditions).
 
-## deactivate
+### deactivate
 
 Deactivates a user. System admin only.
 
@@ -128,35 +126,35 @@ All memberships in workspaces, organizations and builds are removed and are not 
 
 Response uses the UserError json schema on some error conditions.
 
-## get\_api\_tokens
+### get\_api\_tokens
 
 Get a list of unexpired tokens for the user (api only).
 
 Response uses the UserTokens json schema.
 
-## create\_api\_token
+### create\_api\_token
 
 Generate a new token, creating a JWT from it. Response uses the NewUserToken json schema.
 This is the only time the token string is provided to the user, so don't lose it!
 
-## find\_api\_token
+### find\_api\_token
 
 Chainable action that takes the `token_name` provided in the path and looks it up in the
 database, stashing a resultset to access it as `token_rs`.
 
 Only api tokens may be retrieved by this flow.
 
-## get\_api\_token
+### get\_api\_token
 
 Get information about the specified (unexpired) api token.
 
 Response uses the UserToken json schema.
 
-## expire\_api\_token
+### expire\_api\_token
 
 Deactivates an api token from future use.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

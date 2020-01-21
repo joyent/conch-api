@@ -1,8 +1,6 @@
-# NAME
+# check\_layouts - check for rack layout conflicts
 
-check\_layouts - check for rack layout conflicts
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch check_layouts [long options...]
@@ -12,7 +10,7 @@ bin/conch check_layouts [long options...]
     --help            print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

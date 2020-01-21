@@ -1,42 +1,40 @@
-# NAME
+# Conch::Route::Validation
 
-Conch::Route::Validation
+## METHODS
 
-# METHODS
-
-## routes
+### routes
 
 Sets up the routes for /validation, /validation\_plan and /validation\_state.
 
-# ROUTE ENDPOINTS
+## ROUTE ENDPOINTS
 
 All routes require authentication.
 
-## `GET /validation`
+### `GET /validation`
 
 - Response: [response.json#/definitions/Validations](../json-schema/response.json#/definitions/Validations)
 
-## `GET /validation/:validation_id_or_name`
+### `GET /validation/:validation_id_or_name`
 
 - Response: [response.json#/definitions/Validation](../json-schema/response.json#/definitions/Validation)
 
-## `GET /validation_plan`
+### `GET /validation_plan`
 
 - Response: [response.json#/definitions/ValidationPlans](../json-schema/response.json#/definitions/ValidationPlans)
 
-## `GET /validation_plan/:validation_plan_id_or_name`
+### `GET /validation_plan/:validation_plan_id_or_name`
 
 - Response: [response.json#/definitions/ValidationPlan](../json-schema/response.json#/definitions/ValidationPlan)
 
-## `GET /validation_plan/:validation_plan_id_or_name/validation`
+### `GET /validation_plan/:validation_plan_id_or_name/validation`
 
 - Response: [response.json#/definitions/Validations](../json-schema/response.json#/definitions/Validations)
 
-## `GET /validation_state/:validation_state_id`
+### `GET /validation_state/:validation_state_id`
 
 - Response: [response.json#/definitions/ValidationStateWithResults](../json-schema/response.json#/definitions/ValidationStateWithResults)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

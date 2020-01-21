@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::ResultSet::Rack
 
-Conch::DB::ResultSet::Rack
-
-# DESCRIPTION
+## DESCRIPTION
 
 Interface to queries involving racks.
 
-# METHODS
+## METHODS
 
-## assigned\_rack\_units
+### assigned\_rack\_units
 
 Returns a list of rack\_unit positions that are assigned to current layouts (including positions
 assigned to hardware that start at an earlier position) at the specified rack. (Will return
@@ -17,13 +15,13 @@ you want, so don't do that.)
 
 This is used for identifying potential conflicts when adjusting layouts.
 
-## with\_user\_role
+### with\_user\_role
 
 Constrains the resultset to those where the provided user\_id has (at least) the specified role
 in at least one workspace or build associated with the specified rack(s), including parent
 workspaces.
 
-## user\_has\_role
+### user\_has\_role
 
 Checks that the provided user\_id has (at least) the specified role in at least one workspace
 associated with the specified rack(s) (implicitly including parent workspaces), or at least one
@@ -31,23 +29,23 @@ build associated with the rack(s).
 
 Returns a boolean.
 
-## with\_build\_name
+### with\_build\_name
 
 Modifies the resultset to add the `build_name` column.
 
-## with\_full\_rack\_name
+### with\_full\_rack\_name
 
 Modifies the resultset to add the `full_rack_name` column.
 
-## with\_datacenter\_room\_alias
+### with\_datacenter\_room\_alias
 
 Modifies the resultset to add the `datacenter_room_alias` column.
 
-## with\_rack\_role\_name
+### with\_rack\_role\_name
 
 Modifies the resultset to add the `rack_role_name` column.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::DeviceReport
 
-Conch::DB::Result::DeviceReport
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `device_report`
 
-# TABLE: `device_report`
+## ACCESSORS
 
-# ACCESSORS
-
-## id
+### id
 
 ```
 data_type: 'uuid'
@@ -17,14 +15,14 @@ is_nullable: 0
 size: 16
 ```
 
-## report
+### report
 
 ```
 data_type: 'jsonb'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -33,14 +31,14 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## retain
+### retain
 
 ```
 data_type: 'boolean'
 is_nullable: 1
 ```
 
-## device\_id
+### device\_id
 
 ```
 data_type: 'uuid'
@@ -49,25 +47,25 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# RELATIONS
+## RELATIONS
 
-## device
+### device
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
-## validation\_states
+### validation\_states
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationState](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationState)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

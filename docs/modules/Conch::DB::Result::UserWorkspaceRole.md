@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::UserWorkspaceRole
 
-Conch::DB::Result::UserWorkspaceRole
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `user_workspace_role`
 
-# TABLE: `user_workspace_role`
+## ACCESSORS
 
-# ACCESSORS
-
-## user\_id
+### user\_id
 
 ```
 data_type: 'uuid'
@@ -17,7 +15,7 @@ is_nullable: 0
 size: 16
 ```
 
-## workspace\_id
+### workspace\_id
 
 ```
 data_type: 'uuid'
@@ -26,7 +24,7 @@ is_nullable: 0
 size: 16
 ```
 
-## role
+### role
 
 ```
 data_type: 'enum'
@@ -35,26 +33,26 @@ extra: {custom_type_name => "role_enum",list => ["ro","rw","admin"]}
 is_nullable: 0
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["user\_id"](#user_id)
 - ["workspace\_id"](#workspace_id)
 
-# RELATIONS
+## RELATIONS
 
-## user\_account
+### user\_account
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
-## workspace
+### workspace
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Workspace](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspace)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

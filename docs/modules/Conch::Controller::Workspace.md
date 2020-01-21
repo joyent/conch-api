@@ -1,10 +1,8 @@
-# NAME
+# Conch::Controller::Workspace
 
-Conch::Controller::Workspace
+## METHODS
 
-# METHODS
-
-## find\_workspace
+### find\_workspace
 
 Chainable action that uses the `workspace_id_or__name` provided in the stash (usually via
 the request URL) to look up a workspace, and stashes the query to get to it in `workspace_rs`.
@@ -14,25 +12,25 @@ If the workspace name is provided, `workspace_id` is looked up and stashed.
 `require_role` is used as the minimum required role for the user to continue; otherwise the
 user must be a system admin.
 
-## get\_all
+### get\_all
 
 Get a list of all workspaces available to the currently authenticated user.
 
 Response uses the WorkspacesAndRoles json schema.
 
-## get
+### get
 
 Get the details of the indicated workspace.
 
 Response uses the WorkspaceAndRole json schema.
 
-## get\_sub\_workspaces
+### get\_sub\_workspaces
 
 Get all sub-workspaces for the indicated workspace.
 
 Response uses the WorkspacesAndRoles json schema.
 
-## create\_sub\_workspace
+### create\_sub\_workspace
 
 Create a new subworkspace for the indicated workspace. The user is given the 'admin' role on
 the new workspace.
@@ -42,12 +40,12 @@ to all parent workspace admins.
 
 Response uses the WorkspaceAndRole json schema.
 
-## \_user\_has\_workspace\_auth
+### \_user\_has\_workspace\_auth
 
 Verifies that the user indicated by the stashed `user_id` has (at least) this role on the
 workspace indicated by the provided `workspace_id` or one of its ancestors.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,8 +1,6 @@
-# NAME
+# thin\_device\_reports - remove unwanted device reports
 
-thin\_device\_reports - remove unwanted device reports
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch thin_device_reports [long options...]
@@ -13,7 +11,7 @@ bin/conch thin_device_reports [long options...]
     --help                  print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

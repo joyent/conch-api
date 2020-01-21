@@ -1,20 +1,18 @@
-# NAME
+# Conch::ValidationError - Internal error representation for Conch::Validation
 
-Conch::ValidationError - Internal error representation for Conch::Validation
-
-# DESCRIPTION
+## DESCRIPTION
 
 Extends [Mojo::Exception](https://metacpan.org/pod/Mojo%3A%3AException) to store a `hint` attribute. Intended for use in
 [Conch::Validation](../modules/Conch%3A%3AValidation).
 
-# METHODS
+## METHODS
 
-## error\_loc
+### error\_loc
 
 Return a description of where the error occurred. Provides the module name and
 line number, but not the filepath, so it doesn't expose where the file lives.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

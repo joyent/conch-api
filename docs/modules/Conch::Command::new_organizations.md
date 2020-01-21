@@ -1,8 +1,6 @@
-# NAME
+# new\_organizations - Create new organization data (one-off for v3 launch)
 
-new\_organizations - Create new organization data (one-off for v3 launch)
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch new_organizations [long options...]
@@ -10,7 +8,7 @@ bin/conch new_organizations [long options...]
     --help        print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,8 +1,6 @@
-# NAME
+# Conch::Plugin::ClientVerification
 
-Conch::Plugin::ClientVerification
-
-# DESCRIPTION
+## DESCRIPTION
 
 Checks the version of the client sending us a request, possibly rejecting it if it does not
 meet our criteria.
@@ -10,7 +8,7 @@ meet our criteria.
 For security reasons we do not specify the reason for the rejection in the error response,
 but we will log it.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

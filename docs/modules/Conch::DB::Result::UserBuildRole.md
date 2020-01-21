@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::UserBuildRole
 
-Conch::DB::Result::UserBuildRole
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `user_build_role`
 
-# TABLE: `user_build_role`
+## ACCESSORS
 
-# ACCESSORS
-
-## user\_id
+### user\_id
 
 ```
 data_type: 'uuid'
@@ -17,7 +15,7 @@ is_nullable: 0
 size: 16
 ```
 
-## build\_id
+### build\_id
 
 ```
 data_type: 'uuid'
@@ -26,7 +24,7 @@ is_nullable: 0
 size: 16
 ```
 
-## role
+### role
 
 ```
 data_type: 'enum'
@@ -35,26 +33,26 @@ extra: {custom_type_name => "role_enum",list => ["ro","rw","admin"]}
 is_nullable: 0
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["user\_id"](#user_id)
 - ["build\_id"](#build_id)
 
-# RELATIONS
+## RELATIONS
 
-## build
+### build
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Build](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ABuild)
 
-## user\_account
+### user\_account
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

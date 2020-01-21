@@ -1,45 +1,43 @@
-# NAME
+# Conch::Controller::Datacenter
 
-Conch::Controller::Datacenter
+## METHODS
 
-# METHODS
-
-## find\_datacenter
+### find\_datacenter
 
 Chainable action that uses the `datacenter_id` value provided in the stash (usually via the
 request URL) to look up a datacenter, and stashes the result in `datacenter`.
 
-## get\_all
+### get\_all
 
 Get all datacenters.
 
 Response uses the Datacenters json schema.
 
-## get\_one
+### get\_one
 
 Get a single datacenter.
 
 Response uses the Datacenter json schema.
 
-## get\_rooms
+### get\_rooms
 
 Get all rooms for the given datacenter.
 
 Response uses the DatacenterRoomsDetailed json schema.
 
-## create
+### create
 
 Create a new datacenter.
 
-## update
+### update
 
 Update an existing datacenter.
 
-## delete
+### delete
 
 Permanently delete a datacenter.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

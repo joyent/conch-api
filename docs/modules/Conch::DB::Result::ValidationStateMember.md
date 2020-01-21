@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::Result::ValidationStateMember
 
-Conch::DB::Result::ValidationStateMember
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+## TABLE: `validation_state_member`
 
-# TABLE: `validation_state_member`
+## ACCESSORS
 
-# ACCESSORS
-
-## validation\_state\_id
+### validation\_state\_id
 
 ```
 data_type: 'uuid'
@@ -17,7 +15,7 @@ is_nullable: 0
 size: 16
 ```
 
-## validation\_result\_id
+### validation\_result\_id
 
 ```
 data_type: 'uuid'
@@ -26,33 +24,33 @@ is_nullable: 0
 size: 16
 ```
 
-## result\_order
+### result\_order
 
 ```
 data_type: 'integer'
 is_nullable: 0
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["validation\_state\_id"](#validation_state_id)
 - ["validation\_result\_id"](#validation_result_id)
 
-# RELATIONS
+## RELATIONS
 
-## validation\_result
+### validation\_result
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
 
-## validation\_state
+### validation\_state
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::ValidationState](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationState)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

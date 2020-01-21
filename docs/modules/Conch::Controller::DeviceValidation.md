@@ -1,10 +1,8 @@
-# NAME
+# Conch::Controller::DeviceValidation
 
-Conch::Controller::DeviceValidation
+## METHODS
 
-# METHODS
-
-## get\_validation\_states
+### get\_validation\_states
 
 Get the latest validation states for a device. Accepts the query parameter `status`,
 indicating the desired status(es) to search for -- one or more of: pass, fail, error.
@@ -13,7 +11,7 @@ statuses are searched for.)
 
 Response uses the ValidationStatesWithResults json schema.
 
-## validate
+### validate
 
 Validate the device against the specified validation.
 
@@ -24,7 +22,7 @@ device.
 
 Response uses the ValidationResults json schema.
 
-## run\_validation\_plan
+### run\_validation\_plan
 
 Validate the device against the specified Validation Plan.
 
@@ -35,7 +33,7 @@ device.
 
 Response uses the ValidationResults json schema.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

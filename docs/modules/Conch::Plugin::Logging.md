@@ -1,15 +1,13 @@
-# NAME
+# Conch::Plugin::Logging - Sets up logging for the application
 
-Conch::Plugin::Logging - Sets up logging for the application
+## METHODS
 
-# METHODS
-
-## register
+### register
 
 Initializes the logger object, and sets up hooks in various places to log request data and
 process exceptions.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

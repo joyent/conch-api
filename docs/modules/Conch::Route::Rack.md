@@ -1,18 +1,16 @@
-# NAME
+# Conch::Route::Rack
 
-Conch::Route::Rack
+## METHODS
 
-# METHODS
-
-## routes
+### routes
 
 Sets up the routes for /rack.
 
-## one\_rack\_routes
+### one\_rack\_routes
 
 Sets up the routes for working with just one rack, mounted under a provided route prefix.
 
-# ROUTE ENDPOINTS
+## ROUTE ENDPOINTS
 
 All routes require authentication.
 
@@ -20,51 +18,51 @@ Take note: All routes that reference a specific rack (prefix `/rack/:rack_id`) a
 available under `/rack/:rack_id_or_long_name` as well as
 `/room/datacenter_room_id_or_alias/rack/:rack_id_or_name`.
 
-## `POST /rack`
+### `POST /rack`
 
 - Requires system admin authorization
 - Request: [request.json#/definitions/RackCreate](../json-schema/request.json#/definitions/RackCreate)
 - Response: Redirect to the created rack
 
-## `GET /rack/:rack_id_or_name`
+### `GET /rack/:rack_id_or_name`
 
 - User requires the read-only role on the rack
 - Response: [response.json#/definitions/Rack](../json-schema/response.json#/definitions/Rack)
 
-## `POST /rack/:rack_id_or_name`
+### `POST /rack/:rack_id_or_name`
 
 - User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackUpdate](../json-schema/request.json#/definitions/RackUpdate)
 - Response: Redirect to the updated rack
 
-## `DELETE /rack/:rack_id_or_name`
+### `DELETE /rack/:rack_id_or_name`
 
 - Requires system admin authorization
 - Response: `204 NO CONTENT`
 
-## `GET /rack/:rack_id_or_name/layout`
+### `GET /rack/:rack_id_or_name/layout`
 
 - User requires the read-only role on the rack
 - Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
 
-## `POST /rack/:rack_id_or_name/layout`
+### `POST /rack/:rack_id_or_name/layout`
 
 - User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackLayouts](../json-schema/request.json#/definitions/RackLayouts)
 - Response: Redirect to the rack's layouts
 
-## `GET /rack/:rack_id_or_name/assignment`
+### `GET /rack/:rack_id_or_name/assignment`
 
 - User requires the read-only role on the rack
 - Response: [response.json#/definitions/RackAssignments](../json-schema/response.json#/definitions/RackAssignments)
 
-## `POST /rack/:rack_id_or_name/assignment`
+### `POST /rack/:rack_id_or_name/assignment`
 
 - User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackAssignmentUpdates](../json-schema/request.json#/definitions/RackAssignmentUpdates)
 - Response: Redirect to the updated rack assignment
 
-## `DELETE /rack/:rack_id_or_name/assignment`
+### `DELETE /rack/:rack_id_or_name/assignment`
 
 This method requires a request body.
 
@@ -72,7 +70,7 @@ This method requires a request body.
 - Request: [request.json#/definitions/RackAssignmentDeletes](../json-schema/request.json#/definitions/RackAssignmentDeletes)
 - Response: `204 NO CONTENT`
 
-## `POST /rack/:rack_id_or_name/phase?rack_only=<0|1>`
+### `POST /rack/:rack_id_or_name/phase?rack_only=<0|1>`
 
 The query parameter `rack_only` (defaults to `0`) specifies whether to update
 only the rack's phase, or all the rack's devices' phases as well.
@@ -81,19 +79,19 @@ only the rack's phase, or all the rack's devices' phases as well.
 - Request: [request.json#/definitions/RackPhase](../json-schema/request.json#/definitions/RackPhase)
 - Response: Redirect to the updated rack
 
-## `GET /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
+### `GET /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
 
 See ["`GET /layout/:layout_id`" in Conch::Route::RackLayout](../modules/Conch%3A%3ARoute%3A%3ARackLayout#get-layoutlayout_id).
 
-## `POST /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
+### `POST /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
 
 See ["`POST /layout/:layout_id`" in Conch::Route::RackLayout](../modules/Conch%3A%3ARoute%3A%3ARackLayout#post-layoutlayout_id).
 
-## `DELETE /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
+### `DELETE /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
 
 See ["`DELETE /layout/:layout_id`" in Conch::Route::RackLayout](../modules/Conch%3A%3ARoute%3A%3ARackLayout#delete-layoutlayout_id).
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

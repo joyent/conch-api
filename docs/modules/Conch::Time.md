@@ -1,8 +1,6 @@
-# NAME
+# Conch::Time - format timestamps as RFC 3337 UTC timestamps
 
-Conch::Time - format timestamps as RFC 3337 UTC timestamps
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```perl
 use Conch::Time;
@@ -13,9 +11,9 @@ my $time = Conch::Time->new($postgres_timestamp);
 $time eq $time; # 1
 ```
 
-# METHODS
+## METHODS
 
-## new
+### new
 
 Overloads the constructor to use `->from_string` when a single argument is passed, for example:
 
@@ -25,7 +23,7 @@ Conch::Time->new($pg_timestamptz);
 
 ..and all other constructor modes supported by [Time::Moment](https://metacpan.org/pod/Time%3A%3AMoment).
 
-## now
+### now
 
 ```perl
 my $t = Conch::Time->now;
@@ -36,7 +34,7 @@ Returns a new object based on the current time, using the UTC timezone.
 Times are high resolution and will generate unique timestamps to the
 nanosecond.
 
-## from\_epoch
+### from\_epoch
 
 ```
 Conch::Time->from_epoch(time);
@@ -48,33 +46,33 @@ Conch::Time->from_epoch(1234567890, 123);
 
 See ["from\_epoch" in Time::Moment](https://metacpan.org/pod/Time%3A%3AMoment#from_epoch).
 
-## rfc3339
+### rfc3339
 
 Return an RFC3339 compatible string as UTC.
 Sub-second precision will use 3, 6 or 9 digits as necessary.
 
-## timestamp
+### timestamp
 
 Return an RFC3339 compatible string.
 
-## to\_string
+### to\_string
 
 Render the timestamp as a RFC 3339 timestamp string. Used to
 overload string coercion.
 
-## TO\_JSON
+### TO\_JSON
 
 Renderer for Mojo, as a RFC 3339 timestamp string
 
-## timestamptz
+### timestamptz
 
 Render a string in PostgreSQL's timestamptz style
 
-## iso8601
+### iso8601
 
 Render the timestamp as an ISO8601 extended format, in UTC
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

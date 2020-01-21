@@ -1,10 +1,8 @@
-# NAME
+# Conch::Controller::DatacenterRoom
 
-Conch::Controller::DatacenterRoom
+## METHODS
 
-# METHODS
-
-## find\_datacenter\_room
+### find\_datacenter\_room
 
 Chainable action that uses the `datacenter_room_id_or_alias` value provided in the stash
 (usually via the request URL) to look up a datacenter\_room, and stashes the query to get to it
@@ -13,35 +11,35 @@ in `datacenter_room_rs`.
 If `require_role` is provided, it is used as the minimum required role for the user to
 continue; otherwise the user must be a system admin.
 
-## get\_all
+### get\_all
 
 Get all datacenter rooms.
 
 Response uses the DatacenterRoomsDetailed json schema.
 
-## get\_one
+### get\_one
 
 Get a single datacenter room.
 
 Response uses the DatacenterRoomDetailed json schema.
 
-## create
+### create
 
 Create a new datacenter room.
 
-## update
+### update
 
 Update an existing room.
 
-## delete
+### delete
 
 Permanently delete a datacenter room.
 
-## racks
+### racks
 
 Response uses the Racks json schema.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

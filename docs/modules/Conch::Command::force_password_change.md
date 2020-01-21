@@ -1,8 +1,6 @@
-# NAME
+# force\_password\_change - force a user or users to change their password
 
-force\_password\_change - force a user or users to change their password
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch force_password_change [long options...]
@@ -13,7 +11,7 @@ bin/conch force_password_change [long options...]
     --help          print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

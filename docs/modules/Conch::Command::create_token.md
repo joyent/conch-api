@@ -1,8 +1,6 @@
-# NAME
+# create\_token - create a new api token
 
-create\_token - create a new api token
-
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 bin/conch create_token [long options...]
@@ -13,7 +11,7 @@ bin/conch create_token [long options...]
     --help    print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

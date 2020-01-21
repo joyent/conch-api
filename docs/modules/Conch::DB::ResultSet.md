@@ -1,13 +1,11 @@
-# NAME
+# Conch::DB::ResultSet
 
-Conch::DB::ResultSet
-
-# DESCRIPTION
+## DESCRIPTION
 
 Base class for our resultsets, to allow us to add on additional functionality from what is
 available in core [DBIx::Class](https://metacpan.org/pod/DBIx%3A%3AClass).
 
-# METHODS
+## METHODS
 
 Methods added are:
 
@@ -34,13 +32,13 @@ Methods added are:
 - [union\_all](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ASetOperations#union_all)
 - [with\_role](../modules/Conch%3A%3ADB%3A%3AHelper%3A%3AResultSet%3A%3AWithRole#with_role)
 
-# ATTRIBUTES
+## ATTRIBUTES
 
 Resultset attributes added are:
 
 - [remove\_columns](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3ARemoveColumns#remove_columns)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

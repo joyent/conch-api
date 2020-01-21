@@ -1,24 +1,22 @@
-# NAME
+# Conch::ValidationSystem
 
-Conch::ValidationSystem
+## METHODS
 
-# METHODS
-
-## check\_validation\_plans
+### check\_validation\_plans
 
 Verifies that all validations mentioned in validation plans correspond to modules we actually
 have available in Conch::Validation::\*.
 
 Validations not referenced by an active plan are ignored.
 
-## check\_validation\_plan
+### check\_validation\_plan
 
 Verifies that a validation plan and its validations are all correct (correct
 parent class, module attributes match database fields, etc).
 
 Returns the name of all modules successfully loaded.
 
-## load\_validations
+### load\_validations
 
 Load all Conch::Validation::\* sub-classes into the database.
 Existing validation records will not be modified if attributes change -- instead, existing
@@ -29,7 +27,7 @@ validation rows that were created.
 
 This method is poorly-named: it should be 'create\_validations'.
 
-## update\_validation\_plans
+### update\_validation\_plans
 
 Deactivate and/or create validation records for all validation modules currently present, then
 updates validation plan membership to reference the newest versions of the validations it
@@ -38,7 +36,7 @@ previously had as members.
 That is: does whatever is necessary after a code deployment to ensure that validation plans
 continue to run validations pointing to the same code modules.
 
-## run\_validation\_plan
+### run\_validation\_plan
 
 Runs the provided validation\_plan against the provided device.
 
@@ -60,7 +58,7 @@ data => $data,                  # optional, a hashref of device report data; req
 no_save_db => 0|1               # optional, defaults to false
 ```
 
-## run\_validation
+### run\_validation
 
 Runs the provided validation record against the provided device.
 Creates and returns validation\_result records, without writing them to the database.
@@ -75,7 +73,7 @@ device => $device,              # required, a Conch::DB::Result::Device object
 data => $data,                  # required, a hashref of device report data
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

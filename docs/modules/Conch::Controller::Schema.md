@@ -1,14 +1,12 @@
-# NAME
+# Conch::Controller::Schema
 
-Conch::Controller::Schema
+## METHODS
 
-# METHODS
-
-## get
+### get
 
 Get the json-schema in JSON format.
 
-## \_extract\_schema\_definition
+### \_extract\_schema\_definition
 
 Given a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object containing a schema definition, extract the requested portion
 out of the "definitions" section, including any named references, and add some standard
@@ -25,7 +23,7 @@ my $new_defs = $jv->bundle({
 
 ..except circular refs are not handled there, and the definition renaming leaks local path info.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

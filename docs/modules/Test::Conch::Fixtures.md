@@ -1,12 +1,10 @@
-# NAME
+# Test::Conch::Fixtures
 
-Test::Conch::Fixtures
-
-# DESCRIPTION
+## DESCRIPTION
 
 Provides database fixtures for testing.
 
-# USAGE
+## USAGE
 
 ```perl
 my $fixtures = Test::Conch::Fixtures->new(
@@ -19,9 +17,9 @@ my $fixtures = Test::Conch::Fixtures->new(
 
 See ["fixtures" in Test::Conch](../modules/Test%3A%3AConch#fixtures) for main usage.
 
-# METHODS
+## METHODS
 
-## generate\_set
+### generate\_set
 
 Generates new fixture definition(s). Adds them to the internal definition list, but does not
 load them to the database.
@@ -32,7 +30,7 @@ Available sets:
 a new workspace under GLOBAL, with a datacenter\_room,
 rack, and a layout suitable for various hardware. Takes a single integer for uniqueness.
 
-## generate\_definitions
+### generate\_definitions
 
 Generates fixture definition(s) using generic data, and any necessary dependencies. Uses a
 unique number to generate unique fixture names. Not-nullable fields are filled in with
@@ -48,7 +46,7 @@ fixture_type => { field data.. },
 `fixture_type` is usually a table name, but might be pluralized or be something special. See
 ["\_generate\_definition"](#_generate_definition).
 
-## \_generate\_definition
+### \_generate\_definition
 
 Data used in ["generate\_definitions"](#generate_definitions). Returns a fixture definition as well as a list of other
 recognized fixture types that must also be turned into fixtures to satisfy dependencies.
@@ -58,19 +56,19 @@ will refer to each other using this number as part of their name.
 
 `specification` is usually a hashref but might be a listref depending on the fixture type.
 
-## add\_definition
+### add\_definition
 
 Add a new fixture definition.
 
-## get\_definition
+### get\_definition
 
 Used by [DBIx::Class::Fixtures](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AFixtures).
 
-## all\_fixture\_names
+### all\_fixture\_names
 
 Used by [DBIx::Class::Fixtures](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AFixtures).
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

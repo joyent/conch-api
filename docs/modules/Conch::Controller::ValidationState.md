@@ -1,20 +1,18 @@
-# NAME
+# Conch::Controller::ValidationState
 
-Conch::Controller::ValidationState
-
-# DESCRIPTION
+## DESCRIPTION
 
 Controller for managing Validation states and results.
 
-# METHODS
+## METHODS
 
-## get
+### get
 
 Get the validation\_state record specified by uuid.
 
 Response uses the ValidationStateWithResults json schema.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

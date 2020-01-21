@@ -1,39 +1,37 @@
-# NAME
+# Conch::Controller::RackRole
 
-Conch::Controller::RackRole
+## METHODS
 
-# METHODS
-
-## find\_rack\_role
+### find\_rack\_role
 
 Chainable action that uses the `rack_role_id_or_name` value provided in the stash (usually via
 the request URL) to look up a rack role, and stashes the result in `rack_role`.
 
-## create
+### create
 
 Create a new rack role.
 
-## get
+### get
 
 Get a single rack role.
 
 Response uses the RackRole json schema.
 
-## get\_all
+### get\_all
 
 Get all rack roles.
 
 Response uses the RackRoles json schema.
 
-## update
+### update
 
 Modify an existing rack role.
 
-## delete
+### delete
 
 Delete a rack role.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

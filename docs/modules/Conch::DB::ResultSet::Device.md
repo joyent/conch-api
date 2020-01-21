@@ -1,14 +1,12 @@
-# NAME
+# Conch::DB::ResultSet::Device
 
-Conch::DB::ResultSet::Device
-
-# DESCRIPTION
+## DESCRIPTION
 
 Interface to queries involving devices.
 
-# METHODS
+## METHODS
 
-## with\_user\_role
+### with\_user\_role
 
 Constrains the resultset to those where the provided user\_id has (at least) the specified role
 in at least one workspace or build associated with the specified device(s) (also taking into
@@ -20,18 +18,18 @@ this query when its impact is outweighed by the impact of filtering a large resu
 devices in the database. (That is, usually you should start with a single device and then
 apply `$device_rs->user_has_role($user_id, $role)` to it.)
 
-## user\_has\_role
+### user\_has\_role
 
 Checks that the provided user\_id has (at least) the specified role in at least one
 workspace or build associated with the specified device(s) (including parent workspaces).
 
 Returns a boolean.
 
-## devices\_without\_location
+### devices\_without\_location
 
 Restrict results to those that do not have a registered location.
 
-## devices\_reported\_by\_user\_relay
+### devices\_reported\_by\_user\_relay
 
 Restrict results to those that have sent a device report proxied by a relay
 registered using the provided user's credentials.
@@ -39,7 +37,7 @@ registered using the provided user's credentials.
 Note: this is not accurate if the relay is now registered to a different user than that which
 sent the report.
 
-## latest\_device\_report
+### latest\_device\_report
 
 Returns a resultset that finds the most recent device report matching the device(s). This is
 not a window function, so only one report is returned for all matching devices, not one report
@@ -59,31 +57,31 @@ $self->search(undef, {
 });
 ```
 
-## device\_settings\_as\_hash
+### device\_settings\_as\_hash
 
 Returns a hash of all (active) device settings for the specified device(s). (Will return
 merged results when passed a resultset referencing multiple devices, which is probably not what
 you want, so don't do that.)
 
-## with\_device\_location
+### with\_device\_location
 
 Modifies the resultset to add columns `rack_id`, `rack_name` (the full rack name including
 room data) and `rack_unit_start`.
 
-## with\_sku
+### with\_sku
 
 Modifies the resultset to add the `sku` column.
 
-## with\_build\_name
+### with\_build\_name
 
 Modifies the resultset to add the `build_name` column.
 
-## location\_data
+### location\_data
 
 Returns a resultset that provides location data ([response.json#/definitions/DeviceLocation](../json-schema/response.json#/definitions/DeviceLocation)),
 optionally returned under a hash using the provided key name.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 
