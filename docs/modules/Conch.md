@@ -1,6 +1,6 @@
 # NAME
 
-Conch - Setup and helpers for Conch Mojo app
+Conch - Initialization and helpers for Conch Mojo app
 
 # SYNOPSIS
 
