@@ -641,10 +641,9 @@ Only api tokens may be retrieved by this flow.
 =cut
 
 sub find_api_token ($c) {
-    if ($c->stash('token_name') =~ /^login_jwt_/) {
-        $c->log->error('Lookup of login tokens not supported');
-        return $c->status(404);
-    }
+    # lookup of login tokens not supported
+    return $c->status(404) if $c->stash('token_name') =~ /^login_jwt_/;
+
     my $token_rs = $c->stash('target_user')
         ->user_session_tokens
         ->unexpired

@@ -46,12 +46,12 @@ sub process ($c) {
 
     my $device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
     if (not $device) {
-        $c->log->error('Could not find device '.$c->stash('device_serial_number'));
+        $c->log->warn('Could not find device '.$c->stash('device_serial_number'));
         return $c->status(404);
     }
 
     if ($device->phase eq 'decommissioned') {
-        $c->log->error('report submitted for decommissioned device '.$c->stash('device_serial_number'));
+        $c->log->warn('report submitted for decommissioned device '.$c->stash('device_serial_number'));
         return $c->status(409, { error => 'device is decommissioned' });
     }
 

@@ -582,7 +582,7 @@ subtest 'device network interfaces' => sub {
 
     $t->get_ok('/device/TEST/interface/ipmi1/'.$_)
         ->status_is(404)
-        ->log_error_is('no endpoint found for: GET /device/TEST/interface/ipmi1/'.$_)
+        ->log_warn_is('no endpoint found for: GET /device/TEST/interface/ipmi1/'.$_)
             foreach qw(device_id created);
 
     $t->get_ok('/device/TEST/interface/ipmi1/mac')
@@ -890,7 +890,7 @@ subtest 'Device settings' => sub {
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/FOO/BAR', json => { 'FOO/BAR' => 'foo' })
         ->status_is(404)
-        ->log_error_is('no endpoint found for: POST /device/LOCATED_DEVICE/settings/FOO/BAR');
+        ->log_warn_is('no endpoint found for: POST /device/LOCATED_DEVICE/settings/FOO/BAR');
 
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => 'baz' })
         ->status_is(204);

@@ -88,7 +88,7 @@ subtest 'User' => sub {
 
     $t->post_ok('/user/me/settings/FOO/BAR', json => { 'FOO/BAR' => 'TEST' })
         ->status_is(404)
-        ->log_error_is('no endpoint found for: POST /user/me/settings/FOO/BAR');
+        ->log_warn_is('no endpoint found for: POST /user/me/settings/FOO/BAR');
 
     $t->post_ok('/user/me/settings/TEST', json => { TEST => 'TEST' })
         ->status_is(204);
@@ -1121,8 +1121,7 @@ subtest 'user tokens (our own)' => sub {
         ]);
 
     $t->get_ok('/user/me/token/'.$login_tokens[0]->name)
-        ->status_is(404)
-        ->log_error_is('Lookup of login tokens not supported');
+        ->status_is(404);
 
     $t->get_ok('/user/me/token/my first 💩 // to.ken @@')
         ->status_is(200)

@@ -430,7 +430,7 @@ sub set_assignment ($c) {
                 next if $device_locations_rs->search({ device_id => $device->id, $entry->%{rack_unit_start} })->exists;
             }
             elsif ($entry->{device_id}) {
-                $c->log->error('Could not find device '.$entry->{device_id});
+                $c->log->warn('Could not find device '.$entry->{device_id});
                 $c->res->code(404);
                 die 'rollback';
             }

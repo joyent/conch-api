@@ -36,7 +36,7 @@ sub get ($c) {
 
     my $schema = _extract_schema_definition($validator, $name);
     if (not $schema) {
-        $c->log->debug('Could not find '.$type.' schema '.$name);
+        $c->log->warn('Could not find '.$type.' schema '.$name);
         return $c->status(404);
     }
 

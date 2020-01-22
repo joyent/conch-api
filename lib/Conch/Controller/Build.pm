@@ -770,7 +770,7 @@ sub create_and_add_devices ($c) {
     $c->txn_wrapper(sub ($c) {
         foreach my $entry ($input->@*) {
             if (not $hardware_product_ids{$entry->{sku}}) {
-                $c->log->error('no hardware_product corresponding to sku '.$entry->{sku});
+                $c->log->warn('no hardware_product corresponding to sku '.$entry->{sku});
                 ($code, $payload) = (404, { error => 'no hardware_product corresponding to sku '.$entry->{sku} });
                 die 'rollback';
             }
@@ -791,7 +791,7 @@ sub create_and_add_devices ($c) {
                     }
                 }
                 else {
-                    $c->log->error('no device corresponding to device id '.$entry->{id});
+                    $c->log->warn('no device corresponding to device id '.$entry->{id});
                     ($code, $payload) = (404, { error => 'no device corresponding to device id '.$entry->{id} });
                     die 'rollback';
                 }

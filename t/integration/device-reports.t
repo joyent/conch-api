@@ -61,7 +61,7 @@ subtest preliminaries => sub {
 
     $t->post_ok('/device/TEST', json => $report_data)
         ->status_is(404)
-        ->log_error_is('Could not find device TEST');
+        ->log_warn_is('Could not find device TEST');
 };
 
 my $device = $t->generate_fixtures('device', {
