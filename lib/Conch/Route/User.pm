@@ -26,8 +26,7 @@ sub routes {
     # interfaces for user updating their own account...
     {
         # all /user/me routes operate with the target user set to ourselves
-        my $user_me = $user->under('/me')
-            ->to(cb => sub ($c) { $c->stash('target_user', $c->stash('user')); return 1 });
+        my $user_me = $user->under('/me', sub ($c) { $c->stash('target_user', $c->stash('user')); return 1 });
 
         # GET /user/me
         $user_me->get('/')->to('#get');

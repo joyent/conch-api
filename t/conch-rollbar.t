@@ -37,12 +37,12 @@ my $t = Test::Conch->new(
 
 my $r = Mojolicious::Routes->new;
 my $line_number;
-$r->post('/_die/cb')->to(cb => sub ($c) {
+$r->post('/_die/cb', sub ($c) {
     $line_number = __LINE__; die 'ach, I am slain';
 });
 $r->post('/_die/action')->to('user#die');
 $r->post('/_die/dbix_class')->to('user#dbix_class');
-$r->post('/_send_message')->to(cb => sub ($c) {
+$r->post('/_send_message', sub ($c) {
     $c->send_message_to_rollbar(
         'info',
         'here is a message',
@@ -84,7 +84,7 @@ package RollbarSimulator {
     use Conch::UUID 'create_uuid_str';
     use Mojo::Base 'Mojolicious', -signatures;
     sub startup ($self) {
-        $self->routes->post('/api/1/item')->to(cb => sub ($c) {
+        $self->routes->post('/api/1/item', sub ($c) {
             my $payload = $c->req->json;
             Test::More::like($payload->{data}{uuid}, Conch::UUID::UUID_FORMAT, 'got rollbar uuid in payload');
             $c->app->plugins->emit(rollbar_sent => $payload);
