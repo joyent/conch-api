@@ -218,6 +218,8 @@ Error responses will use:
 
 =over 4
 
+=item * Request: F<request.yaml#/definitions/Null>
+
 =item * Response: C<204 NO CONTENT>
 
 =back
