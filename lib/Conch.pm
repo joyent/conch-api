@@ -68,16 +68,19 @@ sub startup {
                 # TODO: skip if ?page_size is passed (and we actually used it).
                 and $args->{json}->@* >= (($c->app->config('rollbar')//{})->{warn_payload_elements} // 35)
                 and $c->feature('rollbar')) {
-            my $endpoint = join '#', map $_//'', ($c->match->stack->[-1]//{})->@{qw(controller action)};
-            $c->send_message_to_rollbar(
-                'info',
-                'response payload contains many elements: candidate for paging?',
-                { elements => scalar $args->{json}->@*, endpoint => $endpoint, url => $c->url_for },
-                [ 'response payload size is large', $endpoint ],
-            );
+            # do this after the response has been sent
+            $c->on(finish => sub ($c) {
+                my $endpoint = join '#', map $_//'', ($c->match->stack->[-1]//{})->@{qw(controller action)};
+                $c->send_message_to_rollbar(
+                    'info',
+                    'response payload contains many elements: candidate for paging?',
+                    { elements => scalar $args->{json}->@*, endpoint => $endpoint, url => $c->url_for },
+                    [ 'response payload size is large', $endpoint ],
+                );
+            });
         }
 
-        # do this after the response has been sent
+        # body_size not available until after response is sent
         $c->on(finish => sub ($c) {
             my $body_size = $c->res->body_size;
             if ($body_size >= (($c->app->config('rollbar')//{})->{warn_payload_size} // 10000)

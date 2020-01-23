@@ -25,22 +25,17 @@ C<report_deprecated_actions> feature is enabled.
 =cut
 
 sub register ($self, $app, $config) {
-    $app->hook(around_action => sub ($next, $c, $action, $last) {
-        my $result = $next->();
-
+    $app->hook(after_dispatch => sub ($c) {
         if (my $deprecated = $c->stash('deprecated')) {
             $c->res->headers->add('X-Deprecated', 'this endpoint is deprecated and will be removed in api '.$deprecated);
 
             # do this after the response has been sent
-            $c->on(finish => sub ($c) { $c->send_message_to_rollbar(
-                        'info',
-                        $deprecated,
-                        { context => ($c->stash('controller')//'').'#'.($c->stash('action')//'') },
-                    ) })
-                if $c->feature('rollbar') and $c->feature('report_deprecated_actions');
+            $c->on(finish => sub ($c) {
+                $c->send_message_to_rollbar('info', $deprecated,
+                    { context => ($c->stash('controller')//'').'#'.($c->stash('action')//'') });
+            })
+            if $c->feature('rollbar') and $c->feature('report_deprecated_actions');
         }
-
-        return $result;
     });
 }
 
