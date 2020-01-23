@@ -79,7 +79,9 @@ sub revoke_user_tokens ($c) {
     my $api_only = $params->{api_only} // 0;
 
     my $user = $c->stash('target_user');
-    $c->log->debug('revoking session tokens for user '.$user->name.', forcing them to /login again');
+    $c->log->debug('revoking '
+        .($login_only ? 'login' : $api_only ? 'api' : 'all')
+        .' tokens for user '.$user->name.', forcing them to /login again');
 
     my $send_mail = $user->id ne $c->stash('user_id') && ($params->{send_mail} // 1);
 
@@ -254,13 +256,15 @@ sub change_own_password ($c) {
         force_password_change => 0,
     });
 
-    $c->log->debug('updated password for user '.$user->name.' at their request');
+    $c->log->debug('updated password for user '.$user->name.' at their request'
+        .($clear_tokens eq 'none' ? ''
+            : '; clearing '.($clear_tokens eq 'login_only'?'login':$clear_tokens).' tokens'));
 
     return $c->status(204) if $clear_tokens eq 'none';
 
     my $rs = $user->user_session_tokens;
     $rs = $rs->login_only if $clear_tokens ne 'all';
-    $rs->delete;
+    $rs->expire;
 
     # processing continues with Conch::Controller::Login::logout
     return 1;

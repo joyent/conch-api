@@ -105,9 +105,6 @@ aborting with HTTP 410 or HTTP 404 if not found.
     # POST /login
     $root->post('/login')->to('login#login');
 
-    # POST /logout
-    $root->post('/logout')->to('login#logout');
-
     Conch::Route::Schema->routes($root->any('/schema'));
 
     # GET /workspace/:workspace/device-totals
@@ -117,7 +114,13 @@ aborting with HTTP 410 or HTTP 404 if not found.
 
     my $secured = $root->under('/')->to('login#authenticate');
 
+    # POST /logout
+    $secured->post('/logout')->to('login#logout');
+
+    # GET /me
     $secured->get('/me', sub ($c) { $c->status(204) });
+
+    # POST /refresh_token
     $secured->post('/refresh_token')->to('login#refresh_token');
 
     Conch::Route::Workspace->routes($secured->any('/workspace')->to(deprecated => 'v3.1'));
@@ -207,7 +210,7 @@ Error responses will use:
 
 =item * Request: F<request.yaml#/definitions/Login>
 
-=item * Response: F<response.yaml#/definitions/Login>
+=item * Response: F<response.yaml#/definitions/LoginToken>
 
 =back
 
@@ -215,7 +218,7 @@ Error responses will use:
 
 =over 4
 
-=item * Does not require authentication.
+=item * Request: F<request.yaml#/definitions/Null>
 
 =item * Response: C<204 NO CONTENT>
 
@@ -241,7 +244,7 @@ Error responses will use:
 
 =item * Request: F<request.yaml#/definitions/Null>
 
-=item * Response: F<response.yaml#/definitions/Login>
+=item * Response: F<response.yaml#/definitions/LoginToken>
 
 =back
 

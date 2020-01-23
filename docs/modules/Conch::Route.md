@@ -53,11 +53,11 @@ Error responses will use:
 ## `POST /login`
 
 - Request: [request.json#/definitions/Login](../json-schema/request.json#/definitions/Login)
-- Response: [response.json#/definitions/Login](../json-schema/response.json#/definitions/Login)
+- Response: [response.json#/definitions/LoginToken](../json-schema/response.json#/definitions/LoginToken)
 
 ## `POST /logout`
 
-- Does not require authentication.
+- Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
 - Response: `204 NO CONTENT`
 
 ## `GET /workspace/:workspace/device-totals`
@@ -71,7 +71,7 @@ Error responses will use:
 ## `POST /refresh_token`
 
 - Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
-- Response: [response.json#/definitions/Login](../json-schema/response.json#/definitions/Login)
+- Response: [response.json#/definitions/LoginToken](../json-schema/response.json#/definitions/LoginToken)
 
 ## `* /dc`, `* /room`, `* /rack_role`, `* /rack`, `* /layout`
 
