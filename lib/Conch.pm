@@ -95,8 +95,14 @@ sub startup {
 
     $self->hook(after_render => sub ($c, @args) {
         warn 'called $c->render twice' if $c->stash->{_rendered}++;
+    });
 
-        $c->res->headers->add('X-Conch-API', $c->version_tag);
+    $self->hook(after_dispatch => sub ($c) {
+        my $res_headers = $c->res->headers;
+        my $request_id = $c->req->request_id;
+        $res_headers->header('Request-Id', $request_id);
+        $res_headers->header('X-Request-Id', $request_id);
+        $res_headers->add('X-Conch-API', $c->version_tag);
     });
 
 =head2 status
@@ -114,14 +120,14 @@ Helper method for setting the response status code and json content.
         $payload //= { error => 'Entity Not Found' } if $code == 404;
         $payload //= { error => 'Unimplemented' } if $code == 501;
 
+        $c->res->code($code);
+
         if (not $payload) {
             # no content - hopefully we set an appropriate response code (e.g. 204, 30x)
-            # (note that before_render will not run!)
-            $c->rendered($code);
+            # (note that before_render and after_render hooks will not run!)
+            $c->rendered;
             return 0;
         }
-
-        $c->res->code($code);
 
         if (any { $code == $_ } 301, 302, 303, 305, 307, 308) {
             $c->redirect_to($payload);
@@ -149,13 +155,6 @@ Helper method for setting the response status code and json content.
                     or $headers->content_type !~ /application\/json/i)) {
             return $c->status(415);
         }
-    });
-
-    $self->hook(before_dispatch => sub ($c) {
-        my $headers = $c->res->headers;
-        my $request_id = $c->req->request_id;
-        $headers->header('Request-Id' => $request_id);
-        $headers->header('X-Request-Id' => $request_id);
     });
 
     # see Mojo::Message::Request for original implementation
