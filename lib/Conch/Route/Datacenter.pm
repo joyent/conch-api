@@ -25,14 +25,14 @@ sub routes {
     # GET /dc
     $dc->get('/')->to('#get_all');
     # POST /dc
-    $dc->post('/')->to('#create');
+    $dc->post('/')->to('#create', request_schema => 'DatacenterCreate');
 
     my $with_datacenter = $dc->under('/<datacenter_id:uuid>')->to('#find_datacenter');
 
     # GET /dc/:datacenter_id
     $with_datacenter->get('/')->to('#get_one');
     # POST /dc/:datacenter_id
-    $with_datacenter->post('/')->to('#update');
+    $with_datacenter->post('/')->to('#update', request_schema => 'DatacenterUpdate');
     # DELETE /dc/:datacenter_id
     $with_datacenter->delete('/')->to('#delete');
     # GET /dc/:datacenter_id/rooms

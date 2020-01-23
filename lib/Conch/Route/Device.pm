@@ -24,17 +24,18 @@ sub routes {
     $device->post('/:device_serial_number', sub { shift->status(308, '/device_report') });
 
     # GET /device?:key=:value
-    $device->get('/')->to('device#lookup_by_other_attribute');
+    $device->get('/')
+        ->to('device#lookup_by_other_attribute', query_params_schema => 'GetDeviceByAttribute');
 
     {
         # chainable actions that extract and look up the device id or serial_number from the path
-        my $with_device = $device->under('/:device_id_or_serial_number')->to('device#find_device');
+        my $with_device = $device->under('/:device_id_or_serial_number')->to('device#find_device', query_params_schema => 'FindDevice');
         my $with_device_ro = $device->under('/:device_id_or_serial_number')
-            ->to('device#find_device', require_role => 'ro');
+            ->to('device#find_device', query_params_schema => 'FindDevice', require_role => 'ro');
         my $with_device_admin = $device->under('/:device_id_or_serial_number')
-            ->to('device#find_device', require_role => 'admin');
+            ->to('device#find_device', query_params_schema => 'FindDevice', require_role => 'admin');
         my $with_device_phase_earlier_than_prod = $device->under('/:device_id_or_serial_number')
-            ->to('device#find_device', phase_earlier_than => 'production');
+            ->to('device#find_device', query_params_schema => 'FindDevice', phase_earlier_than => 'production');
 
         # GET /device/:device_id_or_serial_number
         $with_device->get('/')->to('device#get');
@@ -47,21 +48,22 @@ sub routes {
         $with_device->get('/sku')->to('device#get_sku');
 
         # POST /device/:device_id_or_serial_number/asset_tag
-        $with_device->post('/asset_tag')->to('device#set_asset_tag');
+        $with_device->post('/asset_tag')
+            ->to('device#set_asset_tag', request_schema => 'DeviceAssetTag');
         # POST /device/:device_id_or_serial_number/validated
-        $with_device->post('/validated')->to('device#set_validated');
+        $with_device->post('/validated')->to('device#set_validated', request_schema => 'Null');
         # POST /device/:device_id_or_serial_number/phase
-        $with_device->post('/phase')->to('device#set_phase');
+        $with_device->post('/phase')->to('device#set_phase', request_schema => 'DevicePhase');
         # POST /device/:device_id_or_serial_number/links
-        $with_device->post('/links')->to('device#add_links');
+        $with_device->post('/links')->to('device#add_links', request_schema => 'DeviceLinks');
         # DELETE /device/:device_id_or_serial_number/links
-        $with_device->delete('/links')->to('device#remove_links');
+        $with_device->delete('/links')->to('device#remove_links', request_schema => 'DeviceLinksOrNull');
         # POST /device/:device_id_or_serial_number/build
-        $with_device->post('/build')->to('device#set_build');
+        $with_device->post('/build')->to('device#set_build', request_schema => 'DeviceBuild');
         # POST /device/:device_id_or_serial_number/hardware_product
         # POST /device/:device_id_or_serial_number/sku
         $with_device_admin->post('/:path2', [ path2 => [qw(hardware_product sku)] ])
-            ->to('device#set_hardware_product');
+            ->to('device#set_hardware_product', request_schema => 'DeviceHardware');
 
         {
             my $with_device_location = $with_device_phase_earlier_than_prod->any('/location')
@@ -70,7 +72,7 @@ sub routes {
             # GET /device/:device_id_or_serial_number/location
             $with_device_location->get('/')->to('#get');
             # POST /device/:device_id_or_serial_number/location
-            $with_device_location->post('/')->to('#set');
+            $with_device_location->post('/')->to('#set', request_schema => 'DeviceLocationUpdate');
             # DELETE /device/:device_id_or_serial_number/location
             $with_device_location->delete('/')->to('#delete');
         }
@@ -82,25 +84,30 @@ sub routes {
             # GET /device/:device_id_or_serial_number/settings
             $with_device_settings->get('/')->to('#get_all');
             # POST /device/:device_id_or_serial_number/settings
-            $with_device_settings->post('/')->to('#set_all');
+            $with_device_settings->post('/')->to('#set_all', request_schema => 'DeviceSettings');
 
             my $with_device_settings_with_key = $with_device_settings->any('/#key');
             # GET /device/:device_id_or_serial_number/settings/#key
             $with_device_settings_with_key->get('/')->to('#get_single');
             # POST /device/:device_id_or_serial_number/settings/#key
-            $with_device_settings_with_key->post('/')->to('#set_single');
+            $with_device_settings_with_key->post('/')
+                ->to('#set_single', request_schema => 'DeviceSetting');
             # DELETE /device/:device_id_or_serial_number/settings/#key
             $with_device_settings_with_key->delete('/')->to('#delete_single');
         }
 
         # POST /device/:device_id_or_serial_number/validation/:validation_id
         $with_device_ro->post('/validation/<validation_id:uuid>')
-            ->to('device_validation#validate', deprecated => 'v4.0');
+            ->to('device_validation#validate', deprecated => 'v4.0',
+                request_schema => 'DeviceReport');
         # POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id
         $with_device_ro->post('/validation_plan/<validation_plan_id:uuid>')
-            ->to('device_validation#run_validation_plan', deprecated => 'v4.0');
+            ->to('device_validation#run_validation_plan', deprecated => 'v4.0',
+                request_schema => 'DeviceReport');
+
         # GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...
-        $with_device->get('/validation_state')->to('device_validation#get_validation_state');
+        $with_device->get('/validation_state')
+            ->to('device_validation#get_validation_state', query_params_schema => 'GetValidationState');
 
         {
             my $with_device_interface = $with_device_phase_earlier_than_prod

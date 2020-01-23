@@ -81,8 +81,7 @@ Create a new datacenter.
 =cut
 
 sub create ($c) {
-    my $input = $c->validate_request('DatacenterCreate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     if (my $dc = $c->db_datacenters->find({ $input->%{qw(vendor region location)} })) {
         $dc->set_columns({ $input->%{vendor_name} });   # set all columns not used in the unique key
@@ -108,9 +107,7 @@ Update an existing datacenter.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_request('DatacenterUpdate');
-    return if not $input;
-
+    my $input = $c->stash('request_data');
     my $datacenter = $c->stash('datacenter');
     $datacenter->set_columns($input);
     return $c->status(204) if not $datacenter->is_changed;

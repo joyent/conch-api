@@ -27,7 +27,7 @@ sub routes {
     # GET /room
     $room_with_system_admin->get('/')->to('#get_all');
     # POST /room
-    $room_with_system_admin->post('/')->to('#create');
+    $room_with_system_admin->post('/')->to('#create', request_schema => 'DatacenterRoomCreate');
 
     my $with_datacenter_room_ro = $room->under('/:datacenter_room_id_or_alias')
         ->to('#find_datacenter_room', require_role => 'ro');
@@ -39,7 +39,7 @@ sub routes {
     # GET /room/:datacenter_room_id_or_alias
     $with_datacenter_room_ro->get('/')->to('#get_one');
     # POST /room/:datacenter_room_id_or_alias
-    $with_datacenter_room_system_admin->post('/')->to('#update');
+    $with_datacenter_room_system_admin->post('/')->to('#update', request_schema => 'DatacenterRoomUpdate');
     # DELETE /room/:datacenter_room_id_or_alias
     $with_datacenter_room_system_admin->delete('/')->to('#delete');
 

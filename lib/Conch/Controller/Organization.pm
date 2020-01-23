@@ -60,8 +60,7 @@ Requires the user to be a system admin.
 =cut
 
 sub create ($c) {
-    my $input = $c->validate_request('OrganizationCreate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     return $c->status(409, { error => 'an organization already exists with that name' })
         if $c->db_organizations->active->search({ $input->%{name} })->exists;
@@ -157,8 +156,7 @@ Requires the 'admin' role on the organization.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_request('OrganizationUpdate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     my $organization = $c->stash('organization_rs')->single;
 
@@ -207,11 +205,8 @@ to the user and to all organization admins.
 =cut
 
 sub add_user ($c) {
-    my $params = $c->validate_query_params('NotifyUsers');
-    return if not $params;
-
-    my $input = $c->validate_request('OrganizationAddUser');
-    return if not $input;
+    my $params = $c->stash('query_params');
+    my $input = $c->stash('request_data');
 
     my $user = $c->stash('target_user');
     my $organization_name = $c->stash('organization_name') // $c->stash('organization_rs')->get_column('name')->single;
@@ -294,8 +289,7 @@ to the user and to all organization admins.
 =cut
 
 sub remove_user ($c) {
-    my $params = $c->validate_query_params('NotifyUsers');
-    return if not $params;
+    my $params = $c->stash('query_params');
 
     my $user = $c->stash('target_user');
     my $rs = $c->stash('organization_rs')

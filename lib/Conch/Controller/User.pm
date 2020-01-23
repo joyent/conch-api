@@ -69,11 +69,7 @@ revoking for oneself).
 =cut
 
 sub revoke_user_tokens ($c) {
-    my $params = $c->validate_query_params('RevokeUserTokens');
-    return if not $params;
-
-    $c->validate_request('Null');
-    return if $c->res->code;
+    my $params = $c->stash('query_params');
 
     my $login_only = $params->{login_only};
     my $api_only = $params->{api_only};
@@ -120,8 +116,7 @@ Override the settings for a user with the provided payload
 =cut
 
 sub set_settings ($c) {
-    my $input = $c->validate_request('UserSettings');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     my $rs = $c->stash('target_user')->related_resultset('user_settings');
 
@@ -145,8 +140,7 @@ FIXME: the key name is repeated in the URL and the payload :(
 =cut
 
 sub set_setting ($c) {
-    my $input = $c->validate_request('UserSetting');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     my $key = $c->stash('key');
     return $c->status(400, { error => 'Setting key in request payload must match name in the URL (\''.$key.'\')' })
@@ -241,11 +235,8 @@ When login tokens are cleared, the user is also logged out.
 =cut
 
 sub change_own_password ($c) {
-    my $params = $c->validate_query_params('ChangePassword');
-    return if not $params;
-
-    my $input = $c->validate_request('UserPassword');
-    return if not $input;
+    my $params = $c->stash('query_params');
+    my $input = $c->stash('request_data');
 
     my $clear_tokens = $params->{clear_tokens};
 
@@ -290,9 +281,7 @@ will not be able to log in with it again.
 =cut
 
 sub reset_user_password ($c) {
-    my $params = $c->validate_query_params('ResetUserPassword');
-    return if not $params;
-
+    my $params = $c->stash('query_params');
     my $clear_tokens = $params->{clear_tokens};
 
     my $user = $c->stash('target_user');
@@ -370,11 +359,8 @@ C<GET /user/:id>.
 =cut
 
 sub update ($c) {
-    my $params = $c->validate_query_params('NotifyUsers');
-    return if not $params;
-
-    my $input = $c->validate_request('UpdateUser');
-    return if not $input;
+    my $params = $c->stash('query_params');
+    my $input = $c->stash('request_data');
 
     return $c->status(400, { error => 'user email "'.$input->{email}.'" is not a valid RFC822 address' })
         if exists $input->{email} and not Email::Valid->address($input->{email});
@@ -450,11 +436,8 @@ Response uses the NewUser json schema (or UserError for some error conditions).
 =cut
 
 sub create ($c) {
-    my $params = $c->validate_query_params('NotifyUsers');
-    return if not $params;
-
-    my $input = $c->validate_request('NewUser');
-    return if not $input;
+    my $params = $c->stash('query_params');
+    my $input = $c->stash('request_data');
 
     return $c->status(400, { error => 'user email "'.$input->{email}.'" is not a valid RFC822 address' })
         if not Email::Valid->address($input->{email});
@@ -506,9 +489,7 @@ Response uses the UserError json schema on some error conditions.
 =cut
 
 sub deactivate ($c) {
-    my $params = $c->validate_query_params('DeactivateUser');
-    return if not $params;
-
+    my $params = $c->stash('query_params');
     my $user = $c->stash('target_user');
 
     # do not allow removing user if he is the only admin of an organization or build
@@ -582,8 +563,7 @@ This is the only time the token string is provided to the user, so don't lose it
 =cut
 
 sub create_api_token ($c) {
-    my $input = $c->validate_request('NewUserToken');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     # we use this naming convention to indicate login tokens
     return $c->status(400, { error => 'name "'.$input->{name}.'" is reserved' })

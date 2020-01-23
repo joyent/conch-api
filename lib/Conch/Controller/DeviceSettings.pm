@@ -20,8 +20,7 @@ Existing settings are deactivated even if they are not being replaced with new o
 =cut
 
 sub set_all ($c) {
-    my $input = $c->validate_request('DeviceSettings');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     # we cannot do device_rs->related_resultset, or ->create loses device_id
     my $settings_rs = $c->db_device_settings->search({ device_id => $c->stash('device_id') });
@@ -61,9 +60,7 @@ overwritten, unless the value is unchanged.
 =cut
 
 sub set_single ($c) {
-    my $input = $c->validate_request('DeviceSetting');
-    return if not $input;
-
+    my $input = $c->stash('request_data');
     my $setting_key = $c->stash('key');
     return $c->status(400, { error => "Setting key in request payload must match name in the URL ('$setting_key')" })
         if not exists $input->{$setting_key};

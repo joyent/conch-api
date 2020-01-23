@@ -25,7 +25,7 @@ sub routes {
     # GET /layout
     $layout->get('/')->to('#get_all');
     # POST /layout
-    $layout->post('/')->to('#create');
+    $layout->post('/')->to('#create', request_schema => 'RackLayoutCreate');
 
     # GET /layout/:layout_id
     # POST /layout/:layout_id
@@ -45,7 +45,7 @@ sub one_layout_routes ($class, $r) {
     # GET .../layout/:layout_id_or_rack_unit_start
     $with_layout->get('/')->to('#get');
     # POST .../layout/:layout_id_or_rack_unit_start
-    $with_layout->post('/')->to('#update');
+    $with_layout->post('/')->to('#update', request_schema => 'RackLayoutUpdate');
     # DELETE .../layout/:layout_id_or_rack_unit_start
     $with_layout->delete('/')->to('#delete');
 }

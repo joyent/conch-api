@@ -168,8 +168,7 @@ Response uses the LoginToken json schema, containing a JWT.
 =cut
 
 sub login ($c) {
-    my $input = $c->validate_request('Login');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     my $user_rs = $c->db_user_accounts->active;
     my $user = $input->{user_id} ? $user_rs->find($input->{user_id})
@@ -277,9 +276,6 @@ Response uses the LoginToken json schema, containing a JWT.
 =cut
 
 sub refresh_token ($c) {
-    $c->validate_request('Null');
-    return if $c->res->code;
-
     $c->db_user_session_tokens
             ->search({ id => $c->stash('token_id'), user_id => $c->stash('user_id') })
             ->unexpired->expire

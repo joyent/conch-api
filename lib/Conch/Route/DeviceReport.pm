@@ -22,7 +22,9 @@ sub routes {
 
     $device_report
         # POST /device_report
-        ->under(['POST'], '/')->to('device_report#process')
+        ->under(['POST'], '/')->to('device_report#process',
+            query_params_schema => 'ProcessDeviceReport',
+            request_schema => 'DeviceReport')
         # POST /device_report?no_save_db=1
         ->post('/')->to('device_report#validate_report');
 

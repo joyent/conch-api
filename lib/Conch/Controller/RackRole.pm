@@ -49,8 +49,7 @@ Create a new rack role.
 =cut
 
 sub create ($c) {
-    my $input = $c->validate_request('RackRoleCreate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     if ($c->db_rack_roles->search({ name => $input->{name} })->exists) {
         $c->log->debug("Name conflict on '".$input->{name}."'");
@@ -96,8 +95,7 @@ Modify an existing rack role.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_request('RackRoleUpdate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     if ($input->{name}) {
         if ($c->db_rack_roles->search({ name => $input->{name} })->exists) {

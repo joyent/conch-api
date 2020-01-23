@@ -82,10 +82,8 @@ aborting with HTTP 410 or HTTP 404 if not found.
 
     # provides a route to chain to that looks up the user provided in the payload
     $root->add_shortcut(find_user_from_payload => sub ($r) {
-        $r->under('/', sub ($c) {
-            my $input = $c->validate_request('UserIdOrEmail');
-            return if not $input;
-
+        $r->under('/', { request_schema => 'UserIdOrEmail' }, sub ($c) {
+            my $input = $c->stash('request_data');
             $c->stash('target_user_id_or_email', $input->{user_id} // $input->{email});
             return 1;
         })
@@ -124,7 +122,7 @@ Returns the root node.
     });
 
     # POST /login
-    $root->post('/login')->to('login#login');
+    $root->post('/login')->to('login#login', request_schema => 'Login');
 
     # * /json_schema/...
     Conch::Route::JSONSchema->unsecured_routes($root->any('/json_schema'));
@@ -140,7 +138,7 @@ Returns the root node.
     $secured->get('/me', sub ($c) { $c->status(204) });
 
     # POST /refresh_token
-    $secured->post('/refresh_token')->to('login#refresh_token');
+    $secured->post('/refresh_token')->to('login#refresh_token', request_schema => 'Null');
 
     Conch::Route::Device->routes($secured->any('/device'), $app);
     Conch::Route::DeviceReport->routes($secured->any('/device_report'));

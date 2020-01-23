@@ -7,6 +7,7 @@ use JSON::Schema::Draft201909 '0.017';
 use YAML::PP;
 use Mojo::JSON 'to_json';
 use Path::Tiny;
+use List::Util 'none';
 
 =pod
 
@@ -59,10 +60,11 @@ arrayref).
 Because values are being parsed from the URI string, all values are strings even if they look like
 numbers.
 
-On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
+On failure, an HTTP 400 response is prepared, using the
 F<response.yaml#/$defs/QueryParamsValidationError> json response schema.
 
 Population of missing data from specified defaults is performed.
+Returns a boolean.
 
 =cut
 
@@ -89,7 +91,7 @@ Population of missing data from specified defaults is performed.
         }
 
         $c->log->debug("Passed data validation for query_params schema $schema_name");
-        return $data;
+        return 1;
     });
 
 =head2 validate_request
@@ -97,8 +99,10 @@ Population of missing data from specified defaults is performed.
 Given the name of a json schema in the request namespace, validate the provided payload against
 it (defaulting to the request's json payload).
 
-On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
-using the F<response.yaml#/$defs/RequestValidationError> json response schema.
+On failure, an HTTP 400 response is prepared, using the
+F<response.yaml#/$defs/RequestValidationError> json response schema.
+
+Returns a boolean.
 
 =cut
 
@@ -117,7 +121,7 @@ using the F<response.yaml#/$defs/RequestValidationError> json response schema.
         }
 
         $c->log->debug("Passed data validation for request schema $schema_name");
-        return $data;
+        return 1;
     });
 
 =head2 json_schema_validator
@@ -164,6 +168,52 @@ F<response.yaml#/$defs/JSONSchemaError>.
                 }),
             error => $_->{error},
         }, $result->TO_JSON->{errors}->@*;
+    });
+
+=head1 HOOKS
+
+=head2 around_action
+
+Before a controller action is executed, validate the incoming query parameters and request body
+payloads against the schemas in the stash variables C<query_params_schema> and
+C<request_schema>, respectively.
+
+=cut
+
+    $app->hook(around_action => sub ($next, $c, $action, $last) {
+        $c->stash('validated', { map +($_.'_schema' => []), qw(query_params request) })
+            if not $c->stash('validated');
+
+        my $query_params_schema = $c->stash('query_params_schema');
+        if ($query_params_schema
+                and none { $_ eq $query_params_schema } $c->stash('validated')->{query_params_schema}->@*) {
+            my $query_params = $c->req->query_params->to_hash;
+            return if not $c->validate_query_params($query_params_schema, $query_params);
+            $c->stash('query_params', $query_params);
+
+            # remember that we already ran this validation, so we don't do it again in a
+            # subsequent route in the chain
+            push $c->stash('validated')->{query_params_schema}->@*, $query_params_schema;
+        }
+
+        # TODO: also validate the schema(s) specified as the parameter when Content-Type
+        # is application/schema+json or application/schema-instance+json
+
+        my $request_schema = $c->stash('request_schema');
+        if ($request_schema
+                and none { $_ eq $request_schema } $c->stash('validated')->{request_schema}->@*) {
+            my $request_data = $c->req->json;
+            return if not $c->validate_request($request_schema, $request_data);
+            $c->stash('request_data', $request_data);
+
+            # remember that we already ran this validation, so we don't do it again in a
+            # subsequent route in the chain
+            push $c->stash('validated')->{request_schema}->@*, $request_schema;
+        }
+
+        return $next->();
+
+        # TODO: we can also validate the response against its schema.
     });
 }
 

@@ -47,18 +47,21 @@ arrayref).
 Because values are being parsed from the URI string, all values are strings even if they look like
 numbers.
 
-On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
+On failure, an HTTP 400 response is prepared, using the
 [response.json#/$defs/QueryParamsValidationError](../json-schema/response.json#/$defs/QueryParamsValidationError) json response schema.
 
 Population of missing data from specified defaults is performed.
+Returns a boolean.
 
 ### validate\_request
 
 Given the name of a json schema in the request namespace, validate the provided payload against
 it (defaulting to the request's json payload).
 
-On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
-using the [response.json#/$defs/RequestValidationError](../json-schema/response.json#/$defs/RequestValidationError) json response schema.
+On failure, an HTTP 400 response is prepared, using the
+[response.json#/$defs/RequestValidationError](../json-schema/response.json#/$defs/RequestValidationError) json response schema.
+
+Returns a boolean.
 
 ### json\_schema\_validator
 
@@ -68,6 +71,14 @@ Returns a [JSON::Schema::Draft201909](https://metacpan.org/pod/JSON%3A%3ASchema%
 
 Rewrite a [JSON::Schema::Draft201909::Result](https://metacpan.org/pod/JSON%3A%3ASchema%3A%3ADraft201909%3A%3AResult) to match the format used by
 [response.json#/$defs/JSONSchemaError](../json-schema/response.json#/$defs/JSONSchemaError).
+
+## HOOKS
+
+### around\_action
+
+Before a controller action is executed, validate the incoming query parameters and request body
+payloads against the schemas in the stash variables `query_params_schema` and
+`request_schema`, respectively.
 
 ## LICENSING
 

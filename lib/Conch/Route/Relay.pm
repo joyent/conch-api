@@ -23,7 +23,7 @@ sub routes {
     $relay->to({ controller => 'relay' });
 
     # POST /relay/:relay_serial_number/register
-    $relay->post('/:relay_serial_number/register')->to('#register');
+    $relay->post('/:relay_serial_number/register')->to('#register', request_schema => 'RegisterRelay');
 
     # GET /relay
     $relay->require_system_admin->get('/')->to('#get_all');

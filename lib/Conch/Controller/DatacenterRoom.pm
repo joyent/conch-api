@@ -84,8 +84,7 @@ Create a new datacenter room.
 =cut
 
 sub create ($c) {
-    my $input = $c->validate_request('DatacenterRoomCreate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     return $c->status(409, { error => 'Datacenter does not exist' })
         if not $c->db_datacenters->search({ id => $input->{datacenter_id} })->exists;
@@ -108,8 +107,7 @@ Update an existing room.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_request('DatacenterRoomUpdate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     return $c->status(409, { error => 'Datacenter does not exist' })
         if $input->{datacenter_id}

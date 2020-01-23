@@ -27,7 +27,7 @@ sub routes {
     $hardware_product->get('/')->to('#get_all');
 
     # POST /hardware_product
-    $hardware_product->require_system_admin->post('/')->to('#create');
+    $hardware_product->require_system_admin->post('/')->to('#create', request_schema => 'HardwareProductCreate');
 
     {
         $hardware_product->any('/<:hardware_product_key>=<:hardware_product_value>/*optional',
@@ -46,16 +46,16 @@ sub routes {
         my $hwp_with_admin = $with_hardware_product_id_or_other->require_system_admin;
 
         # POST /hardware_product/:hardware_product_id_or_other
-        $hwp_with_admin->post('/')->to('#update');
+        $hwp_with_admin->post('/')->to('#update', request_schema => 'HardwareProductUpdate');
 
         # DELETE /hardware_product/:hardware_product_id_or_other
         $hwp_with_admin->delete('/')->to('#delete');
 
         # PUT /hardware_product/:hardware_product_id_or_other/specification?path=:json_pointer_to_data
-        $hwp_with_admin->put('/specification')->to('#set_specification');
+        $hwp_with_admin->put('/specification')->to('#set_specification', query_params_schema => 'HardwareProductSpecification');
 
         # DELETE /hardware_product/:hardware_product_id_or_other/specification?path=:json_pointer_to_data
-        $hwp_with_admin->delete('/specification')->to('#delete_specification');
+        $hwp_with_admin->delete('/specification')->to('#delete_specification', query_params_schema => 'HardwareProductSpecification');
     }
 }
 

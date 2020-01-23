@@ -23,10 +23,10 @@ sub routes {
     $build->to({ controller => 'build' });
 
     # GET /build
-    $build->get('/')->to('#get_all');
+    $build->get('/')->to('#get_all', query_params_schema => 'GetBuilds');
 
     # POST /build
-    $build->require_system_admin->post('/')->to('#create');
+    $build->require_system_admin->post('/')->to('#create', request_schema => 'BuildCreate');
 
     {
         # chainable actions that extract and looks up build_id from the path
@@ -41,27 +41,29 @@ sub routes {
             ->to('#find_build', require_role => 'admin');
 
         # GET /build/:build_id_or_name
-        $with_build_ro->get('/')->to('#get');
+        $with_build_ro->get('/')->to('#get', query_params_schema => 'GetBuild');
 
         # POST /build/:build_id_or_name
-        $with_build_admin->post('/')->to('#update');
+        $with_build_admin->post('/')->to('#update', request_schema => 'BuildUpdate');
 
         # POST /build/:build_id_or_name/links
-        $with_build_admin->post('/links')->to('#add_links');
+        $with_build_admin->post('/links')->to('#add_links', request_schema => 'BuildLinks');
 
         # DELETE /build/:build_id_or_name/links
-        $with_build_admin->delete('/links')->to('#remove_links');
+        $with_build_admin->delete('/links')->to('#remove_links', request_schema => 'BuildLinksOrNull');
 
         # GET /build/:build_id_or_name/user
         $with_build_admin->get('/user')->to('#get_users');
 
         # POST /build/:build_id_or_name/user?send_mail=<1|0>
-        $with_build_admin->find_user_from_payload->post('/user')->to('build#add_user');
+        $with_build_admin->find_user_from_payload->post('/user')
+            ->to('build#add_user', query_params_schema => 'NotifyUsers',
+                request_schema => 'BuildAddUser');
 
         # DELETE /build/:build_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
         $with_build_admin
             ->under('/user/#target_user_id_or_email')->to('user#find_user')
-            ->delete('/')->to('build#remove_user');
+            ->delete('/')->to('build#remove_user', query_params_schema => 'NotifyUsers');
 
         {
             my $build_organization = $with_build_admin->any('/organization');
@@ -70,24 +72,28 @@ sub routes {
             $build_organization->get('/')->to('#get_organizations');
 
             # POST /build/:build_id_or_name/organization?send_mail=<1|0>
-            $build_organization->post('/')->to('#add_organization');
+            $build_organization->post('/')
+                ->to('#add_organization', query_params_schema => 'NotifyUsers',
+                    request_schema => 'BuildAddOrganization');
 
             # DELETE /build/:build_id_or_name/organization/:organization_id_or_name?send_mail=<1|0>
             $build_organization
                 ->under('/:organization_id_or_name')->to('organization#find_organization')
-                ->delete('/')->to('build#remove_organization');
+                ->delete('/')->to('build#remove_organization', query_params_schema => 'NotifyUsers');
         }
 
-        my $build_devices = $with_build_ro->under('/device')->to('#find_devices');
+        my $build_devices = $with_build_ro->under('/device')
+            ->to('#find_devices', query_params_schema => 'FindDevice');
 
         # GET /build/:build_id_or_name/device
-        $build_devices->get('/')->to('#get_devices');
+        $build_devices->get('/')->to('#get_devices', query_params_schema => 'BuildDevices');
 
         # GET /build/:build_id_or_name/device/pxe
         $build_devices->get('/pxe')->to('#get_pxe_devices');
 
         # POST /build/:build_id_or_name/device
-        $with_build_rw->post('/device')->to('#create_and_add_devices', require_role => 'rw');
+        $with_build_rw->post('/device')->to('#create_and_add_devices', require_role => 'rw',
+            request_schema => 'BuildCreateDevices');
 
         # POST /build/:build_id_or_name/device/:device_id_or_serial_number
         $with_build_rw->under('/device/:device_id_or_serial_number')
@@ -100,7 +106,7 @@ sub routes {
             ->delete('/')->to('build#remove_device');
 
         # GET /build/:build_id_or_name/rack
-        $with_build_ro->get('/rack')->to('#get_racks');
+        $with_build_ro->get('/rack')->to('#get_racks', query_params_schema => 'BuildRacks');
 
         # POST /build/:build_id_or_name/rack/:rack_id_or_name
         $with_build_rw->under('/rack/:rack_id_or_name')

@@ -98,8 +98,7 @@ Stores data as a new rack row.
 =cut
 
 sub create ($c) {
-    my $input = $c->validate_request('RackCreate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     return $c->status(409, { error => 'Room does not exist' })
         if not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists;
@@ -172,8 +171,7 @@ the new definition, as well as removing any device_location assignments in those
 =cut
 
 sub overwrite_layouts ($c) {
-    my $input = $c->validate_request('RackLayouts');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     my %layout_sizes = map +($_->{id} => $_->{rack_unit_size}),
         $c->db_hardware_products->active->search({ id => { -in => [ map $_->{hardware_product_id}, $input->@* ] } })
@@ -252,8 +250,7 @@ Update an existing rack.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_request('RackUpdate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     my $rack_rs = $c->stash('rack_rs');
     my $rack = $rack_rs->single;
@@ -366,8 +363,7 @@ hardware doesn't match what the layout specifies.
 =cut
 
 sub set_assignment ($c) {
-    my $input = $c->validate_request('RackAssignmentUpdates');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     return $c->status(409, { error => 'cannot add devices to a rack in a completed build' })
         if $c->stash('rack_rs')->related_resultset('build')->search({ completed => { '!=' => undef } })->exists;
@@ -485,8 +481,7 @@ sub set_assignment ($c) {
 =cut
 
 sub delete_assignment ($c) {
-    my $input = $c->validate_request('RackAssignmentDeletes');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     my @layouts = $c->stash('rack_rs')->search_related('rack_layouts',
             { 'rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
@@ -540,11 +535,8 @@ located devices' phases as well.
 =cut
 
 sub set_phase ($c) {
-    my $params = $c->validate_query_params('SetPhase');
-    return if not $params;
-
-    my $input = $c->validate_request('RackPhase');
-    return if not $input;
+    my $params = $c->stash('query_params');
+    my $input = $c->stash('request_data');
 
     my $rack = $c->stash('rack_rs')->single;
     $rack->set_columns($input);
@@ -571,8 +563,7 @@ Appends the provided link(s) to the rack.
 =cut
 
 sub add_links ($c) {
-  my $input = $c->validate_request('RackLinks');
-  return if not $input;
+  my $input = $c->stash('request_data');
 
   # only perform the update if not all links are already present
   $c->stash('rack_rs')
@@ -594,8 +585,7 @@ with a null payload, removes all links.
 =cut
 
 sub remove_links ($c) {
-  my $input = $c->validate_request('RackLinksOrNull');
-  return if $c->res->code;
+  my $input = $c->stash('request_data');
 
   if ($input) {
     $c->stash('rack_rs')
