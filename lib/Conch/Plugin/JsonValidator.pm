@@ -48,7 +48,7 @@ appearing once are scalars, parameters appearing more than once have their value
 arrayref).
 
 On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
-QueryParamsValidationError json response schema.
+F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
 
 =cut
 
@@ -81,7 +81,7 @@ Given the name of a json schema in the request namespace, validate the provided 
 it (defaulting to the request's json payload).
 
 On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
-using the RequestValidationError json response schema.
+using the F<response.yaml#/definitions/RequestValidationError> json response schema.
 
 =cut
 

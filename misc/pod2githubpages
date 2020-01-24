@@ -49,6 +49,8 @@ around 'Pod::Markdown::end_F' => sub {
 
     return $self->$orig(@_) if $self->_last_string !~ m{^[^.]+\.yaml};
 
+    $self->_private->{no_escape}--; # as done in original end_F
+
     my $text = $self->_pop_stack_text =~ s{^([^.]+)\.yaml}{$1.json}r;
     $self->_save('['.$text.']('.'../json-schema/'.$text.')');
 };
