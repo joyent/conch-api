@@ -1,5 +1,9 @@
 # Conch::Plugin::JsonValidator
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/JsonValidator.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/JsonValidator.pm)
+
 ## SYNOPSIS
 
 ```perl

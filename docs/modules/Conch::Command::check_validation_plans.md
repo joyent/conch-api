@@ -1,5 +1,9 @@
 # check\_validation\_plans - Utility to check all validations and plans are up to date
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/check_validation_plans.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/check_validation_plans.pm)
+
 ## SYNOPSIS
 
 ```

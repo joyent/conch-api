@@ -1,5 +1,9 @@
 # Conch::Controller::WorkspaceRack
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceRack.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceRack.pm)
+
 ## METHODS
 
 ### get\_all

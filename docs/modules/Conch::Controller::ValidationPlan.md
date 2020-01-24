@@ -1,5 +1,9 @@
 # Conch::Controller::Validation
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/ValidationPlan.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/ValidationPlan.pm)
+
 Controller for managing Validation Plans
 
 ## METHODS

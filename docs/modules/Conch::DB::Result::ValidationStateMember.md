@@ -1,5 +1,9 @@
 # Conch::DB::Result::ValidationStateMember
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/ValidationStateMember.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/ValidationStateMember.pm)
+
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 ## TABLE: `validation_state_member`

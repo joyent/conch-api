@@ -1,5 +1,9 @@
 # Conch::Controller::DatacenterRoom
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DatacenterRoom.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DatacenterRoom.pm)
+
 ## METHODS
 
 ### find\_datacenter\_room

@@ -1,5 +1,9 @@
 # Conch::DB::ResultSet::RackLayout
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/RackLayout.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/RackLayout.pm)
+
 ## DESCRIPTION
 
 Interface to queries involving rack layouts.

@@ -1,5 +1,9 @@
 # create\_token - create a new api token
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/create_token.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/create_token.pm)
+
 ## SYNOPSIS
 
 ```

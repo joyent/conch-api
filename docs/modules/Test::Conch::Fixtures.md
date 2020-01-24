@@ -1,5 +1,9 @@
 # Test::Conch::Fixtures
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Test/Conch/Fixtures.pm](https://github.com/joyent/conch/blob/master/lib/Test/Conch/Fixtures.pm)
+
 ## DESCRIPTION
 
 Provides database fixtures for testing.

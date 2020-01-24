@@ -1,5 +1,9 @@
 # Conch::Plugin::DeprecationAction
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/DeprecatedAction.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/DeprecatedAction.pm)
+
 ## DESCRIPTION
 
 Mojo plugin to detect and report the usage of deprecated controller actions.

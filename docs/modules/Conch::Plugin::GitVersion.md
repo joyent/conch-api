@@ -1,5 +1,9 @@
 # Conch::Plugin::GitVersion
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/GitVersion.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/GitVersion.pm)
+
 ## DESCRIPTION
 
 Mojo plugin registering the git version tag and hash for the repository

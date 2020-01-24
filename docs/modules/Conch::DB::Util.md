@@ -1,5 +1,9 @@
 # Conch::DB:::Util - utility functions for working with the Conch database
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Util.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Util.pm)
+
 ## METHODS
 
 ### get\_credentials

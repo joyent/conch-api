@@ -1,5 +1,9 @@
 # Conch::Plugin::AuthHelpers
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/AuthHelpers.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/AuthHelpers.pm)
+
 ## DESCRIPTION
 
 Contains all convenience handlers for authentication

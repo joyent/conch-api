@@ -1,5 +1,9 @@
 # workspace\_to\_build - convert workspace content to a build (one-off for v3 launch)
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/workspace_to_build.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/workspace_to_build.pm)
+
 ## SYNOPSIS
 
 ```

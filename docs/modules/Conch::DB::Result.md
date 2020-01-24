@@ -1,5 +1,9 @@
 # Conch::DB::Result
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result.pm)
+
 ## DESCRIPTION
 
 Base class for our result classes, to allow us to add on additional functionality from what is

@@ -1,5 +1,9 @@
 # Conch::DB::ResultSet::Rack
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/Rack.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/Rack.pm)
+
 ## DESCRIPTION
 
 Interface to queries involving racks.

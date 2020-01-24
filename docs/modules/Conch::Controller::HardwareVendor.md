@@ -1,5 +1,9 @@
 # Conch::Controller::HardwareVendor
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/HardwareVendor.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/HardwareVendor.pm)
+
 ## METHODS
 
 ### find\_hardware\_vendor

@@ -1,5 +1,9 @@
 # Conch::DB::ResultSet::Device
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/Device.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/Device.pm)
+
 ## DESCRIPTION
 
 Interface to queries involving devices.

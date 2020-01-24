@@ -1,5 +1,9 @@
 # Conch::Controller::Schema
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Schema.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Schema.pm)
+
 ## METHODS
 
 ### get

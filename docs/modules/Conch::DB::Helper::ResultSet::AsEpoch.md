@@ -1,5 +1,9 @@
 # Conch::DB::Helper::ResultSet::AsEpoch
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/AsEpoch.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/AsEpoch.pm)
+
 ## DESCRIPTION
 
 A component for [Conch::DB::ResultSet](../modules/Conch%3A%3ADB%3A%3AResultSet) classes that provides the `as_epoch` method.

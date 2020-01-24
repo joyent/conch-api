@@ -1,5 +1,9 @@
 # copy\_user\_data - copy user data (user records and authentication tokens) between databases
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/copy_user_data.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/copy_user_data.pm)
+
 ## SYNOPSIS
 
 ```

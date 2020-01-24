@@ -1,5 +1,9 @@
 # Conch::Route::Relay
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/Relay.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/Relay.pm)
+
 ## METHODS
 
 ### routes

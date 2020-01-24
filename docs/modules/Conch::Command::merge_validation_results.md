@@ -1,5 +1,9 @@
 # merge\_validation\_results - collapse duplicate validation\_result rows together
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/merge_validation_results.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/merge_validation_results.pm)
+
 ## SYNOPSIS
 
 ```

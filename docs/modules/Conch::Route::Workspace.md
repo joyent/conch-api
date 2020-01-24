@@ -1,5 +1,9 @@
 # Conch::Route::Workspace
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/Workspace.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/Workspace.pm)
+
 ## METHODS
 
 ### routes

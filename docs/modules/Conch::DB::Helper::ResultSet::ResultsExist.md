@@ -1,5 +1,9 @@
 # Conch::DB::Helper::ResultSet::ResultsExist
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/ResultsExist.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/ResultsExist.pm)
+
 ## DESCRIPTION
 
 A component for [Conch::DB::ResultSet](../modules/Conch%3A%3ADB%3A%3AResultSet) classes that provides the `exists` method.

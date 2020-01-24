@@ -1,5 +1,9 @@
 # Conch::Route::Build
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/Build.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/Build.pm)
+
 ## METHODS
 
 ### routes

@@ -1,5 +1,9 @@
 # Conch::DB::ResultSet::DeviceNic
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/DeviceNic.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/DeviceNic.pm)
+
 ## DESCRIPTION
 
 Interface to queries involving device network interfaces.

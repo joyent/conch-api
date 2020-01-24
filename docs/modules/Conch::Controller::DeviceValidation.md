@@ -1,5 +1,9 @@
 # Conch::Controller::DeviceValidation
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceValidation.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceValidation.pm)
+
 ## METHODS
 
 ### get\_validation\_states

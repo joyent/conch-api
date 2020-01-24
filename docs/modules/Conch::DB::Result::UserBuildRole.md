@@ -1,5 +1,9 @@
 # Conch::DB::Result::UserBuildRole
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/UserBuildRole.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/UserBuildRole.pm)
+
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 ## TABLE: `user_build_role`

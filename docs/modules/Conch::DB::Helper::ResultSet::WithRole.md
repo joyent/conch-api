@@ -1,5 +1,9 @@
 # Conch::DB::Helper::ResultSet::WithRole
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/WithRole.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/WithRole.pm)
+
 ## DESCRIPTION
 
 A component for [Conch::DB::ResultSet](../modules/Conch%3A%3ADB%3A%3AResultSet) classes for database tables with a `role`

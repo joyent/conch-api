@@ -1,5 +1,9 @@
 # Conch::Controller::Workspace
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Workspace.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Workspace.pm)
+
 ## METHODS
 
 ### find\_workspace

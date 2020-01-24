@@ -1,5 +1,9 @@
 # Conch::DB::ResultSet::UserAccount
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/UserAccount.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/UserAccount.pm)
+
 ## DESCRIPTION
 
 Interface to queries against the `user_account` table.

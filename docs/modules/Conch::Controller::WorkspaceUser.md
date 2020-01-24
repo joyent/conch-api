@@ -1,5 +1,9 @@
 # Conch::Controller::WorkspaceUser
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceUser.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceUser.pm)
+
 ## METHODS
 
 ### get\_all

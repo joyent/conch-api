@@ -1,5 +1,9 @@
 # conch-db - commands to administrate a database
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/bin/conch-db](https://github.com/joyent/conch/blob/master/bin/conch-db)
+
 ## SYNOPSIS
 
 ```

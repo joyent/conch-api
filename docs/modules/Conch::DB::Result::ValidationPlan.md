@@ -1,5 +1,9 @@
 # Conch::DB::Result::ValidationPlan
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/ValidationPlan.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/ValidationPlan.pm)
+
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 ## TABLE: `validation_plan`

@@ -1,5 +1,9 @@
 # thin\_device\_reports - remove unwanted device reports
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/thin_device_reports.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/thin_device_reports.pm)
+
 ## SYNOPSIS
 
 ```

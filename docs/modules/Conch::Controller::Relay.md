@@ -1,5 +1,9 @@
 # Conch::Controller::Relay
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Relay.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Relay.pm)
+
 ## METHODS
 
 ### register

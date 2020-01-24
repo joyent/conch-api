@@ -1,5 +1,9 @@
 # Conch::DB::Helper::Row::WithPhase
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/Row/WithPhase.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/Row/WithPhase.pm)
+
 ## DESCRIPTION
 
 A component for [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult) classes for database tables with a `phase` column, to

@@ -1,5 +1,9 @@
 # Conch::Plugin::Features - Sets up a helper to access configured features
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Features.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Features.pm)
+
 ## HELPERS
 
 ### feature

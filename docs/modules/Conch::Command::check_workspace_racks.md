@@ -1,5 +1,9 @@
 # check\_workspace\_racks - Utility to check all workspace\_rack entries are correct and complete
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/check_workspace_racks.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/check_workspace_racks.pm)
+
 ## SYNOPSIS
 
 ```

@@ -1,5 +1,9 @@
 # Conch::ValidationError - Internal error representation for Conch::Validation
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/ValidationError.pm](https://github.com/joyent/conch/blob/master/lib/Conch/ValidationError.pm)
+
 ## DESCRIPTION
 
 Extends [Mojo::Exception](https://metacpan.org/pod/Mojo%3A%3AException) to store a `hint` attribute. Intended for use in

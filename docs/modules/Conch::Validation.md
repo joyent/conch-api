@@ -1,5 +1,9 @@
 # Conch::Validation - base class for writing Conch Validations
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Validation.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Validation.pm)
+
 ## SYNOPSIS
 
 ```perl

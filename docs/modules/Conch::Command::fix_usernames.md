@@ -1,5 +1,9 @@
 # fix\_usernames - fixes old usernames in the database (one-off for v3 launch)
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/fix_usernames.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/fix_usernames.pm)
+
 ## SYNOPSIS
 
 ```

@@ -1,5 +1,9 @@
 # Conch::Route::Schema
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/Schema.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/Schema.pm)
+
 ## METHODS
 
 ### routes

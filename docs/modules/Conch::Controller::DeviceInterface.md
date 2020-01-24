@@ -1,5 +1,9 @@
 # Conch::Controller::Device
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceInterface.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceInterface.pm)
+
 ## METHODS
 
 ### find\_device\_interface

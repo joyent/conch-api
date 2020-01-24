@@ -1,5 +1,9 @@
 # Conch::Route::DeviceReport
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/DeviceReport.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/DeviceReport.pm)
+
 ## METHODS
 
 ### routes

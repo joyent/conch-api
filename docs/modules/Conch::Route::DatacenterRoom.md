@@ -1,5 +1,9 @@
 # Conch::Route::DatacenterRoom
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/DatacenterRoom.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/DatacenterRoom.pm)
+
 ## METHODS
 
 ### routes

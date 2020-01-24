@@ -1,5 +1,9 @@
 # Conch::Controller::Build
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Build.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Build.pm)
+
 ## METHODS
 
 ### get\_all

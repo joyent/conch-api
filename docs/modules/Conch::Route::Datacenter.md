@@ -1,5 +1,9 @@
 # Conch::Route::Datacenter
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/Datacenter.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/Datacenter.pm)
+
 ## METHODS
 
 ### routes

@@ -1,5 +1,9 @@
 # Conch::Controller::Login
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Login.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Login.pm)
+
 ## METHODS
 
 ### \_respond\_with\_jwt

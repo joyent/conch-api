@@ -1,5 +1,9 @@
 # update\_validation\_plans - Utility to bring validations and validation\_plans up to date
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/update_validation_plans.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/update_validation_plans.pm)
+
 ## SYNOPSIS
 
 ```

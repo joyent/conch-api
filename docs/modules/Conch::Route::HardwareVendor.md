@@ -1,5 +1,9 @@
 # Conch::Route::HardwareVendor
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/HardwareVendor.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/HardwareVendor.pm)
+
 ## METHODS
 
 ### routes

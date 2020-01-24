@@ -1,5 +1,9 @@
 # Conch::Controller::DeviceSettings
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceSettings.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceSettings.pm)
+
 ## METHODS
 
 ### set\_all

@@ -1,5 +1,9 @@
 # new\_organizations - Create new organization data (one-off for v3 launch)
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/new_organizations.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/new_organizations.pm)
+
 ## SYNOPSIS
 
 ```

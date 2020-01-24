@@ -1,5 +1,9 @@
 # Conch::Controller::RackLayout
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/RackLayout.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/RackLayout.pm)
+
 ## METHODS
 
 ### find\_rack\_layout

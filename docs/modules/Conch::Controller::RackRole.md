@@ -1,5 +1,9 @@
 # Conch::Controller::RackRole
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/RackRole.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/RackRole.pm)
+
 ## METHODS
 
 ### find\_rack\_role

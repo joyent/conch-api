@@ -1,5 +1,9 @@
 # Conch::Controller::HardwareProduct
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/HardwareProduct.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/HardwareProduct.pm)
+
 ## METHODS
 
 ### get\_all

@@ -136,7 +136,8 @@ foreach my $infile (@all_files) {
     convert($in_fh, $out_buffer);
 
     $markdown =~ s/^(#+)/$1#/mg;
-    $markdown =~ s{## NAME\n\n(.+)$}{# $1}m;
+    my $url = 'https://github.com/joyent/conch/blob/master/'.$infile;
+    $markdown =~ s{## NAME\n\n(.+)$}{# $1\n\n## SOURCE\n\n[$url]($url)}m;
 
     path($outfile)->spew($markdown);
 }

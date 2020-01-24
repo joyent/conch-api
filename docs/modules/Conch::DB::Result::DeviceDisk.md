@@ -1,5 +1,9 @@
 # Conch::DB::Result::DeviceDisk
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceDisk.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceDisk.pm)
+
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 ## TABLE: `device_disk`

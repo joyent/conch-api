@@ -1,5 +1,9 @@
 # Conch::Controller::WorkspaceDevice
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceDevice.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceDevice.pm)
+
 ## METHODS
 
 ### get\_all

@@ -1,5 +1,9 @@
 # Conch::DB::Helper::Row::ToJSON
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/Row/ToJSON.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/Row/ToJSON.pm)
+
 ## DESCRIPTION
 
 A component for [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult) classes to provide serialization functionality via `TO_JSON`.

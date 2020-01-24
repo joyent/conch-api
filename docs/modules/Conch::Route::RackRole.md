@@ -1,5 +1,9 @@
 # Conch::Route::RackRole
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/RackRole.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/RackRole.pm)
+
 ## METHODS
 
 ### routes

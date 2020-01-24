@@ -1,5 +1,9 @@
 # Conch::DB::Result::UserSetting
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/UserSetting.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/UserSetting.pm)
+
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 ## TABLE: `user_setting`

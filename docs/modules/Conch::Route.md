@@ -1,5 +1,9 @@
 # Conch::Route
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route.pm)
+
 ## DESCRIPTION
 
 Set up all the routes for the Conch Mojo application.

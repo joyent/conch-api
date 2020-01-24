@@ -1,5 +1,9 @@
 # Conch::Controller::WorkspaceRelay
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceRelay.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceRelay.pm)
+
 ## METHODS
 
 ### get\_all

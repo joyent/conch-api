@@ -1,5 +1,9 @@
 # workspaces - view the workspace hierarchy
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/workspaces.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/workspaces.pm)
+
 ## SYNOPSIS
 
 ```

@@ -1,5 +1,9 @@
 # Conch::Plugin::Mail
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Mail.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Mail.pm)
+
 ## DESCRIPTION
 
 Helper methods for sending emails

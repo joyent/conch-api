@@ -1,5 +1,9 @@
 # Conch - Initialization and helpers for Conch Mojo app
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch.pm](https://github.com/joyent/conch/blob/master/lib/Conch.pm)
+
 ## SYNOPSIS
 
 ```

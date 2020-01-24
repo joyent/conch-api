@@ -1,5 +1,9 @@
 # force\_password\_change - force a user or users to change their password
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/force_password_change.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/force_password_change.pm)
+
 ## SYNOPSIS
 
 ```

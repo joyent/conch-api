@@ -1,5 +1,9 @@
 # Conch::DB::Result::UserWorkspaceRole
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/UserWorkspaceRole.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/UserWorkspaceRole.pm)
+
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 ## TABLE: `user_workspace_role`

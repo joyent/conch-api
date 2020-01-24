@@ -1,5 +1,9 @@
 # Conch::Plugin::Logging - Sets up logging for the application
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Logging.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Logging.pm)
+
 ## METHODS
 
 ### register

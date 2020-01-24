@@ -1,5 +1,9 @@
 # Conch::Controller::Rack
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Rack.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Rack.pm)
+
 ## METHODS
 
 ### find\_rack

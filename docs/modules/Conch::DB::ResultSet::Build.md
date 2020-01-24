@@ -1,5 +1,9 @@
 # Conch::DB::ResultSet::Build
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/Build.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/Build.pm)
+
 ## DESCRIPTION
 
 Interface to queries involving builds.

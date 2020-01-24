@@ -1,5 +1,9 @@
 # Conch::Controller::DeviceReport
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceReport.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceReport.pm)
+
 ## DESCRIPTION
 
 Controller for processing and managing device reports.

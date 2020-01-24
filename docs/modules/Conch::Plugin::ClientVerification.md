@@ -1,5 +1,9 @@
 # Conch::Plugin::ClientVerification
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/ClientVerification.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/ClientVerification.pm)
+
 ## DESCRIPTION
 
 Checks the version of the client sending us a request, possibly rejecting it if it does not

@@ -1,5 +1,9 @@
 # Conch::Controller::User
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/User.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/User.pm)
+
 ## METHODS
 
 ### find\_user

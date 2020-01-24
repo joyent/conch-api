@@ -1,5 +1,9 @@
 # Conch::DB::ResultSet::Workspace
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/Workspace.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/Workspace.pm)
+
 ## DESCRIPTION
 
 Interface to queries involving workspaces.

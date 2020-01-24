@@ -1,5 +1,9 @@
 # Conch::Plugin::Rollbar
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Rollbar.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Rollbar.pm)
+
 ## DESCRIPTION
 
 Mojo plugin to send messages and exceptions to [Rollbar](https://rollbar.com).

@@ -1,5 +1,9 @@
 # Conch::UUID - Functions for working with UUIDs in Conch
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/UUID.pm](https://github.com/joyent/conch/blob/master/lib/Conch/UUID.pm)
+
 ## SYNOPSIS
 
 ```

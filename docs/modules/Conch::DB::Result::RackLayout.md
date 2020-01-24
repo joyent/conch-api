@@ -1,5 +1,9 @@
 # Conch::DB::Result::RackLayout
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/RackLayout.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/RackLayout.pm)
+
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 ## TABLE: `rack_layout`

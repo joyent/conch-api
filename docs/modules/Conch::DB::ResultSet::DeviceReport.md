@@ -1,5 +1,9 @@
 # Conch::DB::ResultSet::DeviceReport
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/DeviceReport.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/DeviceReport.pm)
+
 ## DESCRIPTION
 
 Interface to queries involving device reports.

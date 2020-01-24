@@ -1,5 +1,9 @@
 # Conch::Route::User
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/User.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/User.pm)
+
 ## METHODS
 
 ### routes

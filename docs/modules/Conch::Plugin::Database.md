@@ -1,5 +1,9 @@
 # Conch::Plugin::Database
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Database.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Database.pm)
+
 ## DESCRIPTION
 
 Sets up the database and provides convenient accessors to it.

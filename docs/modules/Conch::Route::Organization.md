@@ -1,5 +1,9 @@
 # Conch::Route::Organization
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/Organization.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/Organization.pm)
+
 ## METHODS
 
 ### routes

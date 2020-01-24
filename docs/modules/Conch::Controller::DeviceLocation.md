@@ -1,5 +1,9 @@
 # Conch::Controller::DeviceLocation
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceLocation.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceLocation.pm)
+
 ## METHODS
 
 ### get

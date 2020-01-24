@@ -1,5 +1,9 @@
 # Conch::Time - format timestamps as RFC 3337 UTC timestamps
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Time.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Time.pm)
+
 ## SYNOPSIS
 
 ```perl

@@ -1,5 +1,9 @@
 # Conch::DB::Result::DeviceRelayConnection
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceRelayConnection.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceRelayConnection.pm)
+
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
 ## TABLE: `device_relay_connection`

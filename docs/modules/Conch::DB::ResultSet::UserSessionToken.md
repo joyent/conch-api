@@ -1,5 +1,9 @@
 # Conch::DB::ResultSet::UserSessionToken
 
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/UserSessionToken.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/UserSessionToken.pm)
+
 ## DESCRIPTION
 
 Interface to queries against the 'user\_session\_token' table.
