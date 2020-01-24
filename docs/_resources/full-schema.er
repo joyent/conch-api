@@ -247,7 +247,7 @@ last_seen
 [user_account] {bgcolor: "#d0e0d0"}
 *id
 name
-password {label: "encrypted"}
+password {label: "hashed with Blowfish encryption"}
 created
 last_login
 email
