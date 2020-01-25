@@ -23,7 +23,7 @@ my $api_version_re = qr/^${ Test::Conch->API_VERSION_RE }$/;
 
 my $t = Test::Conch->new(
     config => {
-        features => { rollbar => 1, no_db => 1 },
+        features => { rollbar => 1, no_db => 1, validate_all_requests => 0 },
         rollbar => {
             access_token => 'TOKEN',
             environment => 'custom_environment',
@@ -91,6 +91,7 @@ package RollbarSimulator {
             $c->res->code(200);
             $c->render(json => { err => 0, result => { id => undef, uuid => $payload->{data}{uuid} } });
         });
+        $self->plugin('Conch::Plugin::Features', $self->config);
         $self->plugin('Conch::Plugin::JSONValidator', {});
     }
 }

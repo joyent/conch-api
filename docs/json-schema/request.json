@@ -1,6 +1,7 @@
 {
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/request/$schema_name' endpoints, or within conch itself, json-schema/request.yaml.",
   "$defs" : {
+    "Anything" : true,
     "BuildAddOrganization" : {
       "additionalProperties" : false,
       "properties" : {

@@ -7,7 +7,7 @@ use JSON::Schema::Draft201909 '0.017';
 use YAML::PP;
 use Mojo::JSON 'to_json';
 use Path::Tiny;
-use List::Util 'none';
+use List::Util qw(any none);
 
 =pod
 
@@ -178,6 +178,18 @@ Before a controller action is executed, validate the incoming query parameters a
 payloads against the schemas in the stash variables C<query_params_schema> and
 C<request_schema>, respectively.
 
+Performs more checks when this L<Conch::Plugin::Features/feature> is enabled:
+
+=over 4
+
+=item * C<validate_all_requests>
+
+Assumes the query parameters schema is F<query_params.yaml#/$defs/Null> when not provided;
+assumes the request body schema is F<request.yaml#/$defs/Null> when not provided (for
+C<POST>, C<PUT>, C<DELETE> requests)
+
+=back
+
 =cut
 
     $app->hook(around_action => sub ($next, $c, $action, $last) {
@@ -185,6 +197,10 @@ C<request_schema>, respectively.
             if not $c->stash('validated');
 
         my $query_params_schema = $c->stash('query_params_schema');
+        $query_params_schema = 'Null'
+            if not $query_params_schema and $last and not $c->stash('query_params')
+                and $c->feature('validate_all_requests');
+
         if ($query_params_schema
                 and none { $_ eq $query_params_schema } $c->stash('validated')->{query_params_schema}->@*) {
             my $query_params = $c->req->query_params->to_hash;
@@ -200,9 +216,15 @@ C<request_schema>, respectively.
         # is application/schema+json or application/schema-instance+json
 
         my $request_schema = $c->stash('request_schema');
+        my $method = $c->req->method;
+        $request_schema = 'Null'
+            if not $request_schema and $last and not $c->stash('request_data')
+                and $c->feature('validate_all_requests');
+
         if ($request_schema
+                and any { $method eq $_ } qw(POST PUT DELETE)
                 and none { $_ eq $request_schema } $c->stash('validated')->{request_schema}->@*) {
-            my $request_data = $c->req->json;
+            my $request_data = ($c->req->headers->content_type // '') =~ m{application/(?:[a-z-]+\+)?json}i ? $c->req->json : undef;
             return if not $c->validate_request($request_schema, $request_data);
             $c->stash('request_data', $request_data);
 

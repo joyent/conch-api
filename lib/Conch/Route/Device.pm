@@ -21,7 +21,8 @@ sub routes {
     my $device = shift; # secured, under /device
     my $app = shift;
 
-    $device->post('/:device_serial_number', sub { shift->status(308, '/device_report') });
+    $device->post('/:device_serial_number', { request_schema => 'Anything' },
+        sub { shift->status(308, '/device_report') });
 
     # GET /device?:key=:value
     $device->get('/')

@@ -15,10 +15,11 @@ my $base_uri = $t->ua->server->url; # used as the base uri for all requests
 
 subtest 'failed query params validation' => sub {
     my $r = Mojolicious::Routes->new;
-    $r->get('/_hello', sub ($c) {
-        return if not $c->validate_query_params('ChangePassword');
-        return $c->status(200);
-    });
+    $r->get('/_hello', { query_params_schema => 'Anything' },
+        sub ($c) {
+            return if not $c->validate_query_params('ChangePassword');
+            return $c->status(200);
+        });
     $t->add_routes($r);
 
     $t->get_ok('/_hello?clear_tokens=whargarbl')
@@ -365,6 +366,66 @@ subtest 'automatic validation of query params and request payloads' => sub {
         ->stash_cmp_deeply('/query_params', { phase_earlier_than => 'production', status => 'pass' })
         ->stash_cmp_deeply('/request_data', { email => 'foo@bar.com', role => 'ro' })
         ->stash_cmp_deeply('/validated', { query_params_schema => [qw(FindDevice GetValidationState)], request_schema => [qw(UserIdOrEmail BuildAddUser)] });
+};
+
+subtest 'feature: validate_all_requests' => sub {
+    my sub add_routes ($t) {
+        my $r = Mojolicious::Routes->new;
+        $r->post('/_simple_post', sub ($c) { $c->status(204) });
+        $t->add_routes($r);
+    }
+
+    my $t = Test::Conch->new(pg => undef);
+    my $base_uri = $t->ua->server->url; # used as the base uri for all requests
+    add_routes($t);
+
+    $t->post_ok('/_simple_post?foo=1')
+        ->status_is(400)
+        ->json_schema_is('QueryParamsValidationError')
+        ->json_cmp_deeply({
+            error => 'query parameters did not match required format',
+            details => [ superhashof({ error => 'additional property not permitted' }) ],
+            schema => $base_uri.'json_schema/query_params/Null',
+            data => { foo => 1 },
+        })
+        ->log_warn_like(qr{^FAILED query_params validation for schema Null: .*additional property not permitted})
+        ->stash_cmp_deeply('/validated', { query_params_schema => [], request_schema => [] });
+
+    $t->post_ok('/_simple_post', json => $_)
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_is({
+            error => 'request did not match required format',
+            details => [{
+                data_location => '',
+                schema_location => '/type',
+                absolute_schema_location => $base_uri.'json_schema/request/Null#/type',
+                error => 'wrong type (expected null)',
+            }],
+            schema => $base_uri.'json_schema/request/Null',
+        })
+        ->log_debug_is('Passed data validation for query_params schema Null')
+        ->log_warn_like(qr{^FAILED request payload validation for schema Null: .*wrong type \(expected null\)})
+        ->stash_cmp_deeply('/validated', { query_params_schema => ['Null'], request_schema => [] })
+    foreach
+        JSON::PP::true,
+        1,
+        'bad payload',
+        { bad => 'payload' },
+        [ qw(bad payload) ],
+    ;
+
+    undef $t;
+    my $t2 = Test::Conch->new(config => { features => { no_db => 1, validate_all_requests => 0 } });
+    add_routes($t2);
+
+    $t2->post_ok('/_simple_post?foo=1')
+        ->status_is(204)
+        ->stash_cmp_deeply('/validated', { query_params_schema => [], request_schema => [] });
+
+    $t2->post_ok('/_simple_post', json => { foo => 'bar' })
+        ->status_is(204)
+        ->stash_cmp_deeply('/validated', { query_params_schema => [], request_schema => [] });
 };
 
 done_testing;

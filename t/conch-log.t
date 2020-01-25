@@ -150,11 +150,11 @@ sub add_test_routes ($t) {
         $c->log->debug('this is a debug message');
         $c->status(204);
     });
-    $r->post('/_error', sub ($c) {
+    $r->post('/_error', { query_params_schema => 'Anything', request_schema => 'Anything' }, sub ($c) {
         $c->log->error('error line from controller');
         $c->status(400, { error => 'something bad happened' });
     });
-    $r->post('/_die', sub ($c) { die 'ach, I am slain' });
+    $r->post('/_die', { query_params_schema => 'Anything', request_schema => 'Anything' }, sub ($c) { die 'ach, I am slain' });
     $t->add_routes($r);
 
     return (warn => __LINE__-11, debug => __LINE__-10, error => __LINE__-6, die => __LINE__-3);

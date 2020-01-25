@@ -192,7 +192,7 @@ F<common.yaml#/$defs/HardwareProductSpecification>.
 sub set_specification ($c) {
   my $hardware_product_id = $c->stash('hardware_product_rs')->get_column('id')->single;
   my $rs = $c->db_hardware_products->search({ id => $hardware_product_id });
-  my $json = to_json($c->req->json);
+  my $json = to_json($c->stash('request_data'));
   my $jsonp = $c->stash('query_params')->{path};
 
   my $specification_clause = $jsonp ? do {

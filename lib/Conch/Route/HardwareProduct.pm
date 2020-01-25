@@ -31,7 +31,8 @@ sub routes {
 
     {
         $hardware_product->any('/<:hardware_product_key>=<:hardware_product_value>/*optional',
-                [ hardware_product_key => [qw(name alias sku)] ], { optional => '' },
+                [ hardware_product_key => [qw(name alias sku)] ],
+                { optional => '', query_params_schema => 'Anything', request_schema => 'Anything' },
             sub ($c) {
                 $c->req->url->query->pairs;  # force normalization
                 $c->status(308, $c->req->url->path_query =~ s/(?:name|alias|sku)=//r)
@@ -52,7 +53,7 @@ sub routes {
         $hwp_with_admin->delete('/')->to('#delete');
 
         # PUT /hardware_product/:hardware_product_id_or_other/specification?path=:json_pointer_to_data
-        $hwp_with_admin->put('/specification')->to('#set_specification', query_params_schema => 'HardwareProductSpecification');
+        $hwp_with_admin->put('/specification')->to('#set_specification', query_params_schema => 'HardwareProductSpecification', request_schema => 'Anything');
 
         # DELETE /hardware_product/:hardware_product_id_or_other/specification?path=:json_pointer_to_data
         $hwp_with_admin->delete('/specification')->to('#delete_specification', query_params_schema => 'HardwareProductSpecification');

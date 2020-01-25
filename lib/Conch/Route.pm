@@ -169,7 +169,7 @@ Returns the root node.
     my @top_level_paths = (uniqstr (map find_paths($_), $root->children->@*),
         qw(validation workspace));
 
-    $root->any('/*all', sub ($c) {
+    $root->any('/*all', { query_params_schema => 'Anything', request_schema => 'Anything' }, sub ($c) {
         $c->log->warn('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
 
         if (any { $c->req->url->path =~ m{^/$_\b} } @top_level_paths) {

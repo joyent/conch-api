@@ -104,6 +104,7 @@ sub new {
             mode => $ENV{MOJO_MODE} // 'test',
             features => {
                 no_db => ($pg ? 0 : 1),
+                validate_all_requests => 1,
                 ($args->{config}//{})->{features} ? delete($args->{config}{features})->%* : (),
             },
             database => {

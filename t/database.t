@@ -120,7 +120,7 @@ subtest 'read-only database handle' => sub {
 };
 
 subtest 'transactions' => sub {
-    my $t = Test::Conch->new;
+    my $t = Test::Conch->new(config => { features => { validate_all_requests => 0 } });
 
     my $user_count = $t->app->db_user_accounts->count;
 

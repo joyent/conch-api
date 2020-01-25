@@ -80,6 +80,14 @@ Before a controller action is executed, validate the incoming query parameters a
 payloads against the schemas in the stash variables `query_params_schema` and
 `request_schema`, respectively.
 
+Performs more checks when this ["feature" in Conch::Plugin::Features](../modules/Conch%3A%3APlugin%3A%3AFeatures#feature) is enabled:
+
+- `validate_all_requests`
+
+    Assumes the query parameters schema is [query_params.json#/$defs/Null](../json-schema/query_params.json#/$defs/Null) when not provided;
+    assumes the request body schema is [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null) when not provided (for
+    `POST`, `PUT`, `DELETE` requests)
+
 ## LICENSING
 
 Copyright Joyent, Inc.

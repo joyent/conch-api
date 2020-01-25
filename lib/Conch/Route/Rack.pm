@@ -68,7 +68,8 @@ sub one_rack_routes ($class, $r) {
     $one_rack->get('/layout', 'get_layouts')->to('#get_layouts');
 
     # POST .../rack/:rack_id_or_name/layout
-    $one_rack->post('/layouts', sub { shift->status(308, 'overwrite_layouts') });
+    $one_rack->post('/layouts', { request_schema => 'Anything' },
+        sub { shift->status(308, 'overwrite_layouts') });
     $one_rack->post('/layout', 'overwrite_layouts')
         ->to('#overwrite_layouts', request_schema => 'RackLayouts');
 
