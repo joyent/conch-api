@@ -98,7 +98,7 @@ sub routes {
         # POST /build/:build_id_or_name/device/:device_id_or_serial_number
         $with_build_rw->under('/device/:device_id_or_serial_number')
             ->to('device#find_device', require_role => 'rw')
-            ->post('/')->to('build#add_device');
+            ->post('/')->to('build#add_device', request_schema => 'Null');
 
         # DELETE /build/:build_id_or_name/device/:device_id_or_serial_number
         $with_build_rw->under('/device/:device_id_or_serial_number')
@@ -111,7 +111,7 @@ sub routes {
         # POST /build/:build_id_or_name/rack/:rack_id_or_name
         $with_build_rw->under('/rack/:rack_id_or_name')
             ->to('rack#find_rack', require_role => 'rw')
-            ->post('/')->to('build#add_rack');
+            ->post('/')->to('build#add_rack', request_schema => 'Null');
     }
 }
 
@@ -375,6 +375,8 @@ read-write role on the device (via a build; see L<Conch::Route::Device/routes>)
 
 =item * Controller/Action: L<Conch::Controller::Build/add_device>
 
+=item * Request: F<request.yaml#/$defs/Null>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -423,6 +425,8 @@ read-only role on a build that contains the rack
 read-write role on a build that contains the rack
 
 =item * Controller/Action: L<Conch::Controller::Build/add_rack>
+
+=item * Request: F<request.yaml#/$defs/Null>
 
 =item * Response: C<204 No Content>
 

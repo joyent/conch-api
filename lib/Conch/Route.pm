@@ -132,7 +132,7 @@ Returns the root node.
     my $secured = $root->under('/')->to('login#authenticate');
 
     # POST /logout
-    $secured->post('/logout')->to('login#logout');
+    $secured->post('/logout')->to('login#logout', request_schema => 'Null');
 
     # GET /me
     $secured->get('/me', sub ($c) { $c->status(204) });
