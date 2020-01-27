@@ -29,6 +29,8 @@ sub register ($self, $app, $config) {
     die 'unrecognized log level '.$plugin_config->{level}
         if $plugin_config->{level} and not exists $LEVEL{$plugin_config->{level}};
 
+    my $log_to_stderr = delete $plugin_config->{log_to_stderr};
+
     my %log_args = (
         level => 'debug',
         bunyan => 1,
@@ -37,7 +39,7 @@ sub register ($self, $app, $config) {
     );
 
     # without 'path' option, Mojo::Log defaults to *STDERR
-    if (not $app->feature('log_to_stderr') and not $log_args{handle}) {
+    if (not $log_to_stderr and not $log_args{handle}) {
         $log_dir = path($log_dir);
         $log_dir = $app->home->child($log_dir) if not $log_dir->is_abs;
 

@@ -69,11 +69,6 @@
         rollbar        => 0,
         nytprof        => 0,
 
-        # For docker, this should probably be set to 1. If not, logs will be
-        # written to /app/conch/log inside the container and a volume will need
-        # to be mounted there.
-        log_to_stderr  => 0,
-
         # Stop issuing 'conch' cookies. This does not prevent existing conch
         # cookies from being validated (as long as the secrets are the same).
         # Once all conch clients have been migrated, this should be set to 1.
@@ -146,6 +141,11 @@
         # level => 'debug', # default
         # bunyan => 1,      # default
         # with_trace => 0,  # default
+
+        # For docker, this should probably be set to 1. If not, logs will be
+        # written to /app/conch/log inside the container and a volume will need
+        # to be mounted there.
+        log_to_stderr  => 0,
     },
 
 }
