@@ -22,7 +22,7 @@ my $api_version_re = qr/^${ Test::Conch->API_VERSION_RE }$/;
 
 my $t = Test::Conch->new(
     config => {
-        features => { rollbar => 1, no_db => 1 },
+        features => { rollbar => 1, no_db => 1, audit => 0 },
         rollbar => {
             access_token => 'TOKEN',
             environment => 'custom_environment',

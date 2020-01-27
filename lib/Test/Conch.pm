@@ -102,6 +102,11 @@ sub new {
 
     my $self = Test::Mojo->new(
         Conch => {
+            features => {
+                audit => 1,
+                no_db => ($pg ? 0 : 1),
+                ($args->{config}//{})->{features} ? delete($args->{config}{features})->%* : (),
+            },
             database => {
                 $pg ? ( dsn => $pg->dsn, username => $pg->dbowner, ro_username => 'conch_read_only' )
                     : ( dsn => 'there is no database', username => '' )
@@ -110,9 +115,7 @@ sub new {
                 from_host => 'joyent.com',
                 ($args->{config}//{})->{mail} ? delete($args->{config}{mail})->%* : (),
             },
-
             secrets => ['********'],
-            features => { audit => 1, no_db => ($pg ? 0 : 1) },
             logging => { max_history_size => 50 },
 
             $args->{config} ? delete($args->{config})->%* : (),
