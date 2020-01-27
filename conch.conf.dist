@@ -65,7 +65,6 @@
     },
 
     features => {
-        audit          => 0,    # turns on logging of request and response bodies
         rollbar        => 0,
         nytprof        => 0,
 
@@ -140,12 +139,14 @@
 
         # level => 'debug', # default
         # bunyan => 1,      # default
-        # with_trace => 0,  # default
+        # with_trace => 0,  # default; enabled when verbose => 1
 
         # For docker, this should probably be set to 1. If not, logs will be
         # written to /app/conch/log inside the container and a volume will need
         # to be mounted there.
         log_to_stderr  => 0,
+
+        verbose => 0,   # turns on logging of request and response bodies, and exception stack traces
     },
 
 }

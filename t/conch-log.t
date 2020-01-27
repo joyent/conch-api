@@ -162,7 +162,7 @@ sub add_test_routes ($t) {
     reset_log;
 
     cmp_deeply(
-        Test::Conch->new(config => { features => { audit => 0, no_db => 1 } })->app->log,
+        Test::Conch->new(config => { features => { no_db => 1 }, logging => { verbose => 0 } })->app->log,
         all(
             isa('Conch::Log'),
             methods(
@@ -176,7 +176,7 @@ sub add_test_routes ($t) {
 
     local $ENV{MOJO_MODE} = 'foo';
     cmp_deeply(
-        Test::Conch->new(config => { features => { audit => 0, no_db => 1 } })->app->log,
+        Test::Conch->new(config => { features => { no_db => 1 }, logging => { verbose => 0 } })->app->log,
         all(
             isa('Conch::Log'),
             methods(
@@ -191,10 +191,7 @@ sub add_test_routes ($t) {
 
 {
     reset_log;
-    my $t = Test::Conch->new(config => {
-        logging => { handle => $log_fh },
-        features => { audit => 0 },
-    });
+    my $t = Test::Conch->new(config => { logging => { handle => $log_fh, verbose => 0 } });
 
     cmp_deeply(
         $t->app->log,
@@ -551,12 +548,7 @@ sub add_test_routes ($t) {
 
 {
     reset_log;
-    my $t = Test::Conch->new(
-        config => {
-            logging => { handle => $log_fh },
-            features => { audit => 1 },
-        },
-    );
+    my $t = Test::Conch->new(config => { logging => { handle => $log_fh, verbose => 1 } });
 
     my %lines = add_test_routes($t);
 
@@ -580,7 +572,7 @@ sub add_test_routes ($t) {
             },
             msg => 'error line from controller',
         },
-        'audit mode turns on trace mode',
+        'verbose mode turns on trace option',
     );
 
     cmp_deeply(
@@ -612,7 +604,7 @@ sub add_test_routes ($t) {
                 body => { error => 'something bad happened' },
             },
         },
-        'dispatch line for an error in audit mode includes both the request and response body',
+        'dispatch line for an error in verbose mode includes both the request and response body',
     );
 
     $t->post_ok('/_die?query_param=value0', json => { body_param => 'value1' })
@@ -673,7 +665,7 @@ sub add_test_routes ($t) {
                 ),
             },
         },
-        'dispatch line for an uncaught exception in audit mode includes the full stack trace',
+        'dispatch line for an uncaught exception in verbose mode includes the full stack trace',
     );
 
     $t->post_ok('/login', json => { email => 'foo@example.com', password => 'PASSWORD' })
@@ -708,7 +700,7 @@ sub add_test_routes ($t) {
                 body => { error => 'Unauthorized' },
             },
         },
-        'dispatch line for /login error in audit mode does NOT contain the request body',
+        'dispatch line for /login error in verbose mode does NOT contain the request body',
     );
 
     my $user = $t->load_fixture('super_user');
@@ -742,7 +734,7 @@ sub add_test_routes ($t) {
                 # no body! that contains the JWT!!!
             },
         },
-        'dispatch line for /login success in audit mode',
+        'dispatch line for /login success in verbose mode',
     );
 
     $t->post_ok('/user/me/token', json => { name => 'my api token' })
@@ -778,7 +770,7 @@ sub add_test_routes ($t) {
                 # no body! that contains the api token!!!
             },
         },
-        'dispatch line for creating a token in audit mode does not contain the token string',
+        'dispatch line for creating a token in verbose mode does not contain the token string',
     );
 
     $t->post_ok('/user/me/password' => { Authorization => 'Bearer '.$t->tx->res->json->{token} },
@@ -814,7 +806,7 @@ sub add_test_routes ($t) {
                 body => '',
             },
         },
-        'dispatch line for changing password in audit mode does not contain the password',
+        'dispatch line for changing password in verbose mode does not contain the password',
     );
 }
 

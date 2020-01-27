@@ -103,7 +103,6 @@ sub new {
     my $self = Test::Mojo->new(
         Conch => {
             features => {
-                audit => 1,
                 no_db => ($pg ? 0 : 1),
                 ($args->{config}//{})->{features} ? delete($args->{config}{features})->%* : (),
             },
@@ -115,8 +114,13 @@ sub new {
                 from_host => 'joyent.com',
                 ($args->{config}//{})->{mail} ? delete($args->{config}{mail})->%* : (),
             },
+            logging => {
+                max_history_size => 50,
+                verbose => 1,
+                ($args->{config}//{})->{logging} ? delete($args->{config}{logging})->%* : (),
+            },
+
             secrets => ['********'],
-            logging => { max_history_size => 50 },
 
             $args->{config} ? delete($args->{config})->%* : (),
         }
