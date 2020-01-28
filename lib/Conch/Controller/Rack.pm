@@ -335,8 +335,7 @@ sub get_assignment ($c) {
             join => [ { device_location => 'device' }, 'hardware_product' ],
             columns => {
                 rack_unit_start => 'rack_layouts.rack_unit_start',
-                device_id => 'device.id',
-                device_asset_tag => 'device.asset_tag',
+                (map +('device_'.$_ => 'device.'.$_), qw(id serial_number asset_tag)),
                 hardware_product_name => 'hardware_product.name',
                 sku => 'hardware_product.sku',
                 rack_unit_size => 'hardware_product.rack_unit_size',

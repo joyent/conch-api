@@ -2167,6 +2167,16 @@
             }
           ]
         },
+        "device_serial_number" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/device_serial_number"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
         "hardware_product_name" : {
           "type" : "string"
         },
@@ -2182,6 +2192,7 @@
       },
       "required" : [
         "device_id",
+        "device_serial_number",
         "device_asset_tag",
         "hardware_product_name",
         "sku",
