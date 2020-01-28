@@ -350,7 +350,7 @@ $t->get_ok("/rack/$rack_id/layout")
 
 
 my $device = $hw_product_storage->create_related('devices', {
-    serial_number => 'my device',
+    serial_number => 'my_device',
     health => 'unknown',
     device_location => { rack_id => $rack_id, rack_unit_start => 20 },
 });
@@ -375,7 +375,7 @@ $t->get_ok('/layout/'.$layout_3_6->id)
 # now we have these assigned slots:
 # start 1, width 2
 # start 11, width 4
-# start 20, width 4     # occupied by 'my device'
+# start 20, width 4     # occupied by 'my_device'
 # start 42, width 1
 
 $t->post_ok('/rack/'.$rack_id.'/layout',
@@ -429,6 +429,7 @@ $t->get_ok('/rack/'.$rack_id.'/assignment')
             hardware_product_name => $hw_product_compute->name,
             sku => $hw_product_compute->sku,
             device_id => undef,
+            device_serial_number => undef,
             device_asset_tag => undef,
         },
         {
@@ -437,6 +438,7 @@ $t->get_ok('/rack/'.$rack_id.'/assignment')
             hardware_product_name => $hw_product_storage->name,
             sku => $hw_product_storage->sku,
             device_id => $device->id,
+            device_serial_number => $device->serial_number,
             device_asset_tag => undef,
         },
         {
@@ -445,6 +447,7 @@ $t->get_ok('/rack/'.$rack_id.'/assignment')
             hardware_product_name => $hw_product_compute->name,
             sku => $hw_product_compute->sku,
             device_id => undef,
+            device_serial_number => undef,
             device_asset_tag => undef,
         },
     ]);
@@ -475,6 +478,7 @@ $t->get_ok('/rack/'.$rack_id.'/assignment')
             hardware_product_name => $hw_product_compute->name,
             sku => $hw_product_compute->sku,
             device_id => undef,
+            device_serial_number => undef,
             device_asset_tag => undef,
         },
     ]);

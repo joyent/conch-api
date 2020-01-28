@@ -1487,6 +1487,7 @@ definitions:
     additionalProperties: false
     required:
       - device_id
+      - device_serial_number
       - device_asset_tag
       - hardware_product_name
       - sku
@@ -1496,6 +1497,10 @@ definitions:
       device_id:
         oneOf:
           - $ref: common.yaml#/definitions/uuid
+          - type: 'null'
+      device_serial_number:
+        oneOf:
+          - $ref: common.yaml#/definitions/device_serial_number
           - type: 'null'
       device_asset_tag:
         oneOf:

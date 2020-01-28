@@ -293,6 +293,7 @@ $t->get_ok('/rack/'.$rack->id.'/assignment')
             rack_unit_start => 1,
             rack_unit_size => 2,
             device_id => undef,
+            device_serial_number => undef,
             device_asset_tag => undef,
             hardware_product_name => $hardware_product_compute->name,
             sku => $hardware_product_compute->sku,
@@ -301,6 +302,7 @@ $t->get_ok('/rack/'.$rack->id.'/assignment')
             rack_unit_start => 3,
             rack_unit_size => 4,
             device_id => undef,
+            device_serial_number => undef,
             device_asset_tag => undef,
             hardware_product_name => $hardware_product_storage->name,
             sku => $hardware_product_storage->sku,
@@ -309,6 +311,7 @@ $t->get_ok('/rack/'.$rack->id.'/assignment')
             rack_unit_start => 11,
             rack_unit_size => 4,
             device_id => undef,
+            device_serial_number => undef,
             device_asset_tag => undef,
             hardware_product_name => $hardware_product_storage->name,
             sku => $hardware_product_storage->sku,
@@ -345,8 +348,8 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
 
 my $foo = $t->app->db_devices->find({ serial_number => 'FOO' });
 
-$assignments->[0]->@{qw(device_id device_asset_tag)} = ($foo->id,'ohhai');
-$assignments->[1]->@{qw(device_id device_asset_tag)} = ($bar->id,'hello');
+$assignments->[0]->@{qw(device_id device_serial_number device_asset_tag)} = ($foo->id,'FOO','ohhai');
+$assignments->[1]->@{qw(device_id device_serial_number device_asset_tag)} = ($bar->id,'BAR','hello');
 
 $t->get_ok($_)
     ->status_is(200)
@@ -511,8 +514,8 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
     ->location_is('/rack/'.$rack->id.'/assignment');
 
 $assignments->@[0,1] = (
-    { $assignments->[0]->%*, $assignments->[1]->%{qw(device_id device_asset_tag)} },
-    { $assignments->[1]->%*, $assignments->[0]->%{qw(device_id device_asset_tag)} },
+    { $assignments->[0]->%*, $assignments->[1]->%{qw(device_id device_serial_number device_asset_tag)} },
+    { $assignments->[1]->%*, $assignments->[0]->%{qw(device_id device_serial_number device_asset_tag)} },
 );
 
 $t->get_ok('/rack/'.$rack->id.'/assignment')
@@ -544,9 +547,9 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
 
 my $baz = $t->app->db_devices->find({ serial_number => 'BAZ' });
 
-$assignments->[0]->@{qw(device_id device_asset_tag)} = $assignments->[1]->@{qw(device_id device_asset_tag)};
-$assignments->[1]->@{qw(device_id device_asset_tag)} = (undef, undef);
-$assignments->[2]->{device_id} = $baz->id;
+$assignments->[0]->@{qw(device_id device_serial_number device_asset_tag)} = $assignments->[1]->@{qw(device_id device_serial_number device_asset_tag)};
+$assignments->[1]->@{qw(device_id device_serial_number device_asset_tag)} = ();
+$assignments->[2]->@{qw(device_id device_serial_number)} = map $baz->$_, qw(id serial_number);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -590,7 +593,7 @@ $t->delete_ok('/rack/'.$rack->id.'/assignment', json => [
     ])
     ->status_is(204);
 
-$assignments->[0]->@{qw(device_id device_asset_tag)} = ();
+$assignments->[0]->@{qw(device_id device_serial_number device_asset_tag)} = ();
 
 $t->get_ok($_)
     ->status_is(200)
