@@ -49,6 +49,8 @@ around 'Pod::Markdown::end_F' => sub {
 
     return $self->$orig(@_) if $self->_last_string !~ m{^[^.]+\.yaml};
 
+    $self->_private->{no_escape}--; # as done in original end_F
+
     my $text = $self->_pop_stack_text =~ s{^([^.]+)\.yaml}{$1.json}r;
     $self->_save('['.$text.']('.'../json-schema/'.$text.')');
 };
@@ -126,14 +128,20 @@ foreach my $infile (@all_files) {
     }
     else { next }
 
-    my $in_fh  = get_handle($infile, '<', \*STDIN);
-    my $out_fh = get_handle($outfile, '>', \*STDOUT);
+    open(my $in_fh, '<', $infile) or die "Failed to open '$infile': $!";
+    open(my $out_buffer, '>', \my $markdown) or die "Failed to open scalarref: $!";
 
     # Undo any PERL_UNICODE effects.
     # Pod::Simple expects to receive bytes, and we're going to return bytes.
-    binmode($_, ':bytes') for ($in_fh, $out_fh);
+    binmode($_, ':bytes') for ($in_fh, $out_buffer);
 
-    convert($in_fh, $out_fh);
+    convert($in_fh, $out_buffer);
+
+    $markdown =~ s/^(#+)/$1#/mg;
+    my $url = 'https://github.com/joyent/conch/blob/master/'.$infile;
+    $markdown =~ s{## NAME\n\n(.+)$}{# $1\n\n## SOURCE\n\n[$url]($url)}m;
+
+    path($outfile)->spew($markdown);
 }
 
 my $json_encoder = JSON()->new->pretty->indent_length(2)->canonical(1);
@@ -218,13 +226,4 @@ sub convert {
 
     $parser->output_fh($out_fh);
     $parser->parse_file($in_fh);
-}
-
-sub get_handle {
-  my ($path, $op, $default) = @_;
-  (!defined($path) || $path eq '-') ? $default : do {
-    open(my $fh, $op, $path)
-      or die "Failed to open '$path': $!\n";
-    $fh;
-  };
 }

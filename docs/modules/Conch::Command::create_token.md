@@ -1,8 +1,10 @@
-# NAME
+# create\_token - create a new api token
 
-create\_token - create a new api token
+## SOURCE
 
-# SYNOPSIS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/create_token.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/create_token.pm)
+
+## SYNOPSIS
 
 ```
 bin/conch create_token [long options...]
@@ -13,7 +15,7 @@ bin/conch create_token [long options...]
     --help    print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

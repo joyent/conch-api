@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::UserAccount
 
-Conch::DB::Result::UserAccount
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/UserAccount.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/UserAccount.pm)
 
-# TABLE: `user_account`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `user_account`
 
-## id
+## ACCESSORS
+
+### id
 
 ```
 data_type: 'uuid'
@@ -17,21 +19,21 @@ is_nullable: 0
 size: 16
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## password
+### password
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -40,28 +42,28 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## last\_login
+### last\_login
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## email
+### email
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## deactivated
+### deactivated
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## refuse\_session\_auth
+### refuse\_session\_auth
 
 ```
 data_type: 'boolean'
@@ -69,7 +71,7 @@ default_value: false
 is_nullable: 0
 ```
 
-## force\_password\_change
+### force\_password\_change
 
 ```
 data_type: 'boolean'
@@ -77,7 +79,7 @@ default_value: false
 is_nullable: 0
 ```
 
-## is\_admin
+### is\_admin
 
 ```
 data_type: 'boolean'
@@ -85,91 +87,91 @@ default_value: false
 is_nullable: 0
 ```
 
-## last\_seen
+### last\_seen
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# RELATIONS
+## RELATIONS
 
-## completed\_builds
+### completed\_builds
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::Build](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ABuild)
 
-## relays
+### relays
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::Relay](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARelay)
 
-## user\_build\_roles
+### user\_build\_roles
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserBuildRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserBuildRole)
 
-## user\_organization\_roles
+### user\_organization\_roles
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserOrganizationRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserOrganizationRole)
 
-## user\_session\_tokens
+### user\_session\_tokens
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserSessionToken](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserSessionToken)
 
-## user\_settings
+### user\_settings
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserSetting](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserSetting)
 
-## user\_workspace\_roles
+### user\_workspace\_roles
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserWorkspaceRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserWorkspaceRole)
 
-## builds
+### builds
 
 Type: many\_to\_many
 
 Composing rels: ["user\_build\_roles"](#user_build_roles) -> build
 
-## organizations
+### organizations
 
 Type: many\_to\_many
 
 Composing rels: ["user\_organization\_roles"](#user_organization_roles) -> organization
 
-## workspaces
+### workspaces
 
 Type: many\_to\_many
 
 Composing rels: ["user\_workspace\_roles"](#user_workspace_roles) -> workspace
 
-# METHODS
+## METHODS
 
-## check\_password
+### check\_password
 
 Checks the provided password against the value in the database, returning true/false.
 Because hard cryptography is used, this is **not** a fast call!
 
-## TO\_JSON
+### TO\_JSON
 
 Include information about the user's workspaces, organizations and builds, if available.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

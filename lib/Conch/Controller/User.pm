@@ -57,7 +57,7 @@ but this can be adjusted with query parameters:
  * C<?login_only=1> login tokens are removed; api tokens are left alone
  * C<?api_only=1>   login tokens are left alone; api tokens are removed
 
-If login tokens are affected, C<user_session_auth> is also set for the user, which forces the
+If login tokens are affected, C<refuse_session_auth> is also set for the user, which forces the
 user to change his password as soon as a login token is used again (but use of any existing api
 tokens is allowed).
 
@@ -102,7 +102,7 @@ sub revoke_user_tokens ($c) {
 
         $c->send_mail(
             template_file => 'revoked_user_tokens',
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'Your Conch tokens have been revoked',
             token_names => \@token_names,
         );
@@ -328,7 +328,7 @@ sub reset_user_password ($c) {
 
     $c->send_mail(
         template_file => 'changed_user_password',
-        From => 'noreply@'.$c->host,
+        From => 'noreply',
         Subject => 'Your Conch password has changed',
         password => $update{password},
     ) if $params->{send_mail} // 1;
@@ -420,7 +420,7 @@ sub update ($c) {
 
         $c->send_mail(
             template_file => 'updated_user_account',
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'Your Conch account has been updated',
             orig_data => \%orig_columns,
             new_data => \%dirty_columns,
@@ -499,7 +499,7 @@ sub create ($c) {
         $c->stash('target_user', $user);
         $c->send_mail(
             template_file => 'new_user_account',
-            From => 'noreply@'.$c->host,
+            From => 'noreply',
             Subject => 'Welcome to Conch!',
             password => $input->{password},
         );
@@ -641,10 +641,9 @@ Only api tokens may be retrieved by this flow.
 =cut
 
 sub find_api_token ($c) {
-    if ($c->stash('token_name') =~ /^login_jwt_/) {
-        $c->log->error('Lookup of login tokens not supported');
-        return $c->status(404);
-    }
+    # lookup of login tokens not supported
+    return $c->status(404) if $c->stash('token_name') =~ /^login_jwt_/;
+
     my $token_rs = $c->stash('target_user')
         ->user_session_tokens
         ->unexpired

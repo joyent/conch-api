@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::RackLayout
 
-Conch::DB::Result::RackLayout
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/RackLayout.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/RackLayout.pm)
 
-# TABLE: `rack_layout`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `rack_layout`
 
-## id
+## ACCESSORS
+
+### id
 
 ```
 data_type: 'uuid'
@@ -17,7 +19,7 @@ is_nullable: 0
 size: 16
 ```
 
-## rack\_id
+### rack\_id
 
 ```
 data_type: 'uuid'
@@ -26,7 +28,7 @@ is_nullable: 0
 size: 16
 ```
 
-## hardware\_product\_id
+### hardware\_product\_id
 
 ```
 data_type: 'uuid'
@@ -35,14 +37,14 @@ is_nullable: 0
 size: 16
 ```
 
-## rack\_unit\_start
+### rack\_unit\_start
 
 ```
 data_type: 'integer'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -51,7 +53,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## updated
+### updated
 
 ```
 data_type: 'timestamp with time zone'
@@ -60,38 +62,38 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `rack_layout_rack_id_rack_unit_start_key`
+### `rack_layout_rack_id_rack_unit_start_key`
 
 - ["rack\_id"](#rack_id)
 - ["rack\_unit\_start"](#rack_unit_start)
 
-# RELATIONS
+## RELATIONS
 
-## device\_location
+### device\_location
 
 Type: might\_have
 
 Related object: [Conch::DB::Result::DeviceLocation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceLocation)
 
-## hardware\_product
+### hardware\_product
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct)
 
-## rack
+### rack
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

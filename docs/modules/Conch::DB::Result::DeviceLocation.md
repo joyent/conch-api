@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::DeviceLocation
 
-Conch::DB::Result::DeviceLocation
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceLocation.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceLocation.pm)
 
-# TABLE: `device_location`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `device_location`
 
-## rack\_id
+## ACCESSORS
+
+### rack\_id
 
 ```
 data_type: 'uuid'
@@ -17,7 +19,7 @@ is_nullable: 0
 size: 16
 ```
 
-## rack\_unit\_start
+### rack\_unit\_start
 
 ```
 data_type: 'integer'
@@ -25,7 +27,7 @@ is_foreign_key: 1
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -34,7 +36,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## updated
+### updated
 
 ```
 data_type: 'timestamp with time zone'
@@ -43,7 +45,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## device\_id
+### device\_id
 
 ```
 data_type: 'uuid'
@@ -52,38 +54,38 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["device\_id"](#device_id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `device_location_rack_id_rack_unit_start_key`
+### `device_location_rack_id_rack_unit_start_key`
 
 - ["rack\_id"](#rack_id)
 - ["rack\_unit\_start"](#rack_unit_start)
 
-# RELATIONS
+## RELATIONS
 
-## device
+### device
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
-## rack
+### rack
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack)
 
-## rack\_layout
+### rack\_layout
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::RackLayout](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARackLayout)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

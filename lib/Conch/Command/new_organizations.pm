@@ -47,7 +47,7 @@ sub run ($self, @opts) {
     });
     my $dcops_org = $self->app->db_organizations->find_or_create({
         name => 'DCOps',
-        description => 'Datacenter Operations personnnel',
+        description => 'Datacenter Operations personnel',
         user_organization_roles => [ { user_id => $admin_id, role => 'admin' } ],
     });
 

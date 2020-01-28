@@ -1,21 +1,23 @@
-# NAME
+# Conch::DB::Helper::Row::WithRole
 
-Conch::DB::Helper::Row::WithRole
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/Row/WithRole.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/Row/WithRole.pm)
+
+## DESCRIPTION
 
 A component for [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult) classes for database tables with a `role`
 column, to provide common functionality.
 
-# USAGE
+## USAGE
 
 ```
 __PACKAGE__->load_components('+Conch::DB::Helper::Row::WithRole');
 ```
 
-# METHODS
+## METHODS
 
-## role\_cmp
+### role\_cmp
 
 Acts like the `cmp` operator, returning -1, 0 or 1 depending on whether the first role is less
 than, the same as, or greater than the second role.
@@ -25,7 +27,7 @@ role.
 
 Accepts undef for one or both roles, which always compare as less than a defined role.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

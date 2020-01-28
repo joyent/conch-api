@@ -1,8 +1,10 @@
-# NAME
+# new\_organizations - Create new organization data (one-off for v3 launch)
 
-new\_organizations - Create new organization data (one-off for v3 launch)
+## SOURCE
 
-# SYNOPSIS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/new_organizations.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/new_organizations.pm)
+
+## SYNOPSIS
 
 ```
 bin/conch new_organizations [long options...]
@@ -10,7 +12,7 @@ bin/conch new_organizations [long options...]
     --help        print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

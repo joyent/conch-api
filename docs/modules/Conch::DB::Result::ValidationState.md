@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::ValidationState
 
-Conch::DB::Result::ValidationState
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/ValidationState.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/ValidationState.pm)
 
-# TABLE: `validation_state`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `validation_state`
 
-## id
+## ACCESSORS
+
+### id
 
 ```
 data_type: 'uuid'
@@ -17,7 +19,7 @@ is_nullable: 0
 size: 16
 ```
 
-## validation\_plan\_id
+### validation\_plan\_id
 
 ```
 data_type: 'uuid'
@@ -26,7 +28,7 @@ is_nullable: 0
 size: 16
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -35,7 +37,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## status
+### status
 
 ```
 data_type: 'enum'
@@ -43,14 +45,14 @@ extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pa
 is_nullable: 0
 ```
 
-## completed
+### completed
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 0
 ```
 
-## device\_report\_id
+### device\_report\_id
 
 ```
 data_type: 'uuid'
@@ -59,7 +61,7 @@ is_nullable: 0
 size: 16
 ```
 
-## device\_id
+### device\_id
 
 ```
 data_type: 'uuid'
@@ -68,43 +70,43 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# RELATIONS
+## RELATIONS
 
-## device
+### device
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
-## device\_report
+### device\_report
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::DeviceReport](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceReport)
 
-## validation\_plan
+### validation\_plan
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::ValidationPlan](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationPlan)
 
-## validation\_state\_members
+### validation\_state\_members
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationStateMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationStateMember)
 
-## validation\_results
+### validation\_results
 
 Type: many\_to\_many
 
 Composing rels: ["validation\_state\_members"](#validation_state_members) -> validation\_result
 
-## prefetch\_validation\_results
+### prefetch\_validation\_results
 
 Add validation\_state\_members, validation\_result rows to the resultset cache. This allows those
 rows to be included in serialized data (see ["TO\_JSON"](#to_json)).
@@ -112,7 +114,7 @@ rows to be included in serialized data (see ["TO\_JSON"](#to_json)).
 The implementation is gross because has-multi accessors always go to the db, so there is no
 non-private way of extracting related rows from the result.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

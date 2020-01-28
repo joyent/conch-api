@@ -1,17 +1,19 @@
-# NAME
+# Conch::Plugin::Mail
 
-Conch::Plugin::Mail
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Mail.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/Mail.pm)
+
+## DESCRIPTION
 
 Helper methods for sending emails
 
-# HELPERS
+## HELPERS
 
 These methods are made available on the `$c` object (the invocant of all controller methods,
 and therefore other helpers).
 
-## send\_mail
+### send\_mail
 
 ```perl
 $c->send_mail(
@@ -29,12 +31,12 @@ $c->send_mail(
 );
 ```
 
-## construct\_address\_list
+### construct\_address\_list
 
 Given a list of [user](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount) records, returns a string suitable to be
 used in a `To` header, comprising names and email addresses.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

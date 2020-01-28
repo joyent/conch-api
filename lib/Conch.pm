@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Conch - Setup and helpers for Conch Mojo app
+Conch - Initialization and helpers for Conch Mojo app
 
 =head1 SYNOPSIS
 
@@ -68,16 +68,19 @@ sub startup {
                 # TODO: skip if ?page_size is passed (and we actually used it).
                 and $args->{json}->@* >= (($c->app->config('rollbar')//{})->{warn_payload_elements} // 35)
                 and $c->feature('rollbar')) {
-            my $endpoint = join '#', map $_//'', ($c->match->stack->[-1]//{})->@{qw(controller action)};
-            $c->send_message_to_rollbar(
-                'info',
-                'response payload contains many elements: candidate for paging?',
-                { elements => scalar $args->{json}->@*, endpoint => $endpoint, url => $c->url_for },
-                [ 'response payload size is large', $endpoint ],
-            );
+            # do this after the response has been sent
+            $c->on(finish => sub ($c) {
+                my $endpoint = join '#', map $_//'', ($c->match->stack->[-1]//{})->@{qw(controller action)};
+                $c->send_message_to_rollbar(
+                    'info',
+                    'response payload contains many elements: candidate for paging?',
+                    { elements => scalar $args->{json}->@*, endpoint => $endpoint, url => $c->url_for },
+                    [ 'response payload size is large', $endpoint ],
+                );
+            });
         }
 
-        # do this after the response has been sent
+        # body_size not available until after response is sent
         $c->on(finish => sub ($c) {
             my $body_size = $c->res->body_size;
             if ($body_size >= (($c->app->config('rollbar')//{})->{warn_payload_size} // 10000)
@@ -95,8 +98,14 @@ sub startup {
 
     $self->hook(after_render => sub ($c, @args) {
         warn 'called $c->render twice' if $c->stash->{_rendered}++;
+    });
 
-        $c->res->headers->add('X-Conch-API', $c->version_tag);
+    $self->hook(after_dispatch => sub ($c) {
+        my $res_headers = $c->res->headers;
+        my $request_id = $c->req->request_id;
+        $res_headers->header('Request-Id', $request_id);
+        $res_headers->header('X-Request-Id', $request_id);
+        $res_headers->add('X-Conch-API', $c->version_tag);
     });
 
 =head2 status
@@ -114,14 +123,14 @@ Helper method for setting the response status code and json content.
         $payload //= { error => 'Entity Not Found' } if $code == 404;
         $payload //= { error => 'Unimplemented' } if $code == 501;
 
+        $c->res->code($code);
+
         if (not $payload) {
             # no content - hopefully we set an appropriate response code (e.g. 204, 30x)
-            # (note that before_render will not run!)
-            $c->rendered($code);
+            # (note that before_render and after_render hooks will not run!)
+            $c->rendered;
             return 0;
         }
-
-        $c->res->code($code);
 
         if (any { $code == $_ } 301, 302, 303, 305, 307, 308) {
             $c->redirect_to($payload);
@@ -149,13 +158,6 @@ Helper method for setting the response status code and json content.
                     or $headers->content_type !~ /application\/json/i)) {
             return $c->status(415);
         }
-    });
-
-    $self->hook(before_dispatch => sub ($c) {
-        my $headers = $c->res->headers;
-        my $request_id = $c->req->request_id;
-        $headers->header('Request-Id' => $request_id);
-        $headers->header('X-Request-Id' => $request_id);
     });
 
     # see Mojo::Message::Request for original implementation
@@ -193,8 +195,8 @@ Stores a L<Conch::Time> instance representing the time the server started accept
 
 =head2 host
 
-Retrieves the L<Mojo::URL/host> portion of the request URL, suitable for constructing email
-addresses and base URLs in user-facing content.
+Retrieves the L<Mojo::URL/host> portion of the request URL, suitable for constructing base URLs
+in user-facing content.
 
 =cut
 
@@ -207,6 +209,8 @@ addresses and base URLs in user-facing content.
         if not $self->feature('no_db');
 
     Conch::Route->all_routes($self->routes, $self);
+
+    $self->log->info('Conch initialized at '.$self->version_tag);
 }
 
 1;

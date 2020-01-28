@@ -1,8 +1,10 @@
-# NAME
+# check\_workspace\_racks - Utility to check all workspace\_rack entries are correct and complete
 
-check\_workspace\_racks - Utility to check all workspace\_rack entries are correct and complete
+## SOURCE
 
-# SYNOPSIS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/check_workspace_racks.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/check_workspace_racks.pm)
+
+## SYNOPSIS
 
 ```
 bin/conch check_workspace_racks [long options...]
@@ -12,17 +14,17 @@ bin/conch check_workspace_racks [long options...]
     --help          print usage message and exit
 ```
 
-# DESCRIPTION
+## DESCRIPTION
 
 For all racks, checks that necessary `workspace_rack` rows exist (for every parent to the
 workspace referenced by existing `workspace_rack` entries). Missing rows are populated,
 if `--dry-run` not provided. Errors are identified, if `--verbose` is provided.
 
-# EXIT CODE
+## EXIT CODE
 
 Returns the number of errors found.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

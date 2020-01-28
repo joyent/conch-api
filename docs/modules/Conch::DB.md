@@ -1,12 +1,14 @@
-# NAME
+# Conch::DB
 
-Conch::DB
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB.pm)
+
+## DESCRIPTION
 
 Base schema class for the Conch application. See [DBIx::Class::Schema](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3ASchema).
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

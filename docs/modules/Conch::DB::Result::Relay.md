@@ -1,56 +1,58 @@
-# NAME
+# Conch::DB::Result::Relay
 
-Conch::DB::Result::Relay
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Relay.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Relay.pm)
 
-# TABLE: `relay`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `relay`
 
-## serial\_number
+## ACCESSORS
+
+### serial\_number
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## version
+### version
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## ipaddr
+### ipaddr
 
 ```
 data_type: 'inet'
 is_nullable: 1
 ```
 
-## ssh\_port
+### ssh\_port
 
 ```
 data_type: 'integer'
 is_nullable: 1
 ```
 
-## deactivated
+### deactivated
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -59,7 +61,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## updated
+### updated
 
 ```
 data_type: 'timestamp with time zone'
@@ -68,7 +70,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## id
+### id
 
 ```
 data_type: 'uuid'
@@ -77,7 +79,7 @@ is_nullable: 0
 size: 16
 ```
 
-## last\_seen
+### last\_seen
 
 ```
 data_type: 'timestamp with time zone'
@@ -86,7 +88,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## user\_id
+### user\_id
 
 ```
 data_type: 'uuid'
@@ -95,37 +97,37 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `relay_serial_number_key`
+### `relay_serial_number_key`
 
 - ["serial\_number"](#serial_number)
 
-# RELATIONS
+## RELATIONS
 
-## device\_relay\_connections
+### device\_relay\_connections
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::DeviceRelayConnection](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceRelayConnection)
 
-## user\_account
+### user\_account
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
-## devices
+### devices
 
 Type: many\_to\_many
 
 Composing rels: ["device\_relay\_connections"](#device_relay_connections) -> device
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

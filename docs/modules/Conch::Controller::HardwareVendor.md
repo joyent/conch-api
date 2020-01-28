@@ -1,32 +1,34 @@
-# NAME
+# Conch::Controller::HardwareVendor
 
-Conch::Controller::HardwareVendor
+## SOURCE
 
-# METHODS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/HardwareVendor.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/HardwareVendor.pm)
 
-## find\_hardware\_vendor
+## METHODS
+
+### find\_hardware\_vendor
 
 Chainable action that uses the `hardware_vendor_id_or_name` value provided in the stash
 (usually via the request URL) to look up a hardware vendor, and stashes the result in
 `hardware_vendor`.
 
-## get\_all
+### get\_all
 
 Retrieves all active hardware vendors.
 
 Response uses the HardwareVendors json schema.
 
-## get\_one
+### get\_one
 
 Gets one (active) hardware vendor.
 
 Response uses the HardwareVendor json schema.
 
-## create
+### create
 
-## delete
+### delete
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

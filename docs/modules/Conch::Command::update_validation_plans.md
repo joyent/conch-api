@@ -1,8 +1,10 @@
-# NAME
+# update\_validation\_plans - Utility to bring validations and validation\_plans up to date
 
-update\_validation\_plans - Utility to bring validations and validation\_plans up to date
+## SOURCE
 
-# SYNOPSIS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/update_validation_plans.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/update_validation_plans.pm)
+
+## SYNOPSIS
 
 ```
 bin/conch update_validation_plans [long options...]
@@ -12,7 +14,7 @@ bin/conch update_validation_plans [long options...]
     --help          print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

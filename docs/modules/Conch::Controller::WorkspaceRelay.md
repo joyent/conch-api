@@ -1,10 +1,12 @@
-# NAME
+# Conch::Controller::WorkspaceRelay
 
-Conch::Controller::WorkspaceRelay
+## SOURCE
 
-# METHODS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceRelay.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceRelay.pm)
 
-## get\_all
+## METHODS
+
+### get\_all
 
 List all relays located in the indicated workspace and sub-workspaces beneath it.
 Note that this information is only accurate if the device the relay(s) reported
@@ -14,7 +16,7 @@ Use `?active_minutes=X` to constrain results to those updated in the last X minu
 
 Response uses the WorkspaceRelays json schema.
 
-## get\_relay\_devices
+### get\_relay\_devices
 
 Returns all the devices that have been reported by the provided relay that are located within
 this workspace. (It doesn't matter if the relay itself was later moved to another workspace - we
@@ -22,7 +24,7 @@ just look at device locations.)
 
 Response uses the Devices json schema.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

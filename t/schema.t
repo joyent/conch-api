@@ -288,11 +288,11 @@ my $json_spec_schema = $_validator->schema->data;
 $t->get_ok('/schema/REQUEST/hello')
     ->status_is(404)
     ->json_is({ error => 'Route Not Found' })
-    ->log_error_is('no endpoint found for: GET /schema/REQUEST/hello');
+    ->log_warn_is('no endpoint found for: GET /schema/REQUEST/hello');
 
 $t->get_ok('/schema/request/hello')
     ->status_is(404)
-    ->log_debug_is('Could not find request schema Hello');
+    ->log_warn_is('Could not find request schema Hello');
 
 $t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2040 00:00:00 GMT' })
     ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))

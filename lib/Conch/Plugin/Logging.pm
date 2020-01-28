@@ -29,15 +29,17 @@ sub register ($self, $app, $config) {
     die 'unrecognized log level '.$plugin_config->{level}
         if $plugin_config->{level} and not exists $LEVEL{$plugin_config->{level}};
 
+    my ($log_to_stderr, $verbose) = delete $plugin_config->@{qw(log_to_stderr verbose)};
+
     my %log_args = (
         level => 'debug',
         bunyan => 1,
-        $app->feature('audit') ? ( with_trace => 1 ) : (),
+        $verbose ? ( with_trace => 1 ) : (),
         $plugin_config->%*,
     );
 
     # without 'path' option, Mojo::Log defaults to *STDERR
-    if (not $app->feature('log_to_stderr') and not $log_args{handle}) {
+    if (not $log_to_stderr and not $log_args{handle}) {
         $log_dir = path($log_dir);
         $log_dir = $app->home->child($log_dir) if not $log_dir->is_abs;
 
@@ -102,14 +104,14 @@ sub register ($self, $app, $config) {
                 headers     => $req_headers,
                 query_params => $c->req->query_params->to_hash,
                 # no body_params: presently we do not permit application/x-www-form-urlencoded
-                $c->feature('audit') && !(ref $req_json eq 'HASH' and exists $req_json->{password})
+                $verbose && !(ref $req_json eq 'HASH' and exists $req_json->{password})
                     ? ( body => $c->req->json // $c->req->text ) : (),
             },
             res => {
                 headers => $res_headers,
                 statusCode => $c->res->code,
                 $c->res->code >= 400
-                        || ($c->feature('audit') && !(ref $res_json eq 'HASH' and grep /token/, keys $res_json->%*))
+                        || ($verbose && !(ref $res_json eq 'HASH' and grep /token/, keys $res_json->%*))
                     ? ( body => $c->res->json // $c->res->text ) : (),
             },
             latency => int(1000 * $c->timing->elapsed('request_latency')),

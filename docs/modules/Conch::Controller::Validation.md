@@ -1,30 +1,32 @@
-# NAME
+# Conch::Controller::Validation
 
-Conch::Controller::Validation
+## SOURCE
+
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Validation.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Validation.pm)
 
 Controller for managing Validations, **NOT** executing them.
 
-# METHODS
+## METHODS
 
-## get\_all
+### get\_all
 
 List all Validations.
 
 Response uses the Validations json schema (including deactivated ones).
 
-## find\_validation
+### find\_validation
 
 Chainable action that uses the `validation_id_or_name` value provided in the stash (usually
 via the request URL) to look up a validation, and stashes the query to get to it in
 `validation_rs`.
 
-## get
+### get
 
 Get the Validation specified by uuid or name.
 
 Response uses the Validation json schema.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

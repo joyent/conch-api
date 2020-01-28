@@ -1,23 +1,16 @@
-# NAME
+# Conch::DB::Result::WorkspaceRack
 
-Conch::DB::Result::WorkspaceRack
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/WorkspaceRack.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/WorkspaceRack.pm)
 
-# TABLE: `workspace_rack`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `workspace_rack`
 
-## workspace\_id
+## ACCESSORS
 
-```
-data_type: 'uuid'
-is_foreign_key: 1
-is_nullable: 0
-size: 16
-```
-
-## rack\_id
+### workspace\_id
 
 ```
 data_type: 'uuid'
@@ -26,26 +19,35 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+### rack\_id
+
+```
+data_type: 'uuid'
+is_foreign_key: 1
+is_nullable: 0
+size: 16
+```
+
+## PRIMARY KEY
 
 - ["workspace\_id"](#workspace_id)
 - ["rack\_id"](#rack_id)
 
-# RELATIONS
+## RELATIONS
 
-## rack
+### rack
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack)
 
-## workspace
+### workspace
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Workspace](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspace)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

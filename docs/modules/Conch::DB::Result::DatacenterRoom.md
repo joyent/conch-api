@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::DatacenterRoom
 
-Conch::DB::Result::DatacenterRoom
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DatacenterRoom.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DatacenterRoom.pm)
 
-# TABLE: `datacenter_room`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `datacenter_room`
 
-## id
+## ACCESSORS
+
+### id
 
 ```
 data_type: 'uuid'
@@ -17,7 +19,7 @@ is_nullable: 0
 size: 16
 ```
 
-## datacenter\_id
+### datacenter\_id
 
 ```
 data_type: 'uuid'
@@ -26,28 +28,28 @@ is_nullable: 0
 size: 16
 ```
 
-## az
+### az
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## alias
+### alias
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## vendor\_name
+### vendor\_name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -56,7 +58,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## updated
+### updated
 
 ```
 data_type: 'timestamp with time zone'
@@ -65,35 +67,35 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `datacenter_room_alias_key`
+### `datacenter_room_alias_key`
 
 - ["alias"](#alias)
 
-## `datacenter_room_vendor_name_key`
+### `datacenter_room_vendor_name_key`
 
 - ["vendor\_name"](#vendor_name)
 
-# RELATIONS
+## RELATIONS
 
-## datacenter
+### datacenter
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Datacenter](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADatacenter)
 
-## racks
+### racks
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

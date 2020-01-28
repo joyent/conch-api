@@ -1,27 +1,29 @@
-# NAME
+# Conch::Route::Schema
 
-Conch::Route::Schema
+## SOURCE
 
-# METHODS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Route/Schema.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Route/Schema.pm)
 
-## routes
+## METHODS
+
+### routes
 
 Sets up the routes for /schema.
 
-# ROUTE ENDPOINTS
+## ROUTE ENDPOINTS
 
-## `GET /schema/query_params/:schema_name`
+### `GET /schema/query_params/:schema_name`
 
-## `GET /schema/request/:schema_name`
+### `GET /schema/request/:schema_name`
 
-## `GET /schema/response/:schema_name`
+### `GET /schema/response/:schema_name`
 
 Returns the schema specified by type and name.
 
 - Does not require authentication.
 - Response: a JSON-Schema ([http://json-schema.org/draft-07/schema](http://json-schema.org/draft-07/schema))
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

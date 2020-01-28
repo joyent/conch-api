@@ -151,9 +151,13 @@ aborting with HTTP 410 or HTTP 404 if not found.
     my @top_level_paths = uniq map $find_paths->($_), $root->children->@*;
 
     $root->any('/*all', sub ($c) {
-        $c->log->error('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
-        $c->send_message_to_rollbar('warning', 'no endpoint found for: '.$c->req->method.' '.$c->req->url->path)
-            if $c->feature('rollbar') and any { $c->req->url->path =~ m{^$_/} } @top_level_paths;
+        $c->log->warn('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
+
+        $c->on(finish => sub ($c) {
+            $c->send_message_to_rollbar('warning', 'no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
+        })
+        if $c->feature('rollbar') and any { $c->req->url->path =~ m{^$_/} } @top_level_paths;
+
         $c->status(404, { error => 'Route Not Found' });
     })->name('catchall');
 }

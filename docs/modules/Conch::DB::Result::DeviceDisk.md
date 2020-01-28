@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::DeviceDisk
 
-Conch::DB::Result::DeviceDisk
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceDisk.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceDisk.pm)
 
-# TABLE: `device_disk`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `device_disk`
 
-## id
+## ACCESSORS
+
+### id
 
 ```
 data_type: 'uuid'
@@ -17,86 +19,77 @@ is_nullable: 0
 size: 16
 ```
 
-## serial\_number
+### serial\_number
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## slot
+### slot
 
 ```
 data_type: 'integer'
 is_nullable: 1
 ```
 
-## size
+### size
 
 ```
 data_type: 'integer'
 is_nullable: 1
 ```
 
-## vendor
+### vendor
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## model
+### model
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## firmware
+### firmware
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## transport
+### transport
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## health
+### health
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## drive\_type
+### drive\_type
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## deactivated
+### deactivated
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## created
-
-```
-data_type: 'timestamp with time zone'
-default_value: current_timestamp
-is_nullable: 0
-original: {default_value => \"now()"}
-```
-
-## updated
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -105,21 +98,30 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## enclosure
+### updated
+
+```
+data_type: 'timestamp with time zone'
+default_value: current_timestamp
+is_nullable: 0
+original: {default_value => \"now()"}
+```
+
+### enclosure
 
 ```
 data_type: 'integer'
 is_nullable: 1
 ```
 
-## hba
+### hba
 
 ```
 data_type: 'integer'
 is_nullable: 1
 ```
 
-## device\_id
+### device\_id
 
 ```
 data_type: 'uuid'
@@ -128,25 +130,25 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `device_disk_serial_number_key`
+### `device_disk_serial_number_key`
 
 - ["serial\_number"](#serial_number)
 
-# RELATIONS
+## RELATIONS
 
-## device
+### device
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

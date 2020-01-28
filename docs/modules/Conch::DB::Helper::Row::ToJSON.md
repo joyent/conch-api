@@ -1,19 +1,21 @@
-# NAME
+# Conch::DB::Helper::Row::ToJSON
 
-Conch::DB::Helper::Row::ToJSON
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/Row/ToJSON.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/Row/ToJSON.pm)
+
+## DESCRIPTION
 
 A component for [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult) classes to provide serialization functionality via `TO_JSON`.
 Sub-classes [DBIx::Class::Helper::Row::ToJSON](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3ARow%3A%3AToJSON) to also serialize 'text' data.
 
-# USAGE
+## USAGE
 
 ```
 __PACKAGE__->load_components('+Conch::DB::Helper::Row::ToJSON');
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

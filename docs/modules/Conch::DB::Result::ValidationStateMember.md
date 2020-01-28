@@ -1,23 +1,16 @@
-# NAME
+# Conch::DB::Result::ValidationStateMember
 
-Conch::DB::Result::ValidationStateMember
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/ValidationStateMember.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/ValidationStateMember.pm)
 
-# TABLE: `validation_state_member`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `validation_state_member`
 
-## validation\_state\_id
+## ACCESSORS
 
-```
-data_type: 'uuid'
-is_foreign_key: 1
-is_nullable: 0
-size: 16
-```
-
-## validation\_result\_id
+### validation\_state\_id
 
 ```
 data_type: 'uuid'
@@ -26,33 +19,42 @@ is_nullable: 0
 size: 16
 ```
 
-## result\_order
+### validation\_result\_id
+
+```
+data_type: 'uuid'
+is_foreign_key: 1
+is_nullable: 0
+size: 16
+```
+
+### result\_order
 
 ```
 data_type: 'integer'
 is_nullable: 0
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["validation\_state\_id"](#validation_state_id)
 - ["validation\_result\_id"](#validation_result_id)
 
-# RELATIONS
+## RELATIONS
 
-## validation\_result
+### validation\_result
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
 
-## validation\_state
+### validation\_state
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::ValidationState](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationState)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

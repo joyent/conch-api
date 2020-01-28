@@ -1,8 +1,10 @@
-# NAME
+# check\_layouts - check for rack layout conflicts
 
-check\_layouts - check for rack layout conflicts
+## SOURCE
 
-# SYNOPSIS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/check_layouts.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/check_layouts.pm)
+
+## SYNOPSIS
 
 ```
 bin/conch check_layouts [long options...]
@@ -12,7 +14,7 @@ bin/conch check_layouts [long options...]
     --help            print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

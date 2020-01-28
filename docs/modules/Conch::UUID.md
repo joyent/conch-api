@@ -1,14 +1,16 @@
-# NAME
+# Conch::UUID - Functions for working with UUIDs in Conch
 
-Conch::UUID - Functions for working with UUIDs in Conch
+## SOURCE
 
-# SYNOPSIS
+[https://github.com/joyent/conch/blob/master/lib/Conch/UUID.pm](https://github.com/joyent/conch/blob/master/lib/Conch/UUID.pm)
+
+## SYNOPSIS
 
 ```
 use Conch::UUID 'is_uuid';
 ```
 
-# DESCRIPTION
+## DESCRIPTION
 
 Currently exports a single function, `is_uuid`, to determine whether a string
 is in the UUID format. It uses the format specified in RFC 4122
@@ -34,9 +36,9 @@ https://tools.ietf.org/html/rfc4122#section-3
 
 UUID version and variant ('reserved') hex digit standards are ignored.
 
-# FUNCTIONS
+## FUNCTIONS
 
-## is\_uuid
+### is\_uuid
 
 Return a true or false value based on whether a string is a formatted as a UUID.
 
@@ -48,11 +50,11 @@ if (not is_uuid('BAD-ID')) {...}
 Case insensitive, as per RFC4122 (output characters are lower-cased, but characters are
 case insensitive on input.)
 
-## create\_uuid\_str
+### create\_uuid\_str
 
 Returns a newly-generated rfc4122-compliant uuid string.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

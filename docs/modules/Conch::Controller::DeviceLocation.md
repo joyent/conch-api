@@ -1,27 +1,29 @@
-# NAME
+# Conch::Controller::DeviceLocation
 
-Conch::Controller::DeviceLocation
+## SOURCE
 
-# METHODS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceLocation.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceLocation.pm)
 
-## get
+## METHODS
+
+### get
 
 Retrieves location data for the current device. **Note:** This information is not considered to
 be canonical if the device is in the 'production' phase or later.
 
 Response uses the DeviceLocation json schema.
 
-## set
+### set
 
 Sets the location for a device, given a valid rack id and rack unit. The existing occupant is
 removed, if there is one. The device is created based on the hardware\_product specified for
 the layout if it does not yet exist.
 
-## delete
+### delete
 
 Deletes the location data for a device, provided it has been assigned to a location
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

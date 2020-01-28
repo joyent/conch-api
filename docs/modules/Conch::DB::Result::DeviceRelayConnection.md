@@ -1,23 +1,16 @@
-# NAME
+# Conch::DB::Result::DeviceRelayConnection
 
-Conch::DB::Result::DeviceRelayConnection
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceRelayConnection.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceRelayConnection.pm)
 
-# TABLE: `device_relay_connection`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `device_relay_connection`
 
-## first\_seen
+## ACCESSORS
 
-```
-data_type: 'timestamp with time zone'
-default_value: current_timestamp
-is_nullable: 0
-original: {default_value => \"now()"}
-```
-
-## last\_seen
+### first\_seen
 
 ```
 data_type: 'timestamp with time zone'
@@ -26,7 +19,16 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## relay\_id
+### last\_seen
+
+```
+data_type: 'timestamp with time zone'
+default_value: current_timestamp
+is_nullable: 0
+original: {default_value => \"now()"}
+```
+
+### relay\_id
 
 ```
 data_type: 'uuid'
@@ -35,7 +37,7 @@ is_nullable: 0
 size: 16
 ```
 
-## device\_id
+### device\_id
 
 ```
 data_type: 'uuid'
@@ -44,26 +46,26 @@ is_nullable: 0
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["device\_id"](#device_id)
 - ["relay\_id"](#relay_id)
 
-# RELATIONS
+## RELATIONS
 
-## device
+### device
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
-## relay
+### relay
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Relay](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARelay)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

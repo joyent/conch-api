@@ -38,6 +38,9 @@
             # ssl
             # ..etc
         },
+
+        # the host used for the From header in all email, if not provided
+        from_host => 'joyent.com',
     },
 
     rollbar => {
@@ -50,7 +53,7 @@
         # environment => 'staging',
 
         # a hash of regexes that are matched against the named request header:
-        # if there is a match, all 4xx responses (other than 401, 403, 404) are
+        # if there is a match, all 4xx responses (other than 401, 404) are
         # forwarded to rollbar
         # error_match_header => {
         #   'X-Conch-UI' => qr/^v4.[3-9]/,      # forward errors for X-Conch-UI 4.3 and later
@@ -62,14 +65,8 @@
     },
 
     features => {
-        audit          => 0,    # turns on logging of request and response bodies
         rollbar        => 0,
         nytprof        => 0,
-
-        # For docker, this should probably be set to 1. If not, logs will be
-        # written to /app/conch/log inside the container and a volume will need
-        # to be mounted there.
-        log_to_stderr  => 0,
 
         # Stop issuing 'conch' cookies. This does not prevent existing conch
         # cookies from being validated (as long as the secrets are the same).
@@ -142,7 +139,14 @@
 
         # level => 'debug', # default
         # bunyan => 1,      # default
-        # with_trace => 0,  # default
+        # with_trace => 0,  # default; enabled when verbose => 1
+
+        # For docker, this should probably be set to 1. If not, logs will be
+        # written to /app/conch/log inside the container and a volume will need
+        # to be mounted there.
+        log_to_stderr  => 0,
+
+        verbose => 0,   # turns on logging of request and response bodies, and exception stack traces
     },
 
 }

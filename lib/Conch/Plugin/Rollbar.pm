@@ -37,11 +37,10 @@ Sends exceptions to Rollbar.
 sub register ($self, $app, $config) {
 
     $app->hook(before_render => sub ($c, $args) {
-        my $template = $args->{template};
-
         if (my $exception = $c->stash('exception')) {
-            my $rollbar_id = $c->send_exception_to_rollbar($exception);
-            $c->log->debug('exception sent to rollbar: id '.$rollbar_id) if $rollbar_id;
+            $c->on(finish => sub ($c) {
+                $c->send_exception_to_rollbar($exception);
+            });
         }
     });
 
@@ -52,7 +51,7 @@ sub register ($self, $app, $config) {
 
 Listens to the C<dispatch_message_payload> event (which is sent by the dispatch logger in
 L<Conch::Plugin::Logging>). When an error response is generated (any 4xx response code other
-than 401, 403 or 404), and a request header matches a key in the C<rollbar> config
+than 401 or 404), and a request header matches a key in the C<rollbar> config
 C<error_match_header>, and the header value matches the corresponding regular expression, a
 message is sent to Rollbar.
 
@@ -61,8 +60,8 @@ message is sent to Rollbar.
     # message emitted by dispatch logger in Conch::Plugin::Logging
     $app->plugins->on(dispatch_message_payload => sub ($, $c, $payload) {
         my $response_code = $payload->{res}{statusCode};
-        return if $response_code < 400 or $response_code >= 500;
-        return if any { $response_code == $_ } (401, 403, 404);
+        return if $response_code < 400 or $response_code >= 500
+            or any { $response_code == $_ } (401, 404);
 
         MATCH_HEADERS: {
             foreach my $header_name (keys $config->{rollbar}{error_match_header}->%*) {

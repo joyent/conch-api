@@ -1,10 +1,12 @@
-# NAME
+# Test::Conch::Validation - Test Conch Validations
 
-Test::Conch::Validation - Test Conch Validations
+## SOURCE
 
-# EXPORTABLE FUNCTIONS
+[https://github.com/joyent/conch/blob/master/lib/Test/Conch/Validation.pm](https://github.com/joyent/conch/blob/master/lib/Test/Conch/Validation.pm)
 
-## test\_validation
+## EXPORTABLE FUNCTIONS
+
+### test\_validation
 
 A function to test a Conch Validation using a collection of provided test cases.
 
@@ -101,7 +103,7 @@ test_validation(
 );
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

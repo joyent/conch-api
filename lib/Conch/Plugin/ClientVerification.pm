@@ -28,18 +28,18 @@ sub register ($self, $app, $config) {
         if (my $conch_ui_version = $headers->header('X-Conch-UI')) {
             my ($major, $minor, $tiny, $rest) = $conch_ui_version =~ /^v(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/;
             if (not $major or $major < 4) {
-                $c->log->error('Conch UI too old: requires at least 4.x');
+                $c->log->warn('Conch UI too old: requires at least 4.x');
                 return $c->status(403);
             }
         }
         elsif ($user_agent and $user_agent =~ /^conch shell/) {
-            $c->log->error('Conch Shell too old');
+            $c->log->warn('Conch Shell too old');
             return $c->status(403);
         }
         elsif ($user_agent and $user_agent =~ /^Conch\/((\d+)\.(\d+)\.(\d+)) /) {
             my ($all, $major, $minor, $rest) = ($1, $2, $3, $4);
             if ($all eq '0.0.0' or $major < 3) {
-                $c->log->error('Conch Shell too old');
+                $c->log->warn('Conch Shell too old');
                 return $c->status(403);
             }
         }

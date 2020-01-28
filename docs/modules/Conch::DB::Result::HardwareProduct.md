@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::HardwareProduct
 
-Conch::DB::Result::HardwareProduct
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/HardwareProduct.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/HardwareProduct.pm)
 
-# TABLE: `hardware_product`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `hardware_product`
 
-## id
+## ACCESSORS
+
+### id
 
 ```
 data_type: 'uuid'
@@ -17,28 +19,28 @@ is_nullable: 0
 size: 16
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## alias
+### alias
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## prefix
+### prefix
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## hardware\_vendor\_id
+### hardware\_vendor\_id
 
 ```
 data_type: 'uuid'
@@ -47,14 +49,14 @@ is_nullable: 0
 size: 16
 ```
 
-## deactivated
+### deactivated
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -63,7 +65,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## updated
+### updated
 
 ```
 data_type: 'timestamp with time zone'
@@ -72,42 +74,42 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## specification
+### specification
 
 ```
 data_type: 'jsonb'
 is_nullable: 1
 ```
 
-## sku
+### sku
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## generation\_name
+### generation\_name
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## legacy\_product\_name
+### legacy\_product\_name
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## rack\_unit\_size
+### rack\_unit\_size
 
 ```
 data_type: 'integer'
 is_nullable: 0
 ```
 
-## validation\_plan\_id
+### validation\_plan\_id
 
 ```
 data_type: 'uuid'
@@ -116,28 +118,28 @@ is_nullable: 0
 size: 16
 ```
 
-## purpose
+### purpose
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## bios\_firmware
+### bios\_firmware
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## hba\_firmware
+### hba\_firmware
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## cpu\_num
+### cpu\_num
 
 ```
 data_type: 'integer'
@@ -145,14 +147,14 @@ default_value: 0
 is_nullable: 0
 ```
 
-## cpu\_type
+### cpu\_type
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## dimms\_num
+### dimms\_num
 
 ```
 data_type: 'integer'
@@ -160,7 +162,7 @@ default_value: 0
 is_nullable: 0
 ```
 
-## ram\_total
+### ram\_total
 
 ```
 data_type: 'integer'
@@ -168,7 +170,7 @@ default_value: 0
 is_nullable: 0
 ```
 
-## nics\_num
+### nics\_num
 
 ```
 data_type: 'integer'
@@ -176,7 +178,7 @@ default_value: 0
 is_nullable: 0
 ```
 
-## sata\_hdd\_num
+### sata\_hdd\_num
 
 ```
 data_type: 'integer'
@@ -184,21 +186,21 @@ default_value: 0
 is_nullable: 0
 ```
 
-## sata\_hdd\_size
+### sata\_hdd\_size
 
 ```
 data_type: 'integer'
 is_nullable: 1
 ```
 
-## sata\_hdd\_slots
+### sata\_hdd\_slots
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## sas\_hdd\_num
+### sas\_hdd\_num
 
 ```
 data_type: 'integer'
@@ -206,21 +208,21 @@ default_value: 0
 is_nullable: 0
 ```
 
-## sas\_hdd\_size
+### sas\_hdd\_size
 
 ```
 data_type: 'integer'
 is_nullable: 1
 ```
 
-## sas\_hdd\_slots
+### sas\_hdd\_slots
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## sata\_ssd\_num
+### sata\_ssd\_num
 
 ```
 data_type: 'integer'
@@ -228,21 +230,21 @@ default_value: 0
 is_nullable: 0
 ```
 
-## sata\_ssd\_size
+### sata\_ssd\_size
 
 ```
 data_type: 'integer'
 is_nullable: 1
 ```
 
-## sata\_ssd\_slots
+### sata\_ssd\_slots
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## psu\_total
+### psu\_total
 
 ```
 data_type: 'integer'
@@ -250,7 +252,7 @@ default_value: 0
 is_nullable: 0
 ```
 
-## usb\_num
+### usb\_num
 
 ```
 data_type: 'integer'
@@ -258,7 +260,7 @@ default_value: 0
 is_nullable: 0
 ```
 
-## sas\_ssd\_num
+### sas\_ssd\_num
 
 ```
 data_type: 'integer'
@@ -266,21 +268,21 @@ default_value: 0
 is_nullable: 0
 ```
 
-## sas\_ssd\_size
+### sas\_ssd\_size
 
 ```
 data_type: 'integer'
 is_nullable: 1
 ```
 
-## sas\_ssd\_slots
+### sas\_ssd\_slots
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## nvme\_ssd\_num
+### nvme\_ssd\_num
 
 ```
 data_type: 'integer'
@@ -288,21 +290,21 @@ default_value: 0
 is_nullable: 0
 ```
 
-## nvme\_ssd\_size
+### nvme\_ssd\_size
 
 ```
 data_type: 'integer'
 is_nullable: 1
 ```
 
-## nvme\_ssd\_slots
+### nvme\_ssd\_slots
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## raid\_lun\_num
+### raid\_lun\_num
 
 ```
 data_type: 'integer'
@@ -310,43 +312,43 @@ default_value: 0
 is_nullable: 0
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# RELATIONS
+## RELATIONS
 
-## devices
+### devices
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
-## hardware\_vendor
+### hardware\_vendor
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::HardwareVendor](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareVendor)
 
-## rack\_layouts
+### rack\_layouts
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::RackLayout](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARackLayout)
 
-## validation\_plan
+### validation\_plan
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::ValidationPlan](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationPlan)
 
-## validation\_results
+### validation\_results
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

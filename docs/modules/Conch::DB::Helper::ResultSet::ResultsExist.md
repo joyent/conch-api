@@ -1,8 +1,10 @@
-# NAME
+# Conch::DB::Helper::ResultSet::ResultsExist
 
-Conch::DB::Helper::ResultSet::ResultsExist
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/ResultsExist.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/ResultsExist.pm)
+
+## DESCRIPTION
 
 A component for [Conch::DB::ResultSet](../modules/Conch%3A%3ADB%3A%3AResultSet) classes that provides the `exists` method.
 
@@ -11,15 +13,15 @@ present form due to [https://github.com/frioux/DBIx-Class-Helpers/issues/54](htt
 
 This code is postgres-specific.
 
-# USAGE
+## USAGE
 
 ```
 __PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::ResultsExist');
 ```
 
-# METHODS
+## METHODS
 
-## exists
+### exists
 
 Efficiently determines if a result exists, without needing to do a `->count`.
 Essentially does:
@@ -30,7 +32,7 @@ select * from ( select exists (select 1 from ... your query ... ) ) as _existenc
 
 Returns a value that you can treat as a boolean.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

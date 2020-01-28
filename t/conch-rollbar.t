@@ -30,7 +30,7 @@ my $t = Test::Conch->new(
             warn_payload_elements => 5,
             warn_payload_size => 100,
         },
-        logging => { handle => $log_fh },
+        logging => { handle => $log_fh, verbose => 0 },
     },
     pg => undef,
 );

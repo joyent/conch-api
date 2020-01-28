@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::DeviceNeighbor
 
-Conch::DB::Result::DeviceNeighbor
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceNeighbor.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/DeviceNeighbor.pm)
 
-# TABLE: `device_neighbor`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `device_neighbor`
 
-## mac
+## ACCESSORS
+
+### mac
 
 ```
 data_type: 'macaddr'
@@ -16,28 +18,28 @@ is_foreign_key: 1
 is_nullable: 0
 ```
 
-## raw\_text
+### raw\_text
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## peer\_switch
+### peer\_switch
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## peer\_port
+### peer\_port
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -46,7 +48,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## updated
+### updated
 
 ```
 data_type: 'timestamp with time zone'
@@ -55,26 +57,26 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## peer\_mac
+### peer\_mac
 
 ```
 data_type: 'macaddr'
 is_nullable: 1
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["mac"](#mac)
 
-# RELATIONS
+## RELATIONS
 
-## device\_nic
+### device\_nic
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::DeviceNic](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceNic)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

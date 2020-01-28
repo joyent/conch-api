@@ -1,4 +1,4 @@
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

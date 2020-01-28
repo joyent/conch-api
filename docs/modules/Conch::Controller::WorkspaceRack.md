@@ -1,16 +1,18 @@
-# NAME
+# Conch::Controller::WorkspaceRack
 
-Conch::Controller::WorkspaceRack
+## SOURCE
 
-# METHODS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceRack.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceRack.pm)
 
-## get\_all
+## METHODS
+
+### get\_all
 
 Get a list of racks for the indicated workspace.
 
 Response uses the WorkspaceRackSummary json schema.
 
-## find\_workspace\_rack
+### find\_workspace\_rack
 
 Chainable action that uses the `workspace_id` and `rack_id` values provided in the stash
 to confirm the rack is a (direct or indirect) member of the workspace.
@@ -21,18 +23,18 @@ the stash values.
 
 Saves `workspace_rack_rs` to the stash.
 
-## add
+### add
 
 Add a rack to a workspace, unless it is the GLOBAL workspace, provided the rack
 is assigned to the parent workspace of this one.
 
-## remove
+### remove
 
 Remove a rack from a workspace (and all descendants).
 
 Requires the 'admin' role on the workspace.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

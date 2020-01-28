@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::ResultSet::ValidationState
 
-Conch::DB::ResultSet::ValidationState
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/ValidationState.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/ValidationState.pm)
+
+## DESCRIPTION
 
 Interface to queries involving validation states.
 
-# METHODS
+## METHODS
 
-## latest\_completed\_state\_per\_plan
+### latest\_completed\_state\_per\_plan
 
 Generates a resultset that returns the single most recent **completed** validation\_state entry
 per validation plan (using whatever other search criteria are already in the resultset).
@@ -17,7 +19,7 @@ The query will be closed off as a subselect (that additional chaining will SELEC
 so it makes a difference whether you add things to the resultset before or after calling this
 method.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

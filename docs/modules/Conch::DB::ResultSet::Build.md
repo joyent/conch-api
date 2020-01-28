@@ -1,46 +1,48 @@
-# NAME
+# Conch::DB::ResultSet::Build
 
-Conch::DB::ResultSet::Build
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/Build.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/Build.pm)
+
+## DESCRIPTION
 
 Interface to queries involving builds.
 
-# METHODS
+## METHODS
 
-## admins
+### admins
 
 All the 'admin' users for the provided build(s). Pass a true argument to also include all
 system admin users in the result.
 
-## with\_user\_role
+### with\_user\_role
 
 Constrains the resultset to those builds where the provided user\_id has (at least) the
 specified role.
 
-## user\_has\_role
+### user\_has\_role
 
 Checks that the provided user\_id has (at least) the specified role in at least one build in the
 resultset.
 
 Returns a boolean.
 
-## with\_device\_health\_counts
+### with\_device\_health\_counts
 
 Modifies the resultset to add on a column named `device_health` containing an array of arrays
 of correlated counts of device.health values for each build.
 
-## with\_device\_phase\_counts
+### with\_device\_phase\_counts
 
 Modifies the resultset to add on a column named `device_phases` containing an array of arrays
 of correlated counts of device.phase values for each build.
 
-## with\_rack\_phase\_counts
+### with\_rack\_phase\_counts
 
 Modifies the resultset to add on a column named `rack_phases` containing an array of arrays
 of correlated counts of rack.phase values for each build.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

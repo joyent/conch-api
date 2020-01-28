@@ -1,8 +1,10 @@
-# NAME
+# workspaces - view the workspace hierarchy
 
-workspaces - view the workspace hierarchy
+## SOURCE
 
-# SYNOPSIS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/workspaces.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/workspaces.pm)
+
+## SYNOPSIS
 
 ```
 bin/conch workspaces [long options...]
@@ -10,7 +12,7 @@ bin/conch workspaces [long options...]
     --help  print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

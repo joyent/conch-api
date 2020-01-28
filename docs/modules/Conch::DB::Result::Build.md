@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::Build
 
-Conch::DB::Result::Build
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Build.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Build.pm)
 
-# TABLE: `build`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `build`
 
-## id
+## ACCESSORS
+
+### id
 
 ```
 data_type: 'uuid'
@@ -17,21 +19,21 @@ is_nullable: 0
 size: 16
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## description
+### description
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -40,21 +42,21 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## started
+### started
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## completed
+### completed
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## completed\_user\_id
+### completed\_user\_id
 
 ```
 data_type: 'uuid'
@@ -63,67 +65,67 @@ is_nullable: 1
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `build_name_key`
+### `build_name_key`
 
 - ["name"](#name)
 
-# RELATIONS
+## RELATIONS
 
-## completed\_user
+### completed\_user
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
-## devices
+### devices
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
-## organization\_build\_roles
+### organization\_build\_roles
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::OrganizationBuildRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganizationBuildRole)
 
-## racks
+### racks
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack)
 
-## user\_build\_roles
+### user\_build\_roles
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserBuildRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserBuildRole)
 
-## organizations
+### organizations
 
 Type: many\_to\_many
 
 Composing rels: ["organization\_build\_roles"](#organization_build_roles) -> organization
 
-## user\_accounts
+### user\_accounts
 
 Type: many\_to\_many
 
 Composing rels: ["user\_build\_roles"](#user_build_roles) -> user\_account
 
-# METHODS
+## METHODS
 
-## TO\_JSON
+### TO\_JSON
 
 Include information about the build's admins and user who marked the build completed.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

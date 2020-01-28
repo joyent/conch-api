@@ -1,15 +1,17 @@
-# NAME
+# Conch::Controller::Login
 
-Conch::Controller::Login
+## SOURCE
 
-# METHODS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Login.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Login.pm)
 
-## \_respond\_with\_jwt
+## METHODS
+
+### \_respond\_with\_jwt
 
 Create a response containing a login JWT, which the user should later present in the
 'Authorization Bearer' header.
 
-## authenticate
+### authenticate
 
 Handle the details of authenticating the user, with one of the following options:
 
@@ -21,21 +23,21 @@ Handle the details of authenticating the user, with one of the following options
 Does not terminate the connection if authentication is successful, allowing for chaining to
 subsequent routes and actions.
 
-## login
+### login
 
 Handles the act of logging in, given a user and password in the form.
 Response uses the LoginToken json schema, containing a JWT.
 
-## logout
+### logout
 
 Logs a user out by expiring their JWT (if one was included with the request) and user session
 
-## refresh\_token
+### refresh\_token
 
 Refresh a user's JWT token and persistent user session, deleting the old token.
 Response uses the LoginToken json schema, containing a JWT.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

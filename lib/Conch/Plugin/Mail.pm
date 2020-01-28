@@ -68,6 +68,7 @@ sub register ($self, $app, $config) {
 
             my $to = $args{To} // address($c->stash('target_user'));
             my $from = $args{From} // address($c->stash('user'));
+            $from .= '@'.($config->{mail}{from_host}//$c->host) if $from !~ /@/;
             my $subject = $args{Subject} // 'Important email from Conch';
 
             return Email::Simple->create(
@@ -91,7 +92,8 @@ sub register ($self, $app, $config) {
                 local $Conch::Log::REQUEST_ID = $request_id;
                 $log->info('sending email "'
                     .($args{template_file} // substr(0,20,$args{template} // $args{content}).'...')
-                    .'" to '.$email->header('to'));
+                    .'" to '.$email->header('to').' from '.$email->header('from')
+                );
 
                 my $result = try {
                     Email::Sender::Simple->send($email, {

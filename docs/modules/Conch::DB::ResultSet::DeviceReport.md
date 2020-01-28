@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::ResultSet::DeviceReport
 
-Conch::DB::ResultSet::DeviceReport
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/DeviceReport.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/DeviceReport.pm)
+
+## DESCRIPTION
 
 Interface to queries involving device reports.
 
-# METHODS
+## METHODS
 
-## with\_report\_status
+### with\_report\_status
 
 Given a resultset indicating one or more report(s), adds a column to the result indicating
 the cumulative status of all the validation state record(s) associated with it (that is, if all
@@ -16,7 +18,7 @@ pass, then return 'pass', otherwise consider if any were 'error' or 'fail').
 
 Reports with no validation results are considered to be a 'pass'.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

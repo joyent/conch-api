@@ -1,8 +1,10 @@
-# NAME
+# merge\_validation\_results - collapse duplicate validation\_result rows together
 
-merge\_validation\_results - collapse duplicate validation\_result rows together
+## SOURCE
 
-# SYNOPSIS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/merge_validation_results.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/merge_validation_results.pm)
+
+## SYNOPSIS
 
 ```
 bin/conch merge_validation_results [long options...]
@@ -12,7 +14,7 @@ bin/conch merge_validation_results [long options...]
     --help        print usage message and exit
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

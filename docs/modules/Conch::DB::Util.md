@@ -1,10 +1,12 @@
-# NAME
+# Conch::DB:::Util - utility functions for working with the Conch database
 
-Conch::DB:::Util - utility functions for working with the Conch database
+## SOURCE
 
-# METHODS
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Util.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Util.pm)
 
-## get\_credentials
+## METHODS
+
+### get\_credentials
 
 Return the credentials and connection options suitable for passing to [Conch::DB](../modules/Conch%3A%3ADB) for both
 read-write and read-only connections, containing keys:
@@ -35,30 +37,30 @@ at the appropriate hash key).
 
 See ["connect" in DBI](https://metacpan.org/pod/DBI#connect) and ["connect" in DBD::Pg](https://metacpan.org/pod/DBD%3A%3APg#connect) for the correct syntax for these values.
 
-## get\_postgres\_version
+### get\_postgres\_version
 
 Retrieves the current running version of postgres.
 
-## get\_migration\_level
+### get\_migration\_level
 
 Returns as a tuple the number of the latest database migration that has been applied, and the
 latest migration file found on disk.
 
 Note that the migration level retrieved from the database does **not** have leading zeroes.
 
-## initialize\_db
+### initialize\_db
 
 Initialize an empty database with the conch user and role and create empty tables.
 
-## migrate\_db
+### migrate\_db
 
 Bring the Conch database up to the latest migration.
 
-## create\_validation\_plans
+### create\_validation\_plans
 
 Sets up the static validation plans currently in use by Conch.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

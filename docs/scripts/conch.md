@@ -1,12 +1,14 @@
-# NAME
+# conch
 
-conch
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/bin/conch](https://github.com/joyent/conch/blob/master/bin/conch)
+
+## DESCRIPTION
 
 Start script for conch Mojo app
 
-# SYNOPSIS
+## SYNOPSIS
 
 See `bin/conch --help` for full usage.
 
@@ -74,7 +76,7 @@ Conch-specific commands are:
 
     View all workspaces in their heirarchical order
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

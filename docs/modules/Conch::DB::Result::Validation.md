@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::Validation
 
-Conch::DB::Result::Validation
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Validation.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Validation.pm)
 
-# TABLE: `validation`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `validation`
 
-## id
+## ACCESSORS
+
+### id
 
 ```
 data_type: 'uuid'
@@ -17,35 +19,35 @@ is_nullable: 0
 size: 16
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## version
+### version
 
 ```
 data_type: 'integer'
 is_nullable: 0
 ```
 
-## description
+### description
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## module
+### module
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -54,7 +56,7 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## updated
+### updated
 
 ```
 data_type: 'timestamp with time zone'
@@ -63,45 +65,45 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## deactivated
+### deactivated
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `validation_name_version_key`
+### `validation_name_version_key`
 
 - ["name"](#name)
 - ["version"](#version)
 
-# RELATIONS
+## RELATIONS
 
-## validation\_plan\_members
+### validation\_plan\_members
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationPlanMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationPlanMember)
 
-## validation\_results
+### validation\_results
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
 
-## validation\_plans
+### validation\_plans
 
 Type: many\_to\_many
 
 Composing rels: ["validation\_plan\_members"](#validation_plan_members) -> validation\_plan
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

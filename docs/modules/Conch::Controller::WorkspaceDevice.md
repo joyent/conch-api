@@ -1,10 +1,12 @@
-# NAME
+# Conch::Controller::WorkspaceDevice
 
-Conch::Controller::WorkspaceDevice
+## SOURCE
 
-# METHODS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceDevice.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/WorkspaceDevice.pm)
 
-## get\_all
+## METHODS
+
+### get\_all
 
 Get a list of all devices in the indicated workspace.
 
@@ -24,11 +26,11 @@ serials_only=1  only return device serial numbers, not full data
 Response uses the Devices json schema, or DeviceIds iff `ids_only=1`, or DeviceSerials iff
 `serials_only=1`.
 
-## get\_pxe\_devices
+### get\_pxe\_devices
 
 Response uses the WorkspaceDevicePXEs json schema.
 
-## device\_totals
+### device\_totals
 
 Ported from 'conch-stats'.
 
@@ -37,7 +39,7 @@ Add '.circ' to the end of the URL to select the data format customized for Circo
 
 Note that this is an unauthenticated endpoint.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

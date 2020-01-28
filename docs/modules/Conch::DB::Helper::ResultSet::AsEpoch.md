@@ -1,22 +1,24 @@
-# NAME
+# Conch::DB::Helper::ResultSet::AsEpoch
 
-Conch::DB::Helper::ResultSet::AsEpoch
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/AsEpoch.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/AsEpoch.pm)
+
+## DESCRIPTION
 
 A component for [Conch::DB::ResultSet](../modules/Conch%3A%3ADB%3A%3AResultSet) classes that provides the `as_epoch` method.
 
 This code is postgres-specific.
 
-# USAGE
+## USAGE
 
 ```
 __PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::AsEpoch');
 ```
 
-# METHODS
+## METHODS
 
-## as\_epoch
+### as\_epoch
 
 Adds to a resultset a selection list for a timestamp column as a unix epoch time.
 If the column already existed in the selection list (presumably using the default time format),
@@ -29,7 +31,7 @@ epoch time format (number of seconds since 1970-01-01 00:00:00 UTC).
 $rs = $rs->as_epoch('created');
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

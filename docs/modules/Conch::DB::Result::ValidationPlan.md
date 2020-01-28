@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::ValidationPlan
 
-Conch::DB::Result::ValidationPlan
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/ValidationPlan.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/ValidationPlan.pm)
 
-# TABLE: `validation_plan`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `validation_plan`
 
-## id
+## ACCESSORS
+
+### id
 
 ```
 data_type: 'uuid'
@@ -17,21 +19,21 @@ is_nullable: 0
 size: 16
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## description
+### description
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## created
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -40,44 +42,44 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## deactivated
+### deactivated
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# RELATIONS
+## RELATIONS
 
-## hardware\_products
+### hardware\_products
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct)
 
-## validation\_plan\_members
+### validation\_plan\_members
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationPlanMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationPlanMember)
 
-## validation\_states
+### validation\_states
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationState](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationState)
 
-## validations
+### validations
 
 Type: many\_to\_many
 
 Composing rels: ["validation\_plan\_members"](#validation_plan_members) -> validation
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

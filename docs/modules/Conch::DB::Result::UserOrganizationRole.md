@@ -1,23 +1,16 @@
-# NAME
+# Conch::DB::Result::UserOrganizationRole
 
-Conch::DB::Result::UserOrganizationRole
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/UserOrganizationRole.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/UserOrganizationRole.pm)
 
-# TABLE: `user_organization_role`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `user_organization_role`
 
-## user\_id
+## ACCESSORS
 
-```
-data_type: 'uuid'
-is_foreign_key: 1
-is_nullable: 0
-size: 16
-```
-
-## organization\_id
+### user\_id
 
 ```
 data_type: 'uuid'
@@ -26,7 +19,16 @@ is_nullable: 0
 size: 16
 ```
 
-## role
+### organization\_id
+
+```
+data_type: 'uuid'
+is_foreign_key: 1
+is_nullable: 0
+size: 16
+```
+
+### role
 
 ```
 data_type: 'enum'
@@ -35,26 +37,26 @@ extra: {custom_type_name => "role_enum",list => ["ro","rw","admin"]}
 is_nullable: 0
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["user\_id"](#user_id)
 - ["organization\_id"](#organization_id)
 
-# RELATIONS
+## RELATIONS
 
-## organization
+### organization
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Organization](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AOrganization)
 
-## user\_account
+### user\_account
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

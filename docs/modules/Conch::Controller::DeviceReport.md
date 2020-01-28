@@ -1,25 +1,27 @@
-# NAME
+# Conch::Controller::DeviceReport
 
-Conch::Controller::DeviceReport
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceReport.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/DeviceReport.pm)
+
+## DESCRIPTION
 
 Controller for processing and managing device reports.
 
-# METHODS
+## METHODS
 
-## process
+### process
 
 Processes the device report, turning it into the various device\_ tables as well
 as running validations
 
 Response uses the ValidationStateWithResults json schema.
 
-## \_record\_device\_configuration
+### \_record\_device\_configuration
 
 Uses a device report to populate configuration information about the given device
 
-## find\_device\_report
+### find\_device\_report
 
 Chainable action that uses the `device_report_id` value provided in the stash (usually via the
 request URL) to look up a device report, and stashes the query to get to it in
@@ -29,21 +31,21 @@ request URL) to look up a device report, and stashes the query to get to it in
 
 Role checks are done in the next controller action in the chain.
 
-## get
+### get
 
 Get the device\_report record specified by uuid.
 A role check has already been done by [device#find\_device](../modules/Conch%3A%3AController%3A%3ADevice#find_device).
 
 Response uses the DeviceReportRow json schema.
 
-## validate\_report
+### validate\_report
 
 Process a device report without writing anything to the database; otherwise behaves like
 ["process"](#process). The described device does not have to exist.
 
 Response uses the ReportValidationResults json schema.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

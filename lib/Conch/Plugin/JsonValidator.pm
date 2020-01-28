@@ -48,7 +48,7 @@ appearing once are scalars, parameters appearing more than once have their value
 arrayref).
 
 On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
-QueryParamsValidationError json response schema.
+F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
 
 =cut
 
@@ -62,7 +62,7 @@ QueryParamsValidationError json response schema.
         }
 
         if (my @errors = $validator->validate($data, $schema)) {
-            $c->log->error("FAILED query_params validation for schema $schema_name".join(' // ', @errors));
+            $c->log->warn("FAILED query_params validation for schema $schema_name".join(' // ', @errors));
             return $c->status(400, {
                 error => 'query parameters did not match required format',
                 data => $data,
@@ -81,7 +81,7 @@ Given the name of a json schema in the request namespace, validate the provided 
 it (defaulting to the request's json payload).
 
 On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
-using the RequestValidationError json response schema.
+using the F<response.yaml#/definitions/RequestValidationError> json response schema.
 
 =cut
 
@@ -95,7 +95,7 @@ using the RequestValidationError json response schema.
         }
 
         if (my @errors = $validator->validate($data, $schema)) {
-            $c->log->error("FAILED request payload validation for schema $schema_name".join(' // ', @errors));
+            $c->log->warn("FAILED request payload validation for schema $schema_name".join(' // ', @errors));
             return $c->status(400, {
                 error => 'request did not match required format',
                 details => \@errors,

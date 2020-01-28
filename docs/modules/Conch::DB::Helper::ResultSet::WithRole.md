@@ -1,25 +1,27 @@
-# NAME
+# Conch::DB::Helper::ResultSet::WithRole
 
-Conch::DB::Helper::ResultSet::WithRole
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/WithRole.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/WithRole.pm)
+
+## DESCRIPTION
 
 A component for [Conch::DB::ResultSet](../modules/Conch%3A%3ADB%3A%3AResultSet) classes for database tables with a `role`
 column, to provide common query functionality.
 
-# USAGE
+## USAGE
 
 ```
 __PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::WithRole');
 ```
 
-# METHODS
+## METHODS
 
-## with\_role
+### with\_role
 
 Constrains the resultset to those rows that grants (at least) the specified role.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,8 +1,10 @@
-# NAME
+# copy\_user\_data - copy user data (user records and authentication tokens) between databases
 
-copy\_user\_data - copy user data (user records and authentication tokens) between databases
+## SOURCE
 
-# SYNOPSIS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Command/copy_user_data.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/copy_user_data.pm)
+
+## SYNOPSIS
 
 ```
 bin/conch copy_user_data [long options...]
@@ -14,7 +16,7 @@ bin/conch copy_user_data [long options...]
     --help        print usage message and exit
 ```
 
-# DESCRIPTION
+## DESCRIPTION
 
 Use this script after restoring a database backup to a separate database, before swapping it into place to go live. e.g.:
 
@@ -32,7 +34,7 @@ psql -U postgres --command="alter database conch rename to conch_staging_$(date 
 carton exec hypnotoad bin/conch
 ```
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

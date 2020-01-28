@@ -1,10 +1,12 @@
-# NAME
+# Conch::Controller::Organization
 
-Conch::Controller::Organization
+## SOURCE
 
-# METHODS
+[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Organization.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Organization.pm)
 
-## get\_all
+## METHODS
+
+### get\_all
 
 Retrieve a list of organization details (including each organization's admins).
 
@@ -13,13 +15,13 @@ list to those organizations of which the user is a member.
 
 Response uses the Organizations json schema.
 
-## create
+### create
 
 Creates an organization.
 
 Requires the user to be a system admin.
 
-## find\_organization
+### find\_organization
 
 Chainable action that uses the `organization_id_or_name` value provided in the stash (usually
 via the request URL) to look up an organization, and stashes the query to get to it in
@@ -28,25 +30,25 @@ via the request URL) to look up an organization, and stashes the query to get to
 If `require_role` is provided, it is used as the minimum required role for the user to
 continue; otherwise the user must have the 'admin' role.
 
-## get
+### get
 
 Get the details of a single organization, including its members.
 Requires the 'admin' role on the organization.
 
 Response uses the Organization json schema.
 
-## update
+### update
 
 Modifies an organization attribute: one or more of name, description.
 Requires the 'admin' role on the organization.
 
-## delete
+### delete
 
 Deactivates the organization, preventing its members from exercising any privileges from it.
 
 User must have system admin privileges.
 
-## add\_user
+### add\_user
 
 Adds a user to the current organization, or upgrades an existing role entry to access the
 organization.
@@ -55,7 +57,7 @@ Requires the 'admin' role on the organization.
 Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
 to the user and to all organization admins.
 
-## remove\_user
+### remove\_user
 
 Removes the indicated user from the organization.
 Requires the 'admin' role on the organization.
@@ -63,7 +65,7 @@ Requires the 'admin' role on the organization.
 Optionally takes a query parameter `send_mail` (defaulting to true), to send an email
 to the user and to all organization admins.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

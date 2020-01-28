@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::ResultSet::UserAccount
 
-Conch::DB::ResultSet::UserAccount
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/UserAccount.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/UserAccount.pm)
+
+## DESCRIPTION
 
 Interface to queries against the `user_account` table.
 
-# METHODS
+## METHODS
 
-## find\_by\_email
+### find\_by\_email
 
 Queries for user by (case-insensitive) email address.
 
@@ -17,11 +19,11 @@ If more than one user is found, we return the one created most recently.
 If you want to search only for **active** users, apply the `->active` resultset to the
 caller first.
 
-## search\_by\_email
+### search\_by\_email
 
 Just the resultset for ["find\_by\_email"](#find_by_email).
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

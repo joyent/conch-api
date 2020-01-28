@@ -1,29 +1,31 @@
-# NAME
+# Conch::DB::Helper::ResultSet::Deactivatable
 
-Conch::DB::Helper::ResultSet::Deactivatable
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/Deactivatable.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/Deactivatable.pm)
+
+## DESCRIPTION
 
 A component for [Conch::DB::ResultSet](../modules/Conch%3A%3ADB%3A%3AResultSet) classes for database tables with a `deactivated`
 column, to provide common query functionality.
 
-# USAGE
+## USAGE
 
 ```
 __PACKAGE__->load_components('+Conch::DB::Helper::ResultSet::Deactivatable');
 ```
 
-# METHODS
+## METHODS
 
-## active
+### active
 
 Chainable resultset to limit results to those that aren't deactivated.
 
-## deactivate
+### deactivate
 
 Update all matching rows by setting deactivated = now().
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

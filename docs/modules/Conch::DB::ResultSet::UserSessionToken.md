@@ -1,38 +1,40 @@
-# NAME
+# Conch::DB::ResultSet::UserSessionToken
 
-Conch::DB::ResultSet::UserSessionToken
+## SOURCE
 
-# DESCRIPTION
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/UserSessionToken.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/ResultSet/UserSessionToken.pm)
+
+## DESCRIPTION
 
 Interface to queries against the 'user\_session\_token' table.
 
-# METHODS
+## METHODS
 
-## expired
+### expired
 
 Chainable resultset to limit results to those that are expired.
 
-## active
+### active
 
 Chainable resultset to limit results to those that are not expired.
 
-## unexpired
+### unexpired
 
 Chainable resultset to limit results to those that are not expired.
 
-## login\_only
+### login\_only
 
 Chainable resultset to search for login tokens (created via the main `POST /login` flow).
 
-## api\_only
+### api\_only
 
 Chainable resultset to search for api tokens (NOT created via the main /login flow).
 
-## expire
+### expire
 
 Update all matching rows by setting expires = now(). (Returns the number of rows updated.)
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

@@ -1,14 +1,16 @@
-# NAME
+# Conch::DB::Result::Workspace
 
-Conch::DB::Result::Workspace
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Workspace.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Workspace.pm)
 
-# TABLE: `workspace`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `workspace`
 
-## id
+## ACCESSORS
+
+### id
 
 ```
 data_type: 'uuid'
@@ -17,21 +19,21 @@ is_nullable: 0
 size: 16
 ```
 
-## name
+### name
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## description
+### description
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## parent\_workspace\_id
+### parent\_workspace\_id
 
 ```
 data_type: 'uuid'
@@ -40,68 +42,68 @@ is_nullable: 1
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `workspace_name_key`
+### `workspace_name_key`
 
 - ["name"](#name)
 
-# RELATIONS
+## RELATIONS
 
-## parent\_workspace
+### parent\_workspace
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Workspace](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspace)
 
-## user\_workspace\_roles
+### user\_workspace\_roles
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::UserWorkspaceRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserWorkspaceRole)
 
-## workspace\_racks
+### workspace\_racks
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::WorkspaceRack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspaceRack)
 
-## workspaces
+### workspaces
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::Workspace](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspace)
 
-## racks
+### racks
 
 Type: many\_to\_many
 
 Composing rels: ["workspace\_racks"](#workspace_racks) -> rack
 
-## user\_accounts
+### user\_accounts
 
 Type: many\_to\_many
 
 Composing rels: ["user\_workspace\_roles"](#user_workspace_roles) -> user\_account
 
-## TO\_JSON
+### TO\_JSON
 
 Include information about the user's role, if available.
 
-## role
+### role
 
 Accessor for informational column, which is by the serializer in the result data.
 
-## user\_id\_for\_role
+### user\_id\_for\_role
 
 Accessor for informational column, which is used by the serializer to signal we should fetch
 and include inherited role data for the user.
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 

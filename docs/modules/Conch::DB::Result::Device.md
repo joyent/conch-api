@@ -1,21 +1,23 @@
-# NAME
+# Conch::DB::Result::Device
 
-Conch::DB::Result::Device
+## SOURCE
 
-# BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
+[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Device.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/Device.pm)
 
-# TABLE: `device`
+## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-# ACCESSORS
+## TABLE: `device`
 
-## serial\_number
+## ACCESSORS
+
+### serial\_number
 
 ```
 data_type: 'text'
 is_nullable: 0
 ```
 
-## system\_uuid
+### system\_uuid
 
 ```
 data_type: 'uuid'
@@ -23,7 +25,7 @@ is_nullable: 1
 size: 16
 ```
 
-## hardware\_product\_id
+### hardware\_product\_id
 
 ```
 data_type: 'uuid'
@@ -32,7 +34,7 @@ is_nullable: 0
 size: 16
 ```
 
-## health
+### health
 
 ```
 data_type: 'enum'
@@ -40,23 +42,14 @@ extra: {custom_type_name => "device_health_enum",list => ["error","fail","unknow
 is_nullable: 0
 ```
 
-## last\_seen
+### last\_seen
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## created
-
-```
-data_type: 'timestamp with time zone'
-default_value: current_timestamp
-is_nullable: 0
-original: {default_value => \"now()"}
-```
-
-## updated
+### created
 
 ```
 data_type: 'timestamp with time zone'
@@ -65,35 +58,44 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-## uptime\_since
+### updated
+
+```
+data_type: 'timestamp with time zone'
+default_value: current_timestamp
+is_nullable: 0
+original: {default_value => \"now()"}
+```
+
+### uptime\_since
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## validated
+### validated
 
 ```
 data_type: 'timestamp with time zone'
 is_nullable: 1
 ```
 
-## asset\_tag
+### asset\_tag
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## hostname
+### hostname
 
 ```
 data_type: 'text'
 is_nullable: 1
 ```
 
-## phase
+### phase
 
 ```
 data_type: 'enum'
@@ -102,7 +104,7 @@ extra: {custom_type_name => "device_phase_enum",list => ["integration","installa
 is_nullable: 0
 ```
 
-## id
+### id
 
 ```
 data_type: 'uuid'
@@ -111,7 +113,7 @@ is_nullable: 0
 size: 16
 ```
 
-## links
+### links
 
 ```
 data_type: 'text[]'
@@ -119,7 +121,7 @@ default_value: '{}'::text[]
 is_nullable: 0
 ```
 
-## build\_id
+### build\_id
 
 ```
 data_type: 'uuid'
@@ -128,89 +130,89 @@ is_nullable: 1
 size: 16
 ```
 
-# PRIMARY KEY
+## PRIMARY KEY
 
 - ["id"](#id)
 
-# UNIQUE CONSTRAINTS
+## UNIQUE CONSTRAINTS
 
-## `device_serial_number_key`
+### `device_serial_number_key`
 
 - ["serial\_number"](#serial_number)
 
-## `device_system_uuid_key`
+### `device_system_uuid_key`
 
 - ["system\_uuid"](#system_uuid)
 
-# RELATIONS
+## RELATIONS
 
-## build
+### build
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Build](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ABuild)
 
-## device\_disks
+### device\_disks
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::DeviceDisk](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceDisk)
 
-## device\_location
+### device\_location
 
 Type: might\_have
 
 Related object: [Conch::DB::Result::DeviceLocation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceLocation)
 
-## device\_nics
+### device\_nics
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::DeviceNic](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceNic)
 
-## device\_relay\_connections
+### device\_relay\_connections
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::DeviceRelayConnection](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceRelayConnection)
 
-## device\_reports
+### device\_reports
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::DeviceReport](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceReport)
 
-## device\_settings
+### device\_settings
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::DeviceSetting](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceSetting)
 
-## hardware\_product
+### hardware\_product
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct)
 
-## validation\_results
+### validation\_results
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
 
-## validation\_states
+### validation\_states
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationState](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationState)
 
-## relays
+### relays
 
 Type: many\_to\_many
 
 Composing rels: ["device\_relay\_connections"](#device_relay_connections) -> relay
 
-# LICENSING
+## LICENSING
 
 Copyright Joyent, Inc.
 
