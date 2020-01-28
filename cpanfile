@@ -82,7 +82,7 @@ on 'test' => sub {
     requires 'Test::More';
     requires 'Test::PostgreSQL', '1.27';
     requires 'Test::Pod::Coverage';
-    requires 'YAML::XS';
+    requires 'YAML::XS', '0.81';    # http://blogs.perl.org/users/tinita/2020/01/making-yamlpm-yamlsyck-and-yamlxs-safer-by-default.html
     requires 'Test::Pod', '1.41';
     requires 'Test::Warnings';
     requires 'Test::Fatal';

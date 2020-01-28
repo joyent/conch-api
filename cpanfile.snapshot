@@ -4029,11 +4029,11 @@ DISTRIBUTIONS
       Win32::ShellQuote 0.003001
     requirements:
       perl 5.006
-  YAML-LibYAML-0.80
-    pathname: T/TI/TINITA/YAML-LibYAML-0.80.tar.gz
+  YAML-LibYAML-0.81
+    pathname: T/TI/TINITA/YAML-LibYAML-0.81.tar.gz
     provides:
-      YAML::LibYAML 0.80
-      YAML::XS 0.80
+      YAML::LibYAML 0.81
+      YAML::XS 0.81
       YAML::XS::LibYAML undef
     requirements:
       ExtUtils::MakeMaker 0
