@@ -111,7 +111,7 @@ sub process ($c) {
         };
     }
 
-    # Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
+    # Time for validations https://www.ctvscifi.ca/wp-content/uploads/2017/05/giphy-1.gif
     my $validation_plan = $c->db_validation_plans->search({
         id => { '=' => $c->db_hardware_products->search({ id => $hardware_product_id })->get_column('validation_plan_id')->as_query },
     })->single;
