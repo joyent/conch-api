@@ -739,9 +739,18 @@ sub _request_ok ($self, @args) {
     undef $self->{_mail_composed};
     $self->reset_log;
     my $result = $self->next::method(@args);
+
+    my $dump_log;
+    my $log_history = $self->app->log->history;
+    if (any { $_->[1] eq 'fatal' } $log_history->@*) {
+        $self->_test('fail', 'got a fatal log message');
+        $dump_log = 1;
+    }
+
     Test::More::diag 'log history: ',
-            Data::Dumper->new([ $self->app->log->history ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump
-        if $self->tx->res->code == 500 and $self->tx->req->url->path !~ qr{^/_die};
+            Data::Dumper->new([ $log_history ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump
+        if $dump_log || $self->tx->res->code == 500 && $self->tx->req->url->path !~ qr{^/_die};
+
     return $result;
 }
 
