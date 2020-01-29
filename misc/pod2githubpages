@@ -79,8 +79,7 @@ around 'Pod::Markdown::end_for' => sub {
 
     # pass resulting pod through pod -> markdown conversion
     $newtext = "=pod\n\n". $newtext;
-    my $outstr;
-    open my $outfh, '>', \$outstr;
+    open my $outfh, '>', \my $outstr;
     open my $infh, '<', \$newtext;
     convert($infh, $outfh);
     $self->_save_block($self->_chomp_all($outstr));
