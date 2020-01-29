@@ -38,6 +38,7 @@ sub find_user ($c) {
     }
 
     if ($user->deactivated) {
+        $c->stash('response_schema', 'UserError') if $c->is_system_admin;
         return $c->status(410, {
             error => 'user is deactivated',
             $c->is_system_admin ? ( user => { map +($_ => $user->$_), qw(id email name created deactivated) } ) : (),
@@ -381,6 +382,7 @@ sub update ($c) {
                 && $c->db_user_accounts->active->find_by_email($input->{email}))
             || (exists $dirty_columns{name}
                 && $c->db_user_accounts->active->search({ name => $input->{name} })->single) ) {
+        $c->stash('response_schema', 'UserError') if $is_system_admin;
         return $c->status(409, {
             error => 'duplicate user found',
             $is_system_admin ? ( user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) } ) : (),
@@ -447,6 +449,7 @@ sub create ($c) {
 
     if (my $dupe_user = $c->db_user_accounts->active->search({ name => $input->{name} })->single
             || $c->db_user_accounts->active->find_by_email($input->{email})) {
+        $c->stash('response_schema', 'UserError');
         return $c->status(409, {
             error => 'duplicate user found',
             user => { map +($_ => $dupe_user->$_), qw(id email name created deactivated) },
@@ -508,6 +511,7 @@ sub deactivate ($c) {
         ->order_by($type.'.name');
 
         if (my $thing = $rs->rows(1)->one_row) {
+            $c->stash('response_schema', 'UserError');
             return $c->status(409, {
                 error => 'user is the only admin of the "'.$thing->name.'" '.$type.' ('.$thing->id.')',
                 user => { map +($_ => $user->$_), qw(id email name created deactivated) },

@@ -88,6 +88,17 @@ Performs more checks when this ["feature" in Conch::Plugin::Features](../modules
     assumes the request body schema is [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null) when not provided (for
     `POST`, `PUT`, `DELETE` requests)
 
+### after\_dispatch
+
+Runs after dispatching is complete.
+
+Performs more checks when this ["feature" in Conch::Plugin::Features](../modules/Conch%3A%3APlugin%3A%3AFeatures#feature) is enabled:
+
+- `validate_all_responses`
+
+    When not provided, assumes the response body schema is [response.json#/$defs/Null](../json-schema/response.json#/$defs/Null)
+    (for all 2xx responses), or [response.json#/$defs/Error](../json-schema/response.json#/$defs/Error) (for 4xx responses).
+
 ## LICENSING
 
 Copyright Joyent, Inc.

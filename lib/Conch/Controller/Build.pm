@@ -717,9 +717,18 @@ sub get_devices ($c) {
     $rs = $rs->search({ last_seen => { '>' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } })
         if $params->{active_minutes};
 
-    $rs = $params->{ids_only} ? $rs->get_column('id')
-        : $params->{serials_only} ? $rs->get_column('serial_number')
-        : $rs->with_device_location->with_sku->with_build_name;
+    if ($params->{ids_only}) {
+        $rs = $rs->get_column('id');
+        $c->stash('response_schema', 'DeviceIds');
+    }
+    elsif ($params->{serials_only}) {
+        $rs = $rs->get_column('serial_number');
+        $c->stash('response_schema', 'DeviceSerials');
+    }
+    else {
+        $rs = $rs->with_device_location->with_sku->with_build_name;
+        $c->stash('response_schema', 'Devices');
+    }
 
     $c->status(200, [ $rs->all ]);
 }
@@ -930,12 +939,18 @@ sub get_racks ($c) {
     my $rs = $c->stash('build_rs')->related_resultset('racks');
     $rs = $rs->search({ 'racks.phase' => $params->{phase} }) if $params->{phase};
 
-    $rs = $params->{ids_only} ? $rs->get_column('id')
-        : $rs->add_columns({ build_name => 'build.name' })
-              ->with_full_rack_name
-              ->with_datacenter_room_alias
-              ->with_rack_role_name
-              ->order_by('racks.name');
+    if ($params->{ids_only}) {
+        $rs = $rs->get_column('id');
+        $c->stash('response_schema', 'RackIds');
+    }
+    else {
+        $rs = $rs->add_columns({ build_name => 'build.name' })
+            ->with_full_rack_name
+            ->with_datacenter_room_alias
+            ->with_rack_role_name
+            ->order_by('racks.name');
+        $c->stash('response_schema', 'Racks');
+    }
 
     $c->status(200, [ $rs->all ]);
 }

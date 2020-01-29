@@ -26,7 +26,7 @@ sub routes {
 
     # GET /device?:key=:value
     $device->get('/')
-        ->to('device#lookup_by_other_attribute', query_params_schema => 'GetDeviceByAttribute');
+        ->to('device#lookup_by_other_attribute', query_params_schema => 'GetDeviceByAttribute', response_schema => 'Devices');
 
     {
         # chainable actions that extract and look up the device id or serial_number from the path
@@ -39,14 +39,14 @@ sub routes {
             ->to('device#find_device', query_params_schema => 'FindDevice', phase_earlier_than => 'production');
 
         # GET /device/:device_id_or_serial_number
-        $with_device->get('/')->to('device#get');
+        $with_device->get('/')->to('device#get', response_schema => 'DetailedDevice');
 
         # GET /device/:device_id_or_serial_number/pxe
-        $with_device_phase_earlier_than_prod->get('/pxe')->to('device#get_pxe');
+        $with_device_phase_earlier_than_prod->get('/pxe')->to('device#get_pxe', response_schema => 'DevicePXE');
         # GET /device/:device_id_or_serial_number/phase
-        $with_device->get('/phase')->to('device#get_phase');
+        $with_device->get('/phase')->to('device#get_phase', response_schema => 'DevicePhase');
         # GET /device/:device_id_or_serial_number/sku
-        $with_device->get('/sku')->to('device#get_sku');
+        $with_device->get('/sku')->to('device#get_sku', response_schema => 'DeviceSku');
 
         # POST /device/:device_id_or_serial_number/asset_tag
         $with_device->post('/asset_tag')
@@ -71,7 +71,7 @@ sub routes {
                 ->to({ controller => 'device_location' });
 
             # GET /device/:device_id_or_serial_number/location
-            $with_device_location->get('/')->to('#get');
+            $with_device_location->get('/')->to('#get', response_schema => 'DeviceLocation');
             # POST /device/:device_id_or_serial_number/location
             $with_device_location->post('/')->to('#set', request_schema => 'DeviceLocationUpdate');
             # DELETE /device/:device_id_or_serial_number/location
@@ -83,13 +83,13 @@ sub routes {
                 ->to({ controller => 'device_settings' });
 
             # GET /device/:device_id_or_serial_number/settings
-            $with_device_settings->get('/')->to('#get_all');
+            $with_device_settings->get('/')->to('#get_all', response_schema => 'DeviceSettings');
             # POST /device/:device_id_or_serial_number/settings
             $with_device_settings->post('/')->to('#set_all', request_schema => 'DeviceSettings');
 
             my $with_device_settings_with_key = $with_device_settings->any('/#key');
             # GET /device/:device_id_or_serial_number/settings/#key
-            $with_device_settings_with_key->get('/')->to('#get_single');
+            $with_device_settings_with_key->get('/')->to('#get_single', response_schema => 'DeviceSetting');
             # POST /device/:device_id_or_serial_number/settings/#key
             $with_device_settings_with_key->post('/')
                 ->to('#set_single', request_schema => 'DeviceSetting');
@@ -100,32 +100,33 @@ sub routes {
         # POST /device/:device_id_or_serial_number/validation/:validation_id
         $with_device_ro->post('/validation/<validation_id:uuid>')
             ->to('device_validation#validate', deprecated => 'v4.0',
-                request_schema => 'DeviceReport');
+                request_schema => 'DeviceReport', response_schema => 'LegacyValidationResults');
         # POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id
         $with_device_ro->post('/validation_plan/<validation_plan_id:uuid>')
             ->to('device_validation#run_validation_plan', deprecated => 'v4.0',
-                request_schema => 'DeviceReport');
+                request_schema => 'DeviceReport', response_schema => 'LegacyValidationResults');
 
         # GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...
         $with_device->get('/validation_state')
-            ->to('device_validation#get_validation_state', query_params_schema => 'GetValidationState');
+            ->to('device_validation#get_validation_state', query_params_schema => 'GetValidationState',
+                response_schema => 'ValidationStateWithResults');
 
         {
             my $with_device_interface = $with_device_phase_earlier_than_prod
                 ->any('/interface')->to({ controller => 'device_interface' });
 
             # GET /device/:device_id_or_serial_number/interface
-            $with_device_interface->get('/')->to('#get_all');
+            $with_device_interface->get('/')->to('#get_all', response_schema => 'DeviceNics');
 
             # chainable action that extracts and looks up interface_name from the path
             my $with_interface_name = $with_device_interface->under('/#interface_name')->to('#find_device_interface');
 
             # GET /device/:device_id_or_serial_number/interface/#interface_name
-            $with_interface_name->get('/')->to('#get_one');
+            $with_interface_name->get('/')->to('#get_one', response_schema => 'DeviceNic');
 
             # GET /device/:device_id_or_serial_number/interface/#interface_name/:field
             $with_interface_name->get('/:field', [ field => [ $app->db_device_nics->fields ] ])
-                ->to('#get_one_field');
+                ->to('#get_one_field', response_schema => 'DeviceNicField');
         }
     }
 }

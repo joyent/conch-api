@@ -82,6 +82,12 @@ $defs:
     uniqueItems: true
     items:
       $ref: '#/$defs/JSONSchemaError'
+  'Null':
+    type: 'null'
+  Anything:
+    type: [ 'null', object, array ]
+    additionalProperties: true
+    items: true
   Ping:
     type: object
     additionalProperties: false

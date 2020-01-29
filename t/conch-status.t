@@ -7,7 +7,7 @@ use Test::Warnings;
 use Test::Conch;
 
 {
-    my $t = Test::Conch->new(pg => undef);
+    my $t = Test::Conch->new(config => { features => { no_db => 1, validate_all_responses => 0 } });
     my $catchall = $t->app->routes->find('catchall')->remove;
 
     $t->app->routes->${\ $_->[0] }($_->[1], $_->[2]) foreach (
@@ -22,8 +22,8 @@ use Test::Conch;
         [ 'get', '/403', sub ($c) { $c->status(403) } ],
         [ 'get', '/404', sub ($c) { $c->status(404) } ],
         [ 'get', '/501', sub ($c) { $c->status(501) } ],
-        [ 'get', '/200-object', sub ($c) { $c->status(200, { status => 'OK' }) } ],
-        [ 'get', '/200-array', sub ($c) { $c->status(200, []) } ],
+        [ 'get', '/200-object', sub ($c) { $c->stash('response_schema', 'Anything'); $c->status(200, { status => 'OK' }) } ],
+        [ 'get', '/200-array', sub ($c) { $c->stash('response_schema', 'Anything'); $c->status(200, []) } ],
         [ 'get', '/409', sub ($c) { $c->status(409, { error => 'Conflict'}) } ],
         [ 'get', '/204', sub ($c) { $c->status(204) } ],
         [ 'get', '/410', sub ($c) { $c->status(410) } ],
@@ -47,7 +47,7 @@ use Test::Conch;
     $t->get_ok('/200-array')->status_is(200)->json_is([]);
 
     $t->get_ok('/204')->status_is(204)->content_is('');
-    $t->get_ok('/410')->status_is(410)->content_is('');
+    $t->get_ok('/410')->status_is(410)->json_is({ error => 'Entity No Longer Available' });
 }
 
 done_testing;

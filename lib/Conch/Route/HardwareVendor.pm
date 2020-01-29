@@ -23,14 +23,14 @@ sub routes {
     $hv->to({ controller => 'hardware_vendor' });
 
     # GET /hardware_vendor
-    $hv->get('/')->to('#get_all');
+    $hv->get('/')->to('#get_all', response_schema => 'HardwareVendors');
 
     {
         my $with_hv = $hv->under('/:hardware_vendor_id_or_name')
             ->to('#find_hardware_vendor');
 
         # GET /hardware_vendor/:hardware_vendor_id_or_name
-        $with_hv->get('/')->to('#get_one');
+        $with_hv->get('/')->to('#get_one', response_schema => 'HardwareVendor');
 
         # DELETE /hardware_vendor/:hardware_vendor_id_or_name
         $with_hv->require_system_admin->delete('/')->to('#delete');

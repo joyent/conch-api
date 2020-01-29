@@ -23,20 +23,20 @@ sub routes {
     $dc = $dc->require_system_admin->to({ controller => 'datacenter' });
 
     # GET /dc
-    $dc->get('/')->to('#get_all');
+    $dc->get('/')->to('#get_all', response_schema => 'Datacenters');
     # POST /dc
     $dc->post('/')->to('#create', request_schema => 'DatacenterCreate');
 
     my $with_datacenter = $dc->under('/<datacenter_id:uuid>')->to('#find_datacenter');
 
     # GET /dc/:datacenter_id
-    $with_datacenter->get('/')->to('#get_one');
+    $with_datacenter->get('/')->to('#get_one', response_schema => 'Datacenter');
     # POST /dc/:datacenter_id
     $with_datacenter->post('/')->to('#update', request_schema => 'DatacenterUpdate');
     # DELETE /dc/:datacenter_id
     $with_datacenter->delete('/')->to('#delete');
     # GET /dc/:datacenter_id/rooms
-    $with_datacenter->get('/rooms')->to('#get_rooms');
+    $with_datacenter->get('/rooms')->to('#get_rooms', response_schema => 'DatacenterRoomsDetailed');
 }
 
 1;

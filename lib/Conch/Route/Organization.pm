@@ -23,7 +23,7 @@ sub routes {
     $organization->to({ controller => 'organization' });
 
     # GET /organization
-    $organization->get('/')->to('#get_all');
+    $organization->get('/')->to('#get_all', response_schema => 'Organizations');
 
     # POST /organization
     $organization->require_system_admin->post('/')->to('#create', request_schema => 'OrganizationCreate');
@@ -35,7 +35,7 @@ sub routes {
             ->to('#find_organization');
 
         # GET /organization/:organization_id_or_name
-        $with_organization->get('/')->to('#get');
+        $with_organization->get('/')->to('#get', response_schema => 'Organization');
 
         # POST /organization/:organization_id_or_name
         $with_organization->post('/')->to('#update', request_schema => 'OrganizationUpdate');

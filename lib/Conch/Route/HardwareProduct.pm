@@ -24,7 +24,7 @@ sub routes {
     $hardware_product->to({ controller => 'hardware_product' });
 
     # GET /hardware_product
-    $hardware_product->get('/')->to('#get_all');
+    $hardware_product->get('/')->to('#get_all', response_schema => 'HardwareProducts');
 
     # POST /hardware_product
     $hardware_product->require_system_admin->post('/')->to('#create', request_schema => 'HardwareProductCreate');
@@ -42,7 +42,7 @@ sub routes {
             ->to('#find_hardware_product');
 
         # GET /hardware_product/:hardware_product_id_or_other
-        $with_hardware_product_id_or_other->get('/')->to('#get');
+        $with_hardware_product_id_or_other->get('/')->to('#get', response_schema => 'HardwareProduct');
 
         my $hwp_with_admin = $with_hardware_product_id_or_other->require_system_admin;
 

@@ -428,4 +428,178 @@ subtest 'feature: validate_all_requests' => sub {
         ->stash_cmp_deeply('/validated', { query_params_schema => [], request_schema => [] });
 };
 
+subtest 'feature: validate_all_responses' => sub {
+    my sub add_routes ($t) {
+        my $r = Mojolicious::Routes->new;
+        $r->post('/_simple_post', sub ($c) { $c->status(200, { foo => 'bad response' }) });
+
+        $r->get('/_pass_no_schema', { response_schema => 'IDoNotExist' },
+            sub ($c) { $c->status(200, { foo => 'bar' }); },
+        );
+        $r->get('/_fail_no_schema', { response_schema => 'IDoNotExist' },
+            sub ($c) { $c->status(400, { foo => 'bar' }); },
+        );
+
+        $r->get('/_good_multi_get', { response_schema => [ qw(DeviceIds DeviceSerials) ] },
+            sub ($c) { $c->stash('response_schema', 'DeviceSerials'); $c->status(200, [ qw(foo bar) ]); },
+        );
+
+        $r->get('/_bad_multi_get', { response_schema => [ qw(DeviceIds DeviceSerials) ] },
+            sub ($c) { $c->status(200, [ 'foo', 'bar baz' ]); },
+        );
+
+        $r->get('/_bad_error', sub ($c) { $c->status(400, { foo => 'bad error' }) });
+
+        $r->get('/_user_error', { response_schema => 'IDoNotExist' },
+            sub ($c) {
+                $c->stash('response_schema', 'UserError');
+                $c->status(400, {
+                    error => 'message',
+                    user => {
+                        id => create_uuid_str(),
+                        email => 'foo@bar.com',
+                        name => 'foo',
+                        email => 'foo@bar.com',
+                        created => Conch::Time->now,
+                        deactivated => undef,
+                    },
+                });
+            });
+
+        $t->add_routes($r);
+    }
+
+    {
+        local $ENV{SKIP_LOG_FATAL_TEST} = 1;
+        my $t = Test::Conch->new(pg => undef);
+        my $base_uri = $t->ua->server->url; # used as the base uri for all requests
+        add_routes($t);
+
+        $t->get_ok('/ping')
+            ->status_is(200)
+            ->json_schema_is('Ping')
+            ->json_is({ status => 'ok' })
+            ->stash_cmp_deeply('/response_validation_errors', { Ping => [] })
+            ->log_debug_is('Passed data validation for response schema Ping');
+
+        $t->post_ok('/_simple_post')
+            ->status_is(200)
+            ->json_is({ foo => 'bad response' })
+            ->log_fatal_like(qr{^FAILED response payload validation for schema Null: .*wrong type \(expected null\)})
+            ->stash_cmp_deeply('/response_validation_errors', {
+                Null => [ {
+                    data_location => '',
+                    schema_location => '/type',
+                    absolute_schema_location => $base_uri.'json_schema/response/Null#/type',
+                    error => 'wrong type (expected null)',
+                } ],
+            });
+
+        $t->get_ok('/_pass_no_schema')
+            ->status_is(200)
+            ->json_is({ foo => 'bar' })
+            ->log_fatal_is('unable to find resource response.yaml#/$defs/IDoNotExist')
+            ->stash_cmp_deeply('/response_validation_errors', {
+                IDoNotExist => [ {
+                    data_location => '',
+                    schema_location => '',
+                    error => 'EXCEPTION: unable to find resource response.yaml#/$defs/IDoNotExist',
+                } ],
+            });
+
+        $t->get_ok('/_fail_no_schema')
+            ->status_is(400)
+            ->json_schema_is({ not => { '$ref' => 'response.yaml#/$defs/Error' } })
+            ->json_is({ foo => 'bar' })
+            ->stash_cmp_deeply('/response_validation_errors', {
+                Error => [
+                    {
+                        data_location => '',
+                        schema_location => '/required',
+                        absolute_schema_location => $base_uri.'json_schema/response/Error#/required',
+                        error => 'missing property: error',
+                    },
+                    {
+                        data_location => '/foo',
+                        schema_location => '/additionalProperties',
+                        absolute_schema_location => $base_uri.'json_schema/response/Error#/additionalProperties',
+                        error => 'additional property not permitted',
+                    },
+                ],
+            });
+
+        $t->get_ok('/_good_multi_get')
+            ->status_is(200)
+            ->json_schema_is('DeviceSerials')
+            ->json_is([ 'foo', 'bar' ])
+            ->log_debug_is('Passed data validation for response schema DeviceSerials')
+            ->stash_cmp_deeply('/response_validation_errors', { DeviceSerials => [] });
+
+        $t->get_ok('/_bad_multi_get')
+            ->status_is(200)
+            ->json_is([ 'foo', 'bar baz' ])
+            ->log_fatal_is('failed to specify exact response_schema used')
+            ->log_fatal_like(qr{^FAILED response payload validation for schema anyOf: \Q[DeviceIds,DeviceSerials]:\E .*pattern does not match})
+            ->stash_cmp_deeply('/response_validation_errors', undef);
+
+        $t->get_ok('/_bad_error')
+            ->status_is(400)
+            ->json_is({ foo => 'bad error' })
+            ->log_fatal_like(qr{FAILED response payload validation for schema Error: .*missing property: error.*additional property not permitted})
+            ->stash_cmp_deeply('/response_validation_errors', {
+                Error => [
+                    superhashof({ error => 'missing property: error' }),
+                    superhashof({ error => 'additional property not permitted' }),
+                ],
+            });
+
+        $t->get_ok('/_user_error')
+            ->status_is(400)
+            ->json_schema_is('UserError')
+            ->json_cmp_deeply({ error => 'message', user => superhashof({}) })
+            ->log_debug_is('Passed data validation for response schema UserError')
+            ->stash_cmp_deeply('/response_validation_errors', { UserError => [] });
+
+        undef $t;
+    }
+
+
+    my $t2 = Test::Conch->new(config => { features => { no_db => 1, validate_all_responses => 0 } });
+    add_routes($t2);
+    undef $base_uri;
+
+    $t2->get_ok('/ping')
+        ->status_is(200)
+        ->json_schema_is('Ping')
+        ->json_is({ status => 'ok' })
+        ->stash_cmp_deeply('/response_validation_errors', undef);
+
+    $t2->get_ok('/_pass_no_schema')
+        ->status_is(200)
+        ->json_is({ foo => 'bar' })
+        ->stash_cmp_deeply('/response_validation_errors', undef);
+
+    $t2->get_ok('/_fail_no_schema')
+        ->status_is(400)
+        ->json_schema_is({ not => { '$ref' => 'response.yaml#/$defs/Error' } })
+        ->json_is({ foo => 'bar' })
+        ->stash_cmp_deeply('/response_validation_errors', undef);
+
+    $t2->post_ok('/_simple_post')
+        ->status_is(200)
+        ->json_is({ foo => 'bad response' })
+        ->stash_cmp_deeply('/response_validation_errors', undef);
+
+    $t2->get_ok('/_bad_error')
+        ->status_is(400)
+        ->json_is({ foo => 'bad error' })
+        ->stash_cmp_deeply('/response_validation_errors', undef);
+
+    $t2->get_ok('/_user_error')
+        ->status_is(400)
+        ->json_schema_is('UserError')
+        ->json_cmp_deeply({ error => 'message', user => superhashof({}) })
+        ->stash_cmp_deeply('/response_validation_errors', undef);
+};
+
 done_testing;

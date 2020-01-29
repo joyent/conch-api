@@ -23,7 +23,7 @@ my $api_version_re = qr/^${ Test::Conch->API_VERSION_RE }$/;
 
 my $t = Test::Conch->new(
     config => {
-        features => { rollbar => 1, no_db => 1, validate_all_requests => 0 },
+        features => { rollbar => 1, no_db => 1, validate_all_requests => 0, validate_all_responses => 0 },
         rollbar => {
             access_token => 'TOKEN',
             environment => 'custom_environment',
@@ -51,8 +51,8 @@ $r->post('/_send_message', sub ($c) {
     );
     $c->status(204);
 });
-$r->get('/_long_response')->to('yo_momma#long_response');
-$r->get('/_large_response')->to('yo_momma#large_response');
+$r->get('/_long_response')->to('yo_momma#long_response', response_schema => 'Anything');
+$r->get('/_large_response')->to('yo_momma#large_response', response_schema => 'Anything');
 $r->post('/_conflict')->to('user#conflict');
 $r->get('/_permanent_redirect/:foo', sub { shift->status(308, 'new_location') });
 $r->get('/_new_location/:foo')->to('foo#bar')->name('new_location');

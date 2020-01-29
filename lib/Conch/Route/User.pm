@@ -29,7 +29,7 @@ sub routes {
         my $user_me = $user->under('/me', sub ($c) { $c->stash('target_user', $c->stash('user')); return 1 });
 
         # GET /user/me
-        $user_me->get('/')->to('#get');
+        $user_me->get('/')->to('#get', response_schema => 'UserDetailed');
 
         # POST /user/me?send_mail=<1|0>
         $user_me->post('/')->to('#update', query_params_schema => 'NotifyUsers', request_schema => 'UpdateUser');
@@ -46,7 +46,7 @@ sub routes {
             my $user_me_settings = $user_me->any('/settings');
 
             # GET /user/me/settings
-            $user_me_settings->get('/')->to('#get_settings');
+            $user_me_settings->get('/')->to('#get_settings', response_schema => 'UserSettings');
             # POST /user/me/settings
             $user_me_settings->post('/')->to('#set_settings', request_schema => 'UserSettings');
 
@@ -54,7 +54,7 @@ sub routes {
             my $user_me_settings_with_key = $user_me_settings->any('/#key');
 
             # GET /user/me/settings/#key
-            $user_me_settings_with_key->get('/')->to('#get_setting');
+            $user_me_settings_with_key->get('/')->to('#get_setting', response_schema => 'UserSetting');
             # POST /user/me/settings/#key
             $user_me_settings_with_key->post('/')->to('#set_setting', request_schema => 'UserSetting');
             # DELETE /user/me/settings/#key
@@ -65,16 +65,16 @@ sub routes {
             my $user_me_token = $user_me->any('/token');
 
             # GET /user/me/token
-            $user_me_token->get('/')->to('#get_api_tokens');
+            $user_me_token->get('/')->to('#get_api_tokens', response_schema => 'UserTokens');
             # POST /user/me/token
-            $user_me_token->post('/')->to('#create_api_token', request_schema => 'NewUserToken');
+            $user_me_token->post('/')->to('#create_api_token', request_schema => 'NewUserToken', response_schema => 'NewUserToken');
 
             # note: because we use a wildcard placeholder for token_name, nothing else
             # can be added to the route after the name.
             my $with_token = $user_me_token->under('/*token_name')->to('#find_api_token');
 
             # GET /user/me/token/*token_name
-            $with_token->get('/')->to('#get_api_token');
+            $with_token->get('/')->to('#get_api_token', response_schema => 'UserToken');
 
             # DELETE /user/me/token/*token_name
             $with_token->delete('/')->to('#expire_api_token');
@@ -88,7 +88,7 @@ sub routes {
             ->to('#find_user');
 
         # GET /user/#target_user_id_or_email
-        $user_with_target->get('/')->to('#get');
+        $user_with_target->get('/')->to('#get', response_schema => 'UserDetailed');
         # POST /user/#target_user_id_or_email?send_mail=<1|0>
         $user_with_target->post('/')->to('#update', query_params_schema => 'NotifyUsers', request_schema => 'UpdateUser');
         # DELETE /user/#target_user_id_or_email?clear_tokens=<1|0>
@@ -100,22 +100,22 @@ sub routes {
         $user_with_target->delete('/password')->to('#reset_user_password', query_params_schema => 'ResetUserPassword');
 
         # GET /user
-        $user->require_system_admin->get('/')->to('#get_all');
+        $user->require_system_admin->get('/')->to('#get_all', response_schema => 'Users');
         # POST /user?send_mail=<1|0>
-        $user->require_system_admin->post('/')->to('#create', query_params_schema => 'NotifyUsers', request_schema => 'NewUser');
+        $user->require_system_admin->post('/')->to('#create', query_params_schema => 'NotifyUsers', request_schema => 'NewUser', response_schema => 'NewUser');
 
         {
             my $user_with_target_token = $user_with_target->any('/token');
 
             # GET /user/#target_user_id_or_email/token
-            $user_with_target_token->get('/')->to('#get_api_tokens');
+            $user_with_target_token->get('/')->to('#get_api_tokens', response_schema => 'UserTokens');
 
             # note: because we use a wildcard placeholder for token_name, nothing else
             # can be added to the route after the name.
             my $with_token = $user_with_target_token->under('/*token_name')->to('#find_api_token');
 
             # GET /user/#target_user_id_or_email/token/*token_name
-            $with_token->get('/')->to('#get_api_token');
+            $with_token->get('/')->to('#get_api_token', response_schema => 'UserToken');
 
             # DELETE /user/#target_user_id_or_email/token/*token_name
             $with_token->delete('/')->to('#expire_api_token');

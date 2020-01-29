@@ -25,7 +25,7 @@ sub routes {
     my $room_with_system_admin = $room->require_system_admin;
 
     # GET /room
-    $room_with_system_admin->get('/')->to('#get_all');
+    $room_with_system_admin->get('/')->to('#get_all', response_schema => 'DatacenterRoomsDetailed');
     # POST /room
     $room_with_system_admin->post('/')->to('#create', request_schema => 'DatacenterRoomCreate');
 
@@ -37,7 +37,7 @@ sub routes {
             ->to('#find_datacenter_room');
 
     # GET /room/:datacenter_room_id_or_alias
-    $with_datacenter_room_ro->get('/')->to('#get_one');
+    $with_datacenter_room_ro->get('/')->to('#get_one', response_schema => 'DatacenterRoomDetailed');
     # POST /room/:datacenter_room_id_or_alias
     $with_datacenter_room_system_admin->post('/')->to('#update', request_schema => 'DatacenterRoomUpdate');
     # DELETE /room/:datacenter_room_id_or_alias
@@ -45,7 +45,7 @@ sub routes {
 
     # GET /room/:datacenter_room_id_or_alias/rack
     $with_datacenter_room_ro->get('/racks', sub { shift->status(308, 'get_room_racks') });
-    $with_datacenter_room_ro->get('/rack', 'get_room_racks')->to('#racks');
+    $with_datacenter_room_ro->get('/rack', 'get_room_racks')->to('#racks', response_schema => 'Racks');
 
     # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
     # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name

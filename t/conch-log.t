@@ -195,6 +195,7 @@ sub add_test_routes ($t) {
     reset_log;
     my $t = Test::Conch->new(config => {
         logging => { handle => $log_fh, access_log_handle => $access_log_fh, verbose => 0 },
+        features => { validate_all_responses => 0 },
     });
 
     cmp_deeply(
@@ -568,7 +569,7 @@ sub add_test_routes ($t) {
 
 {
     reset_log;
-    my $t = Test::Conch->new(config => { logging => { handle => $log_fh, verbose => 1 } });
+    my $t = Test::Conch->new(config => { logging => { handle => $log_fh, verbose => 1 }, features => { validate_all_responses => 0 } });
 
     my %lines = add_test_routes($t);
 
