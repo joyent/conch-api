@@ -127,7 +127,7 @@ subtest 'GET /workspace/:workspace_id_or_name/rack validation' => sub {
 subtest 'device report validation' => sub {
     my $validator = JSON::Validator->new
         ->load_and_validate_schema('json-schema/device_report.yaml',
-            { schema => 'http://json-schema.org/draft-07/schema#' });
+            { schema => 'https://json-schema.org/draft-07/schema#' });
 
     cmp_deeply(
         [ $validator->validate('00000000-0000-0000-0000-000000000000',

@@ -2,7 +2,7 @@
 # see https://github.com/mojolicious/json-validator/issues/158
 ---
 $comment: "Note: for now, defaults are for documentation purposes only. see https://github.com/mojolicious/json-validator/issues/158"
-$schema: 'http://json-schema.org/draft-07/schema#'
+$schema: 'https://json-schema.org/draft-07/schema#'
 definitions:
   boolean_integer:
     type: integer
