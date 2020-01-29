@@ -112,16 +112,6 @@ All routes require authentication.
 
 =back
 
-=head2 C<GET /room>
-
-=over 4
-
-=item * Requires system admin authorization
-
-=item * Response: F<response.yaml#/definitions/DatacenterRoomsDetailed>
-
-=back
-
 =head1 LICENSING
 
 Copyright Joyent, Inc.

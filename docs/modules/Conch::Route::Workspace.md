@@ -112,28 +112,6 @@ an email to the user and workspace admins.
 - User requires the admin role
 - Response: `204 NO CONTENT`
 
-### `GET /workspace/:workspace_id_or_name/organization`
-
-- User requires the admin role
-- Response: [response.json#/definitions/WorkspaceOrganizations](../json-schema/response.json#/definitions/WorkspaceOrganizations)
-
-### `POST /workspace/:workspace_id_or_name/organization?send_mail=<1|0>`
-
-Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
-an email to the organization members and workspace admins.
-
-- User requires the admin role
-- Request: [request.json#/definitions/WorkspaceAddOrganization](../json-schema/request.json#/definitions/WorkspaceAddOrganization)
-- Response: `204 NO CONTENT`
-
-### `DELETE /workspace/:workspace_id_or_name/organization/:organization_id_or_name?send_mail=<1|0>`
-
-Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
-an email to the organization members and workspace admins.
-
-- User requires the admin role
-- Response: `204 NO CONTENT`
-
 ## LICENSING
 
 Copyright Joyent, Inc.

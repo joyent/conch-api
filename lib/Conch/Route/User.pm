@@ -405,7 +405,7 @@ email to the user with the new password.
 
 =item * Request: F<request.yaml#/definitions/NewUser>
 
-=item * Success Response: F<response.yaml#/definitions/User>
+=item * Success Response: F<response.yaml#/definitions/NewUser>
 
 =item * Error response on duplicate user: F<response.yaml#/definitions/UserError>
 

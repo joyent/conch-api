@@ -262,44 +262,6 @@ an email to the user and workspace admins.
 
 =back
 
-=head2 C<GET /workspace/:workspace_id_or_name/organization>
-
-=over 4
-
-=item * User requires the admin role
-
-=item * Response: F<response.yaml#/definitions/WorkspaceOrganizations>
-
-=back
-
-=head2 C<< POST /workspace/:workspace_id_or_name/organization?send_mail=<1|0> >>
-
-Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
-an email to the organization members and workspace admins.
-
-=over 4
-
-=item * User requires the admin role
-
-=item * Request: F<request.yaml#/definitions/WorkspaceAddOrganization>
-
-=item * Response: C<204 NO CONTENT>
-
-=back
-
-=head2 C<< DELETE /workspace/:workspace_id_or_name/organization/:organization_id_or_name?send_mail=<1|0> >>
-
-Takes one optional query parameter C<< send_mail=<1|0> >> (defaults to 1) to send
-an email to the organization members and workspace admins.
-
-=over 4
-
-=item * User requires the admin role
-
-=item * Response: C<204 NO CONTENT>
-
-=back
-
 =head1 LICENSING
 
 Copyright Joyent, Inc.

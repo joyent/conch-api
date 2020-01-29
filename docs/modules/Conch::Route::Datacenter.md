@@ -46,11 +46,6 @@ All routes require authentication.
 - Requires system admin authorization
 - Response: [response.json#/definitions/DatacenterRoomsDetailed](../json-schema/response.json#/definitions/DatacenterRoomsDetailed)
 
-### `GET /room`
-
-- Requires system admin authorization
-- Response: [response.json#/definitions/DatacenterRoomsDetailed](../json-schema/response.json#/definitions/DatacenterRoomsDetailed)
-
 ## LICENSING
 
 Copyright Joyent, Inc.
