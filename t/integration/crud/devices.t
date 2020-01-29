@@ -242,6 +242,7 @@ subtest 'unlocated device with a registered relay' => sub {
         iface_name => 'home',
         iface_type => 'me',
         iface_vendor => 'me',
+        iface_driver => 'none',
         mac => '00:00:00:00:00:00',
         ipaddr => '127.0.0.1',
     });

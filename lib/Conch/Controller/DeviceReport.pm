@@ -280,7 +280,7 @@ sub _record_device_configuration ($c, $prev_uptime, $device, $dr) {
                 device_id    => $device->id,
                 mac          => $mac,
                 iface_name   => $nic,
-                iface_driver => '',
+                iface_driver => '', # TODO: populate this from the report, or remove the column
                 iface_type   => $dr->{interfaces}->{$nic}->{product},
                 iface_vendor => $dr->{interfaces}->{$nic}->{vendor},
                 state        => $dr->{interfaces}->{$nic}->{state},
