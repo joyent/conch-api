@@ -48,11 +48,6 @@ __PACKAGE__->table("device_nic");
   data_type: 'text'
   is_nullable: 0
 
-=head2 iface_driver
-
-  data_type: 'text'
-  is_nullable: 1
-
 =head2 deactivated
 
   data_type: 'timestamp with time zone'
@@ -105,8 +100,6 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 0 },
   "iface_vendor",
   { data_type => "text", is_nullable => 0 },
-  "iface_driver",
-  { data_type => "text", is_nullable => 1 },
   "deactivated",
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "created",
@@ -179,7 +172,7 @@ __PACKAGE__->might_have(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:gRrqZ7XzKE56gbryiOLzsw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8fE+wctTL181cId5P4Pt6g
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },
