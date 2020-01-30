@@ -251,7 +251,6 @@ subtest 'unlocated device with a registered relay' => sub {
         iface_name => 'home',
         iface_type => 'me',
         iface_vendor => 'me',
-        iface_driver => 'none',
         mac => '00:00:00:00:00:00',
         ipaddr => '127.0.0.1',
     });
@@ -622,7 +621,7 @@ subtest 'device network interfaces' => sub {
         '/device/TEST/interface',
         '/device/TEST/interface/ipmi1',
         map '/device/TEST/interface/ipmi1/'.$_,
-            (qw(mac iface_name iface_type iface_vendor iface_driver state ipaddr mtu)),
+            (qw(mac iface_name iface_type iface_vendor state ipaddr mtu)),
     ) {
         $t->get_ok($query)
             ->status_is(409)
@@ -677,7 +676,6 @@ $t->app->db_device_nics->create({
     iface_name => $_,
     iface_type => 'foo',
     iface_vendor => 'bar',
-    iface_driver => 'baz',
     deactivated => \'now()',
 }) foreach (7..9);
 

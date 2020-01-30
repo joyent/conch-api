@@ -52,7 +52,6 @@ peer_mac
 iface_name
 iface_type
 iface_vendor
-iface_driver
 deactivated
 created
 updated

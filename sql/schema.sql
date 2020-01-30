@@ -314,7 +314,6 @@ CREATE TABLE public.device_nic (
     iface_name text NOT NULL,
     iface_type text NOT NULL,
     iface_vendor text NOT NULL,
-    iface_driver text,
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,

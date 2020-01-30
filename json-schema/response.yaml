@@ -463,7 +463,6 @@ definitions:
           - mac
           - iface_name
           - iface_vendor
-          - iface_driver
           - state
           - ipaddr
           - mtu
@@ -480,9 +479,6 @@ definitions:
       iface_vendor:
         type: string
       iface_type:
-        type: string
-      iface_driver:
-        deprecated: true
         type: string
       state:
         oneOf:
