@@ -89,7 +89,7 @@ $defs:
         type: string
         format: uri
     propertyNames:
-      $ref: common.yaml#/$defs/device_setting_key
+      $ref: common.yaml#/$defs/setting_key
     additionalProperties:
       type: string
   GetValidationState:
@@ -130,6 +130,9 @@ $defs:
           const: 0
         completed:
           const: 1
+  GetBuild:
+    $ref: '#/$defs/WithDeviceRackData'
+    unevaluatedProperties: false
   WithDeviceRackData:
     type: object
     additionalProperties: true  # used in non-terminal action: other parameters checked later

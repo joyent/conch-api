@@ -96,15 +96,13 @@ $t->get_ok('/json_schema/request/Login')
         '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/request/Login',
         type => 'object',
-        additionalProperties => bool(0),
+        unevaluatedProperties => bool(0),
         required => [ 'password' ],
-        oneOf => [ { required => [ 'user_id' ] }, { required => [ 'email' ] } ],
         properties => {
-            user_id => { '$ref' => '/json_schema/common/uuid' },
-            email => { '$ref' => '/json_schema/common/email_address' },
             password => { '$ref' => '/json_schema/common/non_empty_string' },
             set_session => { type => 'boolean' },
         },
+        '$ref' => '/json_schema/request/UserIdOrEmail',
         '$defs' => {
             non_empty_string => {
               '$id' => '/json_schema/common/non_empty_string',
@@ -119,6 +117,16 @@ $t->get_ok('/json_schema/request/Login')
               '$ref' => '/json_schema/common/mojo_relaxed_placeholder',
             }),
             mojo_relaxed_placeholder => superhashof({ '$id' => '/json_schema/common/mojo_relaxed_placeholder' }),
+            UserIdOrEmail => {
+                '$id' => '/json_schema/request/UserIdOrEmail',
+                type => 'object',
+                additionalProperties => bool(1),
+                oneOf => [ { required => [ 'user_id' ] }, { required => [ 'email' ] } ],
+                properties => {
+                    user_id => { '$ref' => '/json_schema/common/uuid' },
+                    email => { '$ref' => '/json_schema/common/email_address' },
+                },
+            },
         },
         default => { set_session => bool(0) },
     });

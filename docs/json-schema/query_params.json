@@ -142,6 +142,10 @@
       },
       "type" : "object"
     },
+    "GetBuild" : {
+      "$ref" : "#/$defs/WithDeviceRackData",
+      "unevaluatedProperties" : false
+    },
     "GetBuilds" : {
       "additionalProperties" : false,
       "not" : {
@@ -190,7 +194,7 @@
         }
       },
       "propertyNames" : {
-        "$ref" : "common.json#/$defs/device_setting_key"
+        "$ref" : "common.json#/$defs/setting_key"
       },
       "type" : "object"
     },

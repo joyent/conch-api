@@ -45,7 +45,7 @@ $defs:
     type: string
     pattern: ^\S+$
     $ref: '#/$defs/mojo_relaxed_placeholder'
-  device_setting_key:
+  setting_key:
     $ref: '#/$defs/mojo_relaxed_placeholder'
   disk_serial_number:
     type: string
@@ -53,8 +53,6 @@ $defs:
   room_az:
     type: string
     pattern: ^[\w-]+$
-  user_setting_key:
-    $ref: '#/$defs/mojo_relaxed_placeholder'
   role:
     $comment: corresponds to role_enum in the database
     enum:

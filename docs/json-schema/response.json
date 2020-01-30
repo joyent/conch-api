@@ -1160,7 +1160,7 @@
         "type" : "string"
       },
       "propertyNames" : {
-        "$ref" : "common.json#/$defs/device_setting_key"
+        "$ref" : "common.json#/$defs/setting_key"
       },
       "type" : "object"
     },
@@ -2574,7 +2574,7 @@
         "type" : "string"
       },
       "propertyNames" : {
-        "$ref" : "common.json#/$defs/user_setting_key"
+        "$ref" : "common.json#/$defs/setting_key"
       },
       "type" : "object"
     },

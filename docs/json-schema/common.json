@@ -76,9 +76,6 @@
       "pattern" : "^\\S+$",
       "type" : "string"
     },
-    "device_setting_key" : {
-      "$ref" : "#/$defs/mojo_relaxed_placeholder"
-    },
     "disk_serial_number" : {
       "pattern" : "^\\S+$",
       "type" : "string"
@@ -160,7 +157,7 @@
       "pattern" : "^[\\w-]+$",
       "type" : "string"
     },
-    "user_setting_key" : {
+    "setting_key" : {
       "$ref" : "#/$defs/mojo_relaxed_placeholder"
     },
     "uuid" : {

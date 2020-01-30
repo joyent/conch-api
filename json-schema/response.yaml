@@ -576,7 +576,7 @@ $defs:
   DeviceSettings:
     type: object
     propertyNames:
-      $ref: common.yaml#/$defs/device_setting_key
+      $ref: common.yaml#/$defs/setting_key
     additionalProperties:
       type: string
   HardwareProducts:
@@ -1358,7 +1358,7 @@ $defs:
   UserSettings:
     type: object
     propertyNames:
-      $ref: common.yaml#/$defs/user_setting_key
+      $ref: common.yaml#/$defs/setting_key
     additionalProperties:
       type: string
   UserSetting:

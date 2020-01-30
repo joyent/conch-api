@@ -18,34 +18,17 @@
       "type" : "object"
     },
     "BuildAddUser" : {
-      "additionalProperties" : false,
-      "oneOf" : [
-        {
-          "required" : [
-            "user_id"
-          ]
-        },
-        {
-          "required" : [
-            "email"
-          ]
-        }
-      ],
+      "$ref" : "#/$defs/UserIdOrEmail",
       "properties" : {
-        "email" : {
-          "$ref" : "common.json#/$defs/email_address"
-        },
         "role" : {
           "$ref" : "common.json#/$defs/role"
-        },
-        "user_id" : {
-          "$ref" : "common.json#/$defs/uuid"
         }
       },
       "required" : [
         "role"
       ],
-      "type" : "object"
+      "type" : "object",
+      "unevaluatedProperties" : false
     },
     "BuildCreate" : {
       "additionalProperties" : false,
@@ -64,28 +47,9 @@
       "properties" : {
         "admins" : {
           "items" : {
-            "additionalProperties" : false,
-            "oneOf" : [
-              {
-                "required" : [
-                  "user_id"
-                ]
-              },
-              {
-                "required" : [
-                  "email"
-                ]
-              }
-            ],
-            "properties" : {
-              "email" : {
-                "$ref" : "common.json#/$defs/email_address"
-              },
-              "user_id" : {
-                "$ref" : "common.json#/$defs/uuid"
-              }
-            },
-            "type" : "object"
+            "$ref" : "#/$defs/UserIdOrEmail",
+            "type" : "object",
+            "unevaluatedProperties" : false
           },
           "minItems" : 1,
           "type" : "array",
@@ -421,7 +385,7 @@
       },
       "minProperties" : 1,
       "propertyNames" : {
-        "$ref" : "common.json#/$defs/device_setting_key"
+        "$ref" : "common.json#/$defs/setting_key"
       },
       "type" : "object"
     },
@@ -615,40 +579,23 @@
       "type" : "object"
     },
     "Login" : {
-      "additionalProperties" : false,
+      "$ref" : "#/$defs/UserIdOrEmail",
       "default" : {
         "set_session" : false
       },
-      "oneOf" : [
-        {
-          "required" : [
-            "user_id"
-          ]
-        },
-        {
-          "required" : [
-            "email"
-          ]
-        }
-      ],
       "properties" : {
-        "email" : {
-          "$ref" : "common.json#/$defs/email_address"
-        },
         "password" : {
           "$ref" : "common.json#/$defs/non_empty_string"
         },
         "set_session" : {
           "type" : "boolean"
-        },
-        "user_id" : {
-          "$ref" : "common.json#/$defs/uuid"
         }
       },
       "required" : [
         "password"
       ],
-      "type" : "object"
+      "type" : "object",
+      "unevaluatedProperties" : false
     },
     "NewUser" : {
       "additionalProperties" : false,
@@ -688,62 +635,26 @@
       "type" : "null"
     },
     "OrganizationAddUser" : {
-      "additionalProperties" : false,
-      "oneOf" : [
-        {
-          "required" : [
-            "user_id"
-          ]
-        },
-        {
-          "required" : [
-            "email"
-          ]
-        }
-      ],
+      "$ref" : "#/$defs/UserIdOrEmail",
       "properties" : {
-        "email" : {
-          "$ref" : "common.json#/$defs/email_address"
-        },
         "role" : {
           "$ref" : "common.json#/$defs/role"
-        },
-        "user_id" : {
-          "$ref" : "common.json#/$defs/uuid"
         }
       },
       "required" : [
         "role"
       ],
-      "type" : "object"
+      "type" : "object",
+      "unevaluatedProperties" : false
     },
     "OrganizationCreate" : {
       "additionalProperties" : false,
       "properties" : {
         "admins" : {
           "items" : {
-            "additionalProperties" : false,
-            "oneOf" : [
-              {
-                "required" : [
-                  "user_id"
-                ]
-              },
-              {
-                "required" : [
-                  "email"
-                ]
-              }
-            ],
-            "properties" : {
-              "email" : {
-                "$ref" : "common.json#/$defs/email_address"
-              },
-              "user_id" : {
-                "$ref" : "common.json#/$defs/uuid"
-              }
-            },
-            "type" : "object"
+            "$ref" : "#/$defs/UserIdOrEmail",
+            "type" : "object",
+            "unevaluatedProperties" : false
           },
           "minItems" : 1,
           "type" : "array",
@@ -1141,7 +1052,7 @@
       },
       "minProperties" : 1,
       "propertyNames" : {
-        "$ref" : "common.json#/$defs/user_setting_key"
+        "$ref" : "common.json#/$defs/setting_key"
       },
       "type" : "object"
     }

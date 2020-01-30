@@ -42,7 +42,7 @@ $t->post_ok('/build', json => {
     })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ superhashof({ error => 'multiple subschemas are valid: 0, 1' }) ]);
+    ->json_cmp_deeply('/details', superbagof(superhashof({ error => 'multiple subschemas are valid: 0, 1' })));
 
 $t->post_ok('/build', json => { name => 'my first build', admins => [ { user_id => create_uuid_str() } ] })
     ->status_is(409)
@@ -299,12 +299,15 @@ $t->get_ok('/build/my first build/user')
 $t->post_ok('/build/'.$build->{id}.'/user', json => { role => 'ro' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ map superhashof({ error => 'missing property: '.$_ }), qw(user_id email) ]);
+    ->json_cmp_deeply('/details', [ map superhashof({ error => 'missing property: '.$_ }), qw(user_id email) ])
+    ->log_warn_like(qr/FAILED request payload validation for schema UserIdOrEmail/);
 
 $t->post_ok('/build/my first build/user', json => { email => $new_user->email })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: role' }) ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: role' }) ])
+    ->log_debug_is('Passed data validation for request schema UserIdOrEmail')
+    ->log_warn_like(qr/FAILED request payload validation for schema BuildAddUser/);
 
 $t->post_ok('/build/my first build/user', json => {
         email => $new_user->email,

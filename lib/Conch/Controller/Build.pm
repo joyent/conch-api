@@ -153,7 +153,7 @@ Response uses the Build json schema.
 =cut
 
 sub get ($c) {
-    my $params = $c->validate_query_params('WithDeviceRackData');
+    my $params = $c->validate_query_params('GetBuild');
     return if not $params;
 
     my $rs = $c->stash('build_rs')

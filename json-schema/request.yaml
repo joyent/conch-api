@@ -349,19 +349,11 @@ $defs:
         type: integer
   Login:
     type: object
-    additionalProperties: false
+    $ref: '#/$defs/UserIdOrEmail'
+    unevaluatedProperties: false
     required:
       - password
-    oneOf:
-      - required:
-        - user_id
-      - required:
-        - email
     properties:
-      user_id:
-        $ref: common.yaml#/$defs/uuid
-      email:
-        $ref: common.yaml#/$defs/email_address
       password:
         $ref: common.yaml#/$defs/non_empty_string
       set_session:
@@ -425,7 +417,7 @@ $defs:
       $ref: common.yaml#/$defs/non_empty_string
     minProperties: 1
     propertyNames:
-      $ref: common.yaml#/$defs/user_setting_key
+      $ref: common.yaml#/$defs/setting_key
   NewUserToken:
     type: object
     additionalProperties: false
@@ -494,7 +486,7 @@ $defs:
       minLength: 1
     minProperties: 1
     propertyNames:
-      $ref: common.yaml#/$defs/device_setting_key
+      $ref: common.yaml#/$defs/setting_key
   RegisterRelay:
     type: object
     additionalProperties: false
@@ -530,17 +522,8 @@ $defs:
         minItems: 1
         items:
           type: object
-          additionalProperties: false
-          oneOf:
-            - required:
-              - user_id
-            - required:
-              - email
-          properties:
-            user_id:
-              $ref: common.yaml#/$defs/uuid
-            email:
-              $ref: common.yaml#/$defs/email_address
+          $ref: '#/$defs/UserIdOrEmail'
+          unevaluatedProperties: false
   OrganizationUpdate:
     type: object
     additionalProperties: false
@@ -553,20 +536,12 @@ $defs:
           - type: 'null'
           - $ref: common.yaml#/$defs/non_empty_string
   OrganizationAddUser:
+    $ref: '#/$defs/UserIdOrEmail'
     type: object
-    additionalProperties: false
+    unevaluatedProperties: false
     required:
       - role
-    oneOf:
-      - required:
-        - user_id
-      - required:
-        - email
     properties:
-      user_id:
-        $ref: common.yaml#/$defs/uuid
-      email:
-        $ref: common.yaml#/$defs/email_address
       role:
         $ref: common.yaml#/$defs/role
   BuildCreate:
@@ -593,17 +568,8 @@ $defs:
         minItems: 1
         items:
           type: object
-          additionalProperties: false
-          oneOf:
-            - required:
-              - user_id
-            - required:
-              - email
-          properties:
-            user_id:
-              $ref: common.yaml#/$defs/uuid
-            email:
-              $ref: common.yaml#/$defs/email_address
+          unevaluatedProperties: false
+          $ref: '#/$defs/UserIdOrEmail'
       build_id:
         $ref: common.yaml#/$defs/uuid
       links:
@@ -641,20 +607,12 @@ $defs:
       - type: 'null'
       - $ref: '#/$defs/BuildLinks'
   BuildAddUser:
+    $ref: '#/$defs/UserIdOrEmail'
     type: object
-    additionalProperties: false
+    unevaluatedProperties: false
     required:
       - role
-    oneOf:
-      - required:
-        - user_id
-      - required:
-        - email
     properties:
-      user_id:
-        $ref: common.yaml#/$defs/uuid
-      email:
-        $ref: common.yaml#/$defs/email_address
       role:
         $ref: common.yaml#/$defs/role
   BuildAddOrganization:
