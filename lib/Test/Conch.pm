@@ -334,12 +334,11 @@ the hash as the schema to validate.
 =cut
 
 sub json_schema_is ($self, $schema, $message = undef) {
-    my @errors;
     return $self->test('fail', 'No request has been made') unless $self->tx;
     my $data = $self->tx->res->json;
     return $self->test('fail', 'No JSON in response') unless $data;
 
-    my $schema_name;
+    my ($schema_name, @errors);
     if (ref $schema) {
         $schema_name = '<inlined>';
     }
@@ -350,15 +349,15 @@ sub json_schema_is ($self, $schema, $message = undef) {
     }
 
     @errors = $self->validator->validate($data, $schema);
-    my $error_count = @errors;
-    return $self->test('ok', !$error_count, $message // 'JSON response has no schema validation errors')
+
+    return $self->test('ok', !@errors, $message // 'JSON response has no schema validation errors')
         ->or(sub ($self) {
-            my $errors = [ map +{ path => $_->path, message => $_->message }, @errors ];
-            Test::More::diag($error_count
-                .' error(s) occurred when validating '
+            Test::More::diag(
+                @errors.' error(s) occurred when validating '
                 .$self->tx->req->method.' '.$self->tx->req->url->path
                 .' with schema '.$schema_name.":\n\t"
-                .Data::Dumper->new([ $errors ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump);
+                .Data::Dumper->new([[ map +{ path => $_->path, message => $_->message }, @errors ]])
+                    ->Sortkeys(1)->Indent(1)->Terse(1)->Dump);
 
             0;
         }
