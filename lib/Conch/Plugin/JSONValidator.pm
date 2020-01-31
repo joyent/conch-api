@@ -68,7 +68,7 @@ F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
         }
 
         if (my @errors = $validator->validate($data, $schema)) {
-            $c->log->warn("FAILED query_params validation for schema $schema_name: ".join(' // ', @errors));
+            $c->log->warn("FAILED query_params validation for schema $schema_name: ".join(' ', @errors));
             return $c->status(400, {
                 error => 'query parameters did not match required format',
                 data => $data,
@@ -101,7 +101,7 @@ using the F<response.yaml#/definitions/RequestValidationError> json response sch
         }
 
         if (my @errors = $validator->validate($data, $schema)) {
-            $c->log->warn("FAILED request payload validation for schema $schema_name: ".join(' // ', @errors));
+            $c->log->warn("FAILED request payload validation for schema $schema_name: ".join(' ', @errors));
             return $c->status(400, {
                 error => 'request did not match required format',
                 details => \@errors,
