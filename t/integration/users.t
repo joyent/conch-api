@@ -520,8 +520,8 @@ subtest 'JWT authentication' => sub {
 
     is($t->tx->res->cookie('conch')->expires, 1, 'session cookie is expired');
 
-    $t->get_ok('/workspace', { Authorization => 'Bearer '.$jwt_token })
-        ->status_is(200, 'user can provide Authentication header with full JWT to authenticate');
+    $t->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
+        ->status_is(204, 'user can provide Authentication header with full JWT to authenticate');
 
     # we're going to be cheeky here and hack the JWT to doctor it...
     # this only works because we have access to the symmetric secret embedded in the app.
@@ -532,7 +532,7 @@ subtest 'JWT authentication' => sub {
         secret => $t->app->secrets->[0],
         expires => $jwt_claims->{exp},
     )->encode;
-    $t->get_ok('/workspace', { Authorization => 'Bearer '.$hacked_jwt_token })
+    $t->get_ok('/me', { Authorization => 'Bearer '.$hacked_jwt_token })
         ->status_is(401)
         ->log_debug_is('auth failed: JWT for user_id '.$bad_user_id.' could not be found');
 
@@ -626,7 +626,7 @@ subtest 'JWT authentication' => sub {
         ->status_is(204)
         ->log_debug_is('revoking all tokens for user rO_USer, forcing them to /login again')
         ->email_not_sent;
-    $t->get_ok('/workspace', { Authorization => "Bearer $jwt_token_2" })
+    $t->get_ok('/me', { Authorization => "Bearer $jwt_token_2" })
         ->status_is(401, 'Cannot use after self revocation');
 
     $t->authenticate(email => $ro_user->email);
