@@ -29,7 +29,8 @@ subtest 'failed query params validation' => sub {
             details => [ { path => '/clear_tokens', message => re(qr/not in enum list/i) } ],
             schema => '/schema/query_params/change_password',
             data => { clear_tokens => 'whargarbl' },
-        });
+        })
+        ->log_warn_like(qr{^FAILED query_params validation for schema ChangePassword: /clear_tokens: Not in enum list});
 };
 
 subtest 'failed request validation' => sub {
@@ -40,7 +41,8 @@ subtest 'failed request validation' => sub {
             error => 'request did not match required format',
             details => [ { path => '/password', message => re(qr/missing property/i) } ],
             schema => '/schema/request/login',
-        });
+        })
+        ->log_warn_like(qr{^FAILED request payload validation for schema Login: /password: Missing property});
 };
 
 subtest '/device/:id/interface/:iface_name/:field validation' => sub {
@@ -125,7 +127,7 @@ subtest 'GET /workspace/:workspace_id_or_name/rack validation' => sub {
 subtest 'device report validation' => sub {
     my $validator = JSON::Validator->new
         ->load_and_validate_schema('json-schema/device_report.yaml',
-            { schema => 'http://json-schema.org/draft-07/schema#' });
+            { schema => 'https://json-schema.org/draft-07/schema#' });
 
     cmp_deeply(
         [ $validator->validate('00000000-0000-0000-0000-000000000000',

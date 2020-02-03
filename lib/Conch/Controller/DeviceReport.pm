@@ -111,7 +111,7 @@ sub process ($c) {
         };
     }
 
-    # Time for validations http://www.space.ca/wp-content/uploads/2017/05/giphy-1.gif
+    # Time for validations https://www.ctvscifi.ca/wp-content/uploads/2017/05/giphy-1.gif
     my $validation_plan = $c->db_validation_plans->search({
         id => { '=' => $c->db_hardware_products->search({ id => $hardware_product_id })->get_column('validation_plan_id')->as_query },
     })->single;
@@ -280,7 +280,7 @@ sub _record_device_configuration ($c, $prev_uptime, $device, $dr) {
                 device_id    => $device->id,
                 mac          => $mac,
                 iface_name   => $nic,
-                iface_driver => '',
+                iface_driver => '', # TODO: populate this from the report, or remove the column
                 iface_type   => $dr->{interfaces}->{$nic}->{product},
                 iface_vendor => $dr->{interfaces}->{$nic}->{vendor},
                 state        => $dr->{interfaces}->{$nic}->{state},
@@ -455,7 +455,7 @@ Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at L<http://mozilla.org/MPL/2.0/>.
+one at L<https://www.mozilla.org/en-US/MPL/2.0/>.
 
 =cut
 # vim: set ts=4 sts=4 sw=4 et :

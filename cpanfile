@@ -16,7 +16,7 @@ requires 'Try::Tiny';
 requires 'Time::HiRes';
 requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
 requires 'Time::Local', '1.27';     # https://pandorafms.com/blog/2020-perl/
-requires 'JSON::Validator', '3.08';
+requires 'JSON::Validator', '3.18'; # https://github.com/mojolicious/json-validator/pull/182
 requires 'Data::Validate::IP';      # for json schema validation of 'ipv4', 'ipv6' types
 requires 'HTTP::Tiny';
 requires 'Safe::Isa';
@@ -82,7 +82,7 @@ on 'test' => sub {
     requires 'Test::More';
     requires 'Test::PostgreSQL', '1.27';
     requires 'Test::Pod::Coverage';
-    requires 'YAML::XS';
+    requires 'YAML::XS', '0.81';    # http://blogs.perl.org/users/tinita/2020/01/making-yamlpm-yamlsyck-and-yamlxs-safer-by-default.html
     requires 'Test::Pod', '1.41';
     requires 'Test::Warnings';
     requires 'Test::Fatal';

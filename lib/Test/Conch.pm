@@ -739,9 +739,18 @@ sub _request_ok ($self, @args) {
     undef $self->{_mail_composed};
     $self->reset_log;
     my $result = $self->next::method(@args);
+
+    my $dump_log;
+    my $log_history = $self->app->log->history;
+    if (any { $_->[1] eq 'fatal' } $log_history->@*) {
+        $self->_test('fail', 'got a fatal log message');
+        $dump_log = 1;
+    }
+
     Test::More::diag 'log history: ',
-            Data::Dumper->new([ $self->app->log->history ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump
-        if $self->tx->res->code == 500 and $self->tx->req->url->path !~ qr{^/_die};
+            Data::Dumper->new([ $log_history ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump
+        if $dump_log || $self->tx->res->code == 500 && $self->tx->req->url->path !~ qr{^/_die};
+
     return $result;
 }
 
@@ -815,7 +824,7 @@ Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at L<http://mozilla.org/MPL/2.0/>.
+one at L<https://www.mozilla.org/en-US/MPL/2.0/>.
 
 =cut
 # vim: set ts=4 sts=4 sw=4 et :

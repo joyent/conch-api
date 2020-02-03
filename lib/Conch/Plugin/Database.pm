@@ -41,12 +41,14 @@ that persists for the lifetime of the application.
     my $_rw_schema;
     $app->helper(schema => sub ($c) {
         return $_rw_schema if $_rw_schema;
-        my $app_name = join(' ', $c->app->moniker, ($ARGV[0] // ()), $c->version_tag, '('.$$.')');
+        my $app_name = join(' ', $c->app->moniker, ($ARGV[0] // ()), $c->version_tag);
+
         $_rw_schema = Conch::DB->connect(
             $db_credentials->@{qw(dsn username password)},
             +{
                 $db_credentials->{options}->%*,
-                on_connect_do => [ q{set application_name to '}.$app_name.q{'} ],
+                # TODO: remove listref. https://rt.cpan.org/Ticket/Display.html?id=131659
+                on_connect_do => [ sub {[q{set application_name to '}.$app_name.q{ (}.$$.q{)'}]} ],
             },
         );
     });
@@ -69,12 +71,12 @@ L<Conch::DB> object that persists for the lifetime of the application.
     my $_ro_schema;
     $app->helper(ro_schema => sub ($c) {
         return $_ro_schema if $_ro_schema;
-        my $app_name = join(' ', $c->app->moniker, ($ARGV[0] // ()), $c->version_tag, '('.$$.')');
+        my $app_name = join(' ', $c->app->moniker, ($ARGV[0] // ()), $c->version_tag);
         $_ro_schema = Conch::DB->connect(
             $db_credentials->@{qw(dsn ro_username ro_password)},
             +{
                 $db_credentials->{options}->%*,
-                on_connect_do => [ q{set application_name to '}.$app_name.q{'} ],
+                on_connect_do => [ sub {[q{set application_name to '}.$app_name.q{ (}.$$.q{)'}]} ],
             },
         );
     });
@@ -192,7 +194,7 @@ Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at L<http://mozilla.org/MPL/2.0/>.
+one at L<https://www.mozilla.org/en-US/MPL/2.0/>.
 
 =cut
 # vim: set ts=4 sts=4 sw=4 et :

@@ -62,7 +62,7 @@ F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
         }
 
         if (my @errors = $validator->validate($data, $schema)) {
-            $c->log->warn("FAILED query_params validation for schema $schema_name".join(' // ', @errors));
+            $c->log->warn("FAILED query_params validation for schema $schema_name: ".join(' // ', @errors));
             return $c->status(400, {
                 error => 'query parameters did not match required format',
                 data => $data,
@@ -95,7 +95,7 @@ using the F<response.yaml#/definitions/RequestValidationError> json response sch
         }
 
         if (my @errors = $validator->validate($data, $schema)) {
-            $c->log->warn("FAILED request payload validation for schema $schema_name".join(' // ', @errors));
+            $c->log->warn("FAILED request payload validation for schema $schema_name: ".join(' // ', @errors));
             return $c->status(400, {
                 error => 'request did not match required format',
                 details => \@errors,
@@ -126,7 +126,7 @@ L<https://github.com/mojolicious/json-validator/issues/158>.
         # FIXME: JSON::Validator should be extracting $schema out of the document - see https://github.com/mojolicious/json-validator/pull/152
         $_query_params_validator->load_and_validate_schema(
             'json-schema/query_params.yaml',
-            { schema => 'http://json-schema.org/draft-07/schema#' });
+            { schema => 'https://json-schema.org/draft-07/schema#' });
         return $_query_params_validator;
     });
 
@@ -143,7 +143,7 @@ Returns a L<JSON::Validator> object suitable for validating an endpoint's json r
         # FIXME: JSON::Validator should be picking this up out of the schema on its own.
         $_request_validator->load_and_validate_schema(
             'json-schema/request.yaml',
-            { schema => 'http://json-schema.org/draft-07/schema#' });
+            { schema => 'https://json-schema.org/draft-07/schema#' });
         return $_request_validator;
     });
 
@@ -161,7 +161,7 @@ Returns a L<JSON::Validator> object suitable for validating an endpoint's json r
         # FIXME: JSON::Validator should be picking this up out of the schema on its own.
         $_response_validator->load_and_validate_schema(
             'json-schema/response.yaml',
-            { schema => 'http://json-schema.org/draft-07/schema#' });
+            { schema => 'https://json-schema.org/draft-07/schema#' });
         return $_response_validator;
     });
 }
@@ -177,7 +177,7 @@ Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at L<http://mozilla.org/MPL/2.0/>.
+one at L<https://www.mozilla.org/en-US/MPL/2.0/>.
 
 =cut
 # vim: set ts=4 sts=4 sw=4 et :

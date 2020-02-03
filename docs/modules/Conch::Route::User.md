@@ -161,7 +161,7 @@ email to the user with the new password.
 
 - Requires system admin authorization
 - Request: [request.json#/definitions/NewUser](../json-schema/request.json#/definitions/NewUser)
-- Success Response: [response.json#/definitions/User](../json-schema/response.json#/definitions/User)
+- Success Response: [response.json#/definitions/NewUser](../json-schema/response.json#/definitions/NewUser)
 - Error response on duplicate user: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError)
 
 ### `GET /user/:target_user_id_or_email/token`
@@ -186,4 +186,4 @@ Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at [http://mozilla.org/MPL/2.0/](http://mozilla.org/MPL/2.0/).
+one at [https://www.mozilla.org/en-US/MPL/2.0/](https://www.mozilla.org/en-US/MPL/2.0/).

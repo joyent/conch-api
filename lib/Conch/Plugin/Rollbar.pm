@@ -244,7 +244,7 @@ sub _create_notifier ($app, $config) {
             if (!$ENV{MOJO_MODE}) {
                 my $validator = JSON::Validator->new->load_and_validate_schema(
                     'json-schema/other.yaml',
-                    { schema => 'http://json-schema.org/draft-07/schema#' });
+                    { schema => 'https://json-schema.org/draft-07/schema#' });
                 my $schema = $validator->get('/definitions/RollbarPayload');
                 if (my @errors = $validator->validate($tx->req->json, $schema)) {
                     require Data::Dumper;
@@ -276,7 +276,7 @@ Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at L<http://mozilla.org/MPL/2.0/>.
+one at L<https://www.mozilla.org/en-US/MPL/2.0/>.
 
 =cut
 # vim: set ts=4 sts=4 sw=4 et :

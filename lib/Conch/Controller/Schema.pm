@@ -119,7 +119,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
 
     return {
         title => $schema_name,
-        '$schema' => $validator->get('/$schema') || 'http://json-schema.org/draft-07/schema#',
+        '$schema' => $validator->get('/$schema') || 'https://json-schema.org/draft-07/schema#',
         '$id' => 'urn:'.$schema_name.'.schema.json',
         keys $definitions->%* ? ( definitions => $definitions ) : (),
         $target->%*,
@@ -137,7 +137,7 @@ Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
-one at L<http://mozilla.org/MPL/2.0/>.
+one at L<https://www.mozilla.org/en-US/MPL/2.0/>.
 
 =cut
 

@@ -454,11 +454,11 @@ DISTRIBUTIONS
       Crypt::UnixCrypt_XS 0.11
     requirements:
       ExtUtils::MakeMaker 0
-  DBD-Pg-3.8.1
-    pathname: T/TU/TURNSTEP/DBD-Pg-3.8.1.tar.gz
+  DBD-Pg-3.10.4
+    pathname: T/TU/TURNSTEP/DBD-Pg-3.10.4.tar.gz
     provides:
-      Bundle::DBD::Pg v3.8.1
-      DBD::Pg v3.8.1
+      Bundle::DBD::Pg v3.10.4
+      DBD::Pg v3.10.4
     requirements:
       DBI 1.614
       ExtUtils::MakeMaker 6.11
@@ -2205,10 +2205,10 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
-  JSON-Validator-3.11
-    pathname: J/JH/JHTHORSEN/JSON-Validator-3.11.tar.gz
+  JSON-Validator-3.18
+    pathname: J/JH/JHTHORSEN/JSON-Validator-3.18.tar.gz
     provides:
-      JSON::Validator 3.11
+      JSON::Validator 3.18
       JSON::Validator::Error undef
       JSON::Validator::Formats undef
       JSON::Validator::Joi undef
@@ -4029,11 +4029,11 @@ DISTRIBUTIONS
       Win32::ShellQuote 0.003001
     requirements:
       perl 5.006
-  YAML-LibYAML-0.80
-    pathname: T/TI/TINITA/YAML-LibYAML-0.80.tar.gz
+  YAML-LibYAML-0.81
+    pathname: T/TI/TINITA/YAML-LibYAML-0.81.tar.gz
     provides:
-      YAML::LibYAML 0.80
-      YAML::XS 0.80
+      YAML::LibYAML 0.81
+      YAML::XS 0.81
       YAML::XS::LibYAML undef
     requirements:
       ExtUtils::MakeMaker 0

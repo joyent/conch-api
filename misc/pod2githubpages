@@ -79,8 +79,7 @@ around 'Pod::Markdown::end_for' => sub {
 
     # pass resulting pod through pod -> markdown conversion
     $newtext = "=pod\n\n". $newtext;
-    my $outstr;
-    open my $outfh, '>', \$outstr;
+    open my $outfh, '>', \my $outstr;
     open my $infh, '<', \$newtext;
     convert($infh, $outfh);
     $self->_save_block($self->_chomp_all($outstr));
@@ -170,7 +169,7 @@ Copyright Joyent, Inc.
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v.2.0. If a copy of the MPL was not distributed with this file, you can
-obtain one at <http://mozilla.org/MPL/2.0/>.
+obtain one at <https://www.mozilla.org/en-US/MPL/2.0/>.
 FOOTER
 
 {
