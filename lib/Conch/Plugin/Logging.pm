@@ -105,7 +105,7 @@ Uses the provided C<type> in the filename (e.g. C<< type => foo >> will log to F
 
         my $req_headers = $c->req->headers->to_hash(1);
         $req_headers->{$_} = '--REDACTED--'
-            foreach grep exists $req_headers->{$_}, qw(Authorization Cookie jwt_token);
+            foreach grep exists $req_headers->{$_}, qw(Authorization Cookie);
 
         my $res_headers = $c->res->headers->to_hash(1);
         $res_headers->{$_} = '--REDACTED--'
