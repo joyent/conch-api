@@ -64,6 +64,11 @@ __PACKAGE__->table("user_session_token");
   is_nullable: 0
   size: 16
 
+=head2 last_ipaddr
+
+  data_type: 'inet'
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -89,6 +94,8 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
+  "last_ipaddr",
+  { data_type => "inet", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -138,7 +145,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:z2yHwYmbD8FJiwNYT64xBA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ekYKuvEUSX1+YiDrS0novg
 
 __PACKAGE__->add_columns(
     '+id' => { is_serializable => 0 },

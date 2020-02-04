@@ -1680,6 +1680,7 @@ definitions:
       - created
       - last_used
       - expires
+      - last_ipaddr
     properties:
       name:
         type: string
@@ -1694,6 +1695,10 @@ definitions:
       expires:
         type: string
         format: date-time
+      last_ipaddr:
+        oneOf:
+          - $ref: common.yaml#/definitions/ipaddr
+          - type: 'null'
   NewUserToken:
     type: object
     additionalProperties: false

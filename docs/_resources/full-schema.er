@@ -274,6 +274,7 @@ expires
 name
 created
 last_used
+last_ipaddr
 
 [user_setting] {bgcolor: "#d0e0d0"}
 *id

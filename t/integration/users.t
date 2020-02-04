@@ -1124,6 +1124,7 @@ subtest 'user tokens (our own)' => sub {
                 created => $created,
                 last_used => undef,
                 expires => $expires,
+                last_ipaddr => undef,
             },
         ]);
 
@@ -1138,6 +1139,7 @@ subtest 'user tokens (our own)' => sub {
             created => $created,
             last_used => undef,
             expires => $expires,
+            last_ipaddr => undef,
         });
 
     $t->post_ok('/user/me/token', json => { name => 'my first 💩 // to.ken @@' })
@@ -1145,20 +1147,21 @@ subtest 'user tokens (our own)' => sub {
         ->json_is({ error => 'name "my first 💩 // to.ken @@" is already in use' });
 
     my $t2 = Test::Conch->new(pg => $t->pg);
-    $t2->get_ok('/user/me', { Authorization => 'Bearer '.$jwt })
+    $t2->get_ok('/user/me/token', { 'X-Real-IP' => '10.10.0.42', Authorization => 'Bearer '.$jwt })
         ->status_is(200)
-        ->json_schema_is('UserDetailed')
-        ->json_cmp_deeply({
-            $user_detailed->%*,
-            workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
-            last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-        });
-    undef $t2;
+        ->json_schema_is('UserTokens')
+        ->json_cmp_deeply([
+            {
+                name => 'my first 💩 // to.ken @@',
+                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_used => ignore,
+                expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_ipaddr => '10.10.0.42',
+            },
+        ]);
 
     cmp_deeply(
-        $t->app->db_user_session_tokens->search({ name => 'my first 💩 // to.ken @@' })
-            ->as_epoch('last_used')->get_column('last_used')->single,
+        Conch::Time->new($t2->tx->res->json->[0]{last_used})->epoch,
         within_tolerance(time, plus_or_minus => 10),
         'token was last used approximately now',
     );
@@ -1224,6 +1227,7 @@ subtest 'user tokens (someone else\'s)' => sub {
                 created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_used => ignore,
                 expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_ipaddr => undef,
             },
         ]);
     my @tokens = $t_super->tx->res->json->@*;
@@ -1260,6 +1264,7 @@ subtest 'user tokens (someone else\'s)' => sub {
                 created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_used => ignore,
                 expires => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                last_ipaddr => undef,
             },
         ]);
     @tokens = $t_super->tx->res->json->@*;
