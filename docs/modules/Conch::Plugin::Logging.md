@@ -11,6 +11,20 @@
 Initializes the logger object, and sets up hooks in various places to log request data and
 process exceptions.
 
+## HELPERS
+
+These methods are made available on the `$c` object (the invocant of all controller methods,
+and therefore other helpers).
+
+### log
+
+Returns the main [Conch::Log](../modules/Conch%3A%3ALog) object for the application, used for most logging.
+
+### get\_logger
+
+Returns a secondary [Conch::Log](../modules/Conch%3A%3ALog) object, to log specialized messages to a separate location.
+Uses the provided `type` in the filename (e.g. `type => foo` will log to `foo.log`).
+
 ## LICENSING
 
 Copyright Joyent, Inc.
