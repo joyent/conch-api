@@ -36,12 +36,12 @@ sub unsecured_routes ($class, $js) {
     # GET /json_schema/device_report/:json_schema_name
     $js->get('/:json_schema_type/<json_schema_name:json_pointer_token>',
             [ json_schema_type => [qw(query_params request response common device_report)] ])
-        ->to('#get', response_schema => 'JSONSchemaOnDisk');
+        ->to('#get_from_disk', response_schema => 'JSONSchemaOnDisk');
 
     # TODO: this will become secured in v3.2, and handled directly by the main 'get' endpoint
     $js->get('/hardware_product/specification/:json_schema_version',
         { json_schema_version => qr/(?:1|latest)/ })
-      ->to('#get', json_schema_type => 'common', json_schema_name => 'HardwareProductSpecification',
+      ->to('#get_from_disk', json_schema_type => 'common', json_schema_name => 'HardwareProductSpecification',
           response_schema => 'JSONSchemaOnDisk');
 }
 
@@ -69,7 +69,7 @@ requests and responses.
 
 =item * Does not require authentication.
 
-=item * Controller/Action: L<Conch::Controller::JSONSchema/get>
+=item * Controller/Action: L<Conch::Controller::JSONSchema/get_from_disk>
 
 =item * Response: a JSON Schema (F<response.yaml#/$defs/JSONSchemaOnDisk>) (Content-Type is
 C<application/schema+json>).

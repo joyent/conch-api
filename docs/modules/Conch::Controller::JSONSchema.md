@@ -6,7 +6,7 @@
 
 ## METHODS
 
-### get
+### get\_from\_disk
 
 Get a query parameters, request, response, common or device\_report JSON Schema (from
 [query_params.json](../json-schema/query_params.json), [request.json](../json-schema/request.json), [response.json](../json-schema/response.json), [common.json](../json-schema/common.json), or [device_report.json](../json-schema/device_report.json),

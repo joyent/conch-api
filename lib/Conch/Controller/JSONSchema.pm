@@ -11,7 +11,7 @@ Conch::Controller::JSONSchema
 
 =head1 METHODS
 
-=head2 get
+=head2 get_from_disk
 
 Get a query parameters, request, response, common or device_report JSON Schema (from
 F<query_params.yaml>, F<request.yaml>, F<response.yaml>, F<common.yaml>, or F<device_report.yaml>,
@@ -19,7 +19,7 @@ respectively). Bundles all the referenced definitions together in the returned b
 
 =cut
 
-sub get ($c) {
+sub get_from_disk ($c) {
     # set Last-Modified header; return 304 if If-Modified-Since is recent enough.
     # For now, just use the server start time. We could do something more sophisticated with
     # the timestamps on the schema file(s), but this is fiddly and involves following all $refs
