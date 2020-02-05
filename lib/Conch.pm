@@ -206,7 +206,7 @@ in user-facing content.
 
     Conch::ValidationSystem->new(log => $self->log, schema => $self->ro_schema)
             ->check_validation_plans
-        if not $self->feature('no_db');
+        if not $ARGV[0] and not $self->feature('no_db');
 
     Conch::Route->all_routes($self->routes, $self);
 
