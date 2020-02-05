@@ -446,13 +446,13 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         { device_id => $new_id, rack_unit_start => 11 },
     ])
     ->status_is(404)
-    ->log_is('Could not find device '.$new_id);
+    ->log_warn_is('Could not find device '.$new_id);
 
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         { device_id => $foo->id, device_serial_number => 'BAR', rack_unit_start => 11 },
     ])
     ->status_is(400)
-    ->log_is(re(qr/unique constraint.*serial_number/));
+    ->log_error_is(re(qr/unique constraint.*serial_number/));
 
 # current layout:
 # slot 1, tag=ohhai - FOO = new device

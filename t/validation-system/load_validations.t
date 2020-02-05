@@ -129,7 +129,7 @@ subtest 'a validation module was deleted entirely' => sub {
     like($old_validation->deactivated, qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/,
         'the validation has been deactivated');
 
-    $t->log_is(
+    $t->log_info_is(
         re(qr/deactivating validation for no-longer-present modules: Conch::Validation::OldAndCrufty/),
         'logged the deactivation',
     );

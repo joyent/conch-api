@@ -43,7 +43,7 @@ subtest '->run, local exception' => sub {
         'correctly parsed an exception from an external library containing a stack trace',
     );
 
-    $t->log_is(
+    $t->log_error_is(
         re(qr/Validation 'local_exception' threw an exception on device id '${\$device->id}': I did something dumb/),
         'logged the unexpected exception',
     );
@@ -77,7 +77,7 @@ my $exception_test = sub ($use_stack_traces = 0) {
         'correctly parsed an exception from an external library, identifying the validator line that called the library',
     );
 
-    $t->log_is(
+    $t->log_error_is(
         re(qr/unexpected end of string while parsing JSON string/),
         'logged the unexpected exception',
     );
@@ -111,7 +111,7 @@ subtest '->run, blessed external exception containing a stack trace' => sub {
         'correctly parsed an exception from an external library containing a stack trace',
     );
 
-    $t->log_is(
+    $t->log_error_is(
         re(qr/Validation 'mutate_device' threw an exception on device id '${\$device->id}': .*permission denied for relation device/),
         'logged the unexpected exception',
     );
