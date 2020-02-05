@@ -256,8 +256,10 @@ subtest 'all plans, and all real validation modules' => sub {
     $validation_plan->add_to_validations($_) foreach @validations;
 
     $t->reset_log;
-    my $module_count = $validation_system->check_validation_plans;
-    is($module_count, $num_validations_added + 1, 'all validations are in these plans, and valid');
+    my ($good_plans, $bad_plans) = $validation_system->check_validation_plans;
+
+    is($good_plans, 2, 'found two good plans');
+    is($bad_plans, 0, 'found no bad plans');
 
     $t->logs_are(
         [

@@ -119,7 +119,7 @@ sub process ($c) {
 
     my $validation_state = Conch::ValidationSystem->new(
         schema => $c->schema,
-        log => $c->log,
+        log => $c->get_logger('validation'),
     )->run_validation_plan(
         validation_plan => $validation_plan,
         # TODO: to eliminate needless db queries, we should prefetch all the relationships
@@ -421,7 +421,7 @@ sub validate_report ($c) {
 
         ($status, @validation_results) = Conch::ValidationSystem->new(
             schema => $c->ro_schema,
-            log => $c->log,
+            log => $c->get_logger('validation'),
         )->run_validation_plan(
             validation_plan => $validation_plan,
             device => $device,

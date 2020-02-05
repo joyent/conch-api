@@ -204,9 +204,15 @@ in user-facing content.
 
     push $self->commands->namespaces->@*, 'Conch::Command';
 
-    Conch::ValidationSystem->new(log => $self->log, schema => $self->ro_schema)
-            ->check_validation_plans
-        if not $ARGV[0] and not $self->feature('no_db');
+    if (not $ARGV[0] and not $self->feature('no_db')) {
+        my ($good_plans, $bad_plans) = Conch::ValidationSystem->new(
+            log => $self->get_logger('validation'),
+            schema => $self->ro_schema,
+        )->check_validation_plans;
+
+        $self->log->info($good_plans.' validation plans verified');
+        $self->log->warn($bad_plans.' invalid validation plans identified') if $bad_plans;
+    }
 
     Conch::Route->all_routes($self->routes, $self);
 

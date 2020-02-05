@@ -13,6 +13,8 @@ have available in Conch::Validation::\*.
 
 Validations not referenced by an active plan are ignored.
 
+Returns a tuple, indicating the number of valid and invalid plans checked.
+
 ### check\_validation\_plan
 
 Verifies that a validation plan and its validations are all correct (correct
