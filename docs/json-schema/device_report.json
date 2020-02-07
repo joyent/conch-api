@@ -40,7 +40,7 @@
               "memory-size" : {
                 "oneOf" : [
                   {
-                    "$ref" : "/definitions/int_or_stringy_int"
+                    "$ref" : "#/definitions/int_or_stringy_int"
                   },
                   {
                     "type" : "null"
@@ -66,13 +66,13 @@
                 "type" : "string"
               },
               "enclosure" : {
-                "$ref" : "/definitions/int_or_stringy_int"
+                "$ref" : "#/definitions/int_or_stringy_int"
               },
               "firmware" : {
                 "type" : "string"
               },
               "hba" : {
-                "$ref" : "/definitions/int_or_stringy_int"
+                "$ref" : "#/definitions/int_or_stringy_int"
               },
               "health" : {
                 "type" : "string"
@@ -84,10 +84,10 @@
                 "type" : "integer"
               },
               "slot" : {
-                "$ref" : "/definitions/int_or_stringy_int"
+                "$ref" : "#/definitions/int_or_stringy_int"
               },
               "temp" : {
-                "$ref" : "/definitions/int_or_stringy_int"
+                "$ref" : "#/definitions/int_or_stringy_int"
               },
               "transport" : {
                 "type" : "string"
@@ -122,7 +122,7 @@
               "mtu" : {
                 "oneOf" : [
                   {
-                    "$ref" : "/definitions/int_or_stringy_int"
+                    "$ref" : "#/definitions/int_or_stringy_int"
                   },
                   {
                     "type" : "null"
@@ -214,16 +214,16 @@
         "temp" : {
           "properties" : {
             "cpu0" : {
-              "$ref" : "/definitions/int_or_stringy_int"
+              "$ref" : "#/definitions/int_or_stringy_int"
             },
             "cpu1" : {
-              "$ref" : "/definitions/int_or_stringy_int"
+              "$ref" : "#/definitions/int_or_stringy_int"
             },
             "exhaust" : {
-              "$ref" : "/definitions/int_or_stringy_int"
+              "$ref" : "#/definitions/int_or_stringy_int"
             },
             "inlet" : {
-              "$ref" : "/definitions/int_or_stringy_int"
+              "$ref" : "#/definitions/int_or_stringy_int"
             }
           },
           "required" : [

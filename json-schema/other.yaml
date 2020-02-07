@@ -158,9 +158,9 @@ definitions:
 #                   type: array
 #                   minItems: 1
 #                   items:
-#                     $ref: /definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/trace
+#                     $ref: "#/definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/trace"
 #                 telemetry:
-#                   $ref: /definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry
+#                   $ref: "#/definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry"
               - type: object
                 additionalProperties: false
                 required:
@@ -174,7 +174,7 @@ definitions:
                       body:
                         type: string
 #                 telemetry:
-#                   $ref: /definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry
+#                   $ref: "#/definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry"
 #             - type: object
 #               additionalProperties: false
 #               required:
@@ -189,7 +189,7 @@ definitions:
 #                     raw:
 #                       type: string
 #                 telemetry:
-#                   $ref: /definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry
+#                   $ref: "#/definitions/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry"
           level:
             type: string
             enum:

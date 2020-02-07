@@ -22,7 +22,7 @@ definitions:
     description: '"?foo" and "?foo=1" are true; "?foo=0" is false'
     oneOf:
       - const: ''
-      - $ref: /definitions/boolean_integer
+      - $ref: "#/definitions/boolean_integer"
 
   RevokeUserTokens:
     allOf:
@@ -30,11 +30,11 @@ definitions:
         additionalProperties: false
         properties:
           login_only:
-            $ref: /definitions/boolean_integer_default_false
+            $ref: "#/definitions/boolean_integer_default_false"
           api_only:
-            $ref: /definitions/boolean_integer_default_false
+            $ref: "#/definitions/boolean_integer_default_false"
           send_mail:
-            $ref: /definitions/boolean_integer_default_true
+            $ref: "#/definitions/boolean_integer_default_true"
       - not:
           type: object
           required:
@@ -57,7 +57,7 @@ definitions:
           - all
         default: login_only
   DeactivateUser:
-    $ref: /definitions/ChangePassword
+    $ref: "#/definitions/ChangePassword"
   ResetUserPassword:
     type: object
     additionalProperties: false
@@ -70,14 +70,14 @@ definitions:
           - all
         default: login_only
       send_mail:
-        $ref: /definitions/boolean_integer_default_true
+        $ref: "#/definitions/boolean_integer_default_true"
   NotifyUsers:
     description: used for operations where email can optionally be sent
     type: object
     additionalProperties: false
     properties:
       send_mail:
-        $ref: /definitions/boolean_integer_default_true
+        $ref: "#/definitions/boolean_integer_default_true"
   GetDeviceByAttribute:
     type: object
     minProperties: 1
@@ -113,13 +113,13 @@ definitions:
     additionalProperties: false
     properties:
       rack_only:
-        $ref: /definitions/boolean_integer_default_false
+        $ref: "#/definitions/boolean_integer_default_false"
   WorkspaceDevices:
     type: object
     additionalProperties: false
     properties:
       validated:
-        $ref: /definitions/boolean_integer
+        $ref: "#/definitions/boolean_integer"
       health:
         oneOf:
           - $ref: common.yaml#/definitions/device_health
@@ -131,9 +131,9 @@ definitions:
       active_minutes:
         $ref: common.yaml#/definitions/non_negative_integer
       ids_only:
-        $ref: /definitions/boolean_integer_default_false
+        $ref: "#/definitions/boolean_integer_default_false"
       serials_only:
-        $ref: /definitions/boolean_integer_default_false
+        $ref: "#/definitions/boolean_integer_default_false"
     not:
       type: object
       required:
@@ -150,11 +150,11 @@ definitions:
     additionalProperties: false
     properties:
       with_device_health:
-        $ref: /definitions/boolean_integer_or_flag
+        $ref: "#/definitions/boolean_integer_or_flag"
       with_device_phases:
-        $ref: /definitions/boolean_integer_or_flag
+        $ref: "#/definitions/boolean_integer_or_flag"
       with_rack_phases:
-        $ref: /definitions/boolean_integer_or_flag
+        $ref: "#/definitions/boolean_integer_or_flag"
   BuildDevices:
     type: object
     additionalProperties: false
@@ -174,9 +174,9 @@ definitions:
       active_minutes:
         $ref: common.yaml#/definitions/non_negative_integer
       ids_only:
-        $ref: /definitions/boolean_integer_default_false
+        $ref: "#/definitions/boolean_integer_default_false"
       serials_only:
-        $ref: /definitions/boolean_integer_default_false
+        $ref: "#/definitions/boolean_integer_default_false"
     not:
       type: object
       required:
@@ -187,7 +187,7 @@ definitions:
     additionalProperties: false
     properties:
       no_save_db:
-        $ref: /definitions/boolean_integer_default_false
+        $ref: "#/definitions/boolean_integer_default_false"
   HardwareProductSpecification:
     type: object
     additionalProperties: false

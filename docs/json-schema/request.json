@@ -388,7 +388,7 @@
     "DeviceSetting" : {
       "allOf" : [
         {
-          "$ref" : "/definitions/DeviceSettings"
+          "$ref" : "#/definitions/DeviceSettings"
         },
         {
           "maxProperties" : 1,
@@ -419,7 +419,7 @@
     "HardwareProductCreate" : {
       "allOf" : [
         {
-          "$ref" : "/definitions/HardwareProductUpdate"
+          "$ref" : "#/definitions/HardwareProductUpdate"
         },
         {
           "required" : [
@@ -842,7 +842,7 @@
     },
     "RackAssignmentDeletes" : {
       "items" : {
-        "$ref" : "/definitions/RackAssignmentDelete"
+        "$ref" : "#/definitions/RackAssignmentDelete"
       },
       "minItems" : 1,
       "type" : "array",
@@ -890,7 +890,7 @@
     },
     "RackAssignmentUpdates" : {
       "items" : {
-        "$ref" : "/definitions/RackAssignmentUpdate"
+        "$ref" : "#/definitions/RackAssignmentUpdate"
       },
       "minItems" : 1,
       "type" : "array",
@@ -1150,7 +1150,7 @@
     "UserSetting" : {
       "allOf" : [
         {
-          "$ref" : "/definitions/UserSettings"
+          "$ref" : "#/definitions/UserSettings"
         },
         {
           "maxProperties" : 1,

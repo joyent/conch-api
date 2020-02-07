@@ -115,7 +115,7 @@ definitions:
     uniqueItems: true
     minItems: 1
     items:
-      $ref: /definitions/RackAssignmentUpdate
+      $ref: "#/definitions/RackAssignmentUpdate"
   RackAssignmentUpdate:
     type: object
     additionalProperties: false
@@ -142,7 +142,7 @@ definitions:
     uniqueItems: true
     minItems: 1
     items:
-      $ref: /definitions/RackAssignmentDelete
+      $ref: "#/definitions/RackAssignmentDelete"
   RackAssignmentDelete:
     type: object
     additionalProperties: false
@@ -235,7 +235,7 @@ definitions:
         $ref: common.yaml#/definitions/positive_integer
   HardwareProductCreate:
     allOf:
-      - $ref: /definitions/HardwareProductUpdate
+      - $ref: "#/definitions/HardwareProductUpdate"
       - required:
         - name
         - alias
@@ -428,7 +428,7 @@ definitions:
         type: boolean
   UserSetting:
     allOf:
-      - $ref: /definitions/UserSettings
+      - $ref: "#/definitions/UserSettings"
       - type: object
         maxProperties: 1
   UserSettings:
@@ -538,7 +538,7 @@ definitions:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
   DeviceSetting:
     allOf:
-      - $ref: /definitions/DeviceSettings
+      - $ref: "#/definitions/DeviceSettings"
       - type: object
         maxProperties: 1
   DeviceSettings:

@@ -7,7 +7,7 @@
       "properties" : {
         "admins" : {
           "items" : {
-            "$ref" : "/definitions/UserTerse"
+            "$ref" : "#/definitions/UserTerse"
           },
           "minItems" : 1,
           "type" : "array",
@@ -30,7 +30,7 @@
               "type" : "null"
             },
             {
-              "$ref" : "/definitions/UserTerse"
+              "$ref" : "#/definitions/UserTerse"
             }
           ]
         },
@@ -117,7 +117,7 @@
         "properties" : {
           "admins" : {
             "items" : {
-              "$ref" : "/definitions/UserTerse"
+              "$ref" : "#/definitions/UserTerse"
             },
             "minItems" : 1,
             "type" : "array",
@@ -194,7 +194,7 @@
     },
     "Builds" : {
       "items" : {
-        "$ref" : "/definitions/Build"
+        "$ref" : "#/definitions/Build"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -285,14 +285,14 @@
     },
     "DatacenterRoomsDetailed" : {
       "items" : {
-        "$ref" : "/definitions/DatacenterRoomDetailed"
+        "$ref" : "#/definitions/DatacenterRoomDetailed"
       },
       "type" : "array",
       "uniqueItems" : true
     },
     "Datacenters" : {
       "items" : {
-        "$ref" : "/definitions/Datacenter"
+        "$ref" : "#/definitions/Datacenter"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -562,7 +562,7 @@
           "$comment" : "location is included only when device 'phase' is earlier than 'production'",
           "oneOf" : [
             {
-              "$ref" : "/definitions/DeviceLocation"
+              "$ref" : "#/definitions/DeviceLocation"
             },
             {
               "type" : "null"
@@ -990,7 +990,7 @@
     "DeviceNic" : {
       "allOf" : [
         {
-          "$ref" : "/definitions/DeviceNicFields"
+          "$ref" : "#/definitions/DeviceNicFields"
         },
         {
           "required" : [
@@ -1010,7 +1010,7 @@
     "DeviceNicField" : {
       "allOf" : [
         {
-          "$ref" : "/definitions/DeviceNicFields"
+          "$ref" : "#/definitions/DeviceNicFields"
         },
         {
           "maxProperties" : 1,
@@ -1083,7 +1083,7 @@
     },
     "DeviceNics" : {
       "items" : {
-        "$ref" : "/definitions/DeviceNic"
+        "$ref" : "#/definitions/DeviceNic"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -1148,7 +1148,7 @@
               "type" : "null"
             },
             {
-              "$ref" : "/definitions/DeviceLocation"
+              "$ref" : "#/definitions/DeviceLocation"
             }
           ]
         },
@@ -1190,7 +1190,7 @@
     },
     "DevicePXEs" : {
       "items" : {
-        "$ref" : "/definitions/DevicePXE"
+        "$ref" : "#/definitions/DevicePXE"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -1254,7 +1254,7 @@
     "DeviceSetting" : {
       "allOf" : [
         {
-          "$ref" : "/definitions/DeviceSettings"
+          "$ref" : "#/definitions/DeviceSettings"
         },
         {
           "maxProperties" : 1,
@@ -1386,7 +1386,7 @@
     },
     "Devices" : {
       "items" : {
-        "$ref" : "/definitions/Device"
+        "$ref" : "#/definitions/Device"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -1757,7 +1757,7 @@
     },
     "HardwareVendors" : {
       "items" : {
-        "$ref" : "/definitions/HardwareVendor"
+        "$ref" : "#/definitions/HardwareVendor"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -1964,7 +1964,7 @@
         "properties" : {
           "admins" : {
             "items" : {
-              "$ref" : "/definitions/UserTerse"
+              "$ref" : "#/definitions/UserTerse"
             },
             "minItems" : 1,
             "type" : "array",
@@ -2054,7 +2054,7 @@
     "QueryParamsValidationError" : {
       "allOf" : [
         {
-          "$ref" : "/definitions/ValidationError"
+          "$ref" : "#/definitions/ValidationError"
         },
         {
           "properties" : {
@@ -2259,7 +2259,7 @@
     },
     "RackAssignments" : {
       "items" : {
-        "$ref" : "/definitions/RackAssignment"
+        "$ref" : "#/definitions/RackAssignment"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -2312,7 +2312,7 @@
     },
     "RackLayouts" : {
       "items" : {
-        "$ref" : "/definitions/RackLayout"
+        "$ref" : "#/definitions/RackLayout"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -2349,14 +2349,14 @@
     },
     "RackRoles" : {
       "items" : {
-        "$ref" : "/definitions/RackRole"
+        "$ref" : "#/definitions/RackRole"
       },
       "type" : "array",
       "uniqueItems" : true
     },
     "Racks" : {
       "items" : {
-        "$ref" : "/definitions/Rack"
+        "$ref" : "#/definitions/Rack"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -2442,7 +2442,7 @@
     },
     "Relays" : {
       "items" : {
-        "$ref" : "/definitions/Relay"
+        "$ref" : "#/definitions/Relay"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -2457,7 +2457,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "results" : {
-          "$ref" : "/definitions/ValidationResults"
+          "$ref" : "#/definitions/ValidationResults"
         },
         "sku" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
@@ -2482,7 +2482,7 @@
     "RequestValidationError" : {
       "allOf" : [
         {
-          "$ref" : "/definitions/ValidationError"
+          "$ref" : "#/definitions/ValidationError"
         },
         {
           "properties" : {
@@ -2618,7 +2618,7 @@
           "type" : "boolean"
         },
         "workspaces" : {
-          "$ref" : "/definitions/WorkspacesAndRoles"
+          "$ref" : "#/definitions/WorkspacesAndRoles"
         }
       },
       "required" : [
@@ -2690,7 +2690,7 @@
     "UserSetting" : {
       "allOf" : [
         {
-          "$ref" : "/definitions/UserSettings"
+          "$ref" : "#/definitions/UserSettings"
         },
         {
           "maxProperties" : 1,
@@ -2774,14 +2774,14 @@
     },
     "UserTokens" : {
       "items" : {
-        "$ref" : "/definitions/UserToken"
+        "$ref" : "#/definitions/UserToken"
       },
       "type" : "array",
       "uniqueItems" : true
     },
     "UsersDetailed" : {
       "items" : {
-        "$ref" : "/definitions/UserDetailed"
+        "$ref" : "#/definitions/UserDetailed"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -2841,7 +2841,7 @@
         },
         "details" : {
           "items" : {
-            "$ref" : "/definitions/JsonValidationError"
+            "$ref" : "#/definitions/JsonValidationError"
           },
           "minItems" : 1,
           "type" : "array",
@@ -2891,7 +2891,7 @@
     },
     "ValidationPlans" : {
       "items" : {
-        "$ref" : "/definitions/ValidationPlan"
+        "$ref" : "#/definitions/ValidationPlan"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -2955,7 +2955,7 @@
     },
     "ValidationResults" : {
       "items" : {
-        "$ref" : "/definitions/ValidationResult"
+        "$ref" : "#/definitions/ValidationResult"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -2981,7 +2981,7 @@
         },
         "results" : {
           "items" : {
-            "$ref" : "/definitions/ValidationResult"
+            "$ref" : "#/definitions/ValidationResult"
           },
           "type" : "array",
           "uniqueItems" : true
@@ -3007,14 +3007,14 @@
     },
     "ValidationStatesWithResults" : {
       "items" : {
-        "$ref" : "/definitions/ValidationStateWithResults"
+        "$ref" : "#/definitions/ValidationStateWithResults"
       },
       "type" : "array",
       "uniqueItems" : true
     },
     "Validations" : {
       "items" : {
-        "$ref" : "/definitions/Validation"
+        "$ref" : "#/definitions/Validation"
       },
       "type" : "array",
       "uniqueItems" : true
@@ -3132,7 +3132,7 @@
             ]
           },
           "location" : {
-            "$ref" : "/definitions/DeviceLocation"
+            "$ref" : "#/definitions/DeviceLocation"
           },
           "phase" : {
             "$ref" : "common.json#/definitions/device_phase"
@@ -3379,7 +3379,7 @@
     },
     "WorkspacesAndRoles" : {
       "items" : {
-        "$ref" : "/definitions/WorkspaceAndRole"
+        "$ref" : "#/definitions/WorkspaceAndRole"
       },
       "type" : "array",
       "uniqueItems" : true

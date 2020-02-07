@@ -64,7 +64,7 @@
           "type" : "string"
         },
         {
-          "$ref" : "/definitions/mojo_relaxed_placeholder"
+          "$ref" : "#/definitions/mojo_relaxed_placeholder"
         }
       ]
     },
@@ -86,12 +86,12 @@
           "type" : "string"
         },
         {
-          "$ref" : "/definitions/mojo_standard_placeholder"
+          "$ref" : "#/definitions/mojo_standard_placeholder"
         }
       ]
     },
     "device_setting_key" : {
-      "$ref" : "/definitions/mojo_relaxed_placeholder"
+      "$ref" : "#/definitions/mojo_relaxed_placeholder"
     },
     "disk_serial_number" : {
       "pattern" : "^\\S+$",
@@ -104,7 +104,7 @@
           "type" : "string"
         },
         {
-          "$ref" : "/definitions/mojo_relaxed_placeholder"
+          "$ref" : "#/definitions/mojo_relaxed_placeholder"
         }
       ]
     },
@@ -145,7 +145,7 @@
     "non_zero_uuid" : {
       "allOf" : [
         {
-          "$ref" : "/definitions/uuid"
+          "$ref" : "#/definitions/uuid"
         },
         {
           "not" : {
@@ -176,7 +176,7 @@
       "type" : "string"
     },
     "user_setting_key" : {
-      "$ref" : "/definitions/mojo_relaxed_placeholder"
+      "$ref" : "#/definitions/mojo_relaxed_placeholder"
     },
     "uuid" : {
       "pattern" : "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
