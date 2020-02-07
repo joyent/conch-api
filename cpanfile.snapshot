@@ -379,10 +379,10 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Cpanel-JSON-XS-4.15
-    pathname: R/RU/RURBAN/Cpanel-JSON-XS-4.15.tar.gz
+  Cpanel-JSON-XS-4.19
+    pathname: R/RU/RURBAN/Cpanel-JSON-XS-4.19.tar.gz
     provides:
-      Cpanel::JSON::XS 4.15
+      Cpanel::JSON::XS 4.19
       Cpanel::JSON::XS::Type undef
     requirements:
       Carp 0
@@ -2205,16 +2205,18 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
-  JSON-Validator-3.18
-    pathname: J/JH/JHTHORSEN/JSON-Validator-3.18.tar.gz
+  JSON-Validator-3.23
+    pathname: J/JH/JHTHORSEN/JSON-Validator-3.23.tar.gz
     provides:
-      JSON::Validator 3.18
+      JSON::Validator 3.23
       JSON::Validator::Error undef
       JSON::Validator::Formats undef
       JSON::Validator::Joi undef
       JSON::Validator::Ref undef
+      JSON::Validator::Util undef
     requirements:
       ExtUtils::MakeMaker 0
+      List::Util 1.45
       Mojolicious 7.28
       perl 5.010001
   Lingua-EN-FindNumber-1.32
@@ -2679,8 +2681,8 @@ DISTRIBUTIONS
       Mojolicious 8.03
       SQL::Abstract 1.86
       perl 5.010001
-  Mojolicious-8.31
-    pathname: S/SR/SRI/Mojolicious-8.31.tar.gz
+  Mojolicious-8.33
+    pathname: S/SR/SRI/Mojolicious-8.33.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2749,7 +2751,7 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 8.31
+      Mojolicious 8.33
       Mojolicious::Command undef
       Mojolicious::Command::Author::cpanify undef
       Mojolicious::Command::Author::generate undef
@@ -3192,6 +3194,16 @@ DISTRIBUTIONS
       strict 0
       warnings 0
       warnings::register 0
+  PerlIO-utf8_strict-0.007
+    pathname: L/LE/LEONT/PerlIO-utf8_strict-0.007.tar.gz
+    provides:
+      PerlIO::utf8_strict 0.007
+    requirements:
+      ExtUtils::MakeMaker 0
+      XSLoader 0
+      perl 5.008
+      strict 0
+      warnings 0
   Pod-Coverage-0.23
     pathname: R/RC/RCLAMP/Pod-Coverage-0.23.tar.gz
     provides:
@@ -3873,48 +3885,49 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Type-Tiny-1.004004
-    pathname: T/TO/TOBYINK/Type-Tiny-1.004004.tar.gz
+  Type-Tiny-1.010000
+    pathname: T/TO/TOBYINK/Type-Tiny-1.010000.tar.gz
     provides:
-      Devel::TypeTiny::Perl56Compat 1.004004
-      Devel::TypeTiny::Perl58Compat 1.004004
-      Error::TypeTiny 1.004004
-      Error::TypeTiny::Assertion 1.004004
-      Error::TypeTiny::Compilation 1.004004
-      Error::TypeTiny::WrongNumberOfParameters 1.004004
-      Eval::TypeTiny 1.004004
-      Reply::Plugin::TypeTiny 1.004004
-      Test::TypeTiny 1.004004
-      Type::Coercion 1.004004
-      Type::Coercion::FromMoose 1.004004
-      Type::Coercion::Union 1.004004
-      Type::Library 1.004004
-      Type::Params 1.004004
-      Type::Parser 1.004004
-      Type::Registry 1.004004
-      Type::Tiny 1.004004
-      Type::Tiny::Class 1.004004
-      Type::Tiny::Duck 1.004004
-      Type::Tiny::Enum 1.004004
-      Type::Tiny::Intersection 1.004004
-      Type::Tiny::Role 1.004004
-      Type::Tiny::Union 1.004004
-      Type::Utils 1.004004
-      Types::Common::Numeric 1.004004
-      Types::Common::String 1.004004
-      Types::Standard 1.004004
-      Types::Standard::ArrayRef 1.004004
-      Types::Standard::CycleTuple 1.004004
-      Types::Standard::Dict 1.004004
-      Types::Standard::HashRef 1.004004
-      Types::Standard::Map 1.004004
-      Types::Standard::ScalarRef 1.004004
-      Types::Standard::StrMatch 1.004004
-      Types::Standard::Tied 1.004004
-      Types::Standard::Tuple 1.004004
-      Types::TypeTiny 1.004004
+      Devel::TypeTiny::Perl56Compat 1.010000
+      Devel::TypeTiny::Perl58Compat 1.010000
+      Error::TypeTiny 1.010000
+      Error::TypeTiny::Assertion 1.010000
+      Error::TypeTiny::Compilation 1.010000
+      Error::TypeTiny::WrongNumberOfParameters 1.010000
+      Eval::TypeTiny 1.010000
+      Reply::Plugin::TypeTiny 1.010000
+      Test::TypeTiny 1.010000
+      Type::Coercion 1.010000
+      Type::Coercion::FromMoose 1.010000
+      Type::Coercion::Union 1.010000
+      Type::Library 1.010000
+      Type::Params 1.010000
+      Type::Parser 1.010000
+      Type::Registry 1.010000
+      Type::Tiny 1.010000
+      Type::Tiny::Class 1.010000
+      Type::Tiny::ConstrainedObject 1.010000
+      Type::Tiny::Duck 1.010000
+      Type::Tiny::Enum 1.010000
+      Type::Tiny::Intersection 1.010000
+      Type::Tiny::Role 1.010000
+      Type::Tiny::Union 1.010000
+      Type::Utils 1.010000
+      Types::Common::Numeric 1.010000
+      Types::Common::String 1.010000
+      Types::Standard 1.010000
+      Types::Standard::ArrayRef 1.010000
+      Types::Standard::CycleTuple 1.010000
+      Types::Standard::Dict 1.010000
+      Types::Standard::HashRef 1.010000
+      Types::Standard::Map 1.010000
+      Types::Standard::ScalarRef 1.010000
+      Types::Standard::StrMatch 1.010000
+      Types::Standard::Tied 1.010000
+      Types::Standard::Tuple 1.010000
+      Types::TypeTiny 1.010000
     requirements:
-      Exporter::Tiny 0.040
+      Exporter::Tiny 1.000000
       ExtUtils::MakeMaker 6.17
       perl 5.006001
   Type-Tiny-XS-0.016
@@ -3989,6 +4002,19 @@ DISTRIBUTIONS
       strict 0
       utf8 0
       warnings 0
+  Unicode-UTF8-0.62
+    pathname: C/CH/CHANSEN/Unicode-UTF8-0.62.tar.gz
+    provides:
+      Unicode::UTF8 0.62
+    requirements:
+      Carp 0
+      Encode 1.9801
+      Exporter 0
+      ExtUtils::MakeMaker 6.59
+      Test::Fatal 0.006
+      Test::More 0.47
+      XSLoader 0
+      perl 5.008001
   Variable-Magic-0.62
     pathname: V/VP/VPIT/Variable-Magic-0.62.tar.gz
     provides:
