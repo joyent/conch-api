@@ -15,7 +15,7 @@
 # 1 or more      +      (marks foreign key on table declaration)
 
 
-title {label: "Conch database schema (as of v3.0.0-b1, 2019-10-21)", size: "50"}
+title {label: "Conch database schema (as of v3.0.0-b6, 2020-02-03)", size: "50"}
 
 entity {bgcolor: "#eeeeee", size: "20"}
 
