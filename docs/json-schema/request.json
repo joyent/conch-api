@@ -701,6 +701,9 @@
     },
     "Login" : {
       "additionalProperties" : false,
+      "default" : {
+        "set_session" : false
+      },
       "oneOf" : [
         {
           "required" : [
@@ -721,7 +724,6 @@
           "$ref" : "common.json#/definitions/non_empty_string"
         },
         "set_session" : {
-          "default" : false,
           "type" : "boolean"
         },
         "user_id" : {

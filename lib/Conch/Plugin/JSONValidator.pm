@@ -3,7 +3,7 @@ package Conch::Plugin::JSONValidator;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 use feature 'unicode_strings', 'fc';
-use JSON::Validator;
+use JSON::Validator 3.20;
 
 =pod
 
@@ -56,6 +56,8 @@ arrayref).
 On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
 F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
 
+Population of missing data from specified defaults is performed.
+
 =cut
 
     $app->helper(validate_query_params => sub ($c, $schema_name, $data = $c->req->query_params->to_hash) {
@@ -76,6 +78,10 @@ F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
                 schema => $c->url_for('/json_schema/query_params/'.$schema_name),
             });
         }
+
+        # now underlay data defaults
+        # (FIXME: we should be receiving these as annotations from the validator)
+        $data->%* = ( ($schema->{default} // {})->%*, $data->%* );
 
         $c->log->debug("Passed data validation for query_params schema $schema_name");
         return $data;
@@ -121,15 +127,11 @@ Returns a L<JSON::Validator> object suitable for validating an endpoint's query 
 Because values are being parsed from the URI string, all values are strings even if they look like
 numbers.
 
-No default population is done yet though; see
-L<https://github.com/mojolicious/json-validator/issues/158>.
-
 =cut
 
     my $_query_params_validator;
     $app->helper(get_query_params_validator => sub ($c) {
         return $_query_params_validator if $_query_params_validator;
-        # TODO: ->new(coerce => '...,defaults')
         $_query_params_validator = JSON::Validator->new;
         $_query_params_validator->formats->@{qw(json-pointer uri uri-reference)} =
             (\&_check_json_pointer, \&_check_uri, \&_check_uri_reference);

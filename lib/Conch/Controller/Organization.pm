@@ -229,7 +229,7 @@ sub add_user ($c) {
         $c->log->info('Updated access for user '.$user->id.' ('.$user->name.') in organization '
             .$c->stash('organization_id_or_name').' to the '.$input->{role}.' role');
 
-        if ($params->{send_mail} // 1) {
+        if ($params->{send_mail}) {
             $c->send_mail(
                 template_file => 'organization_user_update_user',
                 From => 'noreply',
@@ -259,7 +259,7 @@ sub add_user ($c) {
     });
     $c->log->info('Added user '.$user->id.' ('.$user->name.') to organization '.$c->stash('organization_id_or_name').' with the '.$input->{role}.' role');
 
-    if ($params->{send_mail} // 1) {
+    if ($params->{send_mail}) {
         $c->send_mail(
             template_file => 'organization_user_add_user',
             From => 'noreply',
@@ -310,7 +310,7 @@ sub remove_user ($c) {
     $c->log->info('removing user '.$user->id.' ('.$user->name.') from organization '.$c->stash('organization_id_or_name'));
     my $deleted = $rs->delete;
 
-    if ($deleted > 0 and $params->{send_mail} // 1) {
+    if ($deleted > 0 and $params->{send_mail}) {
         my $organization_name = $c->stash('organization_name') // $c->stash('organization_rs')->get_column('name')->single;
         $c->send_mail(
             template_file => 'organization_user_remove_user',

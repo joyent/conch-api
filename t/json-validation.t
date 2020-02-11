@@ -33,6 +33,27 @@ subtest 'failed query params validation' => sub {
         ->log_warn_like(qr{^FAILED query_params validation for schema ChangePassword: /clear_tokens: Not in enum list});
 };
 
+subtest 'insert defaults for missing query parameter values' => sub {
+    my $validator = $t->app->get_query_params_validator;
+    my $schema = $validator->get('/definitions/RevokeUserTokens');
+    my $data = {};
+
+    my @errors = $validator->validate($data, $schema);
+    cmp_deeply(\@errors, [], 'got no validation errors');
+    cmp_deeply($data, {}, 'no default coercion from the validator itself');
+
+    ok($t->app->validate_query_params('RevokeUserTokens', $data), 'no validation errors here either');
+    cmp_deeply(
+        $data,
+        {
+            login_only => 0,
+            api_only => 0,
+            send_mail => 1,
+        },
+        'empty params hash populated with default values',
+    );
+};
+
 subtest 'failed request validation' => sub {
     $t->post_ok('/login', json => { email => 'foo@bar.com' })
         ->status_is(400)

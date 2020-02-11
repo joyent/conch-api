@@ -391,7 +391,8 @@ definitions:
         $ref: common.yaml#/definitions/non_empty_string
       set_session:
         type: boolean
-        default: false
+    default:
+      set_session: false
   UserIdOrEmail:
     type: object
     additionalProperties: true

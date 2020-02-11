@@ -358,7 +358,7 @@ $t->get_ok('/json_schema/request/Login')
             user_id => { '$ref' => '#/definitions/uuid' },
             email => { '$ref' => '#/definitions/email_address' },
             password => { '$ref' => '#/definitions/non_empty_string' },
-            set_session => { type => 'boolean', default => JSON::PP::false },
+            set_session => { type => 'boolean' },
         },
         definitions => {
             non_empty_string => { type => 'string', minLength => 1 },
@@ -366,6 +366,7 @@ $t->get_ok('/json_schema/request/Login')
             email_address => superhashof({}),
             mojo_relaxed_placeholder => superhashof({}),
         },
+        default => { set_session => bool(0) },
     });
 
 $t->get_ok('/json_schema/query_params/ResetUserPassword')
@@ -376,13 +377,17 @@ $t->get_ok('/json_schema/query_params/ResetUserPassword')
         '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => $base_uri.'json_schema/query_params/ResetUserPassword',
         definitions => {
-            boolean_string_default_true => { type => 'string', enum => [ '0', '1' ], default => '1' },
+            boolean_string => { type => 'string', enum => [ '0', '1' ] },
         },
         type => 'object',
         additionalProperties => bool(0),
         properties => {
-            clear_tokens => { type => 'string', enum => [ qw(none login_only all) ], default => 'login_only' },
-            send_mail => { '$ref' => '#/definitions/boolean_string_default_true' },
+            clear_tokens => { type => 'string', enum => [ qw(none login_only all) ] },
+            send_mail => { '$ref' => '#/definitions/boolean_string' },
+        },
+        default => {
+            clear_tokens => 'login_only',
+            send_mail => '1',
         },
     });
 

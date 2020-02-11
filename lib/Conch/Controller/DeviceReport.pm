@@ -26,7 +26,7 @@ Response contains no data but returns the resource to fetch the result in the Lo
 sub process ($c) {
     my $params = $c->validate_query_params('ProcessDeviceReport');
     return if not $params;
-    return 1 if $params->{no_save_db} // 0; # dispatch to device_report#validate_report
+    return 1 if $params->{no_save_db};  # dispatch to device_report#validate_report
 
     my $unserialized_report = $c->validate_request('DeviceReport');
     return if not $unserialized_report;

@@ -1,20 +1,10 @@
-# Note: for now, defaults are for documentation purposes only.
-# see https://github.com/mojolicious/json-validator/issues/158
 ---
-$comment: 'Note that all parameters are parsed internally from the request URI as strings, so all type checks here use strings. When a query parameter is used more than once, its values are parsed as an arrayref. See ../modules/Conch::Plugin::JSONValidator#validate_query_params. For now, defaults are for documentation purposes only. see https://github.com/mojolicious/json-validator/issues/158'
+$comment: 'Note that all parameters are parsed internally from the request URI as strings, so all type checks here use strings. When a query parameter is used more than once, its values are parsed as an arrayref. See ../modules/Conch::Plugin::JSONValidator#validate_query_params.'
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
   boolean_string:
     type: string
     enum: [ '0', '1' ]
-  boolean_string_default_false:
-    type: string
-    enum: [ '0', '1' ]
-    default: '0'
-  boolean_string_default_true:
-    type: string
-    enum: [ '0', '1' ]
-    default: '1'
   boolean_string_or_flag:
     description: '"?foo" and "?foo=1" are true; "?foo=0" is false'
     oneOf:
@@ -26,26 +16,29 @@ definitions:
     pattern: '^[0-9]+$'
 
   RevokeUserTokens:
-    allOf:
-      - type: object
-        additionalProperties: false
-        properties:
-          login_only:
-            $ref: '#/definitions/boolean_string_default_false'
-          api_only:
-            $ref: '#/definitions/boolean_string_default_false'
-          send_mail:
-            $ref: '#/definitions/boolean_string_default_true'
-      - not:
-          type: object
-          required:
-            - login_only
-            - api_only
-          properties:
-            login_only:
-              const: '1'
-            api_only:
-              const: '1'
+    type: object
+    additionalProperties: false
+    properties:
+      login_only:
+        $ref: '#/definitions/boolean_string'
+      api_only:
+        $ref: '#/definitions/boolean_string'
+      send_mail:
+        $ref: '#/definitions/boolean_string'
+    default:
+      login_only: '0'
+      api_only: '0'
+      send_mail: '1'
+    not:
+      type: object
+      required:
+        - login_only
+        - api_only
+      properties:
+        login_only:
+          const: '1'
+        api_only:
+          const: '1'
   ChangePassword:
     type: object
     additionalProperties: false
@@ -56,7 +49,8 @@ definitions:
           - none
           - login_only
           - all
-        default: login_only
+    default:
+      clear_tokens: login_only
   DeactivateUser:
     $ref: '#/definitions/ChangePassword'
   ResetUserPassword:
@@ -69,16 +63,20 @@ definitions:
           - none
           - login_only
           - all
-        default: login_only
       send_mail:
-        $ref: '#/definitions/boolean_string_default_true'
+        $ref: '#/definitions/boolean_string'
+    default:
+      clear_tokens: login_only
+      send_mail: '1'
   NotifyUsers:
     description: used for operations where email can optionally be sent
     type: object
     additionalProperties: false
     properties:
       send_mail:
-        $ref: '#/definitions/boolean_string_default_true'
+        $ref: '#/definitions/boolean_string'
+    default:
+      send_mail: '1'
   GetDeviceByAttribute:
     type: object
     minProperties: 1
@@ -114,7 +112,9 @@ definitions:
     additionalProperties: false
     properties:
       rack_only:
-        $ref: '#/definitions/boolean_string_default_false'
+        $ref: '#/definitions/boolean_string'
+    default:
+      rack_only: '0'
   GetBuilds:
     type: object
     properties:
@@ -172,9 +172,9 @@ definitions:
       active_minutes:
         $ref: '#/definitions/non_negative_integer_string'
       ids_only:
-        $ref: '#/definitions/boolean_string_default_false'
+        $ref: '#/definitions/boolean_string'
       serials_only:
-        $ref: '#/definitions/boolean_string_default_false'
+        $ref: '#/definitions/boolean_string'
     allOf:
       - not:
           type: object
@@ -187,6 +187,9 @@ definitions:
       - not:
           type: object
           required: [ phase_earlier_than, phase ]
+    default:
+      ids_only: '0'
+      serials_only: '0'
   BuildRacks:
     type: object
     additionalProperties: false
@@ -200,13 +203,17 @@ definitions:
             items:
               $ref: common.yaml#/definitions/device_phase
       ids_only:
-        $ref: '#/definitions/boolean_string_default_false'
+        $ref: '#/definitions/boolean_string'
+    default:
+      ids_only: '0'
   ProcessDeviceReport:
     type: object
     additionalProperties: false
     properties:
       no_save_db:
-        $ref: '#/definitions/boolean_string_default_false'
+        $ref: '#/definitions/boolean_string'
+    default:
+      no_save_db: '0'
   HardwareProductSpecification:
     type: object
     additionalProperties: false

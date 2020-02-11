@@ -47,6 +47,8 @@ arrayref).
 On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
 [response.json#/definitions/QueryParamsValidationError](../json-schema/response.json#/definitions/QueryParamsValidationError) json response schema.
 
+Population of missing data from specified defaults is performed.
+
 ### validate\_request
 
 Given the name of a json schema in the request namespace, validate the provided payload against
@@ -62,9 +64,6 @@ Returns a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object
 
 Because values are being parsed from the URI string, all values are strings even if they look like
 numbers.
-
-No default population is done yet though; see
-[https://github.com/mojolicious/json-validator/issues/158](https://github.com/mojolicious/json-validator/issues/158).
 
 ### get\_request\_validator
 
