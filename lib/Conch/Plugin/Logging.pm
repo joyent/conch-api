@@ -19,11 +19,15 @@ Conch::Plugin::Logging - Sets up logging for the application
 Initializes the logger object, and sets up hooks in various places to log request data and
 process exceptions.
 
+=head1 HELPERS
+
+These methods are made available on the C<$c> object (the invocant of all controller methods,
+and therefore other helpers).
+
 =cut
 
 sub register ($self, $app, $config) {
     my $plugin_config = $config->{logging} // {};
-    my $log_dir = $plugin_config->{dir} // 'log';
 
     my %LEVEL = (debug => 1, info => 2, warn => 3, error => 4, fatal => 5);
     die 'unrecognized log level '.$plugin_config->{level}
@@ -39,8 +43,9 @@ sub register ($self, $app, $config) {
     );
 
     # without 'path' option, Mojo::Log defaults to *STDERR
+    my $log_dir;
     if (not $log_to_stderr and not $log_args{handle}) {
-        $log_dir = path($log_dir);
+        $log_dir = path($plugin_config->{dir} // 'log');
         $log_dir = $app->home->child($log_dir) if not $log_dir->is_abs;
 
         if (-d $log_dir) {
@@ -56,8 +61,30 @@ sub register ($self, $app, $config) {
 
     $app->log(Conch::Log->new(%log_args));
 
+=head2 log
+
+Returns the main L<Conch::Log> object for the application, used for most logging.
+
+=cut
+
     $app->helper(log => sub ($c) {
         return $c->stash->{'mojo.log'} //= $c->app->log;
+    });
+
+=head2 get_logger
+
+Returns a secondary L<Conch::Log> object, to log specialized messages to a separate location.
+Uses the provided C<type> in the filename (e.g. C<< type => foo >> will log to F<foo.log>).
+
+=cut
+
+    $app->helper(get_logger => sub ($c, $type, %additional_args) {
+        Conch::Log->new(
+            history => $c->app->log->history,   # share history buffers for ease of testing
+            %log_args,                          # default arguments from config file
+            $log_dir ? ( path => $log_dir->child($type.'.log') ) : (),
+            %additional_args,
+        );
     });
 
     $app->hook(around_dispatch => sub ($next, $c) {
@@ -69,12 +96,7 @@ sub register ($self, $app, $config) {
         $c->timing->begin('request_latency');
     });
 
-    my $dispatch_log = Conch::Log->new(
-        history => $app->log->history,  # share history buffers
-        %log_args,
-        bunyan => 1,
-        with_trace => 0,
-    );
+    my $dispatch_log = $app->get_logger('dispatch', bunyan => 1, with_trace => 0);
 
     $app->hook(after_dispatch => sub ($c) {
         my $u_str = $c->stash('user')

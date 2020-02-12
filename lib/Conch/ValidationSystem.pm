@@ -25,6 +25,8 @@ have available in Conch::Validation::*.
 
 Validations not referenced by an active plan are ignored.
 
+Returns a tuple, indicating the number of valid and invalid plans checked.
+
 =cut
 
 sub check_validation_plans ($self) {
@@ -34,13 +36,21 @@ sub check_validation_plans ($self) {
         ->prefetch({ validation_plan_members => 'validation' });
 
     my %validation_modules;
+    my ($good_plans, $bad_plans);
     while (my $validation_plan = $validation_plan_rs->next) {
-        ++$validation_modules{$_} foreach
-            $self->check_validation_plan($validation_plan);
+        $self->log->debug('checking validation plan "'.$validation_plan->name.'"...');
+        if (my @modules = $self->check_validation_plan($validation_plan)) {
+            $self->log->debug('found '.@modules.' good validations');
+            ++$validation_modules{$_} foreach @modules;
+            ++$good_plans;
+        }
+        else {
+            ++$bad_plans;
+        }
     }
 
-    $self->log->debug('found '.scalar(keys %validation_modules).' valid validation modules');
-    return scalar keys %validation_modules;
+    $self->log->debug('found '.scalar(keys %validation_modules).' valid validation modules in total');
+    return ($good_plans // 0, $bad_plans // 0);
 }
 
 =head2 check_validation_plan
@@ -109,13 +119,12 @@ sub check_validation_plan ($self, $validation_plan) {
     }
 
     my $str = 'Validation plan id '.$validation_plan->id.' "'.$validation_plan->name.'" is ';
-    if ($valid_plan) {
-        $self->log->info($str.'valid');
-    }
-    else {
+    if (not $valid_plan) {
         $self->log->warn($str.'not valid');
+        return;
     }
 
+    $self->log->info($str.'valid');
     return keys %validation_modules;
 }
 

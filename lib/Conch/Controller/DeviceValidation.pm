@@ -69,7 +69,7 @@ sub validate ($c) {
 
     my @validation_results = Conch::ValidationSystem->new(
         schema => $c->ro_schema,
-        log => $c->log,
+        log => $c->get_logger('validation'),
     )->run_validation(
         validation => $validation,
         device => $c->db_ro_devices->find($c->stash('device_id')),
@@ -108,7 +108,7 @@ sub run_validation_plan ($c) {
 
     my ($status, @validation_results) = Conch::ValidationSystem->new(
         schema => $c->ro_schema,
-        log => $c->log,
+        log => $c->get_logger('validation'),
     )->run_validation_plan(
         validation_plan => $validation_plan,
         device => $c->db_ro_devices->find($c->stash('device_id')),
