@@ -272,9 +272,9 @@ subtest 'extraction with $refs' => sub {
     foreach @tests;
 };
 
+use constant SPEC_URL => 'http://json-schema.org/draft-07/schema#';
 
 my $t = Test::Conch->new(pg => undef);
-my $json_spec_schema = $_validator->schema->data;
 my $base_uri = $t->ua->server->url; # used as the base uri for all requests
 
 $t->get_ok('/schema/request/foo')
@@ -304,9 +304,9 @@ $t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan
     ->status_is(200)
     ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply({
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/response/Ping',
         type => 'object',
         additionalProperties => bool(0),
@@ -326,9 +326,9 @@ $t->ua->max_redirects(10);
 $t->get_ok('/schema/response/login_token')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply(my $response_login_token = {
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/response/LoginToken',
         type => 'object',
         additionalProperties => bool(0),
@@ -340,15 +340,15 @@ $t->ua->max_redirects(0);
 $t->get_ok('/json_schema/response/LoginToken')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply($response_login_token);
 
 $t->get_ok('/json_schema/request/Login')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply({
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/request/Login',
         type => 'object',
         additionalProperties => bool(0),
@@ -372,9 +372,9 @@ $t->get_ok('/json_schema/request/Login')
 $t->get_ok('/json_schema/query_params/ResetUserPassword')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply({
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/query_params/ResetUserPassword',
         definitions => {
             boolean_string => { type => 'string', enum => [ '0', '1' ] },
@@ -394,7 +394,7 @@ $t->get_ok('/json_schema/query_params/ResetUserPassword')
 $t->get_ok('/json_schema/request/HardwareProductCreate')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply('', superhashof({
         '$id' => $base_uri.'json_schema/request/HardwareProductCreate',
         definitions => {
@@ -412,16 +412,16 @@ $t->get_ok('/json_schema/request/HardwareProductCreate')
 $t->get_ok('/json_schema/request/DeviceReport')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
-    ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
+    ->json_schema_is(SPEC_URL)
+    ->json_is('/$schema', SPEC_URL);
 
 $t->get_ok('/json_schema/common/non_zero_uuid')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply({
         '$id' => $base_uri.'json_schema/common/non_zero_uuid',
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         allOf => [
             { '$ref' => '#/definitions/uuid' },
             { not => { const => '00000000-0000-0000-0000-000000000000' } },
@@ -436,10 +436,10 @@ $t->get_ok('/json_schema/common/non_zero_uuid')
 $t->get_ok('/json_schema/device_report/DeviceReport_v3_0_0')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply({
         '$id' => $base_uri.'json_schema/device_report/DeviceReport_v3_0_0',
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         description => ignore,
         type => 'object',
         required => ignore,

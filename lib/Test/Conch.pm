@@ -326,10 +326,10 @@ sub location_like ($self, $pattern, $desc = 'location header') {
 
 =head2 json_schema_is
 
-Validates the JSON response of
-the most recent request. If given a string, looks up the schema in
-#/definitions in the JSON Schema spec to validate. If given a hash, uses
-the hash as the schema to validate.
+Validates the JSON response of the most recent request. If given a string that looks like a URL,
+fetches that URL; otherwise if a string, looks up the schema in C<#/definitions> in the JSON Schema
+response specification document to validate. If given a hash, uses the hash as the schema to
+validate.
 
 =cut
 
@@ -338,17 +338,26 @@ sub json_schema_is ($self, $schema, $message = undef) {
     my $data = $self->tx->res->json;
     return $self->test('fail', 'No JSON in response') unless $data;
 
+    my $validator;
+
     my ($schema_name, @errors);
     if (ref $schema) {
         $schema_name = '<inlined>';
+        $validator = $self->validator;
+    }
+    elsif ($schema =~ /^http/) {
+        # do not use the network, but rely solely on JSON::Validator's internal cache
+        $validator = JSON::Validator->new(ua => undef, version => 7)->schema($schema);
+        ($schema_name, $schema) = ($schema, undef);
     }
     else {
         $schema_name = $schema;
-        $schema = $self->validator->get('/definitions/'.$schema_name);
-        die "schema '$schema_name' not found" if not $schema;
+        $validator = $self->validator;
+        $schema = $validator->get('/definitions/'.$schema_name)
+            or die "schema '$schema_name' not found";
     }
 
-    @errors = $self->validator->validate($data, $schema);
+    @errors = $validator->validate($data, $schema);
 
     return $self->test('ok', !@errors, $message // 'JSON response has no schema validation errors')
         ->or(sub ($self) {

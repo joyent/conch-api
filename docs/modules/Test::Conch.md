@@ -84,10 +84,10 @@ As ["location\_is"](#location_is), but takes a regular expression.
 
 ### json\_schema\_is
 
-Validates the JSON response of
-the most recent request. If given a string, looks up the schema in
-\#/definitions in the JSON Schema spec to validate. If given a hash, uses
-the hash as the schema to validate.
+Validates the JSON response of the most recent request. If given a string that looks like a URL,
+fetches that URL; otherwise if a string, looks up the schema in `#/definitions` in the JSON Schema
+response specification document to validate. If given a hash, uses the hash as the schema to
+validate.
 
 ### json\_cmp\_deeply
 
