@@ -1,6 +1,7 @@
 package Conch::Controller::JSONSchema;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
+use feature 'current_sub';
 
 =pod
 
@@ -27,108 +28,66 @@ sub get ($c) {
 
     my $type = $c->stash('json_schema_type');
     my $name = $c->stash('json_schema_name');
+    my $js = $c->json_schema_validator;
 
-    my $validator = $type eq 'query_params' || $type eq 'request' || $type eq 'response'
-        ? $c->${\('get_'.$type.'_validator')}
-        : do {  # ugh. this is going away soon.
-            my $jv = JSON::Validator->new;
-            $jv->formats->{uri} = \&Conch::Plugin::JSONValidator::_check_uri;
-            $jv->load_and_validate_schema(
-                'json-schema/'.$type.'.yaml',
-                { schema => 'http://json-schema.org/draft-07/schema#' });
-            $jv;
-        };
+    my $initial_uri = $type.'.yaml#/$defs/'.$name;
+    my $base_schema = $js->get($initial_uri) // $js->get($c->req->url);
 
-    my $schema = _extract_schema_definition($validator, $name);
-    if (not $schema) {
+    if (not $base_schema) {
         $c->log->warn('Could not find '.$type.' schema '.$name);
         return $c->status(404);
     }
 
+    my (@errors, $seen_uris, $bundled_schema);
+    my $ref_callback = sub ($schema, $state) {
+        my $ref_uri = Mojo::URL->new($schema->{'$ref'});
+        return if $ref_uri->is_abs;
+        $ref_uri = $ref_uri->to_abs(JSON::Schema::Draft201909::Utilities::canonical_schema_uri($state));
+
+        my @def_segments = split('/', $ref_uri->fragment//'');
+        push @errors, 'invalid uri fragment "'.($ref_uri->fragment//'').'"' and return
+            if @def_segments < 3 or ($def_segments[0] ne '' and $def_segments[1] ne '$defs');
+        my $def_name = $def_segments[2];
+        my ($def_type) = $ref_uri->path =~ m!(\w+)\.yaml!;
+
+        # rewrite the $ref from (FILE)?#/$defs/NAME to /json_schema/TYPE/NAME
+        $schema->{'$ref'} = Mojo::URL->new('/json_schema/'.$def_type .'/'.$def_name);
+        $schema->{'$ref'}->fragment(join('/', '', @def_segments[3..$#def_segments]))
+            if @def_segments > 3;
+
+        # now fetch the target and add it to $defs, adding $id
+        $ref_uri->fragment(join('/', @def_segments[0..2]));
+        return if $seen_uris->{$ref_uri}++;
+
+        my $def_schema = $js->get($ref_uri);
+        push @errors, 'cannot find schema for "'.$ref_uri.'"' and return if not defined $def_schema;
+
+        push @errors, 'namespace collision: '.$ref_uri.' conflicts with pre-existing '.$def_name.' definition' and return
+            if exists $bundled_schema->{'$defs'}{$def_name};
+
+        $js->traverse($bundled_schema->{'$defs'}{$def_name} = $def_schema,
+            { callbacks => { '$ref' => __SUB__ }, canonical_schema_uri => $ref_uri });
+
+        # add the $id after we traverse, so we don't confuse the uri resolver
+        $def_schema->{'$id'} = '/json_schema/'.$def_type.'/'.$def_name;
+    };
+
+    my $state = $js->traverse($base_schema,
+        { callbacks => { '$ref' => $ref_callback }, canonical_schema_uri => $initial_uri });
+
+    if (@errors) {
+        $c->log->fatal('errors when resolving /json_schema/'.$type.'/'.$name.': '.join(', ', @errors));
+        return $c->status(400, { error => 'cannot resolve schema' });
+    }
+
+    $bundled_schema = { $base_schema->%*, ($bundled_schema//{})->%* };
+
     # the canonical location of this document -- which should be the same URL used to get here
-    $schema->{'$id'} = $c->url_for('/json_schema/'.$type.'/'.$name)->to_abs;
+    $bundled_schema->{'$id'} = $c->url_for('/json_schema/'.$type.'/'.$name)->to_abs;
+    $bundled_schema->{'$schema'} = 'https://json-schema.org/draft/2019-09/schema';
 
     $c->res->headers->content_type('application/schema+json');
-    return $c->status(200, $schema);
-}
-
-=head2 _extract_schema_definition
-
-Given a L<JSON::Validator> object containing a schema definition, extract the requested portion
-out of the C<$defs> section, including any named references, and add some standard
-headers.
-
-TODO: this (plus addition of the header fields) could mostly be replaced with just:
-
-    my $new_defs = $jv->bundle({
-        schema => $jv->get('/$defs/'.$name),
-        ref_key => '$defs',
-    });
-
-..except circular refs are not handled there, and the definition renaming leaks local path info.
-
-=cut
-
-sub _extract_schema_definition ($validator, $schema_name) {
-    my $top_schema = $validator->schema->get('/$defs/'.$schema_name);
-    return if not $top_schema;
-
-    my %refs;
-    my %source;
-    my $definitions;
-    my @topics = ([{ schema => $top_schema }, my $target = {}]);
-    my $cloner = sub ($from) {
-        if (ref $from eq 'HASH' and my $tied = tied %$from) {
-            # this is a hashref which quacks like { '$ref' => $target }
-            my ($location, $path) = split /#/, $tied->fqn, 2;
-            (my $name = $path) =~ s!^/\$defs/!!;
-
-            if (not $refs{$tied->fqn}++) {
-                # TODO: use a heuristic to find a new name for the conflicting definition
-                if ($name ne $schema_name and exists $source{$name}) {
-                    die 'namespace collision: '.$tied->fqn.' but already have a /$defs/'.$name
-                        .' from '.$source{$name}->fqn;
-                }
-
-                $source{$name} = $tied;
-                push @topics, [$tied->schema, $definitions->{$name} = {}];
-            }
-
-            ++$refs{'/traversed_definitions/'.$name};
-            tie my %ref, 'JSON::Validator::Ref', $tied->schema, '#/$defs/'.$name;
-            return \%ref;
-        }
-
-        my $to = ref $from eq 'ARRAY' ? [] : ref $from eq 'HASH' ? {} : $from;
-        push @topics, [$from, $to] if ref $from;
-        return $to;
-    };
-
-    while (@topics) {
-        my ($from, $to) = @{shift @topics};
-        if (ref $from eq 'ARRAY') {
-            push @$to, $cloner->($_) foreach @$from;
-        }
-        elsif (ref $from eq 'HASH') {
-            $to->{$_} = $cloner->($from->{$_}) foreach keys %$from;
-        }
-    }
-
-    $target = $target->{schema};
-
-    # cannot return a $ref at the top level (sibling keys disallowed) - inline the $ref.
-    while (my $tied = tied %$target) {
-        (my $name = $tied->fqn) =~ s!^#/\$defs/!!;
-        $target = $definitions->{$name};
-        delete $definitions->{$name} if $refs{'/traversed_definitions/'.$name} == 1;
-    }
-
-    return {
-        '$schema' => $validator->get('/$schema') || 'http://json-schema.org/draft-07/schema#',
-        # no $id - we have no idea of this document's canonical location
-        keys $definitions->%* ? ( '$defs' => $definitions ) : (),
-        $target->%*,
-    };
+    return $c->status(200, $bundled_schema);
 }
 
 1;

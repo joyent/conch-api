@@ -1,5 +1,6 @@
 # bits that we don't use in Conch are commented out, for faster evaluation.
 ---
+$schema: 'https://json-schema.org/draft/2019-09/schema'
 $defs:
   RollbarPayload:
     type: object

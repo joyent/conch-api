@@ -267,7 +267,7 @@ subtest 'save reports for device' => sub {
             Encode::encode('UTF-8', $invalid_json_1))
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected object)' }) ]);
 
     is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
@@ -283,7 +283,7 @@ subtest 'save reports for device' => sub {
             json => { foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: bios_version, product_name, sku, serial_number, system_uuid' }) ]);
 
     is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');

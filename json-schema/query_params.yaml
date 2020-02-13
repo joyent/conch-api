@@ -1,6 +1,6 @@
 ---
 $comment: 'Note that all parameters are parsed internally from the request URI as strings, so all type checks here use strings. When a query parameter is used more than once, its values are parsed as an arrayref. See ../modules/Conch::Plugin::JSONValidator#validate_query_params.'
-$schema: 'http://json-schema.org/draft-07/schema#'
+$schema: 'https://json-schema.org/draft/2019-09/schema'
 $defs:
   boolean_string:
     type: string

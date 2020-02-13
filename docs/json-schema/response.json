@@ -1753,23 +1753,40 @@
       "type" : "array",
       "uniqueItems" : true
     },
-    "JSONValidatorError" : {
+    "JSONSchemaError" : {
+      "$comment" : "very similar to https://json-schema.org/draft/2019-09/output/schema#/$defs/outputUnit",
       "additionalProperties" : false,
-      "description" : "serialized JSON::Validator::Error object: a single failure from validating a document with a JSON Schema",
+      "description" : "see https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10.4.2",
       "properties" : {
-        "message" : {
+        "absolute_schema_location" : {
+          "format" : "uri",
           "type" : "string"
         },
-        "path" : {
+        "data_location" : {
+          "format" : "json-pointer",
+          "type" : "string"
+        },
+        "error" : {
+          "$ref" : "common.json#/$defs/non_empty_string"
+        },
+        "schema_location" : {
           "format" : "json-pointer",
           "type" : "string"
         }
       },
       "required" : [
-        "path",
-        "message"
+        "data_location",
+        "schema_location",
+        "error"
       ],
       "type" : "object"
+    },
+    "JSONSchemaErrors" : {
+      "items" : {
+        "$ref" : "#/$defs/JSONSchemaError"
+      },
+      "type" : "array",
+      "uniqueItems" : true
     },
     "LegacyValidation" : {
       "$comment" : "this definition will be removed in v4.0",
@@ -2998,7 +3015,7 @@
         },
         "details" : {
           "items" : {
-            "$ref" : "#/$defs/JSONValidatorError"
+            "$ref" : "#/$defs/JSONSchemaError"
           },
           "minItems" : 1,
           "type" : "array",
@@ -3075,5 +3092,5 @@
       "type" : "object"
     }
   },
-  "$schema" : "http://json-schema.org/draft-07/schema#"
+  "$schema" : "https://json-schema.org/draft/2019-09/schema"
 }

@@ -162,7 +162,10 @@ $t2->get_ok($_)
 $t->post_ok('/room', json => { wat => 'wat' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
+    ->json_cmp_deeply('/details', [
+        superhashof({ error => 'missing properties: datacenter_id, az, alias, vendor_name' }),
+        superhashof({ error => 'additional property not permitted' }),
+    ]);
 
 $t->post_ok('/room', json => { datacenter_id => create_uuid_str, az => 'sungo-test-1', alias => 'me', vendor_name => 'A:B' })
     ->status_is(409)

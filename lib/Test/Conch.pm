@@ -57,14 +57,6 @@ the same database.
 
 has 'pg';   # Test::PostgreSQL object
 
-=head2 validator
-
-=cut
-
-has validator => sub ($self) {
-    $self->app->get_response_validator;
-};
-
 =head2 fixtures
 
 Provides access to the fixtures defined in L<Test::Conch::Fixtures>.
@@ -338,35 +330,28 @@ sub json_schema_is ($self, $schema, $message = undef) {
     my $data = $self->tx->res->json;
     return $self->test('fail', 'No JSON in response') unless $data;
 
-    my $validator;
-
-    my ($schema_name, @errors);
+    my $schema_name;
     if (ref $schema) {
-        $schema_name = '<inlined>';
-        $validator = $self->validator;
+        1;
     }
     elsif ($schema =~ /^http/) {
-        # do not use the network, but rely solely on JSON::Validator's internal cache
-        $validator = JSON::Validator->new(ua => undef, version => 7)->schema($schema);
-        ($schema_name, $schema) = ($schema, undef);
+        $schema_name = $schema;
     }
     else {
-        $schema_name = $schema;
-        $validator = $self->validator;
-        $schema = $validator->get('/$defs/'.$schema_name)
-            or die "schema '$schema_name' not found";
+        ($schema_name, $schema) = ($schema, 'response.yaml#/$defs/'.$schema);
     }
 
-    @errors = $validator->validate($data, $schema);
+    $schema_name //= '<inlined>';
+    my $result = $self->app->json_schema_validator->evaluate($data, $schema);
+    my @errors = $self->app->normalize_evaluation_result($result);
 
-    return $self->test('ok', !@errors, $message // 'JSON response has no schema validation errors')
+    return $self->test('ok', $result, $message // 'JSON response has no schema validation errors')
         ->or(sub ($self) {
             Test::More::diag(
                 @errors.' error(s) occurred when validating '
                 .$self->tx->req->method.' '.$self->tx->req->url->path
                 .' with schema '.$schema_name.":\n\t"
-                .Data::Dumper->new([[ map +{ path => $_->path, message => $_->message }, @errors ]])
-                    ->Sortkeys(1)->Indent(1)->Terse(1)->Dump);
+                .Data::Dumper->new([ \@errors ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump);
 
             0;
         }

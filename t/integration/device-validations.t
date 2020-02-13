@@ -66,7 +66,7 @@ subtest 'test validating a device' => sub {
     $t->post_ok("/device/TEST/validation/$validation_id", json => {})
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: bios_version, product_name, sku, serial_number, system_uuid' }) ]);
 
     $t->post_ok("/device/TEST/validation/$validation_id",
             { 'Content-Type' => 'application/json' }, $good_report)
@@ -81,7 +81,7 @@ subtest 'test validating a device' => sub {
     $t->post_ok('/device/TEST/validation_plan/'.$test_validation_plan->id, json => {})
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', array_each(superhashof({ message => re(qr/missing property/i) })));
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: bios_version, product_name, sku, serial_number, system_uuid' }) ]);
 
     $t->post_ok('/device/TEST/validation_plan/'.$test_validation_plan->id,
             { 'Content-Type' => 'application/json' }, $good_report)
@@ -244,19 +244,17 @@ $t->get_ok('/device/TEST/validation_state?status=bar')
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
     ->json_cmp_deeply('/data' => { status => 'bar' })
-    ->json_cmp_deeply('/details', [
-        { path => '/status', message => re(qr/Not in enum list/) },
-        { path => '/status', message => re(qr/Expected array - got string/) },
-    ]);
+    ->json_cmp_deeply('/details', superbagof(
+        superhashof({ data_location => '/status', error => 'value does not match' }),
+    ));
 
 $t->get_ok('/device/TEST/validation_state?status=pass&status=bar')
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
     ->json_cmp_deeply('/data' => { status => [ qw(pass bar) ] })
-    ->json_cmp_deeply('/details', [
-        { path => '/status', message => re(qr/Expected string - got array/) },
-        { path => '/status/1', message => re(qr/Not in enum list/) },
-    ]);
+    ->json_cmp_deeply('/details', superbagof(
+        superhashof({ data_location => '/status/1', error => 'value does not match' }),
+    ));
 
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

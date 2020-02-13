@@ -1,5 +1,5 @@
 ---
-$schema: 'http://json-schema.org/draft-07/schema#'
+$schema: 'https://json-schema.org/draft/2019-09/schema'
 $defs:
   Error:
     description: this is the superset of all error schemas
@@ -27,7 +27,7 @@ $defs:
         uniqueItems: true
         minItems: 1
         items:
-          $ref: '#/$defs/JSONValidatorError'
+          $ref: '#/$defs/JSONSchemaError'
       schema:
         type: string
         format: uri-reference
@@ -69,19 +69,32 @@ $defs:
             const: request did not match required format
           schema:
             pattern: '/json_schema/request/[^/.~]+$'
-  JSONValidatorError:
-    description: 'serialized JSON::Validator::Error object: a single failure from validating a document with a JSON Schema'
+  JSONSchemaError:
+    $comment: very similar to https://json-schema.org/draft/2019-09/output/schema#/$defs/outputUnit
+    description: see https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10.4.2
     type: object
-    additionalProperties: false
     required:
-      - path
-      - message
+      - data_location
+      - schema_location
+      - error
+    additionalProperties: false
     properties:
-      path:
+      data_location:
         type: string
         format: json-pointer
-      message:
+      schema_location:
         type: string
+        format: json-pointer
+      absolute_schema_location:
+        type: string
+        format: uri
+      error:
+        $ref: common.yaml#/$defs/non_empty_string
+  JSONSchemaErrors:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: '#/$defs/JSONSchemaError'
   Ping:
     type: object
     additionalProperties: false

@@ -21,18 +21,18 @@ $t->get_ok('/organization')
 $t->post_ok('/organization', json => { name => $_, admins => [ { user_id => create_uuid_str() } ] })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/name', message => re(qr/does not match/i) } ])
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'pattern does not match' }) ])
         foreach '', 'foo/bar', 'foo.bar';
 
 $t->post_ok('/organization', json => { name => 'my first organization', admins => [ {} ] })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', bag(map +{ path => '/admins/0/'.$_, message => re(qr/missing property/i) }, qw(user_id email)));
+    ->json_cmp_deeply('/details', [ map superhashof({ error => 'missing property: '.$_ }), qw(user_id email) ]);
 
 $t->post_ok('/organization', json => { name => 'my first organization' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/admins', message => re(qr/missing property/i) } ] );
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: admins' }) ]);
 
 $t->post_ok('/organization', json => {
         name => 'my first organization',
@@ -40,7 +40,7 @@ $t->post_ok('/organization', json => {
     })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/admins/0', message => re(qr/all of the oneof rules/i) } ] );
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'multiple subschemas are valid: 0, 1' }) ]);
 
 $t->post_ok('/organization', json => { name => 'my first organization', admins => [ { user_id => create_uuid_str() } ] })
     ->status_is(409)
@@ -176,12 +176,12 @@ $t->get_ok('/organization/my first organization')
 $t->post_ok('/organization/'.$organization->{id}.'/user', json => { role => 'ro' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', bag(map +{ path => $_, message => re(qr/missing property/i) }, qw(/user_id /email)));
+    ->json_cmp_deeply('/details', [ map superhashof({ error => 'missing property: '.$_ }), qw(user_id email) ]);
 
 $t->post_ok('/organization/my first organization/user', json => { email => $new_user->email })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/role', message => re(qr/missing property/i) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: role' }) ]);
 
 $t->post_ok('/organization/my first organization/user', json => {
         email => $new_user->email,

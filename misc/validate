@@ -4,9 +4,9 @@ use warnings;
 use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Getopt::Long;
-use JSON::Validator;
+use JSON::Schema::Draft201909;
 use Mojo::File 'path';
-use Mojo::JSON 'decode_json';
+use JSON::MaybeXS 'decode_json';
 use Pod::Usage;
 
 my $schema_url = 'https://conch.joyent.us/json_schema/request';
@@ -22,25 +22,24 @@ GetOptions(
 
 pod2usage(1) if $help;
 
-my $validator = JSON::Validator->new;
+my $js = JSON::Schema::Draft201909->new(
+    output_format => 'basic',
+    validate_formats => 1,
+    collect_annotations => 1,
+);
 
-if ($schema_file){
-    my $schema = path($schema_file)->to_abs;
-    $validator->load_and_validate_schema($schema);
-}
-else {
-    $validator->load_and_validate_schema("$schema_url/$name");
-}
+my $schema = $schema_file ? $schema_file : "$schema_url/$name";
+$js->add_schema($schema);
 
 $report = decode_json(
     defined $report ? path($report)->slurp : do { local $/; <> }
 );
 
-my $schema = $validator->get($name);
-if (my @errors = $validator->validate($report, $schema)) {
-    say STDERR $_ for @errors;
-    die;
-}
+my $encoder = JSON::MaybeXS->new(allow_nonref => 1, utf8 => 0, convert_blessed => 1, canonical => 1, pretty => 1);
+
+my $result = $js->evaluate($report, $schema);
+say $encoder->encode($result);
+die if not $result;
 
 say 'ok';
 

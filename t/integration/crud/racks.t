@@ -70,22 +70,25 @@ $t->get_ok('/rack/rack.0a')
 $t->post_ok('/rack', json => { wat => 'wat' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
+    ->json_cmp_deeply('/details', [
+        superhashof({ error => 'missing properties: name, datacenter_room_id, rack_role_id, build_id' }),
+        superhashof({ error => 'additional property not permitted' }),
+    ]);
 
 $t->post_ok('/rack', json => { name => 'r4ck', datacenter_room_id => $fake_id, build_id => $fake_id })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/rack_role_id', message => re(qr/missing property/i) } ]);
+    ->json_cmp_deeply('/details', [ superhashof{ error => 'missing property: rack_role_id' } ]);
 
 $t->post_ok('/rack', json => { name => 'r4ck', rack_role_id => $fake_id, build_id => $fake_id })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/datacenter_room_id', message => re(qr/missing property/i) } ]);
+    ->json_cmp_deeply('/details', [ superhashof{ error => 'missing property: datacenter_room_id' } ]);
 
 $t->post_ok('/rack', json => { name => 'r4ck', rack_role_id => $fake_id, datacenter_room_id => $fake_id })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/build_id', message => re(qr/missing property/i) } ]);
+    ->json_cmp_deeply('/details', [ superhashof{ error => 'missing property: build_id' } ]);
 
 $t->post_ok('/rack', json => {
         name => 'r4ck',
