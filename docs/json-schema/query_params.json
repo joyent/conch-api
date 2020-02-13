@@ -5,6 +5,14 @@
     "BuildDevices" : {
       "additionalProperties" : false,
       "not" : {
+        "properties" : {
+          "ids_only" : {
+            "const" : 1
+          },
+          "serials_only" : {
+            "const" : 1
+          }
+        },
         "required" : [
           "ids_only",
           "serials_only"

@@ -608,6 +608,11 @@ subtest 'JWT authentication' => sub {
             },
         ]);
 
+    $t_super->post_ok('/user/'.$ro_user->email.'/revoke?login_only=0&api_only=0')
+        ->status_is(204)
+        ->log_debug_is('revoking all tokens for user rO_USer, forcing them to /login again')
+        ->email_not_sent;
+
     $t->get_ok('/me', { Authorization => "Bearer $new_jwt_token" })
         ->status_is(401, 'Cannot use token after user revocation')
         ->log_debug_is('auth failed: JWT for user_id '.$ro_user->id.' could not be found');
@@ -625,6 +630,7 @@ subtest 'JWT authentication' => sub {
         ->status_is(204)
         ->log_debug_is('revoking all tokens for user rO_USer, forcing them to /login again')
         ->email_not_sent;
+
     $t->get_ok('/me', { Authorization => "Bearer $jwt_token_2" })
         ->status_is(401, 'Cannot use after self revocation');
 

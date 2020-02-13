@@ -200,6 +200,11 @@ definitions:
       required:
         - ids_only
         - serials_only
+      properties:
+        ids_only:
+          const: 1
+        serials_only:
+          const: 1
   ProcessDeviceReport:
     type: object
     additionalProperties: false
