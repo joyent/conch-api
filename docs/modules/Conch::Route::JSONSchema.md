@@ -23,7 +23,8 @@ requests and responses.
 
 - Does not require authentication.
 - Controller/Action: ["get" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get)
-- Response: a JSON Schema ([http://json-schema.org/draft-07/schema#](http://json-schema.org/draft-07/schema#))
+- Response: a JSON Schema ([http://json-schema.org/draft-07/schema#](http://json-schema.org/draft-07/schema#)) (Content-Type is
+`application/schema+json`).
 
 ## LICENSING
 

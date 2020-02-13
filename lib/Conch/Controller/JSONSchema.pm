@@ -41,6 +41,7 @@ sub get ($c) {
     # the canonical location of this document -- which should be the same URL used to get here
     $schema->{'$id'} = $c->url_for('/json_schema/'.$type.'/'.$name)->to_abs;
 
+    $c->res->headers->content_type('application/schema+json');
     return $c->status(200, $schema);
 }
 

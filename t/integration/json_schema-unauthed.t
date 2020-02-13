@@ -303,6 +303,7 @@ $t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan
 $t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006 00:00:00 GMT' })
     ->status_is(200)
     ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
@@ -324,6 +325,7 @@ $t->get_ok('/json_schema/response/login_token')
 $t->ua->max_redirects(10);
 $t->get_ok('/schema/response/login_token')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply(my $response_login_token = {
         '$schema' => 'http://json-schema.org/draft-07/schema#',
@@ -337,11 +339,13 @@ $t->ua->max_redirects(0);
 
 $t->get_ok('/json_schema/response/LoginToken')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply($response_login_token);
 
 $t->get_ok('/json_schema/request/Login')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
@@ -366,6 +370,7 @@ $t->get_ok('/json_schema/request/Login')
 
 $t->get_ok('/json_schema/query_params/ResetUserPassword')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
@@ -383,6 +388,7 @@ $t->get_ok('/json_schema/query_params/ResetUserPassword')
 
 $t->get_ok('/json_schema/request/HardwareProductCreate')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply('', superhashof({
         '$id' => $base_uri.'json_schema/request/HardwareProductCreate',
@@ -400,6 +406,7 @@ $t->get_ok('/json_schema/request/HardwareProductCreate')
 
 $t->get_ok('/json_schema/request/DeviceReport')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
 
