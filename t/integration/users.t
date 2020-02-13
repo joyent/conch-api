@@ -31,7 +31,7 @@ $build2->create_related('organization_build_roles', { organization_id => $organi
 $t->post_ok('/login', json => { email => 'a', password => 'b' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof(superhashof({ error => 'not an email' })));
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'not an email' }) ]);
 
 $t->post_ok('/login', json => { email => 'foo@bar.com' })
     ->status_is(400)
