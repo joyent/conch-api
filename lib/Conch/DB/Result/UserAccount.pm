@@ -156,6 +156,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 json_schemas
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::JSONSchema>
+
+=cut
+
+__PACKAGE__->has_many(
+  "json_schemas",
+  "Conch::DB::Result::JSONSchema",
+  { "foreign.created_user_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 relays
 
 Type: has_many
@@ -253,7 +268,7 @@ __PACKAGE__->many_to_many("organizations", "user_organization_roles", "organizat
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Z/W/ZicAAbn2tKnbs6xxBw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7gXnzwRWef5os5FcPQgUnQ
 
 use DBIx::Class::PassphraseColumn 0.04 ();
 __PACKAGE__->load_components('PassphraseColumn');

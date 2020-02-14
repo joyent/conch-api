@@ -55,6 +55,7 @@
 * [Conch::DB::Result::DeviceSetting](../modules/Conch::DB::Result::DeviceSetting)
 * [Conch::DB::Result::HardwareProduct](../modules/Conch::DB::Result::HardwareProduct)
 * [Conch::DB::Result::HardwareVendor](../modules/Conch::DB::Result::HardwareVendor)
+* [Conch::DB::Result::JSONSchema](../modules/Conch::DB::Result::JSONSchema)
 * [Conch::DB::Result::Migration](../modules/Conch::DB::Result::Migration)
 * [Conch::DB::Result::Organization](../modules/Conch::DB::Result::Organization)
 * [Conch::DB::Result::OrganizationBuildRole](../modules/Conch::DB::Result::OrganizationBuildRole)

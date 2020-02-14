@@ -1,4 +1,4 @@
-title {label: "Conch database schema (as of v3.0.7, 2020-11-xx): validations", size: "40"}
+title {label: "Conch database schema (as of v3.1.2, 2020-12-10): validations", size: "40"}
 
 entity {bgcolor: "#ececfc", size: "20"}
 
@@ -112,6 +112,15 @@ status
 *+validation_result_id
 result_order
 
+[json_schema] {bgcolor: "#fbfbdb"}
+*id
+type
+name
+version
+body
+created
++created_user_id
+deactivated
 
 device *--1 hardware_product
 device_report *--1 device

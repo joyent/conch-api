@@ -15,7 +15,7 @@
 # 1 or more      +      (marks foreign key on table declaration)
 
 
-title {label: "Conch database schema (as of v3.0.7, 2020-11-xx)", size: "50"}
+title {label: "Conch database schema (as of v3.1.2, 2020-12-10)", size: "50"}
 
 entity {bgcolor: "#eeeeee", size: "20"}
 
@@ -331,6 +331,16 @@ status
 *+validation_result_id
 result_order
 
+[json_schema] {bgcolor: "#fbfbdb"}
+*id
+type
+name
+version
+body
+created
++created_user_id
+deactivated
+
 # Cardinality    Syntax
 # 0 or 1         ?
 # exactly 1      1
@@ -352,6 +362,7 @@ device_report *--1 device
 device_setting *--1 device
 hardware_product *--1 validation_plan
 hardware_product *--1 hardware_vendor
+json_schema *--? user_account {label: "created_user_id", size: "14"}
 organization_build_role *--1 build
 organization_build_role *--1 organization
 rack *--? build

@@ -106,6 +106,12 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::Build](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ABuild)
 
+### json\_schemas
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::JSONSchema](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AJSONSchema)
+
 ### relays
 
 Type: has\_many
