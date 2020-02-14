@@ -131,6 +131,8 @@ Returns the root node.
 
     my $secured = $root->under('/')->to('login#authenticate');
 
+    Conch::Route::JSONSchema->secured_routes($secured->any('/json_schema'));
+
     # POST /logout
     $secured->post('/logout')->to('login#logout', request_schema => 'Null');
 

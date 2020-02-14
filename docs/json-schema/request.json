@@ -658,6 +658,64 @@
       },
       "type" : "object"
     },
+    "JSONSchema" : {
+      "allOf" : [
+        {
+          "$comment" : "Here we are essentially adding on to the main \"schema\" definition defined in the metaschema.",
+          "$id" : "/json_schema/request/JSONSchema_recurse",
+          "$recursiveAnchor" : true,
+          "$ref" : "https://json-schema.org/draft/2019-09/schema",
+          "properties" : {
+            "$anchor" : false,
+            "$dynamicAnchor" : false,
+            "$dynamicRef" : false,
+            "$id" : false,
+            "$recursiveAnchor" : false,
+            "$recursiveRef" : false,
+            "$schema" : {
+              "const" : "https://json-schema.org/draft/2019-09/schema"
+            },
+            "definitions" : false,
+            "dependencies" : false,
+            "format" : {
+              "$comment" : "iri-reference and uri-template are not supported by JSON::Schema::Draft201909",
+              "enum" : [
+                "date-time",
+                "date",
+                "time",
+                "duration",
+                "email",
+                "idn-email",
+                "hostname",
+                "idn-hostname",
+                "ipv4",
+                "ipv6",
+                "uri",
+                "uri-reference",
+                "iri",
+                "uuid",
+                "json-pointer",
+                "relative-json-pointer",
+                "regex"
+              ]
+            }
+          },
+          "unevaluatedProperties" : false
+        },
+        {
+          "$comment" : "Here we are adding on additional requirements for the top level schema only.",
+          "properties" : {
+            "description" : {
+              "$ref" : "common.json#/$defs/non_empty_string"
+            }
+          },
+          "required" : [
+            "description"
+          ],
+          "type" : "object"
+        }
+      ]
+    },
     "Login" : {
       "$ref" : "#/$defs/UserIdOrEmail",
       "default" : {

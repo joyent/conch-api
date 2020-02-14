@@ -1603,6 +1603,114 @@
       "type" : "array",
       "uniqueItems" : true
     },
+    "JSONSchema" : {
+      "$comment" : "this is the structure for responses from GET /json_schema/:type/:name/:version and GET /json_schema/:uuid, which fetches JSON Schemas from the database",
+      "allOf" : [
+        {
+          "$comment" : "Here we are essentially adding on to the main \"schema\" definition defined in the metaschema.",
+          "$id" : "response_JSONSchema_recurse",
+          "$recursiveAnchor" : true,
+          "$ref" : "https://json-schema.org/draft/2019-09/schema",
+          "properties" : {
+            "$schema" : {
+              "const" : "https://json-schema.org/draft/2019-09/schema"
+            },
+            "x-json_schema_id" : {
+              "$ref" : "common.json#/$defs/uuid"
+            }
+          },
+          "unevaluatedProperties" : false
+        },
+        {
+          "$comment" : "Here we are adding on additional requirements for the top level schema only.",
+          "properties" : {
+            "$comment" : {
+              "pattern" : "^created by ",
+              "type" : "string"
+            },
+            "$id" : {
+              "format" : "uri",
+              "minLength" : 1,
+              "type" : "string"
+            },
+            "description" : {
+              "$ref" : "common.json#/$defs/non_empty_string"
+            }
+          },
+          "required" : [
+            "$id",
+            "$schema",
+            "$comment",
+            "description",
+            "x-json_schema_id"
+          ],
+          "type" : "object"
+        }
+      ],
+      "contentMediaType" : "application/schema+json"
+    },
+    "JSONSchemaDescriptions" : {
+      "items" : {
+        "additionalProperties" : false,
+        "properties" : {
+          "$id" : {
+            "format" : "uri-reference",
+            "pattern" : "^/json_schema/",
+            "readOnly" : true,
+            "title" : "Canonical URI Identifier",
+            "type" : "string"
+          },
+          "created" : {
+            "format" : "date-time",
+            "readOnly" : true,
+            "title" : "Created",
+            "type" : "string"
+          },
+          "created_user" : {
+            "$ref" : "#/$defs/UserTerse",
+            "readOnly" : true,
+            "title" : "Created User"
+          },
+          "description" : {
+            "title" : "Description",
+            "type" : "string"
+          },
+          "id" : {
+            "$ref" : "common.json#/$defs/uuid",
+            "readOnly" : true,
+            "title" : "ID"
+          },
+          "name" : {
+            "$ref" : "common.json#/$defs/json_pointer_token",
+            "readOnly" : true,
+            "title" : "Name"
+          },
+          "type" : {
+            "$ref" : "common.json#/$defs/json_pointer_token",
+            "readOnly" : true,
+            "title" : "Type"
+          },
+          "version" : {
+            "$ref" : "common.json#/$defs/positive_integer",
+            "readOnly" : true,
+            "title" : "Version"
+          }
+        },
+        "required" : [
+          "id",
+          "$id",
+          "description",
+          "type",
+          "name",
+          "version",
+          "created",
+          "created_user"
+        ],
+        "type" : "object"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "JSONSchemaError" : {
       "$comment" : "very similar to https://json-schema.org/draft/2019-09/output/schema#/$defs/outputUnit - see https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10.4.2",
       "additionalProperties" : false,

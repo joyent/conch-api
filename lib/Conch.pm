@@ -168,13 +168,11 @@ C<< $c->render >> as a side-effect.
 
         # Check only applies to requests with payloads (Content-Length
         # header is specified and greater than 0). Content-Type header must
-        # be specified and must be 'application/json' for all payloads, or
+        # be specified and must be 'application/json' (or variants thereof) for all payloads, or
         # HTTP status code 415 'Unsupported Media Type' is returned.
-        if ($headers->content_length
-                and (not $headers->content_type
-                    or $headers->content_type !~ /application\/json/i)) {
-            return $c->status(415);
-        }
+        return $c->status(415)
+          if $headers->content_length
+            and ($headers->content_type // '') !~ m{application/(?:schema(?:-instance)?\+)?json}i;
     });
 
     # see Mojo::Message::Request for original implementation

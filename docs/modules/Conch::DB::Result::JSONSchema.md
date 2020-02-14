@@ -92,6 +92,25 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
+## METHODS
+
+### TO\_JSON
+
+Include information about the JSON Schema's creation user, or user who added the JSON Schema to
+hardware (when fetched from a `hardware_product` context).
+
+### canonical\_path
+
+The canonical path to this resource.
+
+### schema\_document
+
+Returns the actual JSON Schema document itself, suitable for returning to a client or adding to
+a [JSON::Schema::Draft201909](https://metacpan.org/pod/JSON%3A%3ASchema%3A%3ADraft201909) object.
+
+Takes an optional coderef, which takes the result object and returns the value to be used for
+the `$id` property (otherwise, ["canonical\_path"](#canonical_path) will be used).
+
 ## LICENSING
 
 Copyright Joyent, Inc.

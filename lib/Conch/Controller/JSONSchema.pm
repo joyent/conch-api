@@ -1,7 +1,9 @@
 package Conch::Controller::JSONSchema;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
+
 use feature 'current_sub';
+use Mojo::JSON 'to_json';
 
 =pod
 
@@ -45,7 +47,7 @@ sub get_from_disk ($c) {
         $ref_uri = $ref_uri->to_abs(JSON::Schema::Draft201909::Utilities::canonical_schema_uri($state));
 
         my @def_segments = split('/', $ref_uri->fragment//'');
-        push @errors, 'invalid uri fragment "'.($ref_uri->fragment//'').'"' and return
+        push @errors, 'invalid uri fragment "'.($ref_uri->fragment//'').'" (from $ref "'.$schema->{'$ref'}.'")' and return
             if @def_segments < 3 or ($def_segments[0] ne '' and $def_segments[1] ne '$defs');
         my $def_name = $def_segments[2];
         my ($def_type) = $ref_uri->path =~ m!(\w+)\.yaml!;
@@ -94,6 +96,180 @@ sub get_from_disk ($c) {
 
     $c->res->headers->content_type('application/schema+json');
     return $c->status(200, $bundled_schema);
+}
+
+=head2 create
+
+Stores a new JSON Schema in the database.
+
+The type names used in L</get_from_disk> (C<query_params>, C<request>, C<response>, C<common>,
+C<device_report>) cannot be used.
+
+The C<$id>, C<$anchor>, C<definitions> and C<dependencies> keywords are prohibited anywhere in the
+document. C<description> is required at the top level of the document.
+
+=cut
+
+sub create ($c) {
+  my $input = $c->stash('request_data');
+
+  # things could get really confusing if we had schemas with this type in the database
+  return $c->status(409, { error => 'type "'.$c->stash('json_schema_type').'" is prohibited' })
+    if $c->stash('json_schema_type') =~ /^(?:query_params|request|response|common|device_report)$/;
+
+  # the (non-canonical) URI of the about-to-be-created resource
+  my $base_uri = join '/', '/json_schema', $c->stash('json_schema_type'), $c->stash('json_schema_name'), 'latest';
+
+  my @refs;
+  JSON::Schema::Draft201909->new->traverse($input, {
+    callbacks => { '$ref' => sub ($schema, $state) { push @refs, $schema->{'$ref'} } },
+    canonical_schema_uri => $base_uri,
+  });
+
+  # find all $refs and add them to the document definitions...
+  # but for now, we will prohibit all $refs entirely.
+  if (@refs) {
+    return $c->status(409, { error => 'schema contains prohibited $ref'
+      .(@refs > 1 ? 's' : '').': '. join(', ', @refs) });
+  }
+
+  my $row = $c->db_json_schemas->create({
+    type => $c->stash('json_schema_type'),
+    name => $c->stash('json_schema_name'),
+    version => \[
+      'coalesce((select max(version) from json_schema where type = ? and name = ?),0) + 1',
+      $c->stash('json_schema_type'), $c->stash('json_schema_name'),
+    ],
+    body => to_json($input),
+    created_user_id => $c->stash('user_id'),
+  });
+
+  my $path = $row->canonical_path;
+  $c->log->info('created json schema '.$row->id.' at '.$path);
+  $c->res->headers->location($c->url_for('/json_schema/'.$row->id));
+  $c->res->headers->content_location($c->url_for($path));
+  $c->status(201);
+}
+
+=head2 find_json_schema
+
+Chainable action that uses the C<json_schema_id>, C<json_schema_type>, C<json_schema_name>, and
+C<json_schema_version> values provided in the stash (usually via the request URL) to look up a
+JSON Schema, and stashes a simplified query (by C<id>) to get to it in C<json_schema_rs>, and
+the id itself in C<json_schema_id>.
+
+=cut
+
+sub find_json_schema ($c) {
+  my $rs = $c->db_json_schemas;
+  if (my $id = $c->stash('json_schema_id')) {
+    $rs = $rs->search({ id => $id });
+  }
+  else {
+    $rs = $rs->resource($c->stash('json_schema_type'), $c->stash('json_schema_name'), $c->stash('json_schema_version'));
+  }
+
+  if (not $rs->exists) {
+    $c->log->debug('Could not find JSON Schema '.($c->stash('json_schema_id')
+      // join('/', $c->stash('json_schema_type'), $c->stash('json_schema_name'), $c->stash('json_schema_version'))));
+    return $c->status(404);
+  }
+
+  # we don't fetch the id earlier, because a query for /latest with 'active' can get a different row
+  my $id = $rs->active->get_column('id')->single;
+  return $c->status(410) if not $id;
+
+  $rs = $c->db_json_schemas->search({ 'json_schema.id' => $id });
+  $c->stash('json_schema_rs', $rs);
+  $c->stash('json_schema_id', $id);
+  return 1;
+}
+
+=head2 get_single
+
+Gets a single JSON Schema specification document.
+
+=cut
+
+sub get_single ($c) {
+  my $row = $c->stash('json_schema_rs')->with_created_user->single;
+
+  return $c->status(304) if $c->is_fresh(last_modified => $row->created->epoch);
+
+  # TODO optionally fetch all referenced schemas as well, with ?bundle=1
+
+  my $id_generator = sub ($row) { $c->url_for($row->canonical_path)->to_abs->to_string };
+  my $data = $row->schema_document($id_generator);
+
+  $c->res->headers->content_type('application/schema+json');
+  $c->status(200, $data);
+}
+
+=head2 delete
+
+Deactivates the database entry for a single JSON Schema, rendering it unusable. This operation
+is not permitted until all references from other documents have been removed, with the
+exception of references using C<.../latest> which will now resolve to a different document (and
+paths within that document will be re-verified).
+
+If this JSON Schema was the latest of its series (C</json_schema/foo/bar/latest>), then that
+C<.../latest> link will now resolve to an earlier version in the series.
+
+=cut
+
+sub delete ($c) {
+  my $metadata = $c->stash('json_schema_rs')->columns([qw(type name version created_user_id)])->hri->single;
+
+  if (not $c->is_system_admin and $metadata->{created_user_id} ne $c->stash('user_id')) {
+    $c->log->debug('User lacks the required access for '.$c->req->url->path);
+    return $c->status(403);
+  }
+
+  my $json_schema_id = $c->stash('json_schema_id');
+
+  my $latest = $c->db_json_schemas
+    ->active
+    ->resource($metadata->@{qw(type name)}, 'latest')
+    ->search({ id => { '!=' => $json_schema_id } })
+    ->columns([qw(id version)])->hri->single;
+
+  return $c->status(409, { error => 'JSON Schema cannot be deleted: /json_schema/hardware_product/specification/latest will be unresolvable' })
+    if $metadata->{type} eq 'hardware_product' and $metadata->{name} eq 'specification' and not $latest->{id};
+
+  $c->stash('json_schema_rs')->deactivate;
+
+  $c->log->debug('Deactivated JSON Schema id '.$json_schema_id
+    .' (/json_schema/'.join('/', $metadata->@{qw(type name version)}).')'
+    .(  !$latest ? '; no schemas of this type and name remain'
+      : $latest->{version} > $metadata->{version} ? ''
+      : ('; latest of this type and name is now /json_schema/'
+         .join('/', $metadata->@{qw(type name)}, $latest->{version}))));
+
+  $c->status(204);
+}
+
+=head2 get_metadata
+
+Gets meta information about all JSON Schemas in a particular type and name series.
+
+=cut
+
+sub get_metadata ($c) {
+  my $rs = $c->db_json_schemas->type($c->stash('json_schema_type'));
+  $rs = $rs->name($c->stash('json_schema_name')) if $c->stash('json_schema_name');
+
+  return $c->status(404) if not $rs->exists;
+
+  $rs = $rs->active;
+  return $c->status(410) if not $rs->exists;
+
+  $rs = $rs
+    ->with_description
+    ->with_created_user
+    ->remove_columns([ 'body' ])
+    ->order_by([ qw(json_schema.name version) ]);
+
+  $c->status(200, [ $rs->all ]);
 }
 
 1;

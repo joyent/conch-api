@@ -159,6 +159,74 @@ __PACKAGE__->belongs_to(
 # Created by DBIx::Class::Schema::Loader v0.07049
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QogBSHwFcZGyKwphDIkDow
 
+__PACKAGE__->add_columns(
+  '+version' => { retrieve_on_insert => 1 },
+  '+body' => { is_serializable => 0 },
+  '+created_user_id' => { is_serializable => 0 },
+  '+deactivated' => { is_serializable => 0 },
+);
+
+use experimental 'signatures';
+use next::XS;
+use Mojo::JSON 'from_json';
+
+=head1 METHODS
+
+=head2 TO_JSON
+
+Include information about the JSON Schema's creation user, or user who added the JSON Schema to
+hardware (when fetched from a C<hardware_product> context).
+
+=cut
+
+sub TO_JSON ($self) {
+  my $data = $self->next::method(@_);
+
+  # we do not need to make the $id URL absolute here, because the document body is not included
+  $data->{'$id'} = '/json_schema/'.join('/', $data->@{qw(type name version)});
+  $data->{description} = $self->get_column('description') if $self->has_column_loaded('description');
+
+  if (my $user_cache = $self->related_resultset('created_user')->get_cache) {
+    $data->{created_user} = +{ map +($_ => $user_cache->[0]->$_), qw(id name email) };
+  }
+
+  return $data;
+}
+
+=head2 canonical_path
+
+The canonical path to this resource.
+
+=cut
+
+sub canonical_path ($self) {
+  return join '/', '/json_schema', map $self->$_, qw(type name version);
+}
+
+=head2 schema_document
+
+Returns the actual JSON Schema document itself, suitable for returning to a client or adding to
+a L<JSON::Schema::Draft201909> object.
+
+Takes an optional coderef, which takes the result object and returns the value to be used for
+the C<$id> property (otherwise, L</canonical_path> will be used).
+
+=cut
+
+sub schema_document ($self, $id_generator = undef) {
+  my $document = from_json($self->body);
+  # we make the $id absolute here so it can always be traced back to its source,
+  # and never confused with a similar schema document from another host
+  $document->{'$id'} = $id_generator ? $id_generator->($self) : $self->canonical_path;
+
+  if (my $user_cache = $self->related_resultset('created_user')->get_cache) {
+    $document->{'$comment'} = join "\n", $document->{'$comment'} // (),
+      'created by '.$user_cache->[0]->name.' <'.$user_cache->[0]->email.'>';
+  }
+
+  $document->{'x-json_schema_id'} = $self->id;
+  return $document;
+}
 
 1;
 __END__

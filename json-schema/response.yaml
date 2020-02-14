@@ -1800,5 +1800,88 @@ $defs:
             type: string
             minLength: 1
             format: uri   # never merely a uri-reference
+  JSONSchema:
+    $comment: this is the structure for responses from GET /json_schema/:type/:name/:version and GET /json_schema/:uuid, which fetches JSON Schemas from the database
+    contentMediaType: application/schema+json
+    allOf:
+      - $comment: Here we are essentially adding on to the main "schema" definition defined in the metaschema.
+        # hack! we need an $id here in order to use this location as a $recursiveRef target
+        $id: response_JSONSchema_recurse
+        $recursiveAnchor: true
+        $ref: 'https://json-schema.org/draft/2019-09/schema'
+        properties:
+          $schema:
+            const: 'https://json-schema.org/draft/2019-09/schema'
+          x-json_schema_id:
+            $ref: common.yaml#/$defs/uuid
+        unevaluatedProperties: false
+      - $comment: Here we are adding on additional requirements for the top level schema only.
+        type: object
+        required:
+          - $id       # the official path, e.g. https://conch.joyent.us/json_schema/foo/bar/1
+          - $schema
+          - $comment
+          - description
+          - x-json_schema_id
+        properties:
+          $comment:
+            type: string
+            pattern: '^created by '
+          $id:
+            type: string
+            minLength: 1
+            format: uri
+          description:
+            $ref: common.yaml#/$defs/non_empty_string
+  JSONSchemaDescriptions:
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - $id
+        - description
+        - type
+        - name
+        - version
+        - created
+        - created_user
+      properties:
+        id:
+          title: ID
+          readOnly: true
+          $ref: common.yaml#/$defs/uuid
+        $id:
+          title: Canonical URI Identifier
+          readOnly: true
+          type: string
+          format: uri-reference
+          pattern: '^/json_schema/'
+        description:
+          title: Description
+          type: string
+        type:
+          title: Type
+          readOnly: true
+          $ref: common.yaml#/$defs/json_pointer_token
+        name:
+          title: Name
+          readOnly: true
+          $ref: common.yaml#/$defs/json_pointer_token
+        version:
+          title: Version
+          readOnly: true
+          $ref: common.yaml#/$defs/positive_integer
+        created:
+          title: Created
+          readOnly: true
+          type: string
+          format: date-time
+        created_user:
+          title: Created User
+          readOnly: true
+          $ref: '#/$defs/UserTerse'
 
 # vim: set sts=2 sw=2 et :
