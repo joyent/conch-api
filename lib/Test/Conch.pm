@@ -237,13 +237,15 @@ sub ro_schema ($class, $pgsql) {
 
 Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
 
- * successful GET requests should not return 201, 202 (ideally just 200, 204).
- * successful DELETE requests should not return 201
- * GET requests should not have request body content
- * 200 and most 4xx responses should have content.
- * 201 and most 3xx responses should have a Location header.
- * 204 and most 3xx responses should not have body content.
- * 302 should not be used at all
+ 0. GET requests should not have request body content
+ 1. successful GET requests should not return 201, 202 (ideally just 200, 204)
+ 2. successful DELETE requests should not return 201
+ 3. 201 and most 3xx responses should have a Location header
+ 4. HEAD requests should not have body content
+ 5. 200, 203, 206, 207 and most 4xx responses should have body content
+ 6. 201, 204, 205 and most 3xx responses should not have body content
+ 7. 302 should not be used at all
+ 8. 401, 403 responses should have a WWW-Authenticate header
 
 Also, unexpected responses will dump the response payload.
 
@@ -258,29 +260,41 @@ sub status_is ($self, $status, $desc = undef) {
     my $method = $self->tx->req->method;
     my $code = $self->tx->res->code;
 
+    # 0.
     $self->test('fail', 'GET requests should not have request body content')
         if $method eq 'GET' and $self->tx->req->text;
 
-    $self->test('fail', 'HEAD requests should not have body content')
-        if $method eq 'HEAD' and $self->tx->res->text;
-
-    $self->test('fail', $code.' responses should have a Location header')
-        if any { $code == $_ } 201,301,302,303,305,307,308 and not $self->header_exists('Location');
-
+    # 1.
     $self->test('fail', $method.' requests should not return '.$code)
         if $method eq 'GET' and any { $code == $_ } 201,202;
 
+    # 2.
     $self->test('fail', $method.' requests should not return '.$code)
         if $method eq 'DELETE' and $code == 201;
 
-    $self->test('fail', $code.' responses should have content')
-        if $method ne 'HEAD' and any { $code == $_ } 200,400,401,403,404,409,422 and not $self->tx->res->text;
+    # 3.
+    $self->test('fail', $code.' responses should have a Location header')
+        if any { $code == $_ } 201,301,302,303,305,307,308 and not $self->header_exists('Location');
 
+    # 4.
+    $self->test('fail', 'HEAD requests should not have response body content')
+        if $method eq 'HEAD' and $self->tx->res->text;
+
+    # 5.
+    $self->test('fail', $code.' responses should have content')
+        if $method ne 'HEAD' and any { $code == $_ } 200,203,206,207,400,401,403,404,409,422 and not $self->tx->res->text;
+
+    # 6.
     $self->test('fail', $code.' responses should not have content')
         if any { $code == $_ } 204,301,302,303,304,305,307,308 and $self->tx->res->text;
 
+    # 7.
     $self->test('fail', 'HTTP 302 is superseded by 303 and 307')
         if $code == 302;
+
+    # 8.
+    $self->test('fail', 'HTTP 401 and 403 responses must have a WWW-Authenticate header')
+        if ($code == 401 or $code == 403) and not $self->header_exists('WWW-Authenticate');
 
     Test::More::diag('got response: ', Data::Dumper->new([ $self->tx->res->json ])
             ->Sortkeys(1)->Indent(1)->Terse(1)->Maxdepth(5)->Dump)
