@@ -123,7 +123,7 @@ C<< $c->render >> as a side-effect.
 
     $self->helper(status => sub ($c, $code, $payload = undef) {
         $payload //= { error => (split(/\n/, $c->stash('exception'), 2))[0] }
-            if $code >= 400 and $code < 500 and $c->stash('exception');
+            if $code >= 400 and $c->stash('exception');
 
         $payload //= { error => 'Unauthorized' } if $code == 401;
         $payload //= { error => 'Forbidden' } if $code == 403;
