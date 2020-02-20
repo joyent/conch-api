@@ -38,7 +38,7 @@ All routes require authentication.
 ### `DELETE /organization/:organization_id_or_name`
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `POST /organization/:organization_id_or_name/user?send_mail=<1|0`>
 
@@ -47,7 +47,7 @@ an email to the user.
 
 - Requires system admin authorization or the admin role on the organization
 - Request: [request.json#/definitions/OrganizationAddUser](../json-schema/request.json#/definitions/OrganizationAddUser)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `DELETE /organization/:organization_id_or_name/user/#target_user_id_or_email?send_mail=<1|0`>
 
@@ -55,7 +55,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the user.
 
 - Requires system admin authorization or the admin role on the organization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ## LICENSING
 

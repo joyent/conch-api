@@ -125,7 +125,7 @@ the room
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -168,7 +168,7 @@ the room (in which case data returned is restricted to those racks)
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -226,7 +226,7 @@ This method requires a request body.
 
 =item * Request: F<request.yaml#/definitions/RackAssignmentDeletes>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 

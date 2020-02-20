@@ -24,7 +24,7 @@ device, and stashes the query to get to it in C<device_rs>.
 If C<require_role> is provided, it is used as the minimum required role for the user to
 continue; otherwise the user must be a registered relay user or a system admin.
 
-If C<phase_earlier_than> is provided, C<409 CONFLICT> is returned if the device is in the
+If C<phase_earlier_than> is provided, C<409 Conflict> is returned if the device is in the
 provided phase (or later).
 
 =cut

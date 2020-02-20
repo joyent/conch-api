@@ -23,7 +23,7 @@ All routes require authentication.
 
 - Requires system admin authorization
 - Request: [request.json#/definitions/DatacenterCreate](../json-schema/request.json#/definitions/DatacenterCreate)
-- Response: `201 CREATED` or `204 NO CONTENT`, plus Location header
+- Response: `201 Created` or `204 No Content`, plus Location header
 
 ### `GET /dc/:datacenter_id`
 
@@ -39,7 +39,7 @@ All routes require authentication.
 ### `DELETE /dc/:datacenter_id`
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /dc/:datacenter_id/rooms`
 

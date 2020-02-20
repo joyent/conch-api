@@ -37,7 +37,7 @@ All routes require authentication.
 ### `DELETE /rack_role/:rack_role_id_or_name`
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ## LICENSING
 

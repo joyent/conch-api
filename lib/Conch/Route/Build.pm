@@ -199,7 +199,7 @@ an email to the user.
 
 =item * Request: request.yaml#/BuildAddUser
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -212,7 +212,7 @@ an email to the user.
 
 =item * Requires system admin authorization or the admin role on the build
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -237,7 +237,7 @@ an email to the organization members and build admins.
 
 =item * Request: F<request.yaml#/definitions/BuildAddOrganization>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -250,7 +250,7 @@ an email to the organization members and build admins.
 
 =item * User requires the admin role
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -297,7 +297,7 @@ L<Conch::Route::Device/routes>)
 
 =item * Request: F<request.yaml#/definitions/BuildCreateDevices>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -308,7 +308,7 @@ L<Conch::Route::Device/routes>)
 =item * Requires system admin authorization, or the read/write role on the build and the
 read-write role on the device (via a workspace or build; see L<Conch::Route::Device/routes>)
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -318,7 +318,7 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 
 =item * Requires system admin authorization, or the read/write role on the build
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -339,7 +339,7 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 =item * Requires system admin authorization, or the read/write role on the build and the
 read-write role on a workspace or build that contains the rack
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 

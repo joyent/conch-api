@@ -17,7 +17,7 @@ All routes require authentication.
 ### `POST /relay/:relay_serial_number/register`
 
 - Request: [request.json#/definitions/RegisterRelay](../json-schema/request.json#/definitions/RegisterRelay)
-- Response: `201 CREATED` or `204 NO CONTENT`, plus Location header
+- Response: `201 Created` or `204 No Content`, plus Location header
 
 ### `GET /relay`
 
@@ -32,7 +32,7 @@ All routes require authentication.
 ### `DELETE /relay/:relay_id_or_serial_number`
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ## LICENSING
 

@@ -59,7 +59,7 @@ an email to the user.
 
 - Requires system admin authorization or the admin role on the build
 - Request: request.yaml#/BuildAddUser
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `DELETE /build/:build_id_or_name/user/#target_user_id_or_email?send_mail=<1|0`>
 
@@ -67,7 +67,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the user.
 
 - Requires system admin authorization or the admin role on the build
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /build/:build_id_or_name/organization`
 
@@ -81,7 +81,7 @@ an email to the organization members and build admins.
 
 - User requires the admin role
 - Request: [request.json#/definitions/BuildAddOrganization](../json-schema/request.json#/definitions/BuildAddOrganization)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `DELETE /build/:build_id_or_name/organization/:organization_id_or_name?send_mail=<1|0>`
 
@@ -89,7 +89,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the organization members and build admins.
 
 - User requires the admin role
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /build/:build_id_or_name/device`
 
@@ -114,18 +114,18 @@ Accepts the following optional query parameters:
 read-write role on existing device(s) (via a workspace or build; see
 ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
 - Request: [request.json#/definitions/BuildCreateDevices](../json-schema/request.json#/definitions/BuildCreateDevices)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `POST /build/:build_id_or_name/device/:device_id_or_serial_number`
 
 - Requires system admin authorization, or the read/write role on the build and the
 read-write role on the device (via a workspace or build; see ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `DELETE /build/:build_id_or_name/device/:device_id_or_serial_number`
 
 - Requires system admin authorization, or the read/write role on the build
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /build/:build_id_or_name/rack`
 
@@ -136,7 +136,7 @@ read-write role on the device (via a workspace or build; see ["routes" in Conch:
 
 - Requires system admin authorization, or the read/write role on the build and the
 read-write role on a workspace or build that contains the rack
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ## LICENSING
 

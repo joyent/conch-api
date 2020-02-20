@@ -90,7 +90,7 @@ below.
 ### `DELETE /device/:device_id_or_serial_number/links`
 
 - User requires the read/write role
-- Response: 204 NO CONTENT
+- Response: 204 No Content
 
 ### `POST /device/:device_id_or_serial_number/build`
 
@@ -112,7 +112,7 @@ below.
 ### `DELETE /device/:device_id_or_serial_number/location`
 
 - User requires the read/write role
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /device/:device_id_or_serial_number/settings`
 
@@ -124,7 +124,7 @@ below.
 - User requires the read/write role, or admin when overwriting existing
 settings that do not start with `tag.`.
 - Request: [request.json#/definitions/DeviceSettings](../json-schema/request.json#/definitions/DeviceSettings)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /device/:device_id_or_serial_number/settings/:key`
 
@@ -136,13 +136,13 @@ settings that do not start with `tag.`.
 - User requires the read/write role, or admin when overwriting existing
 settings that do not start with `tag.`.
 - Request: [request.json#/definitions/DeviceSettings](../json-schema/request.json#/definitions/DeviceSettings)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `DELETE /device/:device_id_or_serial_number/settings/:key`
 
 - User requires the read/write role for settings that start with `tag.`, and admin
 otherwise.
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `POST /device/:device_id_or_serial_number/validation/:validation_id`
 

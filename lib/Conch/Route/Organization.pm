@@ -109,7 +109,7 @@ All routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -124,7 +124,7 @@ an email to the user.
 
 =item * Request: F<request.yaml#/definitions/OrganizationAddUser>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -137,7 +137,7 @@ an email to the user.
 
 =item * Requires system admin authorization or the admin role on the organization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 

@@ -197,7 +197,7 @@ Accepts the following optional query parameters:
 
 =item * User requires the admin role
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -245,7 +245,7 @@ an email to the user and workspace admins.
 
 =item * Request: F<request.yaml#/definitions/WorkspaceAddUser>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -258,7 +258,7 @@ an email to the user and workspace admins.
 
 =item * User requires the admin role
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 

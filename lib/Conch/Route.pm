@@ -224,7 +224,7 @@ Error responses will use:
 
 =item * Request: F<request.yaml#/definitions/Null>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 

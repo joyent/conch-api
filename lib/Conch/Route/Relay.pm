@@ -52,7 +52,7 @@ All routes require authentication.
 
 =item * Request: F<request.yaml#/definitions/RegisterRelay>
 
-=item * Response: C<201 CREATED> or C<204 NO CONTENT>, plus Location header
+=item * Response: C<201 Created> or C<204 No Content>, plus Location header
 
 =back
 
@@ -82,7 +82,7 @@ All routes require authentication.
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
