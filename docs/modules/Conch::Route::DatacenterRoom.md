@@ -64,12 +64,12 @@ the room (in which case data returned is restricted to those racks)
 - Requires system admin authorization
 - Response: `204 No Content`
 
-### `GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts`
+### `GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout`
 
 - User requires the read-only role on the rack
 - Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
 
-### `POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts`
+### `POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout`
 
 - User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackLayouts](../json-schema/request.json#/definitions/RackLayouts)

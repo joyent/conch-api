@@ -44,7 +44,7 @@ continue to run validations pointing to the same code modules.
 
 ### run\_validation\_plan
 
-Runs the provided validation\_plan against the provided device.
+Runs the provided validation\_plan against the provided device and device report.
 
 All provided data objects can and should be read-only (fetched with a ro db handle).
 
@@ -66,7 +66,7 @@ no_save_db => 0|1               # optional, defaults to false
 
 ### run\_validation
 
-Runs the provided validation record against the provided device.
+Runs the provided validation record against the provided device and device report.
 Creates and returns validation\_result records, without writing them to the database.
 
 All provided data objects can and should be read-only (fetched with a ro db handle).

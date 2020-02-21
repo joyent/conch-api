@@ -8,10 +8,9 @@
 
 A component for [Conch::DB::ResultSet](../modules/Conch%3A%3ADB%3A%3AResultSet) classes that provides the `exists` method.
 
-See also [DBIx::Class::Helper::ResultSet::Shortcut::ResultsExist](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut%3A%3AResultsExist), which is not usable in its
-present form due to [https://github.com/frioux/DBIx-Class-Helpers/issues/54](https://github.com/frioux/DBIx-Class-Helpers/issues/54).
+See also [DBIx::Class::Helper::ResultSet::Shortcut::ResultsExist](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut%3A%3AResultsExist).
 
-This code is postgres-specific.
+This code is postgres-specific but may work on other databases as well.
 
 ## USAGE
 

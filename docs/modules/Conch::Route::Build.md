@@ -101,7 +101,7 @@ Accepts the following optional query parameters:
 - `ids_only=1` only return device IDs, not full device details
 
 - Requires system admin authorization or the read-only role on the build
-- Response: [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices), [response.json#/definitions/DeviceIds](../json-schema/response.json#/definitions/DeviceIds) or [response.json#/definitions/DeviceSerials](../json-schema/response.json#/definitions/DeviceSerials)
+- Response: one of [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices), [response.json#/definitions/DeviceIds](../json-schema/response.json#/definitions/DeviceIds) or [response.json#/definitions/DeviceSerials](../json-schema/response.json#/definitions/DeviceSerials)
 
 ### `GET /build/:build_id_or_name/device/pxe`
 
