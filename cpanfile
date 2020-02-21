@@ -72,7 +72,7 @@ requires 'Getopt::Long';
 requires 'DBD::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
-requires 'DBIx::Class::Helpers';
+requires 'DBIx::Class::Helpers', '2.035000';    # https://github.com/frioux/DBIx-Class-Helpers/pull/100
 requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'DBIx::Class::InflateColumn::TimeMoment';
 requires 'Lingua::EN::Inflexion';

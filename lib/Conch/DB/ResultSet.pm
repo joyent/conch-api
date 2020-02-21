@@ -22,6 +22,8 @@ Methods added are:
 
 =item * L<active|Conch::DB::Helper::ResultSet::Deactivatable/active>
 
+=item * L<remove_columns|DBIx::Class::Helper::ResultSet::Shortcut/remove_columns>
+
 =item * L<add_columns|DBIx::Class::Helper::ResultSet::Shortcut/add_columns>
 
 =item * L<as_epoch|Conch::DB::Helper::ResultSet::AsEpoch/as_epoch>
@@ -81,6 +83,7 @@ Resultset attributes added are:
 __PACKAGE__->load_components(
     '+Conch::DB::Helper::ResultSet::Deactivatable', # provides active, deactivate
     'Helper::ResultSet::RemoveColumns',         # provides remove_columns attribute (must be applied early!)
+    'Helper::ResultSet::Shortcut::RemoveColumns',   # provides remove_columns
     'Helper::ResultSet::OneRow',                # provides one_row
     'Helper::ResultSet::Shortcut::HRI',         # provides hri: raw unblessed + uninflated data
     'Helper::ResultSet::Shortcut::Prefetch',    # provides prefetch
