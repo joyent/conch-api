@@ -42,6 +42,7 @@ $t->post_ok('/login', json => { email => 'foo@bar.com' })
 
 $t->post_ok('/login', json => { email => 'foo@bar.com', password => 'b' })
     ->status_is(401)
+    ->header_is('WWW-Authenticate', 'Basic')
     ->log_debug_is('user lookup for foo@bar.com failed');
 
 my $now = Conch::Time->now;
@@ -172,6 +173,7 @@ subtest 'User' => sub {
 
     $t->post_ok('/user/me', json => { is_admin => JSON::PP::true })
         ->status_is(403)
+        ->header_is('WWW-Authenticate', 'Basic')
         ->email_not_sent;
 
     $t->post_ok('/user/me', json => $_)
@@ -236,6 +238,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user')
         ->status_is(403)
+        ->header_is('WWW-Authenticate', 'Basic')
         ->log_debug_is('User must be system admin');
 
     # save cookie for nefarious purposes later on
@@ -288,17 +291,20 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me')
         ->status_is(401)
+        ->header_is('WWW-Authenticate', 'Basic')
         ->log_debug_is('auth failed: no credentials provided');
 
     # "mouhahaha," says the client, "I can pretend to be who I want!"
     my $session_data = { user_id => $super_user->id, expires => time + 3600 };
     $t->get_ok('/user/me', { Cookie => 'conch='.(encode_base64(encode_json($session_data), '') =~ y/=/-/r) })
         ->status_is(401)
+        ->header_is('WWW-Authenticate', 'Basic')
         ->log_debug_is('Cookie "conch" is not signed')          # "curses, foiled!"
         ->log_debug_is('auth failed: no credentials provided');
 
     $t->get_ok('/user/me', { Cookie => 'conch='.(encode_base64(encode_json($session_data), '') =~ y/=/-/r).'--'.$signature })
         ->status_is(401)
+        ->header_is('WWW-Authenticate', 'Basic')
         ->log_debug_is('Cookie "conch" has bad signature')      # "curses, foiled again!"
         ->log_debug_is('auth failed: no credentials provided');
 
@@ -323,6 +329,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/user/me')
         ->status_is(401)
+        ->header_is('WWW-Authenticate', 'Basic')
         ->log_debug_is('user attempting to authenticate with session, but refuse_session_auth is set');
 
     {
