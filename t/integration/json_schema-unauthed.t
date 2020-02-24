@@ -45,6 +45,7 @@ $t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan
     ->status_is(200)
     ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
     ->header_is('Content-Type', 'application/schema+json')
+    ->header_is('Link', '</json_schema/response/JSONSchemaOnDisk>; rel="describedby"')
     ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply({
         '$schema' => SPEC_URL,

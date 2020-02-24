@@ -72,6 +72,16 @@ Returns a [JSON::Schema::Draft201909](https://metacpan.org/pod/JSON%3A%3ASchema%
 Rewrite a [JSON::Schema::Draft201909::Result](https://metacpan.org/pod/JSON%3A%3ASchema%3A%3ADraft201909%3A%3AResult) to match the format used by
 [response.json#/$defs/JSONSchemaError](../json-schema/response.json#/$defs/JSONSchemaError).
 
+### add\_link\_to\_schema
+
+Adds a response header of the form:
+
+```
+Link: <http://example.com/my-schema>; rel="describedby"
+```
+
+...indicating the JSON Schema that describes the response.
+
 ## HOOKS
 
 ### around\_action

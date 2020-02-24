@@ -172,6 +172,22 @@ F<response.yaml#/$defs/JSONSchemaError>.
         }, $result->TO_JSON->{errors}->@*;
     });
 
+=head2 add_link_to_schema
+
+Adds a response header of the form:
+
+    Link: <http://example.com/my-schema>; rel="describedby"
+
+...indicating the JSON Schema that describes the response.
+
+=cut
+
+    $app->helper(add_link_to_schema => sub ($c, $schema) {
+        my $url = $schema =~ /^http/ ? $schema : $c->url_for('/json_schema/response/'.$schema);
+        $c->res->headers->link('<'.$url.'>; rel="describedby"');
+    });
+
+
 =head1 HOOKS
 
 =head2 around_action
@@ -259,8 +275,6 @@ When not provided, assumes the response body schema is F<response.yaml#/$defs/Nu
         return if ($c->res->headers->content_type // '')
             !~ m{application/(?:schema(?:-instance)?\+)?json}i;
 
-        return if not $c->feature('validate_all_responses');
-
         my $res_code = $c->res->code;
         return if not ($res_code >= 200 and $res_code < 300)
             and not ($res_code >= 400 and $res_code < 500);
@@ -271,6 +285,12 @@ When not provided, assumes the response body schema is F<response.yaml#/$defs/Nu
                 and $res_code >= 400 and $res_code < 500 and $c->res->json;
         $response_schema //= 'Null';
         $c->log->fatal('failed to specify exact response_schema used') if ref $response_schema;
+
+        $c->add_link_to_schema($response_schema)
+            if not ref $response_schema and $response_schema ne 'Null'
+                and not $c->res->headers->link;
+
+        return if not $c->feature('validate_all_responses');
 
         my $validator = $c->json_schema_validator;
         my $schema = !ref($response_schema)

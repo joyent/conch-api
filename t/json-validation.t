@@ -431,7 +431,10 @@ subtest 'feature: validate_all_requests' => sub {
 subtest 'feature: validate_all_responses' => sub {
     my sub add_routes ($t) {
         my $r = Mojolicious::Routes->new;
-        $r->post('/_simple_post', sub ($c) { $c->status(200, { foo => 'bad response' }) });
+        $r->post('/_simple_post', sub ($c) {
+            $c->add_link_to_schema('Foo');
+            $c->status(200, { foo => 'bad response' });
+        });
 
         $r->get('/_pass_no_schema', { response_schema => 'IDoNotExist' },
             sub ($c) { $c->status(200, { foo => 'bar' }); },
@@ -445,7 +448,10 @@ subtest 'feature: validate_all_responses' => sub {
         );
 
         $r->get('/_bad_multi_get', { response_schema => [ qw(DeviceIds DeviceSerials) ] },
-            sub ($c) { $c->status(200, [ 'foo', 'bar baz' ]); },
+            sub ($c) {
+                $c->res->headers->link('mollify status_is check');
+                $c->status(200, [ 'foo', 'bar baz' ]);
+            },
         );
 
         $r->get('/_bad_error', sub ($c) { $c->status(400, { foo => 'bad error' }) });
@@ -477,6 +483,7 @@ subtest 'feature: validate_all_responses' => sub {
 
         $t->get_ok('/ping')
             ->status_is(200)
+            ->header_is('Link', '</json_schema/response/Ping>; rel="describedby"')
             ->json_schema_is('Ping')
             ->json_is({ status => 'ok' })
             ->stash_cmp_deeply('/response_validation_errors', { Ping => [] })
@@ -530,6 +537,7 @@ subtest 'feature: validate_all_responses' => sub {
 
         $t->get_ok('/_good_multi_get')
             ->status_is(200)
+            ->header_is('Link', '</json_schema/response/DeviceSerials>; rel="describedby"')
             ->json_schema_is('DeviceSerials')
             ->json_is([ 'foo', 'bar' ])
             ->log_debug_is('Passed data validation for response schema DeviceSerials')

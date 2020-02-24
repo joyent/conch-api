@@ -235,6 +235,7 @@ Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
  1. successful GET requests should not return 201, 202 (ideally just 200, 204)
  2. successful DELETE requests should not return 201
  3. 201 and most 3xx responses should have a Location header
+ 3.1. 2xx and 4xx JSON responses should have a Link header
  4. HEAD requests should not have body content
  5. 200, 203, 206, 207 and most 4xx responses should have body content
  6. 201, 204, 205 and most 3xx responses should not have body content
@@ -269,6 +270,11 @@ sub status_is ($self, $status, $desc = undef) {
     # 3.
     $self->test('fail', $code.' responses should have a Location header')
         if any { $code == $_ } 201,301,302,303,305,307,308 and not $self->header_exists('Location');
+
+    # 3.1.
+    $self->test('fail', $code.' responses should have a Link header')
+        if ($code >= 200 and $code < 300 or $code >= 400 and $code < 500)
+            and $self->tx->res->json and not $self->tx->res->headers->link;
 
     # 4.
     $self->test('fail', 'HEAD requests should not have response body content')
@@ -347,6 +353,12 @@ sub json_schema_is ($self, $schema, $message = undef) {
     }
     else {
         ($schema_name, $schema) = ($schema, 'response.yaml#/$defs/'.$schema);
+    }
+
+    if ($schema_name) {
+        my $re = $schema_name =~ /^http/ ? qr{<([^>]+)>;} : qr{/json_schema/response/(\w+)>;};
+        my ($name_in_link) = ($self->tx->res->headers->link // '') =~ /$re/;
+        $self->test('is', $name_in_link, $schema_name, 'schema name in Link header matches actual response schema') if $schema_name;
     }
 
     $schema_name //= '<inlined>';
