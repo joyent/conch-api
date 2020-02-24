@@ -59,8 +59,10 @@ Chainable route that aborts with HTTP 403 if the user is not a system admin.
 
     $root->add_shortcut(require_system_admin => sub ($r) {
         $r->under('/', sub ($c) {
-            return $c->status(401)
-                if not $c->stash('user') or not $c->stash('user_id');
+            if (not $c->stash('user') or not $c->stash('user_id')) {
+                $c->log->fatal('tried to check for system admin on an unauthenticated endpoint?');
+                return $c->status(401);
+            }
 
             if (not $c->is_system_admin) {
                 $c->log->debug('User must be system admin');
