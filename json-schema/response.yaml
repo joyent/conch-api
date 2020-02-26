@@ -2,25 +2,13 @@
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
   Error:
+    description: this is the superset of all error schemas
     type: object
     additionalProperties: false
     required:
       - error
     properties:
       error:
-        type: string
-  JsonValidationError:
-    description: JSON::Validator::Error object
-    type: object
-    additionalProperties: false
-    required:
-      - path
-      - message
-    properties:
-      path:
-        type: string
-        format: json-pointer
-      message:
         type: string
   ValidationError:
     description: base structure for all validation error responses
@@ -52,8 +40,10 @@ definitions:
       - type: object
         required:
           - data
+          - error
         properties:
           error:
+            type: string
             const: query parameters did not match required format
           schema:
             pattern: '/schema/query_params/[^/]+$'
@@ -76,11 +66,27 @@ definitions:
     allOf:
       - $ref: '#/definitions/ValidationError'
       - type: object
+        required:
+          - error
         properties:
           error:
+            type: string
             const: request did not match required format
           schema:
             pattern: '/schema/request/[^/]+$'
+  JsonValidationError:
+    description: JSON::Validator::Error object
+    type: object
+    additionalProperties: false
+    required:
+      - path
+      - message
+    properties:
+      path:
+        type: string
+        format: json-pointer
+      message:
+        type: string
   Ping:
     type: object
     additionalProperties: false

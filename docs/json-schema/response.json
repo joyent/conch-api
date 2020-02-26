@@ -1385,6 +1385,7 @@
     },
     "Error" : {
       "additionalProperties" : false,
+      "description" : "this is the superset of all error schemas",
       "properties" : {
         "error" : {
           "type" : "string"
@@ -2079,14 +2080,16 @@
               "type" : "object"
             },
             "error" : {
-              "const" : "query parameters did not match required format"
+              "const" : "query parameters did not match required format",
+              "type" : "string"
             },
             "schema" : {
               "pattern" : "/schema/query_params/[^/]+$"
             }
           },
           "required" : [
-            "data"
+            "data",
+            "error"
           ],
           "type" : "object"
         }
@@ -2477,12 +2480,16 @@
         {
           "properties" : {
             "error" : {
-              "const" : "request did not match required format"
+              "const" : "request did not match required format",
+              "type" : "string"
             },
             "schema" : {
               "pattern" : "/schema/request/[^/]+$"
             }
           },
+          "required" : [
+            "error"
+          ],
           "type" : "object"
         }
       ]
