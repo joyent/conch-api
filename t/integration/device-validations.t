@@ -215,13 +215,19 @@ $t->get_ok('/device/TEST/validation_state?status=bar')
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
     ->json_cmp_deeply('/data' => { status => 'bar' })
-    ->json_cmp_deeply('/details', [ { path => '/status', message => re(qr/not in enum list/i) } ]);
+    ->json_cmp_deeply('/details', [
+        { path => '/status', message => re(qr/Not in enum list/) },
+        { path => '/status', message => re(qr/Expected array - got string/) },
+    ]);
 
 $t->get_ok('/device/TEST/validation_state?status=pass&status=bar')
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
     ->json_cmp_deeply('/data' => { status => [ qw(pass bar) ] })
-    ->json_cmp_deeply('/details', [ { path => '/status/1', message => re(qr/not in enum list/i) } ]);
+    ->json_cmp_deeply('/details', [
+        { path => '/status', message => re(qr/Expected string - got array/) },
+        { path => '/status/1', message => re(qr/Not in enum list/) },
+    ]);
 
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

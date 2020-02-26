@@ -111,7 +111,10 @@ $t->get_ok("/workspace/$global_ws_id/device?health=pass&health=unknown")
 $t->get_ok("/workspace/$global_ws_id/device?health=bunk")
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/health', message => re(qr/not in enum list/i) } ]);
+    ->json_cmp_deeply('/details', [
+        { path => '/health', message => re(qr/Not in enum list/) },
+        { path => '/health', message => re(qr/Expected array - got string/) },
+    ]);
 
 $t->get_ok("/workspace/$global_ws_id/device?ids_only=1&serials_only=1")
     ->status_is(400)

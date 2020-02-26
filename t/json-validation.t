@@ -26,7 +26,7 @@ subtest 'failed query params validation' => sub {
         ->json_schema_is('QueryParamsValidationError')
         ->json_cmp_deeply({
             error => 'query parameters did not match required format',
-            details => [ { path => '/clear_tokens', message => re(qr/not in enum list/i) } ],
+            details => [ { path => '/clear_tokens', message => re(qr/Not in enum list/) } ],
             schema => '/schema/query_params/change_password',
             data => { clear_tokens => 'whargarbl' },
         })
@@ -92,10 +92,16 @@ subtest 'GET /workspace/:workspace_id_or_name/rack validation' => sub {
     $summary->{some_room_name}[0]{device_progress} = { VALID => 1 };
     cmp_deeply(
         [ $validator->validate($summary, $schema) ],
-        [ methods(
-            path => '/some_room_name/0/device_progress',
-            message => re(qr/not in enum list/i),
-        ) ],
+        [
+            methods(
+                path => '/some_room_name/0/device_progress',
+                message => re(qr/Does not match const/),
+            ),
+            methods(
+                path => '/some_room_name/0/device_progress',
+                message => re(qr/Not in enum list/),
+            ),
+        ],
         'VALID is not a valid field in device_progress',
     );
 
