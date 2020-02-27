@@ -43,7 +43,7 @@ Identifiers accepted: `id`, `sku`, `name` and `alias`.
 Identifiers accepted: `id`, `sku`, `name` and `alias`.
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ## LICENSING
 

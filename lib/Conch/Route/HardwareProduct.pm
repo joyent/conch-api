@@ -105,7 +105,7 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 

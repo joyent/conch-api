@@ -178,7 +178,7 @@ C<api_only> and C<login_only> cannot both be C<1>.
 
 =item * Request: F<request.yaml#/definitions/UserSettings>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -204,7 +204,7 @@ otherwise, the user is logged out.
 
 =item * Request: F<request.yaml#/definitions/UserSettings>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -223,7 +223,7 @@ otherwise, the user is logged out.
 
 =item * Request: F<request.yaml#/definitions/UserSettings>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -241,7 +241,7 @@ otherwise, the user is logged out.
 
 =item * Request: F<request.yaml#/definitions/UserSetting>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -249,7 +249,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -283,7 +283,7 @@ otherwise, the user is logged out.
 
 =over 4
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -327,7 +327,7 @@ revoke all session tokens for the user forcing all tools to log in again.
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -350,7 +350,7 @@ C<api_only> and C<login_only> cannot both be C<1>.
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -380,7 +380,7 @@ Optionally accepts the following query parameters:
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -437,7 +437,7 @@ email to the user with the new password.
 
 =item * Requires system admin authorization
 
-=item * Success Response: C<204 NO CONTENT>
+=item * Success Response: C<204 No Content>
 
 =item * Error response when user already deactivated: F<response.yaml#/definitions/UserError>
 

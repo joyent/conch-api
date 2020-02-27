@@ -40,7 +40,7 @@ By default it will revoke both login/session and API tokens.
 `api_only` and `login_only` cannot both be `1`.
 
 - Request: [request.json#/definitions/UserSettings](../json-schema/request.json#/definitions/UserSettings)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `POST /user/me/password?clear_tokens=<login_only|none|all>`
 
@@ -55,7 +55,7 @@ If the `clear_tokens` parameter is set to `none` then the user session will rema
 otherwise, the user is logged out.
 
 - Request: [request.json#/definitions/UserSettings](../json-schema/request.json#/definitions/UserSettings)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /user/me/settings`
 
@@ -64,7 +64,7 @@ otherwise, the user is logged out.
 ### `POST /user/me/settings`
 
 - Request: [request.json#/definitions/UserSettings](../json-schema/request.json#/definitions/UserSettings)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /user/me/settings/:key`
 
@@ -73,11 +73,11 @@ otherwise, the user is logged out.
 ### `POST /user/me/settings/:key`
 
 - Request: [request.json#/definitions/UserSetting](../json-schema/request.json#/definitions/UserSetting)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `DELETE /user/me/settings/:key`
 
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /user/me/token`
 
@@ -94,7 +94,7 @@ otherwise, the user is logged out.
 
 ### `DELETE /user/me/token/:token_name`
 
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /user/:target_user_id_or_email`
 
@@ -121,7 +121,7 @@ Optionally takes a query parameter `clear_tokens` (defaults to `1`), to also
 revoke all session tokens for the user forcing all tools to log in again.
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `POST /user/:target_user_id_or_email/revoke?login_only=<0|1>&api_only=<0|1>`
 
@@ -134,7 +134,7 @@ By default it will revoke both login/session and API tokens. If both
 `api_only` and `login_only` cannot both be `1`.
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `DELETE /user/:target_user_id_or_email/password?clear_tokens=<login_only|none|all>&send_mail=<1|0>`
 
@@ -147,7 +147,7 @@ Optionally accepts the following query parameters:
 - `send_mail` which takes `<1|0>` (defaults to `1`) to send an email to the user with password reset instructions.
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /user`
 
@@ -177,7 +177,7 @@ email to the user with the new password.
 ### `DELETE /user/:target_user_id_or_email/token/:token_name`
 
 - Requires system admin authorization
-- Success Response: `204 NO CONTENT`
+- Success Response: `204 No Content`
 - Error response when user already deactivated: [response.json#/definitions/UserError](../json-schema/response.json#/definitions/UserError)
 
 ## LICENSING

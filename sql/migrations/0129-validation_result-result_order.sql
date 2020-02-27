@@ -10,8 +10,7 @@ SELECT run_migration(129, $$
     -- and validation_result tables into the master database:
     -- pg_dump -U postgres -t validation_result -t validation_state_member source_database | psql -U conch conch
 
-    truncate validation_state_member;
-    truncate validation_result;
+    truncate validation_state_member, validation_result;
 
 
     -- these are the two validation modules that can produce duplicate

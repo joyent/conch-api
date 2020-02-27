@@ -187,7 +187,7 @@ A string or data structure of fingerprint data for grouping occurrences is optio
 sub _request_data($c) {
     my $user = $c->stash('user');
     my $headers = $c->req->headers->to_hash(1);
-    delete $headers->@{qw(Authorization Cookie jwt_token)};
+    delete $headers->@{qw(Authorization Cookie)};
 
     +{
         length($c->req->url) ? (

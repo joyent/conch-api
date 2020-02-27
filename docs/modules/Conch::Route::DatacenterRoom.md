@@ -40,7 +40,7 @@ the room
 ### `DELETE /room/:datacenter_room_id_or_alias`
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /room/:datacenter_room_id_or_alias/rack`
 
@@ -62,14 +62,14 @@ the room (in which case data returned is restricted to those racks)
 ### `DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name`
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
-### `GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts`
+### `GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout`
 
 - User requires the read-only role on the rack
 - Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
 
-### `POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts`
+### `POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout`
 
 - User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackLayouts](../json-schema/request.json#/definitions/RackLayouts)
@@ -92,7 +92,7 @@ This method requires a request body.
 
 - User requires the read/write role on the rack
 - Request: [request.json#/definitions/RackAssignmentDeletes](../json-schema/request.json#/definitions/RackAssignmentDeletes)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/phase?rack_only=<0|1>`
 

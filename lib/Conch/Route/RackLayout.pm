@@ -114,7 +114,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 

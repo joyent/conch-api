@@ -11,10 +11,9 @@ Conch::DB::Helper::ResultSet::ResultsExist
 
 A component for L<Conch::DB::ResultSet> classes that provides the C<exists> method.
 
-See also L<DBIx::Class::Helper::ResultSet::Shortcut::ResultsExist>, which is not usable in its
-present form due to L<https://github.com/frioux/DBIx-Class-Helpers/issues/54>.
+See also L<DBIx::Class::Helper::ResultSet::Shortcut::ResultsExist>.
 
-This code is postgres-specific.
+This code is postgres-specific but may work on other databases as well.
 
 =head1 USAGE
 

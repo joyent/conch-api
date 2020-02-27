@@ -16,7 +16,7 @@ requires 'Try::Tiny';
 requires 'Time::HiRes';
 requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
 requires 'Time::Local', '1.27';     # https://pandorafms.com/blog/2020-perl/
-requires 'JSON::Validator', '3.18'; # https://github.com/mojolicious/json-validator/pull/182
+requires 'JSON::Validator', '3.20'; # https://github.com/mojolicious/json-validator/pull/182, /190
 requires 'Data::Validate::IP';      # for json schema validation of 'ipv4', 'ipv6' types
 requires 'HTTP::Tiny';
 requires 'Safe::Isa';
@@ -55,6 +55,8 @@ requires 'Sub::Install';
 requires 'WebService::Rollbar::Notifier';
 requires 'Digest::SHA';
 requires 'Digest::MD5';
+requires 'Unicode::UTF8';       # used internally by some things to speed up utf8 operations, when available
+requires 'PerlIO::utf8_strict'; # ""
 
 # debugging aids
 requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
@@ -70,7 +72,7 @@ requires 'Getopt::Long';
 requires 'DBD::Pg';
 requires 'DBIx::Class';
 requires 'DBIx::Class::Schema::Loader';
-requires 'DBIx::Class::Helpers';
+requires 'DBIx::Class::Helpers', '2.035000';    # https://github.com/frioux/DBIx-Class-Helpers/pull/100
 requires 'DateTime::Format::Pg';    # used by DBIx::Class::Storage::DBI::Pg
 requires 'DBIx::Class::InflateColumn::TimeMoment';
 requires 'Lingua::EN::Inflexion';

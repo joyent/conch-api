@@ -48,7 +48,7 @@ well as
 ### `DELETE /layout/:layout_id`
 
 - Requires system admin authorization
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ## LICENSING
 

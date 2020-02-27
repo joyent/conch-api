@@ -279,7 +279,7 @@ sub update_validation_plans ($self) {
 
 =head2 run_validation_plan
 
-Runs the provided validation_plan against the provided device.
+Runs the provided validation_plan against the provided device and device report.
 
 All provided data objects can and should be read-only (fetched with a ro db handle).
 
@@ -374,7 +374,7 @@ sub run_validation_plan ($self, %options) {
 
 =head2 run_validation
 
-Runs the provided validation record against the provided device.
+Runs the provided validation record against the provided device and device report.
 Creates and returns validation_result records, without writing them to the database.
 
 All provided data objects can and should be read-only (fetched with a ro db handle).

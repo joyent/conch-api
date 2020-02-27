@@ -135,7 +135,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -193,7 +193,7 @@ This method requires a request body.
 
 =item * Request: F<request.yaml#/definitions/RackAssignmentDeletes>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 

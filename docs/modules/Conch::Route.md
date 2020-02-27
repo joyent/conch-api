@@ -60,7 +60,7 @@ Error responses will use:
 ### `POST /logout`
 
 - Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /workspace/:workspace/device-totals`
 

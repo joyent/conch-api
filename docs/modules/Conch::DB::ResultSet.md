@@ -14,6 +14,7 @@ available in core [DBIx::Class](https://metacpan.org/pod/DBIx%3A%3AClass).
 Methods added are:
 
 - [active](../modules/Conch%3A%3ADB%3A%3AHelper%3A%3AResultSet%3A%3ADeactivatable#active)
+- [remove\_columns](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#remove_columns)
 - [add\_columns](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#add_columns)
 - [as\_epoch](../modules/Conch%3A%3ADB%3A%3AHelper%3A%3AResultSet%3A%3AAsEpoch#as_epoch)
 - [columns](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AHelper%3A%3AResultSet%3A%3AShortcut#columns)

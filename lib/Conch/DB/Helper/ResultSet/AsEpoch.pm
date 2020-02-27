@@ -34,21 +34,12 @@ epoch time format (number of seconds since 1970-01-01 00:00:00 UTC).
 
 sub as_epoch ($self, $column_name) {
     my $me = $self->current_source_alias;
-    $self->search(
-        undef,
-        {
-            # avoid "inflate_result() alias 'COL' specified twice with different SQL-side {select}-ors"
-            # if this stops working, some other component has messed up our isa heirarchy and
-            # stopped the ::RemoveColumns::_resolved_attrs method modifier from running
-            remove_columns => [ $column_name ],
-            '+columns' => {
-                $column_name => {
-                    '' => \('extract(epoch from '.$me.'.'.$column_name.')'),
-                    -as => $column_name,
-                },
-            },
-        },
-    );
+    $self
+        ->remove_columns([ $column_name ])
+        ->add_columns({ $column_name => {
+            '' => \('extract(epoch from '.$me.'.'.$column_name.')'),
+            -as => $column_name,
+        } });
 }
 
 1;

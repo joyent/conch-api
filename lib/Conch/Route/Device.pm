@@ -264,7 +264,7 @@ below.
 
 =item * User requires the read/write role
 
-=item * Response: 204 NO CONTENT
+=item * Response: 204 No Content
 
 =back
 
@@ -308,7 +308,7 @@ below.
 
 =item * User requires the read/write role
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -331,7 +331,7 @@ settings that do not start with C<tag.>.
 
 =item * Request: F<request.yaml#/definitions/DeviceSettings>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -354,7 +354,7 @@ settings that do not start with C<tag.>.
 
 =item * Request: F<request.yaml#/definitions/DeviceSettings>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -365,7 +365,7 @@ settings that do not start with C<tag.>.
 =item * User requires the read/write role for settings that start with C<tag.>, and admin
 otherwise.
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 

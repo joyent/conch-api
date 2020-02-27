@@ -379,10 +379,10 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Cpanel-JSON-XS-4.15
-    pathname: R/RU/RURBAN/Cpanel-JSON-XS-4.15.tar.gz
+  Cpanel-JSON-XS-4.19
+    pathname: R/RU/RURBAN/Cpanel-JSON-XS-4.19.tar.gz
     provides:
-      Cpanel::JSON::XS 4.15
+      Cpanel::JSON::XS 4.19
       Cpanel::JSON::XS::Type undef
     requirements:
       Carp 0
@@ -738,79 +738,80 @@ DISTRIBUTIONS
       aliased 0
       namespace::autoclean 0
       perl 5.010
-  DBIx-Class-Helpers-2.034000
-    pathname: F/FR/FREW/DBIx-Class-Helpers-2.034000.tar.gz
+  DBIx-Class-Helpers-2.035000
+    pathname: F/FR/FREW/DBIx-Class-Helpers-2.035000.tar.gz
     provides:
-      DBIx::Class::Helper::IgnoreWantarray 2.034000
-      DBIx::Class::Helper::JoinTable 2.034000
-      DBIx::Class::Helper::Random 2.034000
-      DBIx::Class::Helper::ResultClass::Tee 2.034000
-      DBIx::Class::Helper::ResultSet 2.034000
-      DBIx::Class::Helper::ResultSet::AutoRemoveColumns 2.034000
-      DBIx::Class::Helper::ResultSet::Bare 2.034000
-      DBIx::Class::Helper::ResultSet::CorrelateRelationship 2.034000
-      DBIx::Class::Helper::ResultSet::DateMethods1 2.034000
-      DBIx::Class::Helper::ResultSet::Errors 2.034000
-      DBIx::Class::Helper::ResultSet::Explain 2.034000
-      DBIx::Class::Helper::ResultSet::IgnoreWantarray 2.034000
-      DBIx::Class::Helper::ResultSet::Me 2.034000
-      DBIx::Class::Helper::ResultSet::NoColumns 2.034000
-      DBIx::Class::Helper::ResultSet::OneRow 2.034000
-      DBIx::Class::Helper::ResultSet::Random 2.034000
-      DBIx::Class::Helper::ResultSet::RemoveColumns 2.034000
-      DBIx::Class::Helper::ResultSet::ResultClassDWIM 2.034000
-      DBIx::Class::Helper::ResultSet::SearchOr 2.034000
-      DBIx::Class::Helper::ResultSet::SetOperations 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::AddColumns 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Columns 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Distinct 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::GroupBy 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::HRI 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::HasRows 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Limit 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::LimitedPage 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::OrderBy 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::OrderByMagic 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Page 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Prefetch 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::ResultsExist 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Rows 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Search 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Search::Base 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Search::Like 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Search::NotLike 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Search::NotNull 2.034000
-      DBIx::Class::Helper::ResultSet::Shortcut::Search::Null 2.034000
-      DBIx::Class::Helper::ResultSet::Union 2.034000
-      DBIx::Class::Helper::ResultSet::Util 2.034000
-      DBIx::Class::Helper::ResultSet::VirtualView 2.034000
-      DBIx::Class::Helper::Row::CleanResultSet 2.034000
-      DBIx::Class::Helper::Row::JoinTable 2.034000
-      DBIx::Class::Helper::Row::NumifyGet 2.034000
-      DBIx::Class::Helper::Row::OnColumnChange 2.034000
-      DBIx::Class::Helper::Row::OnColumnMissing 2.034000
-      DBIx::Class::Helper::Row::ProxyResultSetMethod 2.034000
-      DBIx::Class::Helper::Row::ProxyResultSetUpdate 2.034000
-      DBIx::Class::Helper::Row::RelationshipDWIM 2.034000
-      DBIx::Class::Helper::Row::SelfResultSet 2.034000
-      DBIx::Class::Helper::Row::StorageValues 2.034000
-      DBIx::Class::Helper::Row::SubClass 2.034000
-      DBIx::Class::Helper::Row::ToJSON 2.034000
-      DBIx::Class::Helper::Schema::DateTime 2.034000
-      DBIx::Class::Helper::Schema::DidYouMean 2.034000
-      DBIx::Class::Helper::Schema::GenerateSource 2.034000
-      DBIx::Class::Helper::Schema::LintContents 2.034000
-      DBIx::Class::Helper::Schema::QuoteNames 2.034000
-      DBIx::Class::Helper::Schema::Verifier 2.034000
-      DBIx::Class::Helper::Schema::Verifier::C3 2.034000
-      DBIx::Class::Helper::Schema::Verifier::ColumnInfo 2.034000
-      DBIx::Class::Helper::Schema::Verifier::Parent 2.034000
-      DBIx::Class::Helper::Schema::Verifier::RelationshipColumnName 2.034000
-      DBIx::Class::Helper::SubClass 2.034000
-      DBIx::Class::Helper::VirtualView 2.034000
-      DBIx::Class::Helpers 2.034000
-      DBIx::Class::Helpers::Util 2.034000
+      DBIx::Class::Helper::IgnoreWantarray 2.035000
+      DBIx::Class::Helper::JoinTable 2.035000
+      DBIx::Class::Helper::Random 2.035000
+      DBIx::Class::Helper::ResultClass::Tee 2.035000
+      DBIx::Class::Helper::ResultSet 2.035000
+      DBIx::Class::Helper::ResultSet::AutoRemoveColumns 2.035000
+      DBIx::Class::Helper::ResultSet::Bare 2.035000
+      DBIx::Class::Helper::ResultSet::CorrelateRelationship 2.035000
+      DBIx::Class::Helper::ResultSet::DateMethods1 2.035000
+      DBIx::Class::Helper::ResultSet::Errors 2.035000
+      DBIx::Class::Helper::ResultSet::Explain 2.035000
+      DBIx::Class::Helper::ResultSet::IgnoreWantarray 2.035000
+      DBIx::Class::Helper::ResultSet::Me 2.035000
+      DBIx::Class::Helper::ResultSet::NoColumns 2.035000
+      DBIx::Class::Helper::ResultSet::OneRow 2.035000
+      DBIx::Class::Helper::ResultSet::Random 2.035000
+      DBIx::Class::Helper::ResultSet::RemoveColumns 2.035000
+      DBIx::Class::Helper::ResultSet::ResultClassDWIM 2.035000
+      DBIx::Class::Helper::ResultSet::SearchOr 2.035000
+      DBIx::Class::Helper::ResultSet::SetOperations 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::AddColumns 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Columns 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Distinct 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::GroupBy 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::HRI 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::HasRows 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Limit 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::LimitedPage 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::OrderBy 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::OrderByMagic 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Page 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Prefetch 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::RemoveColumns 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::ResultsExist 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Rows 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Search 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Search::Base 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Search::Like 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Search::NotLike 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Search::NotNull 2.035000
+      DBIx::Class::Helper::ResultSet::Shortcut::Search::Null 2.035000
+      DBIx::Class::Helper::ResultSet::Union 2.035000
+      DBIx::Class::Helper::ResultSet::Util 2.035000
+      DBIx::Class::Helper::ResultSet::VirtualView 2.035000
+      DBIx::Class::Helper::Row::CleanResultSet 2.035000
+      DBIx::Class::Helper::Row::JoinTable 2.035000
+      DBIx::Class::Helper::Row::NumifyGet 2.035000
+      DBIx::Class::Helper::Row::OnColumnChange 2.035000
+      DBIx::Class::Helper::Row::OnColumnMissing 2.035000
+      DBIx::Class::Helper::Row::ProxyResultSetMethod 2.035000
+      DBIx::Class::Helper::Row::ProxyResultSetUpdate 2.035000
+      DBIx::Class::Helper::Row::RelationshipDWIM 2.035000
+      DBIx::Class::Helper::Row::SelfResultSet 2.035000
+      DBIx::Class::Helper::Row::StorageValues 2.035000
+      DBIx::Class::Helper::Row::SubClass 2.035000
+      DBIx::Class::Helper::Row::ToJSON 2.035000
+      DBIx::Class::Helper::Schema::DateTime 2.035000
+      DBIx::Class::Helper::Schema::DidYouMean 2.035000
+      DBIx::Class::Helper::Schema::GenerateSource 2.035000
+      DBIx::Class::Helper::Schema::LintContents 2.035000
+      DBIx::Class::Helper::Schema::QuoteNames 2.035000
+      DBIx::Class::Helper::Schema::Verifier 2.035000
+      DBIx::Class::Helper::Schema::Verifier::C3 2.035000
+      DBIx::Class::Helper::Schema::Verifier::ColumnInfo 2.035000
+      DBIx::Class::Helper::Schema::Verifier::Parent 2.035000
+      DBIx::Class::Helper::Schema::Verifier::RelationshipColumnName 2.035000
+      DBIx::Class::Helper::SubClass 2.035000
+      DBIx::Class::Helper::VirtualView 2.035000
+      DBIx::Class::Helpers 2.035000
+      DBIx::Class::Helpers::Util 2.035000
     requirements:
       Carp::Clan 6.04
       DBIx::Class 0.0826
@@ -2205,16 +2206,18 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
-  JSON-Validator-3.18
-    pathname: J/JH/JHTHORSEN/JSON-Validator-3.18.tar.gz
+  JSON-Validator-3.23
+    pathname: J/JH/JHTHORSEN/JSON-Validator-3.23.tar.gz
     provides:
-      JSON::Validator 3.18
+      JSON::Validator 3.23
       JSON::Validator::Error undef
       JSON::Validator::Formats undef
       JSON::Validator::Joi undef
       JSON::Validator::Ref undef
+      JSON::Validator::Util undef
     requirements:
       ExtUtils::MakeMaker 0
+      List::Util 1.45
       Mojolicious 7.28
       perl 5.010001
   Lingua-EN-FindNumber-1.32
@@ -2679,8 +2682,8 @@ DISTRIBUTIONS
       Mojolicious 8.03
       SQL::Abstract 1.86
       perl 5.010001
-  Mojolicious-8.31
-    pathname: S/SR/SRI/Mojolicious-8.31.tar.gz
+  Mojolicious-8.33
+    pathname: S/SR/SRI/Mojolicious-8.33.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2749,7 +2752,7 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 8.31
+      Mojolicious 8.33
       Mojolicious::Command undef
       Mojolicious::Command::Author::cpanify undef
       Mojolicious::Command::Author::generate undef
@@ -3192,6 +3195,16 @@ DISTRIBUTIONS
       strict 0
       warnings 0
       warnings::register 0
+  PerlIO-utf8_strict-0.007
+    pathname: L/LE/LEONT/PerlIO-utf8_strict-0.007.tar.gz
+    provides:
+      PerlIO::utf8_strict 0.007
+    requirements:
+      ExtUtils::MakeMaker 0
+      XSLoader 0
+      perl 5.008
+      strict 0
+      warnings 0
   Pod-Coverage-0.23
     pathname: R/RC/RCLAMP/Pod-Coverage-0.23.tar.gz
     provides:
@@ -3873,48 +3886,49 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Type-Tiny-1.004004
-    pathname: T/TO/TOBYINK/Type-Tiny-1.004004.tar.gz
+  Type-Tiny-1.010000
+    pathname: T/TO/TOBYINK/Type-Tiny-1.010000.tar.gz
     provides:
-      Devel::TypeTiny::Perl56Compat 1.004004
-      Devel::TypeTiny::Perl58Compat 1.004004
-      Error::TypeTiny 1.004004
-      Error::TypeTiny::Assertion 1.004004
-      Error::TypeTiny::Compilation 1.004004
-      Error::TypeTiny::WrongNumberOfParameters 1.004004
-      Eval::TypeTiny 1.004004
-      Reply::Plugin::TypeTiny 1.004004
-      Test::TypeTiny 1.004004
-      Type::Coercion 1.004004
-      Type::Coercion::FromMoose 1.004004
-      Type::Coercion::Union 1.004004
-      Type::Library 1.004004
-      Type::Params 1.004004
-      Type::Parser 1.004004
-      Type::Registry 1.004004
-      Type::Tiny 1.004004
-      Type::Tiny::Class 1.004004
-      Type::Tiny::Duck 1.004004
-      Type::Tiny::Enum 1.004004
-      Type::Tiny::Intersection 1.004004
-      Type::Tiny::Role 1.004004
-      Type::Tiny::Union 1.004004
-      Type::Utils 1.004004
-      Types::Common::Numeric 1.004004
-      Types::Common::String 1.004004
-      Types::Standard 1.004004
-      Types::Standard::ArrayRef 1.004004
-      Types::Standard::CycleTuple 1.004004
-      Types::Standard::Dict 1.004004
-      Types::Standard::HashRef 1.004004
-      Types::Standard::Map 1.004004
-      Types::Standard::ScalarRef 1.004004
-      Types::Standard::StrMatch 1.004004
-      Types::Standard::Tied 1.004004
-      Types::Standard::Tuple 1.004004
-      Types::TypeTiny 1.004004
+      Devel::TypeTiny::Perl56Compat 1.010000
+      Devel::TypeTiny::Perl58Compat 1.010000
+      Error::TypeTiny 1.010000
+      Error::TypeTiny::Assertion 1.010000
+      Error::TypeTiny::Compilation 1.010000
+      Error::TypeTiny::WrongNumberOfParameters 1.010000
+      Eval::TypeTiny 1.010000
+      Reply::Plugin::TypeTiny 1.010000
+      Test::TypeTiny 1.010000
+      Type::Coercion 1.010000
+      Type::Coercion::FromMoose 1.010000
+      Type::Coercion::Union 1.010000
+      Type::Library 1.010000
+      Type::Params 1.010000
+      Type::Parser 1.010000
+      Type::Registry 1.010000
+      Type::Tiny 1.010000
+      Type::Tiny::Class 1.010000
+      Type::Tiny::ConstrainedObject 1.010000
+      Type::Tiny::Duck 1.010000
+      Type::Tiny::Enum 1.010000
+      Type::Tiny::Intersection 1.010000
+      Type::Tiny::Role 1.010000
+      Type::Tiny::Union 1.010000
+      Type::Utils 1.010000
+      Types::Common::Numeric 1.010000
+      Types::Common::String 1.010000
+      Types::Standard 1.010000
+      Types::Standard::ArrayRef 1.010000
+      Types::Standard::CycleTuple 1.010000
+      Types::Standard::Dict 1.010000
+      Types::Standard::HashRef 1.010000
+      Types::Standard::Map 1.010000
+      Types::Standard::ScalarRef 1.010000
+      Types::Standard::StrMatch 1.010000
+      Types::Standard::Tied 1.010000
+      Types::Standard::Tuple 1.010000
+      Types::TypeTiny 1.010000
     requirements:
-      Exporter::Tiny 0.040
+      Exporter::Tiny 1.000000
       ExtUtils::MakeMaker 6.17
       perl 5.006001
   Type-Tiny-XS-0.016
@@ -3989,6 +4003,19 @@ DISTRIBUTIONS
       strict 0
       utf8 0
       warnings 0
+  Unicode-UTF8-0.62
+    pathname: C/CH/CHANSEN/Unicode-UTF8-0.62.tar.gz
+    provides:
+      Unicode::UTF8 0.62
+    requirements:
+      Carp 0
+      Encode 1.9801
+      Exporter 0
+      ExtUtils::MakeMaker 6.59
+      Test::Fatal 0.006
+      Test::More 0.47
+      XSLoader 0
+      perl 5.008001
   Variable-Magic-0.62
     pathname: V/VP/VPIT/Variable-Magic-0.62.tar.gz
     provides:

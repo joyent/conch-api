@@ -98,5 +98,52 @@ subtest 'user-role access' => sub {
     }
 };
 
+subtest role_cmp => sub {
+    my $obj = Conch::DB::Result::UserBuildRole->new;
+
+    is($obj->role_cmp(undef, undef),    0, 'undef == undef');
+    is($obj->role_cmp(undef, 'ro'),     -1, 'undef < ro');
+    is($obj->role_cmp(undef, 'rw'),     -1, 'undef < rw');
+    is($obj->role_cmp(undef, 'admin'),  -1, 'undef < admin');
+
+    is($obj->role_cmp('ro', undef),     1, 'ro > undef');
+    is($obj->role_cmp('ro', 'ro'),      0, 'ro == ro');
+    is($obj->role_cmp('ro', 'rw'),      -1, 'ro < rw');
+    is($obj->role_cmp('ro', 'admin'),   -1, 'ro < admin');
+
+    is($obj->role_cmp('rw', undef),     1, 'rw > undef');
+    is($obj->role_cmp('rw', 'ro'),      1, 'rw > ro');
+    is($obj->role_cmp('rw', 'rw'),      0, 'rw == rw');
+    is($obj->role_cmp('rw', 'admin'),   -1, 'rw < admin');
+
+    is($obj->role_cmp('admin', undef),  1, 'admin > undef');
+    is($obj->role_cmp('admin', 'ro'),   1, 'admin > ro');
+    is($obj->role_cmp('admin', 'rw'),   1, 'admin > rw');
+    is($obj->role_cmp('admin', 'admin'),0, 'admin == admin');
+
+    is($obj->role_cmp(undef),    0, 'undef == undef');
+    is($obj->role_cmp('ro'),     -1, 'undef < ro');
+    is($obj->role_cmp('rw'),     -1, 'undef < rw');
+    is($obj->role_cmp('admin'),  -1, 'undef < admin');
+
+    $obj->set_column('role', 'ro');
+    is($obj->role_cmp(undef),     1, 'ro > undef');
+    is($obj->role_cmp('ro'),      0, 'ro == ro');
+    is($obj->role_cmp('rw'),      -1, 'ro < rw');
+    is($obj->role_cmp('admin'),   -1, 'ro < admin');
+
+    $obj->set_column('role', 'rw');
+    is($obj->role_cmp(undef),     1, 'rw > undef');
+    is($obj->role_cmp('ro'),      1, 'rw > ro');
+    is($obj->role_cmp('rw'),      0, 'rw == rw');
+    is($obj->role_cmp('admin'),   -1, 'rw < admin');
+
+    $obj->set_column('role', 'admin');
+    is($obj->role_cmp(undef),  1, 'admin > undef');
+    is($obj->role_cmp('ro'),   1, 'admin > ro');
+    is($obj->role_cmp('rw'),   1, 'admin > rw');
+    is($obj->role_cmp('admin'),0, 'admin == admin');
+};
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

@@ -49,8 +49,8 @@ sub routes {
     # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
     # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
     # DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
-    # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts
-    # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts
+    # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout
+    # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout
     # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment
     # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment
     # DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment
@@ -125,7 +125,7 @@ the room
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
@@ -168,11 +168,11 @@ the room (in which case data returned is restricted to those racks)
 
 =item * Requires system admin authorization
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 
-=head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts>
+=head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout>
 
 =over 4
 
@@ -182,7 +182,7 @@ the room (in which case data returned is restricted to those racks)
 
 =back
 
-=head2 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layouts>
+=head2 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout>
 
 =over 4
 
@@ -226,7 +226,7 @@ This method requires a request body.
 
 =item * Request: F<request.yaml#/definitions/RackAssignmentDeletes>
 
-=item * Response: C<204 NO CONTENT>
+=item * Response: C<204 No Content>
 
 =back
 

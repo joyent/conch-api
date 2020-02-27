@@ -54,7 +54,7 @@ Accepts the following optional query parameters:
 - `ids_only=1` only return device IDs, not full device details
 
 - User requires the read-only role
-- Response: [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices), [response.json#/definitions/DeviceIds](../json-schema/response.json#/definitions/DeviceIds) or [response.json#/definitions/DeviceSerials](../json-schema/response.json#/definitions/DeviceSerials)
+- Response: one of [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices), [response.json#/definitions/DeviceIds](../json-schema/response.json#/definitions/DeviceIds) or [response.json#/definitions/DeviceSerials](../json-schema/response.json#/definitions/DeviceSerials)
 
 ### `GET /workspace/:workspace_id_or_name/device/pxe`
 
@@ -75,7 +75,7 @@ Accepts the following optional query parameters:
 ### `DELETE /workspace/:workspace_id_or_name/rack/:rack_id_or_name`
 
 - User requires the admin role
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `GET /workspace/:workspace_id_or_name/relay`
 
@@ -102,7 +102,7 @@ an email to the user and workspace admins.
 
 - User requires the admin role
 - Request: [request.json#/definitions/WorkspaceAddUser](../json-schema/request.json#/definitions/WorkspaceAddUser)
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ### `DELETE /workspace/:workspace_id_or_name/user/:target_user_id_or_email?send_mail=<1|0>`
 
@@ -110,7 +110,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to `1`) to send
 an email to the user and workspace admins.
 
 - User requires the admin role
-- Response: `204 NO CONTENT`
+- Response: `204 No Content`
 
 ## LICENSING
 

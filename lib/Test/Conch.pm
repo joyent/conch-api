@@ -743,7 +743,8 @@ sub _request_ok ($self, @args) {
     my $dump_log;
     my $log_history = $self->app->log->history;
     if (any { $_->[1] eq 'fatal' } $log_history->@*) {
-        $self->_test('fail', 'got a fatal log message');
+        local $Test::Builder::Level = $Test::Builder::Level + 1;
+        $self->_test('fail', 'should not have gotten a fatal log message');
         $dump_log = 1;
     }
 
