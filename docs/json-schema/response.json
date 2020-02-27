@@ -2674,6 +2674,16 @@
           "format" : "date-time",
           "type" : "string"
         },
+        "last_ipaddr" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/ipaddr"
+            },
+            {
+              "type" : "null"
+            }
+          ]
+        },
         "last_used" : {
           "oneOf" : [
             {
@@ -2693,7 +2703,8 @@
         "name",
         "created",
         "last_used",
-        "expires"
+        "expires",
+        "last_ipaddr"
       ],
       "type" : "object"
     },

@@ -599,7 +599,8 @@ CREATE TABLE public.user_session_token (
     name text NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     last_used timestamp with time zone,
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    last_ipaddr inet
 );
 
 

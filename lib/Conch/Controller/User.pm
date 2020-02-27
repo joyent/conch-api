@@ -625,10 +625,10 @@ sub create_api_token ($c) {
     $c->res->headers->location($c->url_for('/user/'
         .($user->id eq $c->stash('user_id') ? 'me' : $user->id)
         .'/token/'.$input->{name}));
-    return $c->status(201, {
-        token => $jwt,
-        $token->TO_JSON->%*,
-    });
+
+    my $token_data = $token->TO_JSON;
+    delete $token_data->{last_ipaddr};
+    return $c->status(201, { token => $jwt, $token_data->%* });
 }
 
 =head2 find_api_token

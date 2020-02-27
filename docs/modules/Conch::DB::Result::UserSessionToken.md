@@ -58,6 +58,13 @@ is_nullable: 0
 size: 16
 ```
 
+### last\_ipaddr
+
+```
+data_type: 'inet'
+is_nullable: 1
+```
+
 ## PRIMARY KEY
 
 - ["id"](#id)

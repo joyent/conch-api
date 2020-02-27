@@ -102,7 +102,7 @@ sub _check_authentication ($c) {
             return 0;
         }
 
-        $session_token->update({ last_used => \'now()' });
+        $session_token->update({ last_used => \'now()', last_ipaddr => $c->req->headers->header('X-Real-IP') });
         $c->stash('token_id', $jwt_claims->{token_id});
     }
 
