@@ -123,6 +123,9 @@ Helper method for setting the response status code and json content.
         $payload //= { error => 'Entity Not Found' } if $code == 404;
         $payload //= { error => 'Unimplemented' } if $code == 501;
 
+        # https://tools.ietf.org/html/rfc7235#section-4.1
+        $c->res->headers->www_authenticate('Basic') if $code == 401 or $code == 403;
+
         $c->res->code($code);
 
         if (not $payload) {
