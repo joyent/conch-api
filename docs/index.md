@@ -75,6 +75,9 @@ Available top-level routes are:
 * [Conch::Route::HardwareVendor](modules/Conch::Route::HardwareVendor)
   * `/hardware_vendor`
 
+* [Conch::Route::JSONSchema](modules/Conch::Route::JSONSchema)
+  * `/json_schema`
+
 * [Conch::Route::RackLayout](modules/Conch::Route::RackLayout)
   * `/layout`
 
@@ -92,9 +95,6 @@ Available top-level routes are:
 
 * [Conch::Route::DatacenterRoom](modules/Conch::Route::DatacenterRoom)
   * `/room`
-
-* [Conch::Route::Schema](modules/Conch::Route::Schema)
-  * `/schema`
 
 * [Conch::Route::User](modules/Conch::Route::User)
   * `/user`

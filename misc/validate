@@ -9,7 +9,7 @@ use Mojo::File 'path';
 use Mojo::JSON 'decode_json';
 use Pod::Usage;
 
-my $schema_url = 'https://conch.joyent.us/schema/request';
+my $schema_url = 'https://conch.joyent.us/json_schema/request';
 my $name       = 'DeviceReport';
 
 GetOptions(
@@ -60,7 +60,7 @@ validate - validate a device report (or other json document) against conch json 
 
 =item <-u URL>
 
-A URL for the JSON Schema to validate against. Defaults to L<https://conch.joyent.us/schema/request/>
+A URL for the JSON Schema to validate against. Defaults to L<https://conch.joyent.us/json_schema/request/>
 
 =item <-s SCHEMA>
 

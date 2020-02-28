@@ -12,7 +12,7 @@ use JSON::Validator;
 use Dir::Self;
 use lib __DIR__ =~ s{/misc}{}r . '/lib';
 
-use Conch::Controller::Schema;
+use Conch::Controller::JSONSchema;
 
 my $schema_file = __DIR__.'/../json-schema/request.yaml';
 
@@ -41,7 +41,7 @@ my $validator = JSON::Validator->new;
 $validator->load_and_validate_schema($schema_file, { schema => 'http://json-schema.org/draft-07/schema#' });
 
 for my $schema_name (sort keys $validator->schema->data->{definitions}->%*) {
-    my $schema = Conch::Controller::Schema::_extract_schema_definition($validator, $schema_name);
+    my $schema = Conch::Controller::JSONSchema::_extract_schema_definition($validator, $schema_name);
     output_json_schema($schema_name, $schema);
 }
 

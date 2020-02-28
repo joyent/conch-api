@@ -1,28 +1,28 @@
-# Conch::Route::Schema
+# Conch::Route::JSONSchema
 
 ## SOURCE
 
-[https://github.com/joyent/conch-api/blob/master/lib/Conch/Route/Schema.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Route/Schema.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/Route/JSONSchema.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Route/JSONSchema.pm)
 
 ## METHODS
 
-### routes
+### unsecured\_routes
 
-Sets up the routes for /schema.
+Sets up the routes for /json\_schema that do not require authentication.
 
 ## ROUTE ENDPOINTS
 
-### `GET /schema/query_params/:schema_name`
+### `GET /json_schema/query_params/:json_schema_name`
 
-### `GET /schema/request/:schema_name`
+### `GET /json_schema/request/:json_schema_name`
 
-### `GET /schema/response/:schema_name`
+### `GET /json_schema/response/:json_schema_name`
 
 Returns the JSON Schema document specified by type and name, used for validating endpoint
 requests and responses.
 
 - Does not require authentication.
-- Controller/Action: ["get" in Conch::Controller::Schema](../modules/Conch%3A%3AController%3A%3ASchema#get)
+- Controller/Action: ["get" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get)
 - Response: a JSON Schema ([http://json-schema.org/draft-07/schema#](http://json-schema.org/draft-07/schema#))
 
 ## LICENSING

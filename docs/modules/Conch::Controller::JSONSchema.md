@@ -1,8 +1,8 @@
-# Conch::Controller::Schema
+# Conch::Controller::JSONSchema
 
 ## SOURCE
 
-[https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/Schema.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/Schema.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/JSONSchema.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/JSONSchema.pm)
 
 ## METHODS
 

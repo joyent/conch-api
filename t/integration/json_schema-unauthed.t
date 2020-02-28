@@ -9,7 +9,7 @@ use Mojo::JSON 'decode_json';
 use Mojo::File 'path';
 use Test::Deep;
 use Test::Fatal;
-use Conch::Controller::Schema;
+use Conch::Controller::JSONSchema;
 
 my $_validator = JSON::Validator->new;
 $_validator->schema('http://json-schema.org/draft-07/schema#');
@@ -245,7 +245,7 @@ subtest 'extraction with $refs' => sub {
         my $title = $expected_output->{title};
         my $got;
         my $exception = exception {
-            $got = Conch::Controller::Schema::_extract_schema_definition($jv, $title);
+            $got = Conch::Controller::JSONSchema::_extract_schema_definition($jv, $title);
         };
 
         if (my $message = $expected_output->{exception}) {
@@ -277,26 +277,36 @@ my $t = Test::Conch->new(pg => undef);
 my $json_spec_schema = $_validator->schema->data;
 my $base_uri = $t->ua->server->url; # used as the base uri for all requests
 
+$t->get_ok('/schema/request/foo')
+    ->status_is(308)
+    ->location_is('/json_schema/request/Foo')
+    ->header_is('X-Deprecated', 'this endpoint was deprecated and removed in api v3.1');
+
 $t->get_ok('/schema/REQUEST/hello')
     ->status_is(404)
     ->json_is({ error => 'Route Not Found' })
     ->log_warn_is('no endpoint found for: GET /schema/REQUEST/hello');
 
-$t->get_ok('/schema/request/Hello')
+$t->get_ok('/json_schema/REQUEST/hello')
+    ->status_is(404)
+    ->json_is({ error => 'Route Not Found' })
+    ->log_warn_is('no endpoint found for: GET /json_schema/REQUEST/hello');
+
+$t->get_ok('/json_schema/request/Hello')
     ->status_is(404)
     ->log_warn_is('Could not find request schema Hello');
 
-$t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2040 00:00:00 GMT' })
+$t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2040 00:00:00 GMT' })
     ->status_is(304)
     ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'));
 
-$t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006 00:00:00 GMT' })
+$t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006 00:00:00 GMT' })
     ->status_is(200)
     ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => $base_uri.'schema/response/Ping',
+        '$id' => $base_uri.'json_schema/response/Ping',
         title => 'Ping',
         type => 'object',
         additionalProperties => bool(0),
@@ -306,27 +316,38 @@ $t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006
 
 $t->get_ok('/schema/response/login_token')
     ->status_is(308)
-    ->location_is('/schema/response/LoginToken');
+    ->header_is('X-Deprecated', 'this endpoint was deprecated and removed in api v3.1')
+    ->location_is('/json_schema/response/LoginToken');
 
-$t->get_ok('/schema/response/LoginToken')
+$t->get_ok('/json_schema/response/login_token')
+    ->status_is(404);
+
+$t->ua->max_redirects(10);
+$t->get_ok('/schema/response/login_token')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
-    ->json_cmp_deeply({
+    ->json_cmp_deeply(my $response_login_token = {
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => $base_uri.'schema/response/LoginToken',
+        '$id' => $base_uri.'json_schema/response/LoginToken',
         title => 'LoginToken',
         type => 'object',
         additionalProperties => bool(0),
         required => ['jwt_token'],
         properties => { jwt_token => { type => 'string', pattern => '[^.]+\.[^.]+\.[^.]+' } },
     });
+$t->ua->max_redirects(0);
 
-$t->get_ok('/schema/request/Login')
+$t->get_ok('/json_schema/response/LoginToken')
+    ->status_is(200)
+    ->json_schema_is($json_spec_schema)
+    ->json_cmp_deeply($response_login_token);
+
+$t->get_ok('/json_schema/request/Login')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => $base_uri.'schema/request/Login',
+        '$id' => $base_uri.'json_schema/request/Login',
         title => 'Login',
         type => 'object',
         additionalProperties => bool(0),
@@ -346,12 +367,12 @@ $t->get_ok('/schema/request/Login')
         },
     });
 
-$t->get_ok('/schema/query_params/ResetUserPassword')
+$t->get_ok('/json_schema/query_params/ResetUserPassword')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => $base_uri.'schema/query_params/ResetUserPassword',
+        '$id' => $base_uri.'json_schema/query_params/ResetUserPassword',
         title => 'ResetUserPassword',
         definitions => {
             boolean_integer_default_true => { type => 'integer', minimum => 0, maximum => 1, default => 1 },
@@ -364,11 +385,11 @@ $t->get_ok('/schema/query_params/ResetUserPassword')
         },
     });
 
-$t->get_ok('/schema/request/HardwareProductCreate')
+$t->get_ok('/json_schema/request/HardwareProductCreate')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply('', superhashof({
-        '$id' => $base_uri.'schema/request/HardwareProductCreate',
+        '$id' => $base_uri.'json_schema/request/HardwareProductCreate',
         definitions => {
             map +($_ => superhashof({})), qw(
                 uuid
@@ -381,7 +402,7 @@ $t->get_ok('/schema/request/HardwareProductCreate')
         },
     }), 'nested definitions are found and included');
 
-$t->get_ok('/schema/request/DeviceReport')
+$t->get_ok('/json_schema/request/DeviceReport')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');

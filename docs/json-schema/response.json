@@ -1,5 +1,5 @@
 {
-  "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/schema/response/$schema_name' endpoints, or within conch itself, json-schema/response.yaml.",
+  "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/response/$schema_name' endpoints, or within conch itself, json-schema/response.yaml.",
   "$schema" : "http://json-schema.org/draft-07/schema#",
   "definitions" : {
     "Build" : {
@@ -2084,7 +2084,7 @@
               "type" : "string"
             },
             "schema" : {
-              "pattern" : "/schema/query_params/[^/]+$"
+              "pattern" : "/json_schema/query_params/[^/]+$"
             }
           },
           "required" : [
@@ -2484,7 +2484,7 @@
               "type" : "string"
             },
             "schema" : {
-              "pattern" : "/schema/request/[^/]+$"
+              "pattern" : "/json_schema/request/[^/]+$"
             }
           },
           "required" : [
@@ -2857,7 +2857,7 @@
         },
         "schema" : {
           "format" : "uri-reference",
-          "pattern" : "/schema/[^/]+/[^/]+$",
+          "pattern" : "/json_schema/[^/]+/[^/]+$",
           "type" : "string"
         }
       },

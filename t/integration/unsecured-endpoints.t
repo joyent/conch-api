@@ -46,5 +46,10 @@ $t->post_ok('/relay/TEST/register', json => { a => 'b' })->status_is(401);
 $t->get_ok('/hardware_product')->status_is(401);
 $t->get_ok('/hardware_product/'.create_uuid_str())->status_is(401);
 
+$t->get_ok('/schema/boop/blap')->status_is(404);
+$t->get_ok('/schema/query_params/blap')
+    ->status_is(308)
+    ->location_is('/json_schema/query_params/Blap');
+
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

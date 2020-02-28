@@ -1,13 +1,12 @@
-package Conch::Controller::Schema;
+package Conch::Controller::JSONSchema;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-use Mojo::Util 'camelize';
 
 =pod
 
 =head1 NAME
 
-Conch::Controller::Schema
+Conch::Controller::JSONSchema
 
 =head1 METHODS
 
@@ -24,8 +23,8 @@ sub get ($c) {
     # to see what files they came from.
     return $c->status(304) if $c->is_fresh(last_modified => $c->startup_time->epoch);
 
-    my $type = $c->stash('schema_type');
-    my $name = $c->stash('name');
+    my $type = $c->stash('json_schema_type');
+    my $name = $c->stash('json_schema_name');
 
     my $validator = $type eq 'response' ? $c->get_response_validator
         : $type eq 'request' ? $c->get_request_validator
@@ -35,16 +34,12 @@ sub get ($c) {
 
     my $schema = _extract_schema_definition($validator, $name);
     if (not $schema) {
-        my $camelized = camelize($name);
-        return $c->status(308, $c->req->url->path_query =~ s/\b$name\b/$camelized/r)
-            if $camelized ne $name and $validator->schema->get('/definitions/'.$camelized);
-
         $c->log->warn('Could not find '.$type.' schema '.$name);
         return $c->status(404);
     }
 
     # the canonical location of this document -- which should be the same URL used to get here
-    $schema->{'$id'} = $c->url_for('/schema/'.$type.'/'.$name)->to_abs;
+    $schema->{'$id'} = $c->url_for('/json_schema/'.$type.'/'.$name)->to_abs;
 
     return $c->status(200, $schema);
 }
