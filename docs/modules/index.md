@@ -107,7 +107,7 @@
 * [Conch::Plugin::DeprecatedAction](../modules/Conch::Plugin::DeprecatedAction)
 * [Conch::Plugin::Features](../modules/Conch::Plugin::Features)
 * [Conch::Plugin::GitVersion](../modules/Conch::Plugin::GitVersion)
-* [Conch::Plugin::JsonValidator](../modules/Conch::Plugin::JsonValidator)
+* [Conch::Plugin::JSONValidator](../modules/Conch::Plugin::JSONValidator)
 * [Conch::Plugin::Logging](../modules/Conch::Plugin::Logging)
 * [Conch::Plugin::Mail](../modules/Conch::Plugin::Mail)
 * [Conch::Plugin::Rollbar](../modules/Conch::Plugin::Rollbar)

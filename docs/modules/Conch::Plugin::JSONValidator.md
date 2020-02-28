@@ -1,13 +1,13 @@
-# Conch::Plugin::JsonValidator
+# Conch::Plugin::JSONValidator
 
 ## SOURCE
 
-[https://github.com/joyent/conch-api/blob/master/lib/Conch/Plugin/JsonValidator.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Plugin/JsonValidator.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/Plugin/JSONValidator.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Plugin/JSONValidator.pm)
 
 ## SYNOPSIS
 
 ```perl
-$app->plugin('Conch::Plugin::JsonValidator');
+$app->plugin('Conch::Plugin::JSONValidator');
 
 [ ... in a controller ]
 

@@ -1,4 +1,4 @@
-package Conch::Plugin::JsonValidator;
+package Conch::Plugin::JSONValidator;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
@@ -9,11 +9,11 @@ use JSON::Validator;
 
 =head1 NAME
 
-Conch::Plugin::JsonValidator
+Conch::Plugin::JSONValidator
 
 =head1 SYNOPSIS
 
-    $app->plugin('Conch::Plugin::JsonValidator');
+    $app->plugin('Conch::Plugin::JSONValidator');
 
     [ ... in a controller ]
 
