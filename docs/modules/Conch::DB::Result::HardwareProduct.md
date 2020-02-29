@@ -325,6 +325,12 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
+### hardware\_product\_json\_schemas
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::HardwareProductJSONSchema](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProductJSONSchema)
+
 ### hardware\_vendor
 
 Type: belongs\_to

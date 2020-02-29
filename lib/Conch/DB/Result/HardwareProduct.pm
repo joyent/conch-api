@@ -380,6 +380,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 hardware_product_json_schemas
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::HardwareProductJSONSchema>
+
+=cut
+
+__PACKAGE__->has_many(
+  "hardware_product_json_schemas",
+  "Conch::DB::Result::HardwareProductJSONSchema",
+  { "foreign.hardware_product_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 hardware_vendor
 
 Type: belongs_to
@@ -442,7 +457,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4OF0mdKKix09O1cevda2Bg
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5AVC0Uc3etwanzij1PM+fQ
 
 use experimental 'signatures';
 use Mojo::JSON 'from_json';

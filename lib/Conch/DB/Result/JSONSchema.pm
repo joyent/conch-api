@@ -155,6 +155,21 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 hardware_product_json_schemas
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::HardwareProductJSONSchema>
+
+=cut
+
+__PACKAGE__->has_many(
+  "hardware_product_json_schemas",
+  "Conch::DB::Result::HardwareProductJSONSchema",
+  { "foreign.json_schema_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 validation_results
 
 Type: has_many
@@ -172,7 +187,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uLq9Y9mhviTZq75gCWVoUw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FcSHIe/8mva6PqEQecnYXw
 
 __PACKAGE__->add_columns(
   '+version' => { retrieve_on_insert => 1 },

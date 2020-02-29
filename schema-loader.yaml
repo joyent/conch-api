@@ -25,6 +25,7 @@ loader_options:
       builds_2s: completed_builds
 
   moniker_map:
+    hardware_product_json_schema: HardwareProductJSONSchema
     json_schema: JSONSchema
 
   naming: v8 # the latest and greatest (v7 is still the default)

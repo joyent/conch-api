@@ -419,6 +419,20 @@ CREATE TABLE public.hardware_product (
 ALTER TABLE public.hardware_product OWNER TO conch;
 
 --
+-- Name: hardware_product_json_schema; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.hardware_product_json_schema (
+    hardware_product_id uuid NOT NULL,
+    json_schema_id uuid NOT NULL,
+    added timestamp with time zone DEFAULT now() NOT NULL,
+    added_user_id uuid NOT NULL
+);
+
+
+ALTER TABLE public.hardware_product_json_schema OWNER TO conch;
+
+--
 -- Name: hardware_vendor; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -920,6 +934,14 @@ ALTER TABLE ONLY public.device_setting
 
 ALTER TABLE ONLY public.device
     ADD CONSTRAINT device_system_uuid_key UNIQUE (system_uuid);
+
+
+--
+-- Name: hardware_product_json_schema hardware_product_json_schema_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.hardware_product_json_schema
+    ADD CONSTRAINT hardware_product_json_schema_pkey PRIMARY KEY (hardware_product_id, json_schema_id);
 
 
 --
@@ -1677,6 +1699,30 @@ ALTER TABLE ONLY public.device_setting
 
 
 --
+-- Name: hardware_product_json_schema hardware_product_json_schema_added_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.hardware_product_json_schema
+    ADD CONSTRAINT hardware_product_json_schema_added_user_id_fkey FOREIGN KEY (added_user_id) REFERENCES public.user_account(id);
+
+
+--
+-- Name: hardware_product_json_schema hardware_product_json_schema_hardware_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.hardware_product_json_schema
+    ADD CONSTRAINT hardware_product_json_schema_hardware_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id);
+
+
+--
+-- Name: hardware_product_json_schema hardware_product_json_schema_json_schema_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.hardware_product_json_schema
+    ADD CONSTRAINT hardware_product_json_schema_json_schema_id_fkey FOREIGN KEY (json_schema_id) REFERENCES public.json_schema(id);
+
+
+--
 -- Name: hardware_product hardware_product_legacy_validation_plan_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1998,6 +2044,13 @@ GRANT SELECT ON TABLE public.device_setting TO conch_read_only;
 --
 
 GRANT SELECT ON TABLE public.hardware_product TO conch_read_only;
+
+
+--
+-- Name: TABLE hardware_product_json_schema; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.hardware_product_json_schema TO conch_read_only;
 
 
 --
