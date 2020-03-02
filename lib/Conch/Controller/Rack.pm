@@ -311,7 +311,7 @@ Delete a rack.
 
 sub delete ($c) {
     if ($c->stash('rack_rs')->related_resultset('rack_layouts')->exists) {
-        $c->log->debug('Cannot delete rack: in use by one or more rack_layouts');
+        $c->log->debug('Cannot delete rack: in use by one or more rack layouts');
         return $c->status(409, { error => 'cannot delete a rack when a rack_layout is referencing it' });
     }
 

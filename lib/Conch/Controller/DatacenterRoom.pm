@@ -144,7 +144,7 @@ Permanently delete a datacenter room.
 
 sub delete ($c) {
     if ($c->stash('datacenter_room_rs')->related_resultset('racks')->exists) {
-        $c->log->debug('Cannot delete datacenter_room: in use by one or more racks');
+        $c->log->debug('Cannot delete datacenter room: in use by one or more racks');
         return $c->status(409, { error => 'cannot delete a datacenter_room when a rack is referencing it' });
     }
 

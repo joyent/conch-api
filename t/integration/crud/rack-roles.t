@@ -110,7 +110,7 @@ $t->delete_ok("/rack_role/$idr")
 
 $t->get_ok("/rack_role/$idr")
     ->status_is(404)
-    ->log_debug_is('Could not find rack_role '.$idr);
+    ->log_debug_is('Could not find rack role '.$idr);
 
 $t->get_ok('/rack_role')
     ->status_is(200)

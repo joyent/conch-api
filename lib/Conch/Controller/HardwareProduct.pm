@@ -45,11 +45,11 @@ sub find_hardware_product ($c) {
 
     # identifier can be id, sku, name, alias
     if (is_uuid($identifier)) {
-        $c->log->debug('Looking up a hardware_product by id '.$identifier);
+        $c->log->debug('Looking up a hardware product by id '.$identifier);
         $hardware_product_rs = $hardware_product_rs->search({ 'hardware_product.id' => $identifier });
     }
     else {
-        $c->log->debug('Looking up a hardware_product by sku,name,alias '.$identifier);
+        $c->log->debug('Looking up a hardware product by sku,name,alias '.$identifier);
         $hardware_product_rs = $hardware_product_rs->search({
             -or => [ map +{ 'hardware_product.'.$_ => $identifier }, qw(sku name alias) ],
         });

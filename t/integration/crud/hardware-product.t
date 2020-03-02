@@ -31,7 +31,7 @@ my $validation_plan_id = $products->[0]{validation_plan_id};
 
 $t->get_ok('/hardware_product/'.create_uuid_str())
     ->status_is(404)
-    ->log_debug_like(qr/^Looking up a hardware_product by id ${\Conch::UUID::UUID_FORMAT}$/);
+    ->log_debug_like(qr/^Looking up a hardware product by id ${\Conch::UUID::UUID_FORMAT}$/);
 
 $t->get_ok("/hardware_product/$hw_id")
     ->status_is(200)
@@ -178,7 +178,7 @@ $t->get_ok($t->tx->res->headers->location)
 
 $t->get_ok('/hardware_product/foo')
     ->status_is(404)
-    ->log_debug_is('Looking up a hardware_product by sku,name,alias foo');
+    ->log_debug_is('Looking up a hardware product by sku,name,alias foo');
 
 $t->get_ok($_)
     ->status_is(200)
