@@ -66,6 +66,8 @@ Error responses will use:
 
 ### `GET /workspace/:workspace/device-totals.circ`
 
+All `/workspace` routes are deprecated and will be removed in Conch API v3.1.
+
 - Does not require authentication.
 - Response: [response.json#/definitions/DeviceTotals](../json-schema/response.json#/definitions/DeviceTotals)
 - Response (Circonus): [response.json#/definitions/DeviceTotalsCirconus](../json-schema/response.json#/definitions/DeviceTotalsCirconus)
@@ -74,6 +76,10 @@ Error responses will use:
 
 - Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
 - Response: [response.json#/definitions/LoginToken](../json-schema/response.json#/definitions/LoginToken)
+
+### `GET /me`
+
+- Response: `204 No Content`
 
 ### `* /dc`, `* /room`, `* /rack_role`, `* /rack`, `* /layout`
 
@@ -117,7 +123,9 @@ See ["routes" in Conch::Route::Validation](../modules/Conch%3A%3ARoute%3A%3AVali
 
 ### `* /workspace`
 
-See ["routes" in Conch::Route::Workspace](../modules/Conch%3A%3ARoute%3A%3AWorkspace#routes)
+See ["routes" in Conch::Route::Workspace](../modules/Conch%3A%3ARoute%3A%3AWorkspace#routes).
+
+All `/workspace` routes are deprecated and will be removed in Conch API v3.1.
 
 ## LICENSING
 

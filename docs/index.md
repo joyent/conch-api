@@ -46,12 +46,12 @@ Error responses will use:
 Available routes are:
 
 * [Conch::Route](modules/Conch::Route)
-  * `/ping`
-  * `/version`
-  * `/login`
-  * `/logout`
-  * `/refresh_token`
-  * `/me`
+  * [`/ping`](modules/Conch::Route#get-ping)
+  * [`/version`](modules/Conch::Route#get-version)
+  * [`/login`](modules/Conch::Route#post-login)
+  * [`/logout`](modules/Conch::Route#post-logout)
+  * [`/refresh_token`](modules/Conch::Route#post-refresh_token)
+  * [`/me`](modules/Conch::Route#get-me)
 
 * [Conch::Route::Datacenter](modules/Conch::Route::Datacenter)
   * `/dc`

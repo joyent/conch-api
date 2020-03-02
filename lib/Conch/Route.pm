@@ -236,6 +236,8 @@ Error responses will use:
 
 =head2 C<GET /workspace/:workspace/device-totals.circ>
 
+All C</workspace> routes are deprecated and will be removed in Conch API v3.1.
+
 =over 4
 
 =item * Does not require authentication.
@@ -253,6 +255,14 @@ Error responses will use:
 =item * Request: F<request.yaml#/definitions/Null>
 
 =item * Response: F<response.yaml#/definitions/LoginToken>
+
+=back
+
+=head2 C<GET /me>
+
+=over 4
+
+=item * Response: C<204 No Content>
 
 =back
 
@@ -298,7 +308,9 @@ See L<Conch::Route::Validation/routes>
 
 =head2 C<* /workspace>
 
-See L<Conch::Route::Workspace/routes>
+See L<Conch::Route::Workspace/routes>.
+
+All C</workspace> routes are deprecated and will be removed in Conch API v3.1.
 
 =head1 LICENSING
 

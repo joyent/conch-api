@@ -31,12 +31,11 @@ sub get_all ($c) {
 
 =head2 find_hardware_product
 
-Chainable action that uses the C<hardware_product_id_or_sku> or C<hardware_product_key> and
-C<hardware_product_value> values provided in the stash (usually via the request URL) to look up
-a hardware_product, and stashes the query to get to it in C<hardware_product_rs>.
+Chainable action that uses the C<hardware_product_id_or_other> value provided in the stash
+(usually via the request URL) to look up a hardware_product, and stashes the query to get to it
+in C<hardware_product_rs>.
 
-Supported keys are: C<sku>, C<name>, and C<alias>. This feature is deprecated and will be
-removed in a subsequent release.
+Supported identifiers in path are: C<id>, C<sku>, C<name>, and C<alias>.
 
 =cut
 
