@@ -59,7 +59,8 @@ Chainable resultset that adds the C<json_schema> C<description> to the results.
 =cut
 
 sub with_description ($self) {
-  $self->add_columns({ description => \q{body->>'description'} });
+  my $me = $self->current_source_alias;
+  $self->search(undef, { '+select' => { '' => \"$me.body->>'description'", -as => 'description' } });
 }
 
 =head2 with_created_user
@@ -101,7 +102,9 @@ C</json_schema/type/name/latest>).
 
 The query will be closed off as a subselect (that additional chaining will SELECT FROM),
 so it makes a difference whether you add things to the resultset before or after calling this
-method.
+method. Note that if the initial resultset filters out some rows from the same type-name series,
+the result will not be accurate, as the full series must be visible in order for the partition
+query to work!
 
 =cut
 

@@ -53,6 +53,14 @@ Uses the URI query parameter `path` as a json pointer to determine the path with
 After the delete operation, the `specification` property must validate against
 the schema at `/json_schema/hardware_product/specification/latest`.
 
+### add\_json\_schema
+
+### get\_json\_schema\_metadata
+
+### remove\_json\_schema
+
+### remove\_all\_json\_schemas
+
 ## LICENSING
 
 Copyright Joyent, Inc.

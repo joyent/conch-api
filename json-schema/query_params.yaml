@@ -224,13 +224,16 @@ $defs:
       path:
         type: string
         format: json-pointer
-  ActiveOnly:
+  JSONSchemaDescriptions:
     type: object
     additionalProperties: false
     properties:
       active_only:
         $ref: '#/$defs/boolean_string'
+      with_hardware_products:
+        $ref: '#/$defs/boolean_string'
     default:
       active_only: '0'
+      with_hardware_products: '0'
 
 # vim: set sts=2 sw=2 et :

@@ -55,6 +55,7 @@ sub find_hardware_product ($c) {
     # identifier can be id, sku, name, alias
     if (is_uuid($identifier)) {
         $c->log->debug('Looking up a hardware product by id '.$identifier);
+        $c->stash('hardware_product_id', $identifier);
         $hardware_product_rs = $hardware_product_rs->search({ 'hardware_product.id' => $identifier });
     }
     else {
@@ -285,6 +286,95 @@ sub delete_specification ($c) {
   return $rendered ? () : $c->status(400) if not $result;
 
   $c->res_location('/hardware_product/'.$hardware_product_id);
+  $c->status(204);
+}
+
+=head2 add_json_schema
+
+=cut
+
+sub add_json_schema ($c) {
+  my $hardware_product_id = $c->stash('hardware_product_id') // $c->stash('hardware_product_rs')->get_column('id')->single;
+  my $json_schema_id = $c->stash('json_schema_id');
+
+  return $c->status(204) if $c->db_hardware_product_json_schemas->search({
+    hardware_product_id => $hardware_product_id,
+    json_schema_id => $json_schema_id,
+  })->exists;
+
+  $c->db_hardware_product_json_schemas->create({
+    hardware_product_id => $hardware_product_id,
+    json_schema_id => $json_schema_id,
+    added_user_id => $c->stash('user_id'),
+  });
+
+  $c->res->headers->location('/hardware_product/'.$hardware_product_id.'/json_schema');
+  return $c->status(201);
+}
+
+=head2 get_json_schema_metadata
+
+=cut
+
+sub get_json_schema_metadata ($c) {
+  my $hardware_product_id = $c->stash('hardware_product_id') //
+    { '=' => $c->stash('hardware_product_rs')->get_column('id')->as_query };
+
+  # we must select all json_schemas first in order for the 'latest' flag to be set properly
+  my $rs = $c->db_json_schemas
+    ->with_description
+    ->remove_columns(['body'])
+    ->with_latest_flag  # closes off the resultset as a subquery!
+    ->search(
+      { hardware_product_id => $hardware_product_id },
+      { join => { hardware_product_json_schemas => 'added_user' } },
+    )
+    ->add_columns({
+      (map +('added_user_'.$_ => 'added_user.'.$_), qw(id name email)),
+      added => 'hardware_product_json_schemas.added',
+    })
+    ->with_created_user
+    ->add_columns('description')
+    ->remove_columns([ qw(body deactivated) ])
+    ->order_by([map 'json_schema.'.$_, qw(type name version)]);
+
+  $c->status(200, [ $rs->all ]);
+}
+
+=head2 remove_json_schema
+
+=cut
+
+sub remove_json_schema ($c) {
+  my $json_schema_id = $c->stash('json_schema_id');
+  my $rows_removed = $c->stash('hardware_product_rs')
+    ->search_related('hardware_product_json_schemas', { json_schema_id => $json_schema_id })
+    ->delete;
+
+  if (not 0+$rows_removed) {
+    $c->log->debug('JSON Schema '.$json_schema_id.' is not used by hardware product '.$c->stash('hardware_product_id_or_other'));
+    return $c->status(404);
+  }
+
+  $c->log->debug('Removed JSON Schema '.$json_schema_id.' from hardware product '.$c->stash('hardware_product_id_or_other'));
+  $c->status(204);
+}
+
+=head2 remove_all_json_schemas
+
+=cut
+
+sub remove_all_json_schemas ($c) {
+  my $rows_removed = $c->stash('hardware_product_rs')
+    ->related_resultset('hardware_product_json_schemas')
+    ->delete;
+
+  if (not 0+$rows_removed) {
+    $c->log->debug('No JSON Schemas are used by hardware product '.$c->stash('hardware_product_id_or_other'));
+    return $c->status(404);
+  }
+
+  $c->log->debug('Removed all JSON Schemas from hardware product '.$c->stash('hardware_product_id_or_other'));
   $c->status(204);
 }
 

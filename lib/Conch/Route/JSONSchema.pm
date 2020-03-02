@@ -78,11 +78,11 @@ sub secured_routes ($class, $schema) {
 
   # GET /json_schema/:json_schema_type
   $with_schema_type->get('/')
-    ->to('#get_metadata', query_params_schema => 'ActiveOnly', response_schema => 'JSONSchemaDescriptions');
+    ->to('#get_metadata', query_params_schema => 'JSONSchemaDescriptions', response_schema => 'JSONSchemaDescriptions');
 
   # GET /json_schema/:json_schema_type/:json_schema_name
   $with_schema_type_name->get('/')
-    ->to('#get_metadata', query_params_schema => 'ActiveOnly', response_schema => 'JSONSchemaDescriptions');
+    ->to('#get_metadata', query_params_schema => 'JSONSchemaDescriptions', response_schema => 'JSONSchemaDescriptions');
 }
 
 1;
@@ -181,6 +181,9 @@ Optionally accepts the following query parameter:
 
 =item * C<active_only> (default C<0>): set to C<1> to only query for JSON Schemas that have not been
 deactivated.
+
+=item * C<with_hardware_products> (default C<0>): set to C<1> to include a list of hardware products
+that reference each JSON Schema
 
 =back
 

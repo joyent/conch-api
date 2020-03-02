@@ -99,6 +99,44 @@ the schema available from `GET /json_schema/hardware_product/specification/lates
 - Controller/Action: ["delete\_specification" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#delete_specification)
 - Response: `204 No Content`
 
+### `GET /hardware/:hardware_product_id_or_other/json_schema`
+
+Retrieves a summary of the JSON Schemas configured to be used as validations for the indicated
+hardware. Note the timestamp and user information are for when the JSON Schema was added for
+the hardware, not when the schema itself was created.
+
+- Controller/Action: ["get\_json\_schema\_metadata" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#get_json_schema_metadata)
+- Response: [response.json#/$defs/HardwareJSONSchemaDescriptions](../json-schema/response.json#/$defs/HardwareJSONSchemaDescriptions)
+
+### `POST /hardware/:hardware_product_id_or_other/json_schema/:json_schema_id`
+
+### `POST /hardware/:hardware_product_id_or_other/json_schema/:json_schema_type/:json_schema_name/:json_schema_version`
+
+Adds the indicated JSON Schema to the list of validations for the indicated hardware.
+
+- Requires system admin authorization
+- Controller/Action: ["add\_json\_schema" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#add_json_schema)
+- Request: [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null)
+- Response: `201 Created`
+
+### `DELETE /hardware/:hardware_product_id_or_other/json_schema/:json_schema_id`
+
+### `DELETE /hardware/:hardware_product_id_or_other/json_schema/:json_schema_type/:json_schema_name/:json_schema_version`
+
+Removes the indicated JSON Schema from the list of validations for the indicated hardware.
+
+- Requires system admin authorization
+- Controller/Action: ["remove\_json\_schema" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#remove_json_schema)
+- Response: `204 No Content`
+
+### `DELETE /hardware/:hardware_product_id_or_other/json_schema`
+
+Removes **all** the JSON Schemas from the list of validations for the indicated hardware.
+
+- Requires system admin authorization
+- Controller/Action: ["remove\_all\_json\_schemas" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#remove_all_json_schemas)
+- Response: `204 No Content`
+
 ## LICENSING
 
 Copyright Joyent, Inc.

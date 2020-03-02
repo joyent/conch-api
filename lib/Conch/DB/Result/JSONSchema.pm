@@ -222,6 +222,23 @@ sub TO_JSON ($self) {
     $data->{created_user} = +{ map +($_ => $user_cache->[0]->$_), qw(id name email) };
   }
 
+  # for GET /hardware_product/*/json_schema
+  if ($self->has_column_loaded('added_user_id')) {
+    $data->{added_user} = +{ map +($_ => $self->get_column('added_user_'.$_)), qw(id name email) };
+    $data->{added} = Conch::Time->new($self->get_column('added'));
+    delete $data->{deactivated};
+  }
+
+  # for GET /json_schema/:type...?with_hardware_products=1
+  if (my $hwjs_cache = $self->related_resultset('hardware_product_json_schemas')->get_cache) {
+    $data->{hardware_products} = [
+      map {
+        my $hw_cache = $_->related_resultset('hardware_product')->get_cache->[0];
+        +{ map +($_ => $hw_cache->$_), qw(id name alias generation_name sku created updated) }
+      } $hwjs_cache->@*
+    ];
+  }
+
   return $data;
 }
 

@@ -1966,6 +1966,9 @@ $defs:
           title: Deactivated
           type: [ 'null', string ]
           format: date-time
+        hardware_products:
+          title: Referenced by Hardware Products
+          $ref: '#/$defs/HardwareProducts'
       if:
         properties:
           deactivated:
@@ -1974,5 +1977,86 @@ $defs:
         properties:
           latest:
             const: false
+  HardwareJSONSchemaDescriptions:
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - $id
+        - description
+        - type
+        - name
+        - version
+        - latest
+        - created
+        - created_user
+        - added
+        - added_user
+      properties:
+        id:
+          title: ID
+          readOnly: true
+          $ref: common.yaml#/$defs/uuid
+        $id:
+          title: Canonical URI Identifier
+          readOnly: true
+          type: string
+          format: uri-reference
+          pattern: '^/json_schema/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/[0-9]+$'
+        description:
+          title: Description
+          type: string
+        type:
+          title: Type
+          readOnly: true
+          $ref: common.yaml#/$defs/json_pointer_token
+        name:
+          title: Name
+          readOnly: true
+          $ref: common.yaml#/$defs/json_pointer_token
+        version:
+          title: Version
+          readOnly: true
+          $ref: common.yaml#/$defs/positive_integer
+        latest:
+          title: Latest in Type-Name Series?
+          description: true when it is the latest of its type-name series
+          type: boolean
+        created:
+          title: Created
+          readOnly: true
+          type: string
+          format: date-time
+        created_user:
+          title: Created User
+          readOnly: true
+          $ref: '#/$defs/UserTerse'
+        added:
+          title: Added
+          readOnly: true
+          type: string
+          format: date-time
+        added_user:
+          title: Added User
+          readOnly: true
+          $ref: '#/$defs/UserTerse'
+  HardwareProductJSONSchemaDeleteError:
+    type: object
+    additionalProperties: false
+    required:
+      - error
+      - hardware_product_ids
+    properties:
+      error:
+        type: string
+      hardware_product_ids:
+        type: array
+        uniqueItems: true
+        minItems: 1
+        items:
+          $ref: common.yaml#/$defs/uuid
 
 # vim: set sts=2 sw=2 et :

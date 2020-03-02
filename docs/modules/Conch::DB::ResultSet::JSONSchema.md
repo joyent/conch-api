@@ -52,7 +52,9 @@ that row is the latest of its type-name series (that is, whether it can be refer
 
 The query will be closed off as a subselect (that additional chaining will SELECT FROM),
 so it makes a difference whether you add things to the resultset before or after calling this
-method.
+method. Note that if the initial resultset filters out some rows from the same type-name series,
+the result will not be accurate, as the full series must be visible in order for the partition
+query to work!
 
 ## LICENSING
 
