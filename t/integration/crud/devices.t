@@ -748,7 +748,10 @@ subtest 'mutate device attributes' => sub {
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset tag' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/asset_tag', message => re(qr/string does not match/i) } ]);
+        ->json_cmp_deeply('/details', [
+            { path => '/asset_tag', message => re(qr/String does not match/) },
+            { path => '/asset_tag', message => re(qr/Not null/) },
+        ]);
 
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset_tag' })
         ->status_is(303)

@@ -723,7 +723,11 @@ my $devices = $t->tx->res->json;
 
 $t->get_ok('/build/our second build/device?health=foo')
     ->status_is(400)
-    ->json_cmp_deeply('/details', [ { path => '/health', message => re(qr/not in enum list/i) } ]);
+    ->json_schema_is('QueryParamsValidationError')
+    ->json_cmp_deeply('/details', [
+        { path => '/health', message => re(qr/Not in enum list/) },
+        { path => '/health', message => re(qr/Expected array - got string/) },
+    ]);
 
 $t->get_ok('/build/our second build/device?health=fail')
     ->status_is(200)

@@ -2206,10 +2206,10 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
-  JSON-Validator-3.23
-    pathname: J/JH/JHTHORSEN/JSON-Validator-3.23.tar.gz
+  JSON-Validator-3.24
+    pathname: J/JH/JHTHORSEN/JSON-Validator-3.24.tar.gz
     provides:
-      JSON::Validator 3.23
+      JSON::Validator 3.24
       JSON::Validator::Error undef
       JSON::Validator::Formats undef
       JSON::Validator::Joi undef
@@ -2219,6 +2219,7 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       List::Util 1.45
       Mojolicious 7.28
+      YAML::XS 0.80
       perl 5.010001
   Lingua-EN-FindNumber-1.32
     pathname: N/NE/NEILB/Lingua-EN-FindNumber-1.32.tar.gz
