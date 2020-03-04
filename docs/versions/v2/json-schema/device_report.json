@@ -1,0 +1,249 @@
+{
+  "$schema" : "http://json-schema.org/draft-07/schema#",
+  "definitions" : {
+    "DeviceReport_v2.38" : {
+      "description" : "the contents of a posted device report from relays and reporters",
+      "properties" : {
+        "bios_version" : {
+          "type" : "string"
+        },
+        "cpus" : {
+          "items" : {
+            "type" : "object"
+          },
+          "type" : "array"
+        },
+        "device_type" : {
+          "enum" : [
+            "server",
+            "switch"
+          ],
+          "type" : "string"
+        },
+        "dimms" : {
+          "items" : {
+            "properties" : {
+              "memory-locator" : {
+                "type" : "string"
+              },
+              "memory-serial-number" : {
+                "oneOf" : [
+                  {
+                    "$ref" : "common.yaml#/definitions/non_empty_string"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              },
+              "memory-size" : {
+                "oneOf" : [
+                  {
+                    "$ref" : "common.yaml#/definitions/int_or_stringy_int"
+                  },
+                  {
+                    "type" : "null"
+                  }
+                ]
+              }
+            },
+            "required" : [
+              "memory-locator"
+            ],
+            "type" : "object"
+          },
+          "type" : "array",
+          "uniqueItems" : true
+        },
+        "disks" : {
+          "additionalProperties" : {
+            "properties" : {
+              "block_sz" : {
+                "type" : "integer"
+              },
+              "drive_type" : {
+                "type" : "string"
+              },
+              "enclosure" : {
+                "$ref" : "common.yaml#/definitions/int_or_stringy_int"
+              },
+              "firmware" : {
+                "type" : "string"
+              },
+              "hba" : {
+                "$ref" : "common.yaml#/definitions/int_or_stringy_int"
+              },
+              "health" : {
+                "type" : "string"
+              },
+              "model" : {
+                "type" : "string"
+              },
+              "size" : {
+                "type" : "integer"
+              },
+              "slot" : {
+                "$ref" : "common.yaml#/definitions/int_or_stringy_int"
+              },
+              "temp" : {
+                "$ref" : "common.yaml#/definitions/int_or_stringy_int"
+              },
+              "transport" : {
+                "type" : "string"
+              },
+              "vendor" : {
+                "type" : "string"
+              }
+            },
+            "type" : "object"
+          },
+          "propertyNames" : {
+            "pattern" : "^\\S+$",
+            "type" : "string"
+          },
+          "type" : "object"
+        },
+        "interfaces" : {
+          "patternProperties" : {
+            "^\\S+$" : {
+              "description" : "key = interface name",
+              "properties" : {
+                "ipaddr" : {
+                  "oneOf" : [
+                    {
+                      "$ref" : "common.yaml#/definitions/ipaddr"
+                    },
+                    {
+                      "type" : "null"
+                    }
+                  ]
+                },
+                "mac" : {
+                  "$ref" : "common.yaml#/definitions/macaddr"
+                },
+                "mtu" : {
+                  "oneOf" : [
+                    {
+                      "$ref" : "common.yaml#/definitions/int_or_stringy_int"
+                    },
+                    {
+                      "type" : "null"
+                    }
+                  ]
+                },
+                "peer_mac" : {
+                  "oneOf" : [
+                    {
+                      "$ref" : "common.yaml#/definitions/macaddr"
+                    },
+                    {
+                      "type" : "null"
+                    }
+                  ]
+                },
+                "product" : {
+                  "type" : "string"
+                },
+                "state" : {
+                  "oneOf" : [
+                    {
+                      "type" : "string"
+                    },
+                    {
+                      "type" : "null"
+                    }
+                  ]
+                },
+                "vendor" : {
+                  "type" : "string"
+                }
+              },
+              "required" : [
+                "mac",
+                "product",
+                "vendor"
+              ],
+              "type" : "object"
+            }
+          },
+          "type" : "object"
+        },
+        "media" : {
+          "patternProperties" : {
+            "^\\S$" : {
+              "description" : "port"
+            }
+          },
+          "type" : "object"
+        },
+        "os" : {
+          "properties" : {
+            "hostname" : {
+              "type" : "string"
+            }
+          },
+          "required" : [
+            "hostname"
+          ],
+          "type" : "object"
+        },
+        "product_name" : {
+          "type" : "string"
+        },
+        "relay" : {
+          "properties" : {
+            "serial" : {
+              "$ref" : "common.yaml#/definitions/relay_id"
+            }
+          },
+          "required" : [
+            "serial"
+          ],
+          "type" : "object"
+        },
+        "serial_number" : {
+          "$ref" : "common.yaml#/definitions/device_id"
+        },
+        "state" : {
+          "type" : "string"
+        },
+        "system_uuid" : {
+          "$ref" : "common.yaml#/definitions/uuid"
+        },
+        "temp" : {
+          "properties" : {
+            "cpu0" : {
+              "$ref" : "common.yaml#/definitions/int_or_stringy_int"
+            },
+            "cpu1" : {
+              "$ref" : "common.yaml#/definitions/int_or_stringy_int"
+            },
+            "exhaust" : {
+              "$ref" : "common.yaml#/definitions/int_or_stringy_int"
+            },
+            "inlet" : {
+              "$ref" : "common.yaml#/definitions/int_or_stringy_int"
+            }
+          },
+          "required" : [
+            "cpu0",
+            "cpu1"
+          ],
+          "type" : "object"
+        },
+        "uptime_since" : {
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "bios_version",
+        "product_name",
+        "serial_number",
+        "state",
+        "system_uuid"
+      ],
+      "type" : "object"
+    }
+  }
+}
+

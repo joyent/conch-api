@@ -70,6 +70,14 @@ directory in the main repository.
 * [Conch::Route::Workspace](modules/Conch::Route::Workspace)
   * `/workspace`
 
+# Modules
+
+Individual module documentation can be found [here](modules).
+
+Script documentation can be found [here](scripts).
+
+JSON Schema defining request and response payloads can be found [here](json-schema).
+
 # Copyright / License
 
 Copyright Joyent Inc
