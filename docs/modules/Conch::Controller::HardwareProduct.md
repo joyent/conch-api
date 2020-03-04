@@ -14,12 +14,11 @@ Response uses the HardwareProducts json schema.
 
 ### find\_hardware\_product
 
-Chainable action that uses the `hardware_product_id_or_sku` or `hardware_product_key` and
-`hardware_product_value` values provided in the stash (usually via the request URL) to look up
-a hardware\_product, and stashes the query to get to it in `hardware_product_rs`.
+Chainable action that uses the `hardware_product_id_or_other` value provided in the stash
+(usually via the request URL) to look up a hardware\_product, and stashes the query to get to it
+in `hardware_product_rs`.
 
-Supported keys are: `sku`, `name`, and `alias`. This feature is deprecated and will be
-removed in a subsequent release.
+Supported identifiers in path are: `id`, `sku`, `name`, and `alias`.
 
 ### get
 

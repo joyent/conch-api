@@ -29,17 +29,16 @@ sub routes {
     $hardware_product->require_system_admin->post('/')->to('#create');
 
     {
-        # /hardware_product/:hardware_product_id_or_other
         my $with_hardware_product_id_or_other = $hardware_product->under('/:hardware_product_id_or_other')
             ->to('#find_hardware_product');
 
-        # GET /hardware_product/<:identifier>
+        # GET /hardware_product/:hardware_product_id_or_other
         $with_hardware_product_id_or_other->get('/')->to('#get');
 
-        # POST /hardware_product/<:identifier>
+        # POST /hardware_product/:hardware_product_id_or_other
         $with_hardware_product_id_or_other->require_system_admin->post('/')->to('#update');
 
-        # DELETE /hardware_product/<:identifier>
+        # DELETE /hardware_product/:hardware_product_id_or_other
         $with_hardware_product_id_or_other->require_system_admin->delete('/')->to('#delete');
     }
 }

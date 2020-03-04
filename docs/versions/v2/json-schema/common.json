@@ -1,0 +1,83 @@
+{
+  "$schema" : "http://json-schema.org/draft-07/schema#",
+  "definitions" : {
+    "device_asset_tag" : {
+      "pattern" : "^\\S+$",
+      "type" : "string"
+    },
+    "device_id" : {
+      "pattern" : "^\\S+$",
+      "type" : "string"
+    },
+    "device_phase" : {
+      "enum" : [
+        "integration",
+        "installation",
+        "production",
+        "diagnostics",
+        "decommissioned"
+      ],
+      "type" : "string"
+    },
+    "email_address" : {
+      "allOf" : [
+        {
+          "format" : "email",
+          "type" : "string"
+        },
+        {
+          "$ref" : "/definitions/mojo_relaxed_placeholder"
+        }
+      ]
+    },
+    "int_or_stringy_int" : {
+      "description" : "an integer that may be presented as a json string",
+      "oneOf" : [
+        {
+          "type" : "integer"
+        },
+        {
+          "pattern" : "^[0-9]+$",
+          "type" : "string"
+        }
+      ]
+    },
+    "ipaddr" : {
+      "oneOf" : [
+        {
+          "format" : "ipv4",
+          "type" : "string"
+        },
+        {
+          "format" : "ipv6",
+          "type" : "string"
+        }
+      ]
+    },
+    "macaddr" : {
+      "pattern" : "^[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}$",
+      "type" : "string"
+    },
+    "mojo_relaxed_placeholder" : {
+      "pattern" : "^[^/]+$",
+      "type" : "string"
+    },
+    "mojo_standard_placeholder" : {
+      "pattern" : "^[^/.]+$",
+      "type" : "string"
+    },
+    "non_empty_string" : {
+      "minLength" : 1,
+      "type" : "string"
+    },
+    "relay_id" : {
+      "pattern" : "^\\S+$",
+      "type" : "string"
+    },
+    "uuid" : {
+      "pattern" : "^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$",
+      "type" : "string"
+    }
+  }
+}
+

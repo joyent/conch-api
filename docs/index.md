@@ -1,5 +1,7 @@
 # Introduction
 
+**This documentation is for Conch API version 3.0. For previous versions, see [here](versions/).**
+
 The Conch ecosystem is designed to make the deployment of new server hardware
 easier, specifically targetting equipment to be used in the Joyent
 SmartDatacenter product line.
@@ -46,12 +48,12 @@ Error responses will use:
 Available routes are:
 
 * [Conch::Route](modules/Conch::Route)
-  * `/ping`
-  * `/version`
-  * `/login`
-  * `/logout`
-  * `/refresh_token`
-  * `/me`
+  * [`/ping`](modules/Conch::Route#get-ping)
+  * [`/version`](modules/Conch::Route#get-version)
+  * [`/login`](modules/Conch::Route#post-login)
+  * [`/logout`](modules/Conch::Route#post-logout)
+  * [`/refresh_token`](modules/Conch::Route#post-refresh_token)
+  * [`/me`](modules/Conch::Route#get-me)
 
 * [Conch::Route::Datacenter](modules/Conch::Route::Datacenter)
   * `/dc`
