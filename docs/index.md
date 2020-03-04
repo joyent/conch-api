@@ -1,5 +1,7 @@
 # Introduction
 
+**This documentation is for Conch API version 3.0. For previous versions, see [here](versions/).**
+
 The Conch ecosystem is designed to make the deployment of new server hardware
 easier, specifically targetting equipment to be used in the Joyent
 SmartDatacenter product line.
