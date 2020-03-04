@@ -25,7 +25,7 @@ using a relay that registered with that user's credentials.
 
 ### `POST /device/:device_serial_number`
 
-- Request: [device_report.json#/definitions/DeviceReport](../json-schema/device_report.json#/definitions/DeviceReport)
+- Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
 - Response: [response.json#/definitions/ValidationStateWithResults](../json-schema/response.json#/definitions/ValidationStateWithResults)
 
 ### `GET /device?:key=:value`
@@ -149,7 +149,7 @@ otherwise.
 Does not store validation results.
 
 - User requires the read-only role
-- Request: [device_report.json#/definitions/DeviceReport](../json-schema/device_report.json#/definitions/DeviceReport)
+- Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
 - Response: [response.json#/definitions/ValidationResults](../json-schema/response.json#/definitions/ValidationResults)
 
 ### `POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id`
@@ -157,7 +157,7 @@ Does not store validation results.
 Does not store validation results.
 
 - User requires the read-only role
-- Request: [device_report.json#/definitions/DeviceReport](../json-schema/device_report.json#/definitions/DeviceReport)
+- Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
 - Response: [response.json#/definitions/ValidationResults](../json-schema/response.json#/definitions/ValidationResults)
 
 ### `GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...`
