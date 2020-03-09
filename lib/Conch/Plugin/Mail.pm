@@ -18,7 +18,13 @@ Conch::Plugin::Mail
 
 =head1 DESCRIPTION
 
-Helper methods for sending emails
+Helper methods for sending emails.
+
+=head1 METHODS
+
+=head2 register
+
+Sets up the helpers.
 
 =head1 HELPERS
 

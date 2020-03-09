@@ -28,8 +28,14 @@ Conch::Plugin::JsonValidator
 
 =head1 DESCRIPTION
 
-Conch::Plugin::JsonValidator provides a mechanism to validate request and response payloads
-from an API endpoint against a JSON Schema.
+Provides a mechanism to validate request and response payloads from an API endpoint against a
+JSON Schema.
+
+=head1 METHODS
+
+=head2 register
+
+Sets up the helpers.
 
 =head1 HELPERS
 

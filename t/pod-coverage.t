@@ -22,13 +22,16 @@ my %trustme = (
 for my $module (all_modules()) {
     next if any { $module =~ $_ } @skip_modules;
 
+    my @trustme = @{$trustme{$module} // []};
+    push @trustme, 'run' if $module =~ /^Conch::Command::/;
+
     pod_coverage_ok(
         $module,
         {
-            # if a module's parent documents a method that is redefined, let it pass
             coverage_class => 'Pod::Coverage::CountParents',
+            #coverage_class => 'Pod::Coverage::TrustPod', # includes Pod::Coverage::CountParents
             also_private   => \@also_private,
-            trustme        => $trustme{$module} || [],
+            trustme        => \@trustme,
         },
         "pod coverage for $module"
     );

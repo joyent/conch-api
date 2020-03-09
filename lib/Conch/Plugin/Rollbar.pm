@@ -26,6 +26,12 @@ Mojo plugin to send messages and exceptions to L<Rollbar|https://rollbar.com>.
 
 Also support sending various errors to Rollbar, depending on matching criteria.
 
+=head1 METHODS
+
+=head2 register
+
+Sets up the hooks.
+
 =head1 HOOKS
 
 =head2 before_render

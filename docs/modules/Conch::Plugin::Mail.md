@@ -6,7 +6,13 @@
 
 ## DESCRIPTION
 
-Helper methods for sending emails
+Helper methods for sending emails.
+
+## METHODS
+
+### register
+
+Sets up the helpers.
 
 ## HELPERS
 

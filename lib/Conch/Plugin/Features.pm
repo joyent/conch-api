@@ -9,7 +9,16 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 Conch::Plugin::Features - Sets up a helper to access configured features
 
+=head1 METHODS
+
+=head2 register
+
+Sets up the helpers.
+
 =head1 HELPERS
+
+These methods are made available on the C<$c> object (the invocant of all controller methods,
+and therefore other helpers).
 
 =head2 feature
 

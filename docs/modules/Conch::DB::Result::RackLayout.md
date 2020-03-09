@@ -93,6 +93,12 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack)
 
+## METHODS
+
+### TO\_JSON
+
+Include extra information about the layout when available.
+
 ## LICENSING
 
 Copyright Joyent, Inc.

@@ -139,6 +139,14 @@ __PACKAGE__->add_columns(
 use experimental 'signatures';
 use Mojo::JSON 'from_json';
 
+=head1 METHODS
+
+=head2 TO_JSON
+
+Include the JSON-decoded report data.
+
+=cut
+
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
     $data->{report} = from_json($data->{report}) if defined $data->{report};

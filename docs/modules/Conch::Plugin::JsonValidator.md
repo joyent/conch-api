@@ -23,8 +23,14 @@ sub endpoint ($c) {
 
 ## DESCRIPTION
 
-Conch::Plugin::JsonValidator provides a mechanism to validate request and response payloads
-from an API endpoint against a JSON Schema.
+Provides a mechanism to validate request and response payloads from an API endpoint against a
+JSON Schema.
+
+## METHODS
+
+### register
+
+Sets up the helpers.
 
 ## HELPERS
 

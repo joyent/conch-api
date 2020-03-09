@@ -16,6 +16,10 @@ Conch::Plugin::Database
 
 =head1 DESCRIPTION
 
+=head1 METHODS
+
+=head2 register
+
 Sets up the database and provides convenient accessors to it.
 
 =head1 HELPERS

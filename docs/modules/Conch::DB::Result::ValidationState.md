@@ -106,6 +106,12 @@ Type: many\_to\_many
 
 Composing rels: ["validation\_state\_members"](#validation_state_members) -> validation\_result
 
+## METHODS
+
+### TO\_JSON
+
+Include all the associated validation results, when available.
+
 ### prefetch\_validation\_results
 
 Add validation\_state\_members, validation\_result rows to the resultset cache. This allows those

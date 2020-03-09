@@ -8,6 +8,12 @@
 
 Mojo plugin registering the git version tag and hash for the repository
 
+## METHODS
+
+### register
+
+Sets up the helpers.
+
 ## HELPERS
 
 These methods are made available on the `$c` object (the invocant of all controller methods,

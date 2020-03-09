@@ -4,9 +4,11 @@
 
 [https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/AuthHelpers.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/AuthHelpers.pm)
 
-## DESCRIPTION
+## METHODS
 
-Contains all convenience handlers for authentication
+### register
+
+Sets up all convenience handlers for authentication.
 
 ## HELPERS
 

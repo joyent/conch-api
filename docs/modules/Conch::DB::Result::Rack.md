@@ -149,6 +149,12 @@ Type: many\_to\_many
 
 Composing rels: ["workspace\_racks"](#workspace_racks) -> workspace
 
+## METHODS
+
+### TO\_JSON
+
+Include the rack's build, room, role and full rack name (with room location) when available.
+
 ## LICENSING
 
 Copyright Joyent, Inc.

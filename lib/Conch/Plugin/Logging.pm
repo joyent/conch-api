@@ -87,14 +87,34 @@ Uses the provided C<type> in the filename (e.g. C<< type => foo >> will log to F
         );
     });
 
+=head1 HOOKS
+
+=head2 around_dispatch
+
+Makes the request's request id available to the logger object.
+
+=cut
+
     $app->hook(around_dispatch => sub ($next, $c) {
         local $Conch::Log::REQUEST_ID = $c->req->request_id;
         $next->();
     });
 
+=head2 before_dispatch
+
+Starts the C<request_latency> timer.
+
+=cut
+
     $app->hook(before_dispatch => sub ($c) {
         $c->timing->begin('request_latency');
     });
+
+=head2 after_dispatch
+
+Logs the request and its response.
+
+=cut
 
     my $dispatch_log = $app->get_logger('dispatch', bunyan => 1, with_trace => 0);
 

@@ -406,6 +406,14 @@ __PACKAGE__->load_components('+Conch::DB::Helper::Row::WithPhase');
 
 use experimental 'signatures';
 
+=head1 METHODS
+
+=head2 TO_JSON
+
+Include information about the device's rack location, when available and still relevant
+
+=cut
+
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 

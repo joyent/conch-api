@@ -8,9 +8,15 @@
 
 Mojo plugin to detect and report the usage of deprecated controller actions.
 
+## METHODS
+
+### register
+
+Sets up the hooks.
+
 ## HOOKS
 
-### around\_action
+### after\_dispatch
 
 Sets the `X-Deprecated` header in the response.
 
