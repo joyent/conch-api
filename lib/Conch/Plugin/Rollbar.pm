@@ -250,7 +250,7 @@ sub _create_notifier ($app, $config) {
             if (!$ENV{MOJO_MODE}) {
                 my $validator = JSON::Validator->new->load_and_validate_schema(
                     'json-schema/other.yaml',
-                    { schema => 'https://json-schema.org/draft-07/schema#' });
+                    { schema => 'http://json-schema.org/draft-07/schema#' });
                 my $schema = $validator->get('/definitions/RollbarPayload');
                 if (my @errors = $validator->validate($tx->req->json, $schema)) {
                     require Data::Dumper;
