@@ -1749,9 +1749,9 @@
       "type" : "array",
       "uniqueItems" : true
     },
-    "JsonValidationError" : {
+    "JSONValidatorError" : {
       "additionalProperties" : false,
-      "description" : "JSON::Validator::Error object",
+      "description" : "serialized JSON::Validator::Error object: a single failure from validating a document with a JSON Schema",
       "properties" : {
         "message" : {
           "type" : "string"
@@ -2838,14 +2838,14 @@
     },
     "ValidationError" : {
       "additionalProperties" : false,
-      "description" : "base structure for all validation error responses",
+      "description" : "base structure for all query_param, request, response validation error responses",
       "properties" : {
         "data" : {
           "description" : "any supplementary details will be included here"
         },
         "details" : {
           "items" : {
-            "$ref" : "#/definitions/JsonValidationError"
+            "$ref" : "#/definitions/JSONValidatorError"
           },
           "minItems" : 1,
           "type" : "array",

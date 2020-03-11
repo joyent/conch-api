@@ -136,7 +136,7 @@ subtest '*Error response schemas' => sub {
     });
 
     foreach my $schema_name (sort grep /Error$/, keys $definitions->%*) {
-        next if $schema_name eq 'JsonValidationError';
+        next if $schema_name eq 'JSONValidatorError';
         my @errors = $validator->validate($definitions->{$schema_name});
         cmp_deeply(\@errors, [], 'schema '.$schema_name.' is a superset of the Error schema')
             or diag 'got errors: ', explain([ map $_->to_string, @errors ]);

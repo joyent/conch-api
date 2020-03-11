@@ -11,7 +11,7 @@ definitions:
       error:
         type: string
   ValidationError:
-    description: base structure for all validation error responses
+    description: base structure for all query_param, request, response validation error responses
     type: object
     additionalProperties: false
     required:
@@ -27,7 +27,7 @@ definitions:
         uniqueItems: true
         minItems: 1
         items:
-          $ref: '#/definitions/JsonValidationError'
+          $ref: '#/definitions/JSONValidatorError'
       schema:
         type: string
         format: uri-reference
@@ -74,8 +74,8 @@ definitions:
             const: request did not match required format
           schema:
             pattern: '/schema/request/[^/]+$'
-  JsonValidationError:
-    description: JSON::Validator::Error object
+  JSONValidatorError:
+    description: 'serialized JSON::Validator::Error object: a single failure from validating a document with a JSON Schema'
     type: object
     additionalProperties: false
     required:
