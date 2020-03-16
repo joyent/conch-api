@@ -26,6 +26,12 @@ Mojo plugin to send messages and exceptions to L<Rollbar|https://rollbar.com>.
 
 Also support sending various errors to Rollbar, depending on matching criteria.
 
+=head1 METHODS
+
+=head2 register
+
+Sets up the hooks.
+
 =head1 HOOKS
 
 =head2 before_render
@@ -244,7 +250,7 @@ sub _create_notifier ($app, $config) {
             if (!$ENV{MOJO_MODE}) {
                 my $validator = JSON::Validator->new->load_and_validate_schema(
                     'json-schema/other.yaml',
-                    { schema => 'https://json-schema.org/draft-07/schema#' });
+                    { schema => 'http://json-schema.org/draft-07/schema#' });
                 my $schema = $validator->get('/definitions/RollbarPayload');
                 if (my @errors = $validator->validate($tx->req->json, $schema)) {
                     require Data::Dumper;

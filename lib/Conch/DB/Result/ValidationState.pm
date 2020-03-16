@@ -209,6 +209,14 @@ __PACKAGE__->add_columns(
 
 use experimental 'signatures';
 
+=head1 METHODS
+
+=head2 TO_JSON
+
+Include all the associated validation results, when available.
+
+=cut
+
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 

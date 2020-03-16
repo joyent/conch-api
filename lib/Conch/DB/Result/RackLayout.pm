@@ -187,6 +187,14 @@ __PACKAGE__->belongs_to(
 
 use experimental 'signatures';
 
+=head1 METHODS
+
+=head2 TO_JSON
+
+Include extra information about the layout when available.
+
+=cut
+
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 

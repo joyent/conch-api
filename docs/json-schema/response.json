@@ -1,6 +1,6 @@
 {
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/schema/response/$schema_name' endpoints, or within conch itself, json-schema/response.yaml.",
-  "$schema" : "https://json-schema.org/draft-07/schema#",
+  "$schema" : "http://json-schema.org/draft-07/schema#",
   "definitions" : {
     "Build" : {
       "additionalProperties" : false,
@@ -156,6 +156,14 @@
       "uniqueItems" : true
     },
     "BuildUsers" : {
+      "contains" : {
+        "properties" : {
+          "role" : {
+            "const" : "admin"
+          }
+        },
+        "type" : "object"
+      },
       "items" : {
         "additionalProperties" : false,
         "properties" : {
@@ -1863,6 +1871,14 @@
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "users" : {
+          "contains" : {
+            "properties" : {
+              "role" : {
+                "const" : "admin"
+              }
+            },
+            "type" : "object"
+          },
           "items" : {
             "additionalProperties" : false,
             "properties" : {

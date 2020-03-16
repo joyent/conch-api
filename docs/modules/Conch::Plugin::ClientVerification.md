@@ -4,7 +4,15 @@
 
 [https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/ClientVerification.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Plugin/ClientVerification.pm)
 
-## DESCRIPTION
+## METHODS
+
+### register
+
+Sets up the hooks.
+
+## HOOKS
+
+### before\_dispatch
 
 Checks the version of the client sending us a request, possibly rejecting it if it does not
 meet our criteria.

@@ -53,6 +53,10 @@ our $REQUEST_ID;
 
 L<Conch::Log> inherits all methods from L<Mojo::Log>.
 
+=head2 format
+
+Automatically selects the format subroutine based on configuration values.
+
 =cut
 
 sub format {

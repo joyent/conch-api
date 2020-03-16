@@ -119,7 +119,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
 
     return {
         title => $schema_name,
-        '$schema' => $validator->get('/$schema') || 'https://json-schema.org/draft-07/schema#',
+        '$schema' => $validator->get('/$schema') || 'http://json-schema.org/draft-07/schema#',
         '$id' => 'urn:'.$schema_name.'.schema.json',
         keys $definitions->%* ? ( definitions => $definitions ) : (),
         $target->%*,

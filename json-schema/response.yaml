@@ -1,5 +1,5 @@
 ---
-$schema: 'https://json-schema.org/draft-07/schema#'
+$schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
   Error:
     type: object
@@ -1893,6 +1893,11 @@ definitions:
               $ref: common.yaml#/definitions/email_address
             role:
               $ref: common.yaml#/definitions/role
+        contains:
+          type: object
+          properties:
+            role:
+              const: admin
       builds:
         type: array
         uniqueItems: true
@@ -2062,6 +2067,11 @@ definitions:
           $ref: common.yaml#/definitions/email_address
         role:
           $ref: common.yaml#/definitions/role
+    contains:
+      type: object
+      properties:
+        role:
+          const: admin
   BuildOrganizations:
     type: array
     uniqueItems: true

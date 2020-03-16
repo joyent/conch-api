@@ -296,6 +296,14 @@ __PACKAGE__->add_columns(
 
 use experimental 'signatures';
 
+=head1 METHODS
+
+=head2 TO_JSON
+
+Include the rack's build, room, role and full rack name (with room location) when available.
+
+=cut
+
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 

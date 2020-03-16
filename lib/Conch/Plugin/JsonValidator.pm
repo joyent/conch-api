@@ -28,8 +28,14 @@ Conch::Plugin::JsonValidator
 
 =head1 DESCRIPTION
 
-Conch::Plugin::JsonValidator provides a mechanism to validate request and response payloads
-from an API endpoint against a JSON Schema.
+Provides a mechanism to validate request and response payloads from an API endpoint against a
+JSON Schema.
+
+=head1 METHODS
+
+=head2 register
+
+Sets up the helpers.
 
 =head1 HELPERS
 
@@ -126,7 +132,7 @@ L<https://github.com/mojolicious/json-validator/issues/158>.
         # FIXME: JSON::Validator should be extracting $schema out of the document - see https://github.com/mojolicious/json-validator/pull/152
         $_query_params_validator->load_and_validate_schema(
             'json-schema/query_params.yaml',
-            { schema => 'https://json-schema.org/draft-07/schema#' });
+            { schema => 'http://json-schema.org/draft-07/schema#' });
         return $_query_params_validator;
     });
 
@@ -143,7 +149,7 @@ Returns a L<JSON::Validator> object suitable for validating an endpoint's json r
         # FIXME: JSON::Validator should be picking this up out of the schema on its own.
         $_request_validator->load_and_validate_schema(
             'json-schema/request.yaml',
-            { schema => 'https://json-schema.org/draft-07/schema#' });
+            { schema => 'http://json-schema.org/draft-07/schema#' });
         return $_request_validator;
     });
 
@@ -161,7 +167,7 @@ Returns a L<JSON::Validator> object suitable for validating an endpoint's json r
         # FIXME: JSON::Validator should be picking this up out of the schema on its own.
         $_response_validator->load_and_validate_schema(
             'json-schema/response.yaml',
-            { schema => 'https://json-schema.org/draft-07/schema#' });
+            { schema => 'http://json-schema.org/draft-07/schema#' });
         return $_response_validator;
     });
 }

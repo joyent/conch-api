@@ -8,7 +8,15 @@ use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 Conch::Plugin::ClientVerification
 
-=head1 DESCRIPTION
+=head1 METHODS
+
+=head2 register
+
+Sets up the hooks.
+
+=head1 HOOKS
+
+=head2 before_dispatch
 
 Checks the version of the client sending us a request, possibly rejecting it if it does not
 meet our criteria.

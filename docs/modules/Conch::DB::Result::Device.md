@@ -212,6 +212,12 @@ Type: many\_to\_many
 
 Composing rels: ["device\_relay\_connections"](#device_relay_connections) -> relay
 
+## METHODS
+
+### TO\_JSON
+
+Include information about the device's rack location, when available and still relevant
+
 ## LICENSING
 
 Copyright Joyent, Inc.

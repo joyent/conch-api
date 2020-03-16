@@ -15,6 +15,12 @@ Conch::Plugin::GitVersion
 
 Mojo plugin registering the git version tag and hash for the repository
 
+=head1 METHODS
+
+=head2 register
+
+Sets up the helpers.
+
 =head1 HELPERS
 
 These methods are made available on the C<$c> object (the invocant of all controller methods,

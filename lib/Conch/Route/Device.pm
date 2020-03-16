@@ -138,7 +138,7 @@ using a relay that registered with that user's credentials.
 
 =over 4
 
-=item * Request: F<device_report.yaml#/definitions/DeviceReport>
+=item * Request: F<request.yaml#/definitions/DeviceReport>
 
 =item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
 
@@ -377,7 +377,7 @@ Does not store validation results.
 
 =item * User requires the read-only role
 
-=item * Request: F<device_report.yaml#/definitions/DeviceReport>
+=item * Request: F<request.yaml#/definitions/DeviceReport>
 
 =item * Response: F<response.yaml#/definitions/ValidationResults>
 
@@ -391,7 +391,7 @@ Does not store validation results.
 
 =item * User requires the read-only role
 
-=item * Request: F<device_report.yaml#/definitions/DeviceReport>
+=item * Request: F<request.yaml#/definitions/DeviceReport>
 
 =item * Response: F<response.yaml#/definitions/ValidationResults>
 

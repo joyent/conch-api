@@ -25,6 +25,20 @@ Returns the main [Conch::Log](../modules/Conch%3A%3ALog) object for the applicat
 Returns a secondary [Conch::Log](../modules/Conch%3A%3ALog) object, to log specialized messages to a separate location.
 Uses the provided `type` in the filename (e.g. `type => foo` will log to `foo.log`).
 
+## HOOKS
+
+### around\_dispatch
+
+Makes the request's request id available to the logger object.
+
+### before\_dispatch
+
+Starts the `request_latency` timer.
+
+### after\_dispatch
+
+Logs the request and its response.
+
 ## LICENSING
 
 Copyright Joyent, Inc.

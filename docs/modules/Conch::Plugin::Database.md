@@ -6,6 +6,10 @@
 
 ## DESCRIPTION
 
+## METHODS
+
+### register
+
 Sets up the database and provides convenient accessors to it.
 
 ## HELPERS

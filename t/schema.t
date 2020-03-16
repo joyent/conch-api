@@ -12,7 +12,7 @@ use Test::Fatal;
 use Conch::Controller::Schema;
 
 my $_validator = JSON::Validator->new;
-$_validator->schema('https://json-schema.org/draft-07/schema#');
+$_validator->schema('http://json-schema.org/draft-07/schema#');
 
 subtest 'extraction with $refs' => sub {
     # these are tuples: expected result from extracting title name, and test name.
@@ -20,7 +20,7 @@ subtest 'extraction with $refs' => sub {
         [
             {
                 title => 'i_have_nested_refs',
-                '$schema' => 'https://json-schema.org/draft-07/schema#',
+                '$schema' => 'http://json-schema.org/draft-07/schema#',
                 '$id' => 'urn:i_have_nested_refs.schema.json',
                 # begin all referenced definitions
                 definitions => {
@@ -52,7 +52,7 @@ subtest 'extraction with $refs' => sub {
         [
             {
                 title => 'i_have_a_recursive_ref',
-                '$schema' => 'https://json-schema.org/draft-07/schema#',
+                '$schema' => 'http://json-schema.org/draft-07/schema#',
                 '$id' => 'urn:i_have_a_recursive_ref.schema.json',
                 # begin all referenced definitions
                 definitions => {
@@ -87,7 +87,7 @@ subtest 'extraction with $refs' => sub {
         [
             {
                 title => 'i_have_a_ref_to_another_file',
-                '$schema' => 'https://json-schema.org/draft-07/schema#',
+                '$schema' => 'http://json-schema.org/draft-07/schema#',
                 '$id' => 'urn:i_have_a_ref_to_another_file.schema.json',
                 # begin all referenced definitions
                 definitions => {
@@ -132,7 +132,7 @@ subtest 'extraction with $refs' => sub {
         [
             {
                 title => 'i_am_a_ref',
-                '$schema' => 'https://json-schema.org/draft-07/schema#',
+                '$schema' => 'http://json-schema.org/draft-07/schema#',
                 '$id' => 'urn:i_am_a_ref.schema.json',
                 # begin all referenced definitions
                 definitions => {
@@ -153,7 +153,7 @@ subtest 'extraction with $refs' => sub {
         [
             {
                 title => 'i_am_a_ref_level_1',
-                '$schema' => 'https://json-schema.org/draft-07/schema#',
+                '$schema' => 'http://json-schema.org/draft-07/schema#',
                 '$id' => 'urn:i_am_a_ref_level_1.schema.json',
                 # begin i_am_a_ref definition - which is actually (eventually) ref3
                 type => 'integer',
@@ -164,7 +164,7 @@ subtest 'extraction with $refs' => sub {
         [
             {
                 title => 'i_have_refs_with_the_same_name',
-                '$schema' => 'https://json-schema.org/draft-07/schema#',
+                '$schema' => 'http://json-schema.org/draft-07/schema#',
                 '$id' => 'urn:i_have_refs_with_the_same_name.schema.json',
                 # begin all referenced definitions
                 definitions => {
@@ -186,7 +186,7 @@ subtest 'extraction with $refs' => sub {
         [
             {
                 title => 'i_am_a_ref_with_the_same_name',
-                '$schema' => 'https://json-schema.org/draft-07/schema#',
+                '$schema' => 'http://json-schema.org/draft-07/schema#',
                 '$id' => 'urn:i_am_a_ref_with_the_same_name.schema.json',
                 # begin i_am_a_ref_with_the_same_name definition - pulled from secondary file
                 type => 'string',
@@ -205,7 +205,7 @@ subtest 'extraction with $refs' => sub {
         [
             {
                 title => 'i_have_a_ref_with_the_same_name',
-                '$schema' => 'https://json-schema.org/draft-07/schema#',
+                '$schema' => 'http://json-schema.org/draft-07/schema#',
                 '$id' => 'urn:i_have_a_ref_with_the_same_name.schema.json',
                 # begin all referenced definitions
                 definitions => {
@@ -228,7 +228,7 @@ subtest 'extraction with $refs' => sub {
         [
             {
                 title => 'i_am_a_ref_to_another_file',
-                '$schema' => 'https://json-schema.org/draft-07/schema#',
+                '$schema' => 'http://json-schema.org/draft-07/schema#',
                 '$id' => 'urn:i_am_a_ref_to_another_file.schema.json',
                 # begin all referenced definitions
                 definitions => {
@@ -246,7 +246,7 @@ subtest 'extraction with $refs' => sub {
     );
 
     my $jv = JSON::Validator->new;
-    $jv->load_and_validate_schema('t/data/test-schema.yaml', { schema => 'https://json-schema.org/draft-07/schema#' });
+    $jv->load_and_validate_schema('t/data/test-schema.yaml', { schema => 'http://json-schema.org/draft-07/schema#' });
 
     subtest $_->[1] => sub {
         my ($expected_output, $test_name) = $_->@*;
@@ -271,7 +271,7 @@ subtest 'extraction with $refs' => sub {
         ok(!@errors, 'no validation errors in the generated schema');
 
         my $_jv = JSON::Validator->new;
-        $_jv->load_and_validate_schema($got, { schema => 'https://json-schema.org/draft-07/schema#' });
+        $_jv->load_and_validate_schema($got, { schema => 'http://json-schema.org/draft-07/schema#' });
         cmp_deeply(
             $_jv->schema->data,
             $expected_output,
@@ -303,7 +303,7 @@ $t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
-        '$schema' => 'https://json-schema.org/draft-07/schema#',
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => 'urn:response.Ping.schema.json',
         title => 'Ping',
         type => 'object',
@@ -316,7 +316,7 @@ $t->get_ok('/schema/response/LoginToken')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
-        '$schema' => 'https://json-schema.org/draft-07/schema#',
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => 'urn:response.LoginToken.schema.json',
         title => 'LoginToken',
         type => 'object',
@@ -329,7 +329,7 @@ $t->get_ok('/schema/request/Login')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
-        '$schema' => 'https://json-schema.org/draft-07/schema#',
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => 'urn:request.Login.schema.json',
         title => 'Login',
         type => 'object',
@@ -354,7 +354,7 @@ $t->get_ok('/schema/query_params/workspace_relays')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
-        '$schema' => 'https://json-schema.org/draft-07/schema#',
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => 'urn:query_params.WorkspaceRelays.schema.json',
         title => 'WorkspaceRelays',
         definitions => {
@@ -385,7 +385,7 @@ $t->get_ok('/schema/request/HardwareProductCreate')
 $t->get_ok('/schema/request/device_report')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
-    ->json_is('/$schema', 'https://json-schema.org/draft-07/schema#');
+    ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
 
 # ensure that one of the schemas can validate some data
 {
@@ -403,7 +403,7 @@ $t->get_ok('/schema/request/device_report')
 $t->get_ok('/schema/request/device_report')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
-    ->json_is('/$schema', 'https://json-schema.org/draft-07/schema#');
+    ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
 
 # ensure that one of the schemas can validate some data
 {

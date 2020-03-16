@@ -9,9 +9,11 @@ use Mojo::JWT;
 
 Conch::Plugin::AuthHelpers
 
-=head1 DESCRIPTION
+=head1 METHODS
 
-Contains all convenience handlers for authentication
+=head2 register
+
+Sets up all convenience handlers for authentication.
 
 =head1 HELPERS
 

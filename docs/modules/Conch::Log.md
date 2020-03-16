@@ -37,6 +37,10 @@ A boolean option (defaulting to false): include stack trace information. Must be
 
 [Conch::Log](../modules/Conch%3A%3ALog) inherits all methods from [Mojo::Log](https://metacpan.org/pod/Mojo%3A%3ALog).
 
+### format
+
+Automatically selects the format subroutine based on configuration values.
+
 ## SEE ALSO
 
 [node-bunyan](https://github.com/trentm/node-bunyan/)

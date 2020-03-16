@@ -13,9 +13,15 @@ Conch::Plugin::DeprecationAction
 
 Mojo plugin to detect and report the usage of deprecated controller actions.
 
+=head1 METHODS
+
+=head2 register
+
+Sets up the hooks.
+
 =head1 HOOKS
 
-=head2 around_action
+=head2 after_dispatch
 
 Sets the C<X-Deprecated> header in the response.
 

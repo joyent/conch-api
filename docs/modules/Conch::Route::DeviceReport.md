@@ -16,7 +16,7 @@ All routes require authentication.
 
 ### `POST /device_report`
 
-- Request: [device_report.json#/definitions/DeviceReport](../json-schema/device_report.json#/definitions/DeviceReport)
+- Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
 - Response: [response.json#/definitions/ReportValidationResults](../json-schema/response.json#/definitions/ReportValidationResults)
 
 ### `GET /device_report/:device_report_id`

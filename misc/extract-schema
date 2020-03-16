@@ -37,7 +37,7 @@ sub output_json_schema ($name, $schema) {
 
 my $validator = JSON::Validator->new;
 # TODO: do not pass 'schema' arg - just depend on JV <nextversion>
-$validator->load_and_validate_schema($schema_file, { schema => 'https://json-schema.org/draft-07/schema#' });
+$validator->load_and_validate_schema($schema_file, { schema => 'http://json-schema.org/draft-07/schema#' });
 
 for my $schema_name (sort keys $validator->schema->data->{definitions}->%*) {
     my $schema = Conch::Controller::Schema::_extract_schema_definition($validator, $schema_name);

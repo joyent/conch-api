@@ -69,6 +69,12 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationState](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationState)
 
+## METHODS
+
+### TO\_JSON
+
+Include the JSON-decoded report data.
+
 ## LICENSING
 
 Copyright Joyent, Inc.
