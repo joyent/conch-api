@@ -1,6 +1,7 @@
 # bits that we don't use in Conch are commented out, for faster evaluation.
 ---
 $schema: 'https://json-schema.org/draft/2019-09/schema'
+$comment: payload documented at https://explorer.docs.rollbar.com/#operation/create-item
 $defs:
   RollbarPayload:
     type: object
@@ -126,13 +127,15 @@ $defs:
 #                         allOf:
 #                           - if:
 #                               properties:
-#                                 const: log
+#                                 type:
+#                                   const: log
 #                             then:
 #                               required:
 #                                 - message
 #                           - if:
 #                               properties:
-#                                 const: network
+#                                 type:
+#                                   const: network
 #                             then:
 #                               required:
 #                                 - method
@@ -140,13 +143,21 @@ $defs:
 #                                 - status_code
 #                           - if:
 #                               properties:
-#                                 const: dom
+#                                 type:
+#                                   const: dom
 #                             then:
 #                               required:
 #                                 - element
 #                           - if:
 #                               properties:
-#                                 const: error
+#                                 type:
+#                                   const: navigation
+#                             then:
+#                               required: [ from, to ]
+#                           - if:
+#                               properties:
+#                                 type:
+#                                   const: error
 #                             then:
 #                               required:
 #                                 - message

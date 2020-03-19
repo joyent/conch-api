@@ -1,4 +1,5 @@
 {
+  "$comment" : "payload documented at https://explorer.docs.rollbar.com/#operation/create-item",
   "$defs" : {
     "RollbarPayload" : {
       "additionalProperties" : false,
