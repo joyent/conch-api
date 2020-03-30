@@ -148,7 +148,9 @@ foreach my $filename (grep m{^json-schema/[^.]+\.yaml$}, @all_files) {
     my $data = YAML::XS::LoadFile($filename);
     my $base = path($filename)->basename('.yaml');
     my ($type) = $filename =~ m{^json-schema/([^.]+)\.yaml$};
-    $data->{'$comment'} = 'NOTE: This file is for human reference ONLY. For programmatic use, use the GET \'/schema/'.$type.'/$schema_name\' endpoints, or within conch itself, json-schema/'.$type.'.yaml.' . ($data->{'$comment'} ? ("\n".$data->{'$comment'}) : '');
+    if ($type eq 'query_params' or $type eq 'request' or $type eq 'response') {
+        $data->{'$comment'} = 'NOTE: This file is for human reference ONLY. For programmatic use, use the GET \'/schema/'.$type.'/$schema_name\' endpoints, or within conch itself, json-schema/'.$type.'.yaml.' . ($data->{'$comment'} ? ("\n".$data->{'$comment'}) : '');
+    }
     my $json_content = $json_encoder->encode($data);
 
     my @lines = split("\n", $json_content);
