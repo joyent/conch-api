@@ -1,28 +1,29 @@
 # Note: for now, defaults are for documentation purposes only.
 # see https://github.com/mojolicious/json-validator/issues/158
 ---
-$comment: 'Note: for now, defaults are for documentation purposes only. see https://github.com/mojolicious/json-validator/issues/158'
+$comment: 'Note that all parameters are parsed internally from the request URI as strings, so all type checks here use strings. When a query parameter is used more than once, its values are parsed as an arrayref. See ../modules/Conch::Plugin::JSONValidator#validate_query_params. For now, defaults are for documentation purposes only. see https://github.com/mojolicious/json-validator/issues/158'
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
-  boolean_integer:
-    type: integer
-    minimum: 0
-    maximum: 1
-  boolean_integer_default_false:
-    type: integer
-    minimum: 0
-    maximum: 1
-    default: 0
-  boolean_integer_default_true:
-    type: integer
-    minimum: 0
-    maximum: 1
-    default: 1
-  boolean_integer_or_flag:
+  boolean_string:
+    type: string
+    enum: [ '0', '1' ]
+  boolean_string_default_false:
+    type: string
+    enum: [ '0', '1' ]
+    default: '0'
+  boolean_string_default_true:
+    type: string
+    enum: [ '0', '1' ]
+    default: '1'
+  boolean_string_or_flag:
     description: '"?foo" and "?foo=1" are true; "?foo=0" is false'
     oneOf:
       - const: ''
-      - $ref: '#/definitions/boolean_integer'
+      - $ref: '#/definitions/boolean_string'
+  non_negative_integer_string:
+    description: see common.yaml#/definitions/non_negative_integer
+    type: string
+    pattern: '^[0-9]+$'
 
   RevokeUserTokens:
     allOf:
@@ -30,11 +31,11 @@ definitions:
         additionalProperties: false
         properties:
           login_only:
-            $ref: '#/definitions/boolean_integer_default_false'
+            $ref: '#/definitions/boolean_string_default_false'
           api_only:
-            $ref: '#/definitions/boolean_integer_default_false'
+            $ref: '#/definitions/boolean_string_default_false'
           send_mail:
-            $ref: '#/definitions/boolean_integer_default_true'
+            $ref: '#/definitions/boolean_string_default_true'
       - not:
           type: object
           required:
@@ -42,9 +43,9 @@ definitions:
             - api_only
           properties:
             login_only:
-              const: 1
+              const: '1'
             api_only:
-              const: 1
+              const: '1'
   ChangePassword:
     type: object
     additionalProperties: false
@@ -70,14 +71,14 @@ definitions:
           - all
         default: login_only
       send_mail:
-        $ref: '#/definitions/boolean_integer_default_true'
+        $ref: '#/definitions/boolean_string_default_true'
   NotifyUsers:
     description: used for operations where email can optionally be sent
     type: object
     additionalProperties: false
     properties:
       send_mail:
-        $ref: '#/definitions/boolean_integer_default_true'
+        $ref: '#/definitions/boolean_string_default_true'
   GetDeviceByAttribute:
     type: object
     minProperties: 1
@@ -113,14 +114,14 @@ definitions:
     additionalProperties: false
     properties:
       rack_only:
-        $ref: '#/definitions/boolean_integer_default_false'
+        $ref: '#/definitions/boolean_string_default_false'
   GetBuilds:
     type: object
     properties:
       started:
-        $ref: '#/definitions/boolean_integer'
+        $ref: '#/definitions/boolean_string'
       completed:
-        $ref: '#/definitions/boolean_integer'
+        $ref: '#/definitions/boolean_string'
     not:
       required:
         - started
@@ -135,11 +136,11 @@ definitions:
     additionalProperties: true  # overlays with other schemas
     properties:
       with_device_health:
-        $ref: '#/definitions/boolean_integer_or_flag'
+        $ref: '#/definitions/boolean_string_or_flag'
       with_device_phases:
-        $ref: '#/definitions/boolean_integer_or_flag'
+        $ref: '#/definitions/boolean_string_or_flag'
       with_rack_phases:
-        $ref: '#/definitions/boolean_integer_or_flag'
+        $ref: '#/definitions/boolean_string_or_flag'
   FindDevice:
     type: object
     additionalProperties: true  # may be used at the same time as other schemas
@@ -169,20 +170,20 @@ definitions:
             items:
               $ref: common.yaml#/definitions/device_phase
       active_minutes:
-        $ref: common.yaml#/definitions/non_negative_integer
+        $ref: '#/definitions/non_negative_integer_string'
       ids_only:
-        $ref: '#/definitions/boolean_integer_default_false'
+        $ref: '#/definitions/boolean_string_default_false'
       serials_only:
-        $ref: '#/definitions/boolean_integer_default_false'
+        $ref: '#/definitions/boolean_string_default_false'
     allOf:
       - not:
           type: object
           required: [ ids_only, serials_only ]
           properties:
             ids_only:
-              const: 1
+              const: '1'
             serials_only:
-              const: 1
+              const: '1'
       - not:
           type: object
           required: [ phase_earlier_than, phase ]
@@ -199,13 +200,13 @@ definitions:
             items:
               $ref: common.yaml#/definitions/device_phase
       ids_only:
-        $ref: '#/definitions/boolean_integer_default_false'
+        $ref: '#/definitions/boolean_string_default_false'
   ProcessDeviceReport:
     type: object
     additionalProperties: false
     properties:
       no_save_db:
-        $ref: '#/definitions/boolean_integer_default_false'
+        $ref: '#/definitions/boolean_string_default_false'
   HardwareProductSpecification:
     type: object
     additionalProperties: false

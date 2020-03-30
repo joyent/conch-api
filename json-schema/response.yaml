@@ -52,16 +52,11 @@ definitions:
             type: object
             additionalProperties:
               anyOf:
-                - type: integer
-                - type: number
                 - type: string
                 - type: array
                   minItems: 2
                   items:
-                    anyOf:
-                      - type: integer
-                      - type: number
-                      - type: string
+                    type: string
   RequestValidationError:
     allOf:
       - $ref: '#/definitions/ValidationError'

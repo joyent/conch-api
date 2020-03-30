@@ -376,13 +376,13 @@ $t->get_ok('/json_schema/query_params/ResetUserPassword')
         '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => $base_uri.'json_schema/query_params/ResetUserPassword',
         definitions => {
-            boolean_integer_default_true => { type => 'integer', minimum => 0, maximum => 1, default => 1 },
+            boolean_string_default_true => { type => 'string', enum => [ '0', '1' ], default => '1' },
         },
         type => 'object',
         additionalProperties => bool(0),
         properties => {
             clear_tokens => { type => 'string', enum => [ qw(none login_only all) ], default => 'login_only' },
-            send_mail => { '$ref' => '#/definitions/boolean_integer_default_true' },
+            send_mail => { '$ref' => '#/definitions/boolean_string_default_true' },
         },
     });
 

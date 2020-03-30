@@ -60,8 +60,10 @@ using the [response.json#/definitions/RequestValidationError](../json-schema/res
 Returns a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object suitable for validating an endpoint's query parameters
 (when transformed into a hashref: see ["validate\_query\_params"](#validate_query_params)).
 
-Strings that look like numbers are converted into numbers, so strict 'integer' and 'number'
-typing is possible. No default population is done yet though; see
+Because values are being parsed from the URI string, all values are strings even if they look like
+numbers.
+
+No default population is done yet though; see
 [https://github.com/mojolicious/json-validator/issues/158](https://github.com/mojolicious/json-validator/issues/158).
 
 ### get\_request\_validator

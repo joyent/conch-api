@@ -1,5 +1,5 @@
 {
-  "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/query_params/$schema_name' endpoints, or within conch itself, json-schema/query_params.yaml.\nNote: for now, defaults are for documentation purposes only. see https://github.com/mojolicious/json-validator/issues/158",
+  "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/query_params/$schema_name' endpoints, or within conch itself, json-schema/query_params.yaml.\nNote that all parameters are parsed internally from the request URI as strings, so all type checks here use strings. When a query parameter is used more than once, its values are parsed as an arrayref. See ../modules/Conch::Plugin::JSONValidator#validate_query_params. For now, defaults are for documentation purposes only. see https://github.com/mojolicious/json-validator/issues/158",
   "$schema" : "http://json-schema.org/draft-07/schema#",
   "definitions" : {
     "BuildDevices" : {
@@ -9,10 +9,10 @@
           "not" : {
             "properties" : {
               "ids_only" : {
-                "const" : 1
+                "const" : "1"
               },
               "serials_only" : {
-                "const" : 1
+                "const" : "1"
               }
             },
             "required" : [
@@ -34,7 +34,7 @@
       ],
       "properties" : {
         "active_minutes" : {
-          "$ref" : "common.json#/definitions/non_negative_integer"
+          "$ref" : "#/definitions/non_negative_integer_string"
         },
         "health" : {
           "oneOf" : [
@@ -52,7 +52,7 @@
           ]
         },
         "ids_only" : {
-          "$ref" : "#/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_string_default_false"
         },
         "phase" : {
           "oneOf" : [
@@ -70,7 +70,7 @@
           ]
         },
         "serials_only" : {
-          "$ref" : "#/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_string_default_false"
         }
       },
       "type" : "object"
@@ -79,7 +79,7 @@
       "additionalProperties" : false,
       "properties" : {
         "ids_only" : {
-          "$ref" : "#/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_string_default_false"
         },
         "phase" : {
           "oneOf" : [
@@ -150,10 +150,10 @@
       },
       "properties" : {
         "completed" : {
-          "$ref" : "#/definitions/boolean_integer"
+          "$ref" : "#/definitions/boolean_string"
         },
         "started" : {
-          "$ref" : "#/definitions/boolean_integer"
+          "$ref" : "#/definitions/boolean_string"
         }
       },
       "type" : "object"
@@ -223,7 +223,7 @@
       "description" : "used for operations where email can optionally be sent",
       "properties" : {
         "send_mail" : {
-          "$ref" : "#/definitions/boolean_integer_default_true"
+          "$ref" : "#/definitions/boolean_string_default_true"
         }
       },
       "type" : "object"
@@ -232,7 +232,7 @@
       "additionalProperties" : false,
       "properties" : {
         "no_save_db" : {
-          "$ref" : "#/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_string_default_false"
         }
       },
       "type" : "object"
@@ -250,7 +250,7 @@
           "type" : "string"
         },
         "send_mail" : {
-          "$ref" : "#/definitions/boolean_integer_default_true"
+          "$ref" : "#/definitions/boolean_string_default_true"
         }
       },
       "type" : "object"
@@ -261,13 +261,13 @@
           "additionalProperties" : false,
           "properties" : {
             "api_only" : {
-              "$ref" : "#/definitions/boolean_integer_default_false"
+              "$ref" : "#/definitions/boolean_string_default_false"
             },
             "login_only" : {
-              "$ref" : "#/definitions/boolean_integer_default_false"
+              "$ref" : "#/definitions/boolean_string_default_false"
             },
             "send_mail" : {
-              "$ref" : "#/definitions/boolean_integer_default_true"
+              "$ref" : "#/definitions/boolean_string_default_true"
             }
           },
           "type" : "object"
@@ -276,10 +276,10 @@
           "not" : {
             "properties" : {
               "api_only" : {
-                "const" : 1
+                "const" : "1"
               },
               "login_only" : {
-                "const" : 1
+                "const" : "1"
               }
             },
             "required" : [
@@ -295,7 +295,7 @@
       "additionalProperties" : false,
       "properties" : {
         "rack_only" : {
-          "$ref" : "#/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_string_default_false"
         }
       },
       "type" : "object"
@@ -304,44 +304,55 @@
       "additionalProperties" : true,
       "properties" : {
         "with_device_health" : {
-          "$ref" : "#/definitions/boolean_integer_or_flag"
+          "$ref" : "#/definitions/boolean_string_or_flag"
         },
         "with_device_phases" : {
-          "$ref" : "#/definitions/boolean_integer_or_flag"
+          "$ref" : "#/definitions/boolean_string_or_flag"
         },
         "with_rack_phases" : {
-          "$ref" : "#/definitions/boolean_integer_or_flag"
+          "$ref" : "#/definitions/boolean_string_or_flag"
         }
       },
       "type" : "object"
     },
-    "boolean_integer" : {
-      "maximum" : 1,
-      "minimum" : 0,
-      "type" : "integer"
+    "boolean_string" : {
+      "enum" : [
+        "0",
+        "1"
+      ],
+      "type" : "string"
     },
-    "boolean_integer_default_false" : {
-      "default" : 0,
-      "maximum" : 1,
-      "minimum" : 0,
-      "type" : "integer"
+    "boolean_string_default_false" : {
+      "default" : "0",
+      "enum" : [
+        "0",
+        "1"
+      ],
+      "type" : "string"
     },
-    "boolean_integer_default_true" : {
-      "default" : 1,
-      "maximum" : 1,
-      "minimum" : 0,
-      "type" : "integer"
+    "boolean_string_default_true" : {
+      "default" : "1",
+      "enum" : [
+        "0",
+        "1"
+      ],
+      "type" : "string"
     },
-    "boolean_integer_or_flag" : {
+    "boolean_string_or_flag" : {
       "description" : "\"?foo\" and \"?foo=1\" are true; \"?foo=0\" is false",
       "oneOf" : [
         {
           "const" : ""
         },
         {
-          "$ref" : "#/definitions/boolean_integer"
+          "$ref" : "#/definitions/boolean_string"
         }
       ]
+    },
+    "non_negative_integer_string" : {
+      "description" : "see common.json#/definitions/non_negative_integer",
+      "pattern" : "^[0-9]+$",
+      "type" : "string"
     }
   }
 }

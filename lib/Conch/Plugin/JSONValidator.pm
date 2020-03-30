@@ -118,8 +118,10 @@ using the F<response.yaml#/definitions/RequestValidationError> json response sch
 Returns a L<JSON::Validator> object suitable for validating an endpoint's query parameters
 (when transformed into a hashref: see L</validate_query_params>).
 
-Strings that look like numbers are converted into numbers, so strict 'integer' and 'number'
-typing is possible. No default population is done yet though; see
+Because values are being parsed from the URI string, all values are strings even if they look like
+numbers.
+
+No default population is done yet though; see
 L<https://github.com/mojolicious/json-validator/issues/158>.
 
 =cut
@@ -128,7 +130,7 @@ L<https://github.com/mojolicious/json-validator/issues/158>.
     $app->helper(get_query_params_validator => sub ($c) {
         return $_query_params_validator if $_query_params_validator;
         # TODO: ->new(coerce => '...,defaults')
-        $_query_params_validator = JSON::Validator->new(coerce => 'numbers');
+        $_query_params_validator = JSON::Validator->new;
         $_query_params_validator->formats->@{qw(json-pointer uri uri-reference)} =
             (\&_check_json_pointer, \&_check_uri, \&_check_uri_reference);
         # FIXME: JSON::Validator should be extracting $schema out of the document - see https://github.com/mojolicious/json-validator/pull/152

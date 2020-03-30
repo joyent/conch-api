@@ -2223,27 +2223,11 @@
               "additionalProperties" : {
                 "anyOf" : [
                   {
-                    "type" : "integer"
-                  },
-                  {
-                    "type" : "number"
-                  },
-                  {
                     "type" : "string"
                   },
                   {
                     "items" : {
-                      "anyOf" : [
-                        {
-                          "type" : "integer"
-                        },
-                        {
-                          "type" : "number"
-                        },
-                        {
-                          "type" : "string"
-                        }
-                      ]
+                      "type" : "string"
                     },
                     "minItems" : 2,
                     "type" : "array"
