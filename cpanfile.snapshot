@@ -2206,10 +2206,10 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
-  JSON-Validator-3.24
-    pathname: J/JH/JHTHORSEN/JSON-Validator-3.24.tar.gz
+  JSON-Validator-3.25
+    pathname: J/JH/JHTHORSEN/JSON-Validator-3.25.tar.gz
     provides:
-      JSON::Validator 3.24
+      JSON::Validator 3.25
       JSON::Validator::Error undef
       JSON::Validator::Formats undef
       JSON::Validator::Joi undef
