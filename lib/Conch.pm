@@ -47,7 +47,7 @@ sub startup {
     $self->plugin('Conch::Plugin::GitVersion', $self->config);
     $self->plugin('Conch::Plugin::Database', $self->config);
 
-    # specify which MIME types we can handle
+    # specify MIME type mappings for responses
     $self->types->type(json => 'application/json');
     $self->types->type(csv => 'text/csv');
 
