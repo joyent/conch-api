@@ -31,7 +31,7 @@ sub nic_pxe ($self) {
         ->active
         ->order_by($me.'.iface_name')
         ->rows(1)
-        ->columns(['mac']);
+        ->columns('mac');
 }
 
 =head2 nic_ipmi
@@ -49,7 +49,7 @@ sub nic_ipmi ($self) {
     my $ipmi_rs = $self
         ->search({ $me.'.iface_name' => 'ipmi1' })
         ->active
-        ->columns([ \'array[mac::text, host(ipaddr)]' ]);
+        ->columns(\'array[mac::text, host(ipaddr)]');
 }
 
 =head2 fields
