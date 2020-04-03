@@ -241,25 +241,25 @@ sub status_is ($self, $status, $desc = undef) {
     my $method = $self->tx->req->method;
     my $code = $self->tx->res->code;
 
-    $self->_test('fail', 'GET requests should not have request body content')
+    $self->test('fail', 'GET requests should not have request body content')
         if $method eq 'GET' and $self->tx->req->text;
 
-    $self->_test('fail', 'HEAD requests should not have body content')
+    $self->test('fail', 'HEAD requests should not have body content')
         if $method eq 'HEAD' and $self->tx->res->text;
 
-    $self->_test('fail', $code.' responses should have a Location header')
+    $self->test('fail', $code.' responses should have a Location header')
         if any { $code == $_ } 201,301,302,303,305,307,308 and not $self->header_exists('Location');
 
-    $self->_test('fail', $method.' requests should not return '.$code)
+    $self->test('fail', $method.' requests should not return '.$code)
         if $method eq 'GET' and any { $code == $_ } 201,202;
 
-    $self->_test('fail', $method.' requests should not return '.$code)
+    $self->test('fail', $method.' requests should not return '.$code)
         if $method eq 'DELETE' and $code == 201;
 
-    $self->_test('fail', $code.' responses should have content')
+    $self->test('fail', $code.' responses should have content')
         if $method ne 'HEAD' and any { $code == $_ } 200,400,401,403,404,409,422 and not $self->tx->res->text;
 
-    $self->_test('fail', $code.' responses should not have content')
+    $self->test('fail', $code.' responses should not have content')
         if any { $code == $_ } 204,301,302,303,304,305,307,308 and $self->tx->res->text;
 
 
@@ -276,9 +276,9 @@ Stolen from L<Test::Mojo>'s examples. I don't know why this isn't just part of t
 
 =cut
 
-sub location_is ($t, $value, $desc = 'location header') {
+sub location_is ($self, $value, $desc = 'location header') {
     $value = Mojo::URL->new($value) if not blessed($value);
-    return $t->success(Test::More->builder->is_eq($t->tx->res->headers->location, $value, $desc));
+    return $self->test('is', $self->tx->res->headers->location, $value, $desc);
 }
 
 =head2 location_like
@@ -287,8 +287,8 @@ As L</location_is>, but takes a regular expression.
 
 =cut
 
-sub location_like ($t, $pattern, $desc = 'location header') {
-    return $t->success(Test::More->builder->like($t->tx->res->headers->location, $pattern, $desc));
+sub location_like ($self, $pattern, $desc = 'location header') {
+    return $self->test('like', $self->tx->res->headers->location, $pattern, $desc);
 }
 
 =head2 json_schema_is
@@ -302,9 +302,9 @@ the hash as the schema to validate.
 
 sub json_schema_is ($self, $schema, $message = undef) {
     my @errors;
-    return $self->_test('fail', 'No request has been made') unless $self->tx;
+    return $self->test('fail', 'No request has been made') unless $self->tx;
     my $data = $self->tx->res->json;
-    return $self->_test('fail', 'No JSON in response') unless $data;
+    return $self->test('fail', 'No JSON in response') unless $data;
 
     my $schema_name;
     if (ref $schema) {
@@ -318,7 +318,7 @@ sub json_schema_is ($self, $schema, $message = undef) {
 
     @errors = $self->validator->validate($data, $schema);
     my $error_count = @errors;
-    return $self->_test('ok', !$error_count, $message // 'JSON response has no schema validation errors')
+    return $self->test('ok', !$error_count, $message // 'JSON response has no schema validation errors')
         ->or(sub ($self) {
             my $errors = [ map +{ path => $_->path, message => $_->message }, @errors ];
             Test::More::diag($error_count
@@ -344,7 +344,7 @@ sub json_cmp_deeply {
     my $self = shift;
     my ($p, $data) = @_ > 1 ? (shift, shift) : ('', shift);
     my $desc = Test::Mojo::_desc(shift, qq{cmp_deeply match for JSON Pointer "$p"});
-    return $self->_test('Test::Deep::cmp_deeply', $self->tx->res->json($p), $data, $desc);
+    return $self->test('Test::Deep::cmp_deeply', $self->tx->res->json($p), $data, $desc);
 }
 
 =head2 load_validation_plans
@@ -574,10 +574,10 @@ Remember: "Line endings in the body will normalized to CRLF." (see L<Email::Simp
 =cut
 
 sub email_cmp_deeply ($self, $expected, $test_name = 'email was sent correctly') {
-    return $self->_test('fail', 'an email was delivered')
+    return $self->test('fail', 'an email was delivered')
         if not $self->{_mail_composed} or not $self->{_mail_composed}->@*;
 
-    $self->_test(
+    $self->test(
         'Test::Deep::cmp_deeply',
         [
             map +{
@@ -608,7 +608,7 @@ Tests that B<no> email was sent as a result of the last request.
 =cut
 
 sub email_not_sent ($self) {
-    $self->_test(
+    $self->test(
         'ok',
         (!$self->{_mail_composed} || !$self->{_mail_composed}->@*),
         'no email was sent',
@@ -641,7 +641,7 @@ one specific log level:
 =cut
 
 sub log_is ($self, $expected_msg, $test_name = 'log line', $level = undef) {
-    $self->_test(
+    $self->test(
         'Test::Deep::cmp_deeply',
         $self->app->log->history,
         Test::Deep::superbagof([
@@ -705,7 +705,7 @@ Like L</log_is>, but tests for multiple messages at once.
 =cut
 
 sub logs_are ($self, $expected_msgs, $test_name = 'log lines', $level = undef) {
-    $self->_test(
+    $self->test(
         'Test::Deep::cmp_deeply',
         $self->app->log->history,
         Test::Deep::superbagof(
@@ -744,7 +744,7 @@ sub _request_ok ($self, @args) {
     my $log_history = $self->app->log->history;
     if (any { $_->[1] eq 'fatal' } $log_history->@*) {
         local $Test::Builder::Level = $Test::Builder::Level + 1;
-        $self->_test('fail', 'should not have gotten a fatal log message');
+        $self->test('fail', 'should not have gotten a fatal log message');
         $dump_log = 1;
     }
 

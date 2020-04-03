@@ -2683,8 +2683,8 @@ DISTRIBUTIONS
       Mojolicious 8.03
       SQL::Abstract 1.86
       perl 5.010001
-  Mojolicious-8.33
-    pathname: S/SR/SRI/Mojolicious-8.33.tar.gz
+  Mojolicious-8.36
+    pathname: S/SR/SRI/Mojolicious-8.36.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2753,7 +2753,7 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 8.33
+      Mojolicious 8.36
       Mojolicious::Command undef
       Mojolicious::Command::Author::cpanify undef
       Mojolicious::Command::Author::generate undef
