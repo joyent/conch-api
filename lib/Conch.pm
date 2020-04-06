@@ -37,9 +37,10 @@ sub startup {
 
     $self->sessions->cookie_name('conch');
     $self->sessions->samesite('Strict');            # do not send with cross-site requests
-    $self->sessions->secure(1) if $ENV{MOJO_MODE} eq 'production';  # https only
+    $self->sessions->secure(1) if ($ENV{MOJO_MODE} // '') eq 'production';  # https only
 
     $self->plugin('Config');
+    $self->mode(delete $self->config->{mode}) if exists $self->config->{mode};
     $self->secrets(delete $self->config->{secrets});
 
     $self->plugin('Conch::Plugin::Features', $self->config);

@@ -99,10 +99,9 @@ sub new {
         : $args->{config}{features}{no_db} ? undef
         : $class->init_db // Test::More::BAIL_OUT('failed to create test database');
 
-    $ENV{MOJO_MODE} ||= 'test';
-
     my $self = Test::Mojo->new(
         Conch => {
+            mode => $ENV{MOJO_MODE} // 'test',
             features => {
                 no_db => ($pg ? 0 : 1),
                 ($args->{config}//{})->{features} ? delete($args->{config}{features})->%* : (),
