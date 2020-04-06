@@ -645,6 +645,52 @@ $t->do_and_wait_for_event(
 );
 
 
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
+        $t->app->log->fatal('scary message');
+    },
+    sub ($payload) {
+        cmp_deeply(
+            $payload,
+            {
+                access_token => 'TOKEN',
+                data => {
+                    environment => 'custom_environment',
+                    body => {
+                        message => {
+                            body => 'fatal log message',
+                            name => 'conch-api',
+                            hostname => ignore,
+                            pid => $$,
+                            time => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                            v => 2,
+                            level => 'fatal',
+                            msg => 'scary message',
+                        },
+                    },
+                    # optional but conch always sends these:
+                    (map +($_ => ignore), qw(timestamp code_version platform fingerprint uuid context notifier)),
+                    language => 'perl '.$Config::Config{version},
+                    # request omitted - logger does not have access to it
+                    server => subhashof({ map +($_ => ignore), qw(cpu host root branch code_version perlpath archname osname osvers) }),
+                    level => 'critical',
+                    custom => {
+                        # request_id omitted
+                        stash => all(
+                            # privileged data (e.g. from config file) is not leaked
+                            hash_each(isa('')),    # not a ref
+                            superhashof({ config => re(qr/^HASH\(0x/) }),
+                        ),
+                    },
+                    # optional, that we don't send: framework client title
+                },
+            },
+            'got alert about use of endpoint that has moved permanently',
+        );
+    },
+);
+
 warnings(sub {
     memory_cycle_ok($t, 'no leaks in the Test::Conch object');
 });

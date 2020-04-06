@@ -11,6 +11,8 @@ use Mojo::JSON 'encode_json';
 use List::Util qw(none any);
 use Carp;
 use Storable 'dclone';
+use Scalar::Util 'weaken';
+use Time::HiRes 'time'; # time() now has µs precision
 
 my @message_levels = qw(critical error warning info debug);
 
@@ -48,6 +50,22 @@ sub register ($self, $app, $config) {
                 $c->send_exception_to_rollbar($exception);
             });
         }
+    });
+
+
+=head1 LISTENERS
+
+=head2 Send fatal log message
+
+Sends fatal log messages to Rollbar.
+
+=cut
+
+    weaken(my $_app = $app);
+    $app->log->on(message => sub ($log, $level, @msg) {
+        $_app->send_message_to_rollbar('critical', 'fatal log message',
+            Conch::Log::_bunyan_data(time, $level, @msg))
+        if $level eq 'fatal';
     });
 
 
@@ -214,7 +232,7 @@ sub _request_data($c) {
         $user ? (person => { id => $user->id, username => $user->name, email => $user->email }) : (),
 
         custom => {
-            request_id => (length($c->req->url) ? $c->req->request_id : undef),
+            length($c->req->url) ? ( request_id => $c->req->request_id ) : (),
             stash => +{
                 # we only go one level deep, to avoid leaking potentially secret data.
                 map {
