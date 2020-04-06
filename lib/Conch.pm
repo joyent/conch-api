@@ -106,6 +106,11 @@ sub startup {
         $res_headers->header('Request-Id', $request_id);
         $res_headers->header('X-Request-Id', $request_id);
         $res_headers->add('X-Conch-API', $c->version_tag);
+
+        $c->send_message_to_rollbar('error',
+                'usage of endpoint that has been moved permanently',
+                { old_uri => $c->req->url, new_uri => $c->res->headers->location })
+            if $c->res->code == 308 and $c->feature('rollbar');
     });
 
 =head2 status

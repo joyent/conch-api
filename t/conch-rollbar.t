@@ -53,6 +53,8 @@ $r->post('/_send_message')->to(cb => sub ($c) {
 $r->get('/_long_response')->to('yo_momma#long_response');
 $r->get('/_large_response')->to('yo_momma#large_response');
 $r->post('/_conflict')->to('user#conflict');
+$r->get('/_permanent_redirect/:foo', sub { shift->status(308, 'new_location') });
+$r->get('/_new_location/:foo')->to('foo#bar')->name('new_location');
 $t->add_routes($r);
 
 package Conch::Controller::User {
@@ -612,6 +614,36 @@ $t->do_and_wait_for_event(
 ); }
 
 is($fingerprints{large_response}->[0], $fingerprints{large_response}->[1], 'the two fingerprints are identical');
+
+
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
+        $t->get_ok('/_permanent_redirect/hello')
+            ->status_is(308)
+            ->location_is('/_new_location/hello');
+    },
+    sub ($payload) {
+        cmp_deeply(
+            $payload,
+            $message_payload,
+            'basic message payload',
+        );
+
+        cmp_deeply(
+            $payload->{data}{body},
+            {
+                message => {
+                    body => 'usage of endpoint that has been moved permanently',
+                    old_uri => '/_permanent_redirect/hello',
+                    new_uri => '/_new_location/hello',
+                },
+            },
+            'got alert about use of endpoint that has moved permanently',
+        );
+    },
+);
+
 
 warnings(sub {
     memory_cycle_ok($t, 'no leaks in the Test::Conch object');
