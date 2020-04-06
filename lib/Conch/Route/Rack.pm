@@ -62,9 +62,12 @@ sub one_rack_routes ($class, $r) {
     $one_rack->require_system_admin->delete('/')->to('#delete');
 
     # GET .../rack/:rack_id_or_name/layout
-    $one_rack->get('/layout')->to('#get_layouts');
+    $one_rack->get('/layouts', sub { shift->status(308, 'get_layouts') });
+    $one_rack->get('/layout', 'get_layouts')->to('#get_layouts');
+
     # POST .../rack/:rack_id_or_name/layout
-    $one_rack->post('/layout')->to('#overwrite_layouts');
+    $one_rack->post('/layouts', sub { shift->status(308, 'overwrite_layouts') });
+    $one_rack->post('/layout', 'overwrite_layouts')->to('#overwrite_layouts');
 
     # GET .../rack/:rack_id_or_name/assignment
     $one_rack->get('/assignment')->to('#get_assignment');

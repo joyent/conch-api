@@ -44,7 +44,8 @@ sub routes {
     $with_datacenter_room_system_admin->delete('/')->to('#delete');
 
     # GET /room/:datacenter_room_id_or_alias/rack
-    $with_datacenter_room_ro->get('/rack')->to('#racks');
+    $with_datacenter_room_ro->get('/racks', sub { shift->status(308, 'get_room_racks') });
+    $with_datacenter_room_ro->get('/rack', 'get_room_racks')->to('#racks');
 
     # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name
     # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name

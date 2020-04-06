@@ -180,6 +180,10 @@ $t->get_ok('/hardware_product/foo')
     ->status_is(404)
     ->log_debug_is('Looking up a hardware product by sku,name,alias foo');
 
+$t->get_ok('/hardware_product/name=sungo2')
+    ->status_is(308)
+    ->location_is('/hardware_product/sungo2');
+
 $t->get_ok($_)
     ->status_is(200)
     ->location_is('/hardware_product/'.$new_product->{id})
