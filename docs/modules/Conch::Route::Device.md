@@ -23,11 +23,6 @@ a [role](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserWorkspaceRole#role) in th
 Full (admin-level) access is also granted to a device if a report was sent for that device
 using a relay that registered with that user's credentials.
 
-### `POST /device/:device_serial_number`
-
-- Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
-- Response: [response.json#/definitions/ValidationStateWithResults](../json-schema/response.json#/definitions/ValidationStateWithResults)
-
 ### `GET /device?:key=:value`
 
 Supports the following query parameters:

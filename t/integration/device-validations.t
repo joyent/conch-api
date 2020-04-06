@@ -41,13 +41,13 @@ $build->create_related('user_build_roles', { user_id => $ro_user->id, role => 'a
 $t->post_ok('/build/'.$build->id.'/device', json => [ { serial_number => 'TEST', sku => $good_report_data->{sku} } ])
     ->status_is(204);
 
-$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $error_report)
+$t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $error_report)
     ->status_is(200)
     ->json_schema_is('ValidationStateWithResults')
     ->json_is('/status', 'error');
 my $error_validation_state_id = $t->tx->res->json->{id};
 
-$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+$t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
     ->status_is(200)
     ->json_schema_is('ValidationStateWithResults')
     ->json_is('/status', 'pass');

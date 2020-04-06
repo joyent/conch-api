@@ -24,13 +24,12 @@ Response uses the ValidationStateWithResults json schema.
 =cut
 
 sub process ($c) {
+    my $params = $c->validate_query_params('ProcessDeviceReport');
+    return if not $params;
+    return 1 if $params->{no_save_db} // 0; # dispatch to device_report#validate_report
+
     my $unserialized_report = $c->validate_request('DeviceReport');
     return if not $unserialized_report;
-
-    # Make sure the API and device report agree on who we're talking about
-    if ($c->stash('device_serial_number') ne $unserialized_report->{serial_number}) {
-        return $c->status(422, { error => 'Serial number provided to the API does not match the report data.' });
-    }
 
     # Make sure that the remote side is telling us about a hardware product we understand
     my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
@@ -44,14 +43,14 @@ sub process ($c) {
             if not $relay_rs->search({ user_id => $c->stash('user_id') })->exists;
     }
 
-    my $device = $c->db_devices->find({ serial_number => $c->stash('device_serial_number') });
+    my $device = $c->db_devices->find({ serial_number => $unserialized_report->{serial_number} });
     if (not $device) {
-        $c->log->warn('Could not find device '.$c->stash('device_serial_number'));
+        $c->log->warn('Could not find device '.$unserialized_report->{serial_number});
         return $c->status(404);
     }
 
     if ($device->phase eq 'decommissioned') {
-        $c->log->warn('report submitted for decommissioned device '.$c->stash('device_serial_number'));
+        $c->log->warn('report submitted for decommissioned device '.$unserialized_report->{serial_number});
         return $c->status(409, { error => 'device is decommissioned' });
     }
 
@@ -66,7 +65,7 @@ sub process ($c) {
     my ($previous_report_id, $previous_report_status) = $previous_report ? $previous_report->@{qw(id status)} : ();
 
     # Update the device and create the device report
-    $c->log->debug('Updating device '.$c->stash('device_serial_number'));
+    $c->log->debug('Updating device '.$unserialized_report->{serial_number});
     my $prev_uptime = $device->uptime_since;
     $c->txn_wrapper(sub ($c) {
         $device->update({
@@ -85,11 +84,11 @@ sub process ($c) {
         $device->health('error');
         $device->update({ updated => \'now()' }) if $device->is_changed;
         return $c->status(400, { error => 'could not process report for device '
-            .$c->stash('device_serial_number')
+            .$unserialized_report->{serial_number}
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
     };
 
-    $c->log->debug('Storing device report for device '.$c->stash('device_serial_number'));
+    $c->log->debug('Storing device report for device '.$unserialized_report->{serial_number});
     my $device_report = $device->create_related('device_reports', {
         report => $c->req->text, # this is the raw json string
         # we will always keep this report if the previous report failed, or this is the first

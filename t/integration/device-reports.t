@@ -27,22 +27,22 @@ my $hardware_product;
 subtest preliminaries => sub {
     my $report_data = from_json($report);
 
-    $t->post_ok('/device/foo', json => $report_data)
-        ->status_is(422)
-        ->json_is({ error => 'Serial number provided to the API does not match the report data.' });
-
     $t->post_ok('/device/TEST', json => $report_data)
+        ->status_is(308)
+        ->location_is('/device_report');
+
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'Could not find hardware product with sku '.$report_data->{sku} });
 
-    $t->post_ok('/device_report', json => $report_data)
+    $t->post_ok('/device_report?no_save_db=1', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'Could not find hardware product with sku '.$report_data->{sku} });
 
     $hardware_product = first { $_->isa('Conch::DB::Result::HardwareProduct') }
         $t->load_fixture('hardware_product_compute');
 
-    $t->post_ok('/device/TEST', json => $report_data)
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'relay serial deadbeef is not registered' });
 
@@ -52,14 +52,14 @@ subtest preliminaries => sub {
         ->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
         ->status_is(201);
 
-    $t->post_ok('/device/TEST', json => $report_data)
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'relay serial deadbeef is not registered by user '.$ro_user->name });
 
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
         ->status_is(204);
 
-    $t->post_ok('/device/TEST', json => $report_data)
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(404)
         ->log_warn_is('Could not find device TEST');
 };
@@ -84,7 +84,7 @@ subtest 'run report without an existing device and without making updates' => su
     $report_data->{serial_number} = 'different_device';
     $report_data->{system_uuid} = create_uuid_str();
 
-    $t->post_ok('/device_report', json => $report_data)
+    $t->post_ok('/device_report?no_save_db=1', json => $report_data)
         ->status_is(200)
         ->json_schema_is('ReportValidationResults')
         ->json_cmp_deeply({
@@ -128,7 +128,7 @@ subtest 'save reports for device' => sub {
     # 7: pass
 
     my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+    $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
         ->location_is('/device/'.$t->tx->res->json->{device_id})
         ->json_schema_is('ValidationStateWithResults')
@@ -183,7 +183,7 @@ subtest 'save reports for device' => sub {
     ($altered_report->{interfaces}{eth5}{mac}, $altered_report->{interfaces}{eth1}{mac}) =
         ($altered_report->{interfaces}{eth1}{mac}, $altered_report->{interfaces}{eth5}{mac});
 
-    $t->post_ok('/device/TEST', json => $altered_report)
+    $t->post_ok('/device_report', json => $altered_report)
         ->status_is(200)
         ->location_is('/device/'.$device_id)
         ->json_schema_is('ValidationStateWithResults')
@@ -202,7 +202,7 @@ subtest 'save reports for device' => sub {
 
 
     # submit another passing report (this makes 3)
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+    $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
         ->location_is('/device/'.$device_id)
         ->json_schema_is('ValidationStateWithResults')
@@ -227,7 +227,7 @@ subtest 'save reports for device' => sub {
 
 
     my $invalid_json_1 = '{"this": 1s n0t v@l,d ǰsøƞ'; # } for brace matching
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
+    $t->post_ok('/device_report', { 'Content-Type' => 'application/json; charset=utf-8' },
             Encode::encode('UTF-8', $invalid_json_1))
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
@@ -243,7 +243,7 @@ subtest 'save reports for device' => sub {
         ->json_is('/health' => 'pass');
 
     my $invalid_json_2 = to_json({ foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' });
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json; charset=utf-8' },
+    $t->post_ok('/device_report', { 'Content-Type' => 'application/json; charset=utf-8' },
             json => { foo => 'this 1s v@l,d ǰsøƞ, but violates the schema' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
@@ -261,7 +261,7 @@ subtest 'save reports for device' => sub {
 
 
     # submit another passing report...
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+    $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
         ->location_is('/device/'.$device_id)
         ->json_schema_is('ValidationStateWithResults')
@@ -285,7 +285,7 @@ subtest 'save reports for device' => sub {
 
 
     my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $error_report)
+    $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $error_report)
         ->status_is(200)
         ->location_is('/device/'.$device_id)
         ->json_schema_is('ValidationStateWithResults')
@@ -315,7 +315,7 @@ subtest 'save reports for device' => sub {
 
 
     # return device to a good state
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $good_report)
+    $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
         ->location_is('/device/'.$device_id)
         ->json_schema_is('ValidationStateWithResults')
@@ -357,7 +357,7 @@ subtest 'save reports for device' => sub {
         $disk->update({ device_id => $new_device->id, vendor => 'King Zøg' });
 
         # then submit the report again and observe it moving back.
-        $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, json => $report_data)
+        $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, json => $report_data)
             ->status_is(200)
             ->location_is('/device/'.$device_id)
             ->json_schema_is('ValidationStateWithResults')
@@ -373,7 +373,7 @@ subtest 'save reports for device' => sub {
         delete $report_data->@{qw(disks interfaces)};
         $report_data->{links} = [ 'https://foo.com/1' ];
 
-        $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, json => $report_data)
+        $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, json => $report_data)
             ->status_is(200)
             ->location_is('/device/'.$device_id)
             ->json_schema_is('ValidationStateWithResults')
@@ -386,7 +386,7 @@ subtest 'save reports for device' => sub {
         );
 
         push $report_data->{links}->@*, 'https://foo.com/0';
-        $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, json => $report_data)
+        $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, json => $report_data)
             ->status_is(200)
             ->location_is('/device/'.$device_id)
             ->json_schema_is('ValidationStateWithResults')
@@ -415,11 +415,11 @@ subtest 'system_uuid collisions' => sub {
         health => 'unknown',
     });
 
-    $t->post_ok('/device_report', json => $report_data)
+    $t->post_ok('/device_report?no_save_db=1', json => $report_data)
         ->status_is(400)
         ->json_cmp_deeply({ error => re(qr/no validations ran: .*duplicate key value violates unique constraint "device_system_uuid_key"/) });
 
-    $t->post_ok('/device/i_was_here_first', json => $report_data)
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(400)
         ->json_cmp_deeply({ error => re(qr/^could not process report for device i_was_here_first.*duplicate key value violates unique constraint "device_system_uuid_key"/) });
 
@@ -438,7 +438,7 @@ subtest 'submit report for decommissioned device' => sub {
     my $altered_report = from_json($report);
     $altered_report->{serial_number} = 'DECOMMISSIONED_TEST';
 
-    $t->post_ok('/device/DECOMMISSIONED_TEST', json => $altered_report)
+    $t->post_ok('/device_report', json => $altered_report)
         ->status_is(409)
         ->json_is({ error => 'device is decommissioned' });
 };
@@ -454,7 +454,7 @@ subtest 'submit report for production device' => sub {
     $altered_report->{serial_number} = 'PRODUCTION_TEST';
     $altered_report->{system_uuid} = create_uuid_str();
 
-    $t->post_ok('/device/PRODUCTION_TEST', json => $altered_report)
+    $t->post_ok('/device_report', json => $altered_report)
         ->status_is(200)
         ->location_is('/device/'.$t->tx->res->json->{device_id})
         ->json_schema_is('ValidationStateWithResults')
@@ -472,7 +472,7 @@ subtest 'submit report for production device' => sub {
     ($altered_report->{interfaces}{eth5}{mac}, $altered_report->{interfaces}{eth1}{mac}) =
         ($altered_report->{interfaces}{eth1}{mac}, $altered_report->{interfaces}{eth5}{mac});
 
-    $t->post_ok('/device/PRODUCTION_TEST', json => $altered_report)
+    $t->post_ok('/device_report', json => $altered_report)
         ->status_is(200)
         ->location_is('/device/'.$device->id)
         ->json_schema_is('ValidationStateWithResults')
@@ -504,7 +504,7 @@ subtest 'hardware_product is different' => sub {
     $altered_report->{sku} = 'my_new_sku';
     $altered_report->{product_name} = 'something else';
 
-    $t->post_ok('/device/TEST', json => $altered_report)
+    $t->post_ok('/device_report', json => $altered_report)
         ->status_is(200)
         ->location_is('/device/'.$device->id)
         ->json_schema_is('ValidationStateWithResults')

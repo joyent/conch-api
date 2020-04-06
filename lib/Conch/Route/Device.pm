@@ -21,9 +21,7 @@ sub routes {
     my $device = shift; # secured, under /device
     my $app = shift;
 
-    # TODO: this should be POST /device_report
-    # POST /device/:device_serial_number
-    $device->post('/:device_serial_number')->to('device_report#process');
+    $device->post('/:device_serial_number', sub { shift->status(308, '/device_report') });
 
     # GET /device?:key=:value
     $device->get('/')->to('device#lookup_by_other_attribute');
@@ -133,16 +131,6 @@ a L<role|Conch::DB::Result::UserWorkspaceRole/role> in that workspace).
 
 Full (admin-level) access is also granted to a device if a report was sent for that device
 using a relay that registered with that user's credentials.
-
-=head2 C<POST /device/:device_serial_number>
-
-=over 4
-
-=item * Request: F<request.yaml#/definitions/DeviceReport>
-
-=item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
-
-=back
 
 =head2 C<GET /device?:key=:value>
 

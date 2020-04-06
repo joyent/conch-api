@@ -49,7 +49,7 @@ $t->post_ok('/relay/deadbeef/register',
     ->status_is(201);
 
 my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
-$t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+$t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $report)
     ->status_is(200)
     ->json_schema_is('ValidationStateWithResults')
     ->json_is('/device_id', $devices[0]->id);

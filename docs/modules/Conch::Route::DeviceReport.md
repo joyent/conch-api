@@ -16,6 +16,19 @@ All routes require authentication.
 
 ### `POST /device_report`
 
+Submits a device report for processing. The device must already exist.
+Device data will be updated in the database.
+
+- The authenticated user must have previously registered the relay being used for the
+report submission (as indicated via `#/relay/serial` in the report).
+- Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
+- Response: [response.json#/definitions/ValidationStateWithResults](../json-schema/response.json#/definitions/ValidationStateWithResults)
+
+### `POST /device_report?no_update_db=1`
+
+Submits a device report for processing. Device data will **not** be updated in the database;
+only validations will be run.
+
 - Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
 - Response: [response.json#/definitions/ReportValidationResults](../json-schema/response.json#/definitions/ReportValidationResults)
 
