@@ -1,6 +1,7 @@
 package Test::Conch;
 
 use v5.26;
+BEGIN { $ENV{MOJO_LOG_LEVEL} ||= 'debug' }  # before Test::Mojo changes it
 use Mojo::Base 'Test::Mojo', -signatures;
 
 use Test::More ();

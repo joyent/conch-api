@@ -36,7 +36,7 @@ sub register ($self, $app, $config) {
     my ($log_to_stderr, $verbose) = delete $plugin_config->@{qw(log_to_stderr verbose)};
 
     my %log_args = (
-        level => 'debug',
+        level => $ENV{MOJO_LOG_LEVEL} // 'debug',
         bunyan => 1,
         $verbose ? ( with_trace => 1 ) : (),
         $plugin_config->%*,
