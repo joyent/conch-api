@@ -64,6 +64,7 @@ Wrapper around ["status\_is" in Test::Mojo](https://metacpan.org/pod/Test%3A%3AM
 * 200 and most 4xx responses should have content.
 * 201 and most 3xx responses should have a Location header.
 * 204 and most 3xx responses should not have body content.
+* 302 should not be used at all
 ```
 
 Also, unexpected responses will dump the response payload.

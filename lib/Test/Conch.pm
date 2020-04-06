@@ -227,6 +227,7 @@ Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
  * 200 and most 4xx responses should have content.
  * 201 and most 3xx responses should have a Location header.
  * 204 and most 3xx responses should not have body content.
+ * 302 should not be used at all
 
 Also, unexpected responses will dump the response payload.
 
@@ -262,6 +263,8 @@ sub status_is ($self, $status, $desc = undef) {
     $self->test('fail', $code.' responses should not have content')
         if any { $code == $_ } 204,301,302,303,304,305,307,308 and $self->tx->res->text;
 
+    $self->test('fail', 'HTTP 302 is superseded by 303 and 307')
+        if $code == 302;
 
     Test::More::diag('got response: ', Data::Dumper->new([ $self->tx->res->json ])
             ->Sortkeys(1)->Indent(1)->Terse(1)->Maxdepth(5)->Dump)
