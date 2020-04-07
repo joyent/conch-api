@@ -39,7 +39,7 @@ $t->get_ok('/hardware_vendor/'.$vendors->[0]{name})
 $t->ua->max_redirects(0);
 $t->post_ok('/hardware_vendor/MyNewVendor')
     ->status_is(303)
-    ->location_is('/hardware_vendor/MyNewVendor');
+    ->location_like(qr!^/hardware_vendor/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok('/hardware_vendor/MyNewVendor')
     ->status_is(200)

@@ -86,7 +86,7 @@ sub create ($c) {
     my $hardware_vendor = $c->db_hardware_vendors->create({ name => $c->stash('hardware_vendor_name') });
 
     $c->log->debug('Created hardware vendor '.$c->stash('hardware_vendor_name'));
-    $c->status(303, '/hardware_vendor/'.$c->stash('hardware_vendor_name'));
+    $c->status(303, '/hardware_vendor/'.$hardware_vendor->id);
 }
 
 =head2 delete
