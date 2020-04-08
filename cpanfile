@@ -16,7 +16,7 @@ requires 'Try::Tiny';
 requires 'Time::HiRes';
 requires 'Time::Moment', '>= 0.43'; # for PR#28, fixes use of stdbool.h (thanks Dale)
 requires 'Time::Local', '1.27';     # https://pandorafms.com/blog/2020-perl/
-requires 'JSON::Validator', '3.24'; # https://github.com/mojolicious/json-validator/pull/182, /190, /201, /206
+requires 'JSON::Validator', '3.25'; # https://github.com/mojolicious/json-validator/pull/182, /190, /201, /206, /207
 requires 'Data::Validate::IP';      # for json schema validation of 'ipv4', 'ipv6' types
 requires 'HTTP::Tiny';
 requires 'Safe::Isa';
@@ -33,7 +33,7 @@ requires 'Net::DNS';    # not used directly, but Email::Valid sometimes demands 
 requires 'experimental', '0.020';
 
 # mojolicious and networking
-requires 'Mojolicious', '8.31';
+requires 'Mojolicious', '8.36';
 requires 'Mojo::Pg';
 requires 'Mojo::JWT';
 requires 'Mojolicious::Plugin::Util::RandomString', '0.07'; # memory leak: https://rt.cpan.org/Ticket/Display.html?id=125981

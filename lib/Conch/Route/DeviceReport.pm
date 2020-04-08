@@ -20,8 +20,11 @@ sub routes {
     my $class = shift;
     my $device_report = shift; # secured, under /device_report
 
-    # POST /device_report
-    $device_report->post('/')->to('device_report#validate_report');
+    $device_report
+        # POST /device_report
+        ->under(['POST'], '/')->to('device_report#process')
+        # POST /device_report?no_save_db=1
+        ->post('/')->to('device_report#validate_report');
 
     # chainable action that looks up device_report_id, saves a device_report_rs,
     # and checks device access authorization
@@ -45,6 +48,25 @@ __END__
 All routes require authentication.
 
 =head2 C<POST /device_report>
+
+Submits a device report for processing. The device must already exist.
+Device data will be updated in the database.
+
+=over 4
+
+=item * The authenticated user must have previously registered the relay being used for the
+report submission (as indicated via C<#/relay/serial> in the report).
+
+=item * Request: F<request.yaml#/definitions/DeviceReport>
+
+=item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
+
+=back
+
+=head2 C<POST /device_report?no_update_db=1>
+
+Submits a device report for processing. Device data will B<not> be updated in the database;
+only validations will be run.
 
 =over 4
 

@@ -22,6 +22,12 @@ Sets up the hooks.
 
 Sends exceptions to Rollbar.
 
+## LISTENERS
+
+### Send fatal log message
+
+Sends fatal log messages to Rollbar.
+
 ## EVENTS
 
 ### dispatch\_message\_payload

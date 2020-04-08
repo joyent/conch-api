@@ -37,12 +37,12 @@ my $t = Test::Conch->new(
 
 my $r = Mojolicious::Routes->new;
 my $line_number;
-$r->post('/_die/cb')->to(cb => sub ($c) {
+$r->post('/_die/cb', sub ($c) {
     $line_number = __LINE__; die 'ach, I am slain';
 });
 $r->post('/_die/action')->to('user#die');
 $r->post('/_die/dbix_class')->to('user#dbix_class');
-$r->post('/_send_message')->to(cb => sub ($c) {
+$r->post('/_send_message', sub ($c) {
     $c->send_message_to_rollbar(
         'info',
         'here is a message',
@@ -53,6 +53,8 @@ $r->post('/_send_message')->to(cb => sub ($c) {
 $r->get('/_long_response')->to('yo_momma#long_response');
 $r->get('/_large_response')->to('yo_momma#large_response');
 $r->post('/_conflict')->to('user#conflict');
+$r->get('/_permanent_redirect/:foo', sub { shift->status(308, 'new_location') });
+$r->get('/_new_location/:foo')->to('foo#bar')->name('new_location');
 $t->add_routes($r);
 
 package Conch::Controller::User {
@@ -82,7 +84,7 @@ package RollbarSimulator {
     use Conch::UUID 'create_uuid_str';
     use Mojo::Base 'Mojolicious', -signatures;
     sub startup ($self) {
-        $self->routes->post('/api/1/item')->to(cb => sub ($c) {
+        $self->routes->post('/api/1/item', sub ($c) {
             my $payload = $c->req->json;
             Test::More::like($payload->{data}{uuid}, Conch::UUID::UUID_FORMAT, 'got rollbar uuid in payload');
             $c->app->plugins->emit(rollbar_sent => $payload);
@@ -612,6 +614,82 @@ $t->do_and_wait_for_event(
 ); }
 
 is($fingerprints{large_response}->[0], $fingerprints{large_response}->[1], 'the two fingerprints are identical');
+
+
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
+        $t->get_ok('/_permanent_redirect/hello')
+            ->status_is(308)
+            ->location_is('/_new_location/hello');
+    },
+    sub ($payload) {
+        cmp_deeply(
+            $payload,
+            $message_payload,
+            'basic message payload',
+        );
+
+        cmp_deeply(
+            $payload->{data}{body},
+            {
+                message => {
+                    body => 'usage of endpoint that has been moved permanently',
+                    old_uri => '/_permanent_redirect/hello',
+                    new_uri => '/_new_location/hello',
+                },
+            },
+            'got alert about use of endpoint that has moved permanently',
+        );
+    },
+);
+
+
+$t->do_and_wait_for_event(
+    $rollbar_app->plugins, 'rollbar_sent',
+    sub ($t) {
+        $t->app->log->fatal('scary message');
+    },
+    sub ($payload) {
+        cmp_deeply(
+            $payload,
+            {
+                access_token => 'TOKEN',
+                data => {
+                    environment => 'custom_environment',
+                    body => {
+                        message => {
+                            body => 'fatal log message',
+                            name => 'conch-api',
+                            hostname => ignore,
+                            pid => $$,
+                            time => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+                            v => 2,
+                            level => 'fatal',
+                            msg => 'scary message',
+                        },
+                    },
+                    # optional but conch always sends these:
+                    (map +($_ => ignore), qw(timestamp code_version platform fingerprint uuid context notifier)),
+                    language => 'perl '.$Config::Config{version},
+                    # request omitted - logger does not have access to it
+                    server => subhashof({ map +($_ => ignore), qw(cpu host root branch code_version perlpath archname osname osvers) }),
+                    level => 'critical',
+                    custom => {
+                        # request_id omitted
+                        stash => all(
+                            # privileged data (e.g. from config file) is not leaked
+                            hash_each(isa('')),    # not a ref
+                            superhashof({ config => re(qr/^HASH\(0x/) }),
+                        ),
+                    },
+                    # optional, that we don't send: framework client title
+                },
+            },
+            'got alert about use of endpoint that has moved permanently',
+        );
+    },
+);
 
 warnings(sub {
     memory_cycle_ok($t, 'no leaks in the Test::Conch object');

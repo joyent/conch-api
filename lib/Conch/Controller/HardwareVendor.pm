@@ -23,11 +23,11 @@ C<hardware_vendor>.
 sub find_hardware_vendor ($c) {
     my $hardware_vendor_rs = $c->db_hardware_vendors;
     if (is_uuid($c->stash('hardware_vendor_id_or_name'))) {
-        $c->log->debug('Looking up a hardware_vendor by id ('.$c->stash('hardware_vendor_id_or_name').')');
+        $c->log->debug('Looking up a hardware vendor by id ('.$c->stash('hardware_vendor_id_or_name').')');
         $hardware_vendor_rs = $hardware_vendor_rs->search({ id => $c->stash('hardware_vendor_id_or_name') });
     }
     else {
-        $c->log->debug('Looking up a hardware_vendor by name ('.$c->stash('hardware_vendor_id_or_name').')');
+        $c->log->debug('Looking up a hardware vendor by name ('.$c->stash('hardware_vendor_id_or_name').')');
         $hardware_vendor_rs = $hardware_vendor_rs->search({ name => $c->stash('hardware_vendor_id_or_name') });
     }
 

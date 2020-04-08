@@ -124,6 +124,15 @@
       },
       "type" : "object"
     },
+    "ProcessDeviceReport" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "no_save_db" : {
+          "$ref" : "/definitions/boolean_integer_default_false"
+        }
+      },
+      "type" : "object"
+    },
     "ResetUserPassword" : {
       "additionalProperties" : false,
       "properties" : {

@@ -39,7 +39,7 @@ $t->get_ok('/workspace')->status_is(401);
 $t->get_ok('/workspace/'.create_uuid_str())->status_is(401);
 
 $t->get_ok('/device/TEST')->status_is(401);
-$t->post_ok('/device/TEST', json => { a => 'b' })->status_is(401);
+$t->post_ok('/device_report', json => { a => 'b' })->status_is(401);
 
 $t->post_ok('/relay/TEST/register', json => { a => 'b' })->status_is(401);
 

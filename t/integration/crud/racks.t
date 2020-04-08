@@ -610,6 +610,10 @@ $t->get_ok($_)
         '/room/'.$room->alias.'/rack/'.$room->vendor_name.':'.$rack->name.'/assignment',
         '/room/'.$room->alias.'/rack/'.$rack->name.'/assignment';
 
+$t->get_ok('/rack/'.$rack->id.'/layouts')
+    ->status_is(308)
+    ->location_is('/rack/'.$rack->id.'/layout');
+
 $t->get_ok('/rack/'.$rack->id.'/layout')
     ->status_is(200)
     ->location_is('/rack/'.$rack->id.'/layout')

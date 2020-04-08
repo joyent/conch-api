@@ -143,16 +143,16 @@ my $api_version_re = qr/^${ Test::Conch->API_VERSION_RE }$/;
 sub add_test_routes ($t) {
     my $r = Mojolicious::Routes->new;
 
-    $r->get('/_hello')->to(cb => sub ($c) {
+    $r->get('/_hello', sub ($c) {
         $c->log->warn('this is a warn message');
         $c->log->debug('this is a debug message');
         $c->status(204);
     });
-    $r->post('/_error')->to(cb => sub ($c) {
+    $r->post('/_error', sub ($c) {
         $c->log->error('error line from controller');
         $c->status(400, { error => 'something bad happened' });
     });
-    $r->post('/_die')->to(cb => sub ($c) { die 'ach, I am slain' });
+    $r->post('/_die', sub ($c) { die 'ach, I am slain' });
     $t->add_routes($r);
 
     return (warn => __LINE__-11, debug => __LINE__-10, error => __LINE__-6, die => __LINE__-3);

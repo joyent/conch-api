@@ -37,6 +37,10 @@ $t->get_ok($_)
         '/room/'.$room->{id},
         '/room/'.$room->{alias};
 
+$t->get_ok('/room/'.$room->{id}.'/racks')
+    ->status_is(308)
+    ->location_is('/room/'.$room->{id}.'/rack');
+
 $t->get_ok('/room/'.$room->{id}.'/rack')
     ->status_is(200)
     ->json_schema_is('Racks')

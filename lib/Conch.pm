@@ -37,9 +37,10 @@ sub startup {
 
     $self->sessions->cookie_name('conch');
     $self->sessions->samesite('Strict');            # do not send with cross-site requests
-    $self->sessions->secure(1) if $ENV{MOJO_MODE} eq 'production';  # https only
+    $self->sessions->secure(1) if ($ENV{MOJO_MODE} // '') eq 'production';  # https only
 
     $self->plugin('Config');
+    $self->mode(delete $self->config->{mode}) if exists $self->config->{mode};
     $self->secrets(delete $self->config->{secrets});
 
     $self->plugin('Conch::Plugin::Features', $self->config);
@@ -47,7 +48,7 @@ sub startup {
     $self->plugin('Conch::Plugin::GitVersion', $self->config);
     $self->plugin('Conch::Plugin::Database', $self->config);
 
-    # specify which MIME types we can handle
+    # specify MIME type mappings for responses
     $self->types->type(json => 'application/json');
     $self->types->type(csv => 'text/csv');
 
@@ -106,6 +107,11 @@ sub startup {
         $res_headers->header('Request-Id', $request_id);
         $res_headers->header('X-Request-Id', $request_id);
         $res_headers->add('X-Conch-API', $c->version_tag);
+
+        $c->send_message_to_rollbar('error',
+                'usage of endpoint that has been moved permanently',
+                { old_uri => $c->req->url, new_uri => $c->res->headers->location })
+            if $c->res->code == 308 and $c->feature('rollbar');
     });
 
 =head2 status

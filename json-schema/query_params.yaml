@@ -182,5 +182,11 @@ definitions:
       required:
         - ids_only
         - serials_only
+  ProcessDeviceReport:
+    type: object
+    additionalProperties: false
+    properties:
+      no_save_db:
+        $ref: /definitions/boolean_integer_default_false
 
 # vim: set sts=2 sw=2 et :

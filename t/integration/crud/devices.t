@@ -50,14 +50,14 @@ my $test_device_id;
 
 subtest 'unlocated device, no registered relay' => sub {
     my $report_data = from_json(path('t/integration/resource/passing-device-report.json')->slurp_utf8);
-    $t->post_ok('/device/TEST', json => $report_data)
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(409)
         ->json_schema_is('Error')
         ->json_is({ error => 'relay serial deadbeef is not registered' });
 
     delete $report_data->{relay};
 
-    $t->post_ok('/device/TEST', json => $report_data)
+    $t->post_ok('/device_report', json => $report_data)
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults');
 
@@ -128,7 +128,7 @@ subtest 'unlocated device with a registered relay' => sub {
         ->status_is(201);
 
     my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
-    $t->post_ok('/device/TEST', { 'Content-Type' => 'application/json' }, $report)
+    $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $report)
         ->status_is(200)
         ->json_schema_is('ValidationStateWithResults');
 

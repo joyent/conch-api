@@ -33,7 +33,7 @@ sub find_rack_role ($c) {
     my $rack_role = $rs->single;
 
     if (not $rack_role) {
-        $c->log->debug('Could not find rack_role '.$c->stash('rack_role_id_or_name'));
+        $c->log->debug('Could not find rack role '.$c->stash('rack_role_id_or_name'));
         return $c->status(404);
     }
 
@@ -118,7 +118,7 @@ sub update ($c) {
             my @assigned_rack_units = sort { $a <=> $b } keys %assigned_rack_units;
 
             if (my @out_of_range = grep $_ > $input->{rack_size}, @assigned_rack_units) {
-                $c->log->debug('found layout used by rack_role id '.$rack_role->id
+                $c->log->debug('found layout used by rack role id '.$rack_role->id
                     .' that has assigned rack_units greater requested new rack_size of '
                     .$input->{rack_size}.': ', join(', ', @out_of_range));
                 return $c->status(409, { error => 'cannot resize rack_role: found an assigned rack layout that extends beyond the new rack_size' });
