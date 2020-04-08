@@ -135,7 +135,6 @@ subtest 'save reports for device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => re(Conch::UUID::UUID_FORMAT),
             status => 'pass',
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             results => [
                 superhashof({
                     status => 'pass',
@@ -190,7 +189,6 @@ subtest 'save reports for device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
             status => 'pass',
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         }));
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
@@ -209,7 +207,6 @@ subtest 'save reports for device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
             status => 'pass',
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         }));
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
@@ -268,7 +265,6 @@ subtest 'save reports for device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
             status => 'pass',
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         }));
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
@@ -464,7 +460,6 @@ subtest 'submit report for production device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => re(Conch::UUID::UUID_FORMAT),
             status => ignore,
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             results => ignore,
         }));
 
@@ -482,7 +477,6 @@ subtest 'submit report for production device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => $device->id,
             status => ignore,
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             results => ignore,
         }));
 
@@ -514,7 +508,6 @@ subtest 'hardware_product is different' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => $device->id,
             status => ignore,
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             results => [{
                 id => ignore,
                 validation_id => ignore,

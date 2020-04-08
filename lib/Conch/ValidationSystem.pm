@@ -362,7 +362,6 @@ sub run_validation_plan ($self, %options) {
         device_report_id => $device_report->id,
         validation_plan_id => $validation_plan->id,
         status => $status,
-        completed => \'now()',
         # provided column data is used to determine if these result(s) already exist in the db,
         # and they are reused if so, otherwise they are inserted
         validation_state_members => [ map +{

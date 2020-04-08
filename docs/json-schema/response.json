@@ -2919,10 +2919,6 @@
     "ValidationStateWithResults" : {
       "additionalProperties" : false,
       "properties" : {
-        "completed" : {
-          "format" : "date-time",
-          "type" : "string"
-        },
         "created" : {
           "format" : "date-time",
           "type" : "string"
@@ -2952,7 +2948,6 @@
       },
       "required" : [
         "id",
-        "completed",
         "created",
         "device_id",
         "results",

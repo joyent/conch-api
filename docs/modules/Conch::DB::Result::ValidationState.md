@@ -45,13 +45,6 @@ extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pa
 is_nullable: 0
 ```
 
-### completed
-
-```
-data_type: 'timestamp with time zone'
-is_nullable: 0
-```
-
 ### device\_report\_id
 
 ```

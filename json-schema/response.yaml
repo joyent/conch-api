@@ -1016,7 +1016,6 @@ definitions:
     additionalProperties: false
     required:
       - id
-      - completed
       - created
       - device_id
       - results
@@ -1026,9 +1025,6 @@ definitions:
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
-      completed:
-        type: string
-        format: date-time
       created:
         type: string
         format: date-time

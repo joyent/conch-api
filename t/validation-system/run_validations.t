@@ -123,7 +123,6 @@ subtest 'run_validation_plan, with saving state' => sub {
                 in_storage => bool(1),
                 validation_plan_id => $validation_plan->id,
                 status => 'pass',
-                completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 device_report_id => $device_report->id,
             ),
             listmethods(

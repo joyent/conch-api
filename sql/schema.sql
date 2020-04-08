@@ -710,7 +710,6 @@ CREATE TABLE public.validation_state (
     validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     status public.validation_status_enum NOT NULL,
-    completed timestamp with time zone NOT NULL,
     device_report_id uuid NOT NULL,
     device_id uuid NOT NULL
 );
@@ -1466,24 +1465,10 @@ CREATE INDEX validation_result_validation_id_idx ON public.validation_result USI
 
 
 --
--- Name: validation_state_completed_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_state_completed_idx ON public.validation_state USING btree (completed);
-
-
---
 -- Name: validation_state_created_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
 CREATE INDEX validation_state_created_idx ON public.validation_state USING btree (created);
-
-
---
--- Name: validation_state_device_id_validation_plan_id_completed_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_state_device_id_validation_plan_id_completed_idx ON public.validation_state USING btree (device_id, validation_plan_id, completed DESC);
 
 
 --

@@ -55,11 +55,6 @@ __PACKAGE__->table("validation_state");
   extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
   is_nullable: 0
 
-=head2 completed
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 0
-
 =head2 device_report_id
 
   data_type: 'uuid'
@@ -102,8 +97,6 @@ __PACKAGE__->add_columns(
     },
     is_nullable => 0,
   },
-  "completed",
-  { data_type => "timestamp with time zone", is_nullable => 0 },
   "device_report_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "device_id",
@@ -200,11 +193,10 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:f8SllJpdeXETPJmX41yS7w
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:d/aSTtiG3zrXhmebX7kcIQ
 
 __PACKAGE__->add_columns(
     '+created' => { retrieve_on_insert => 1 },
-    '+completed' => { retrieve_on_insert => 1 },
 );
 
 use experimental 'signatures';
