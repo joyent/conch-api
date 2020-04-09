@@ -1118,6 +1118,14 @@ ALTER TABLE ONLY public.validation_state_member
 
 
 --
+-- Name: validation_state_member validation_state_member_validation_state_id_result_order_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_state_member
+    ADD CONSTRAINT validation_state_member_validation_state_id_result_order_key UNIQUE (validation_state_id, result_order);
+
+
+--
 -- Name: validation_state validation_state_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
