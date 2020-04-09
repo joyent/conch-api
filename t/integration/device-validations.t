@@ -93,6 +93,11 @@ subtest 'test validating a device' => sub {
 my $device = $t->app->db_devices->find({ serial_number => 'TEST' });
 my @device_reports = $t->app->db_device_reports->rows(2)->order_by('created');
 
+$t->get_ok('/device/TEST/validation_state?status=fail')
+    ->status_is(404)
+    ->log_debug_is('No validation states for device');
+
+
 # manually create a failing validation result... ew ew ew.
 # this uses the new validation plan, which is guaranteed to be different from the passing
 # valdiation that got recorded for this device via the report earlier.
@@ -102,17 +107,30 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
     device_report_id => $device_reports[1]->id,
     hardware_product_id => $device->hardware_product_id,
     status => 'fail',
-    validation_state_members => [{
-        result_order => 0,
-        validation_result => {
-            device_id => $device->id,
-            validation_id => $validation->id,
-            message => 'faked failure',
-            hint => 'boo',
-            status => 'fail',
-            category => 'test',
+    validation_state_members => [
+        {
+            result_order => 0,
+            validation_result => {
+                device_id => $device->id,
+                validation_id => $validation->id,
+                message => 'faked failure',
+                hint => 'boo',
+                status => 'fail',
+                category => 'test',
+            },
         },
-    }],
+        {
+            result_order => 1,
+            validation_result => {
+                device_id => $device->id,
+                validation_id => $validation->id,
+                message => 'faked success',
+                hint => 'nope',
+                status => 'pass',
+                category => 'test',
+            },
+        },
+    ],
 })->id;
 
 # record another, older, failing test using the same plan.
@@ -139,18 +157,8 @@ push @fail_validation_state_id, $t->app->db_validation_states->create({
 
 $t->get_ok('/device/TEST/validation_state')
     ->status_is(200)
-    ->json_schema_is('ValidationStatesWithResults')
-    ->json_cmp_deeply([
-        {
-            id => $pass_validation_state_id,
-            validation_plan_id => $server_validation_plan->id,
-            device_id => $device->id,
-            device_report_id => $device_reports[1]->id,
-            hardware_product_id => $device->hardware_product_id,
-            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            status => 'pass',   # we force-validated this device earlier
-            results => ignore,
-        },
+    ->json_schema_is('ValidationStateWithResults')
+    ->json_cmp_deeply(
         {
             id => $fail_validation_state_id[0],
             validation_plan_id => $test_validation_plan->id,
@@ -159,38 +167,47 @@ $t->get_ok('/device/TEST/validation_state')
             device_report_id => $device_reports[1]->id,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             status => 'fail',
-            results => [{
-                id => re(Conch::UUID::UUID_FORMAT),
-                validation_id => $validation->id,
-                component => undef,
-                message => 'faked failure',
-                hint => 'boo',
-                status => 'fail',
-                category => 'test',
-            }],
+            results => [
+                {
+                    id => re(Conch::UUID::UUID_FORMAT),
+                    validation_id => $validation->id,
+                    component => undef,
+                    message => 'faked failure',
+                    hint => 'boo',
+                    status => 'fail',
+                    category => 'test',
+                },
+                {
+                    id => re(Conch::UUID::UUID_FORMAT),
+                    validation_id => $validation->id,
+                    component => undef,
+                    message => 'faked success',
+                    hint => 'nope',
+                    status => 'pass',
+                    category => 'test',
+                },
+            ],
         },
-    ]);
+    );
 
 my $validation_states = $t->tx->res->json;
 
 $t->get_ok('/device/TEST/validation_state?status=pass')
     ->status_is(200)
-    ->json_schema_is('ValidationStatesWithResults')
-    ->json_is([ grep $_->{status} eq 'pass', $validation_states->@* ])
-    ->json_is('/0/id', $pass_validation_state_id)
-    ->json_is('/1', undef);
+    ->json_schema_is('ValidationStateWithResults')
+    ->json_is('/status', 'pass')
+    ->json_is('/id', $pass_validation_state_id);
 
 $t->get_ok('/device/TEST/validation_state?status=fail')
     ->status_is(200)
-    ->json_schema_is('ValidationStatesWithResults')
-    ->json_is([ grep $_->{status} eq 'fail', $validation_states->@* ])
-    ->json_is('/0/id', $fail_validation_state_id[0])
-    ->json_is('/1', undef);
+    ->json_schema_is('ValidationStateWithResults')
+    ->json_is('/status', 'fail')
+    ->json_is('/id', $fail_validation_state_id[0]);
 
 $t->get_ok('/device/TEST/validation_state?status=error')
     ->status_is(200)
-    ->json_schema_is('ValidationStatesWithResults')
-    ->json_cmp_deeply([
+    ->json_schema_is('ValidationStateWithResults')
+    ->json_cmp_deeply(
         {
             id => $error_validation_state_id,
             validation_plan_id => $server_validation_plan->id,
@@ -209,12 +226,13 @@ $t->get_ok('/device/TEST/validation_state?status=error')
                 category => 'IDENTITY',
             }],
         },
-    ]);
+    );
 
 $t->get_ok('/device/TEST/validation_state?status=pass&status=fail')
     ->status_is(200)
-    ->json_schema_is('ValidationStatesWithResults')
-    ->json_is($validation_states);
+    ->json_schema_is('ValidationStateWithResults')
+    ->json_is('/status', 'fail')
+    ->json_is('/id', $fail_validation_state_id[0]);
 
 $t->get_ok('/device/TEST/validation_state?status=bar')
     ->status_is(400)

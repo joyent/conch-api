@@ -3010,14 +3010,6 @@
       ],
       "type" : "object"
     },
-    "ValidationStatesWithResults" : {
-      "deprecated" : true,
-      "items" : {
-        "$ref" : "#/definitions/ValidationStateWithResults"
-      },
-      "type" : "array",
-      "uniqueItems" : true
-    },
     "Validations" : {
       "items" : {
         "$ref" : "#/definitions/Validation"

@@ -10,14 +10,10 @@ Interface to queries involving validation states.
 
 ## METHODS
 
-### latest\_state\_per\_plan
+### with\_results
 
-Generates a resultset that returns the single most recent validation\_state entry
-per validation plan (using whatever other search criteria are already in the resultset).
-
-The query will be closed off as a subselect (that additional chaining will SELECT FROM),
-so it makes a difference whether you add things to the resultset before or after calling this
-method.
+Generates a resultset that adds the validation\_results to the validation\_state(s) in the
+resultset.
 
 ## LICENSING
 

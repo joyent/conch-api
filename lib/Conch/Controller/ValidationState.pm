@@ -16,7 +16,7 @@ Controller for managing Validation states and results.
 
 =head2 get
 
-Get the validation_state record specified by uuid.
+Get the validation_state record specified by uuid, along with all its associated results.
 
 Response uses the ValidationStateWithResults json schema.
 
@@ -25,8 +25,7 @@ Response uses the ValidationStateWithResults json schema.
 sub get ($c) {
     my ($validation_state) = $c->db_validation_states
         ->search({ 'validation_state.id' => $c->stash('validation_state_id') })
-        ->prefetch({ validation_state_members => 'validation_result' })
-        ->order_by('validation_state_members.result_order')
+        ->with_results
         ->all;
 
     if (not $validation_state) {

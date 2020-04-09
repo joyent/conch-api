@@ -192,8 +192,8 @@ Accepts the query parameter `status`, indicating the desired status(es)
 to search for (one of `pass`, `fail`, `error`). Can be used more than once.
 
 - User requires the read-only role
-- Controller/Action: ["get\_validation\_states" in Conch::Controller::DeviceValidation](../modules/Conch%3A%3AController%3A%3ADeviceValidation#get_validation_states)
-- Response: [response.json#/definitions/ValidationStatesWithResults](../json-schema/response.json#/definitions/ValidationStatesWithResults)
+- Controller/Action: ["get\_validation\_state" in Conch::Controller::DeviceValidation](../modules/Conch%3A%3AController%3A%3ADeviceValidation#get_validation_state)
+- Response: [response.json#/definitions/ValidationStateWithResults](../json-schema/response.json#/definitions/ValidationStateWithResults)
 
 ### `GET /device/:device_id_or_serial_number/interface`
 

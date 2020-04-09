@@ -15,31 +15,17 @@ Interface to queries involving validation states.
 
 =head1 METHODS
 
-=head2 latest_state_per_plan
+=head2 with_results
 
-Generates a resultset that returns the single most recent validation_state entry
-per validation plan (using whatever other search criteria are already in the resultset).
-
-The query will be closed off as a subselect (that additional chaining will SELECT FROM),
-so it makes a difference whether you add things to the resultset before or after calling this
-method.
+Generates a resultset that adds the validation_results to the validation_state(s) in the
+resultset.
 
 =cut
 
-sub latest_state_per_plan ($self) {
-    my $me = $self->current_source_alias;
-    $self->search(
-        undef,
-        {
-            order_by => { -desc => "$me.created" },
-            '+select' => [{
-                '' => \"row_number() over (partition by validation_plan_id order by $me.created desc)",
-                -as => 'result_num',
-            }],
-        },
-    )
-    ->as_subselect_rs
-    ->search({ result_num => 1 });
+sub with_results ($self) {
+    $self
+        ->prefetch({ validation_state_members => 'validation_result' })
+        ->order_by('validation_state_members.result_order');
 }
 
 1;

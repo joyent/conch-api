@@ -12,7 +12,7 @@ Controller for managing Validation states and results.
 
 ### get
 
-Get the validation\_state record specified by uuid.
+Get the validation\_state record specified by uuid, along with all its associated results.
 
 Response uses the ValidationStateWithResults json schema.
 

@@ -1032,12 +1032,6 @@ definitions:
     uniqueItems: true
     items:
       $ref: '#/definitions/ValidationResult'
-  ValidationStatesWithResults:
-    deprecated: true
-    type: array
-    uniqueItems: true
-    items:
-      $ref: '#/definitions/ValidationStateWithResults'
   ValidationStateWithResults:
     type: object
     additionalProperties: false
