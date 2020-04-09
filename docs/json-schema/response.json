@@ -2916,44 +2916,6 @@
       "type" : "array",
       "uniqueItems" : true
     },
-    "ValidationState" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "completed" : {
-          "format" : "date-time",
-          "type" : "string"
-        },
-        "created" : {
-          "format" : "date-time",
-          "type" : "string"
-        },
-        "device_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "device_report_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "status" : {
-          "$ref" : "common.json#/definitions/validation_status"
-        },
-        "validation_plan_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        }
-      },
-      "required" : [
-        "id",
-        "completed",
-        "created",
-        "device_id",
-        "status",
-        "validation_plan_id",
-        "device_report_id"
-      ],
-      "type" : "object"
-    },
     "ValidationStateWithResults" : {
       "additionalProperties" : false,
       "properties" : {

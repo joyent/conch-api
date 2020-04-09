@@ -1006,34 +1006,6 @@ definitions:
     uniqueItems: true
     items:
       $ref: /definitions/ValidationResult
-  ValidationState:
-    type: object
-    additionalProperties: false
-    required:
-      - id
-      - completed
-      - created
-      - device_id
-      - status
-      - validation_plan_id
-      - device_report_id
-    properties:
-      id:
-        $ref: common.yaml#/definitions/uuid
-      completed:
-        type: string
-        format: date-time
-      created:
-        type: string
-        format: date-time
-      device_id:
-        $ref: common.yaml#/definitions/uuid
-      status:
-        $ref: common.yaml#/definitions/validation_status
-      validation_plan_id:
-        $ref: common.yaml#/definitions/uuid
-      device_report_id:
-        $ref: common.yaml#/definitions/uuid
   ValidationStatesWithResults:
     type: array
     uniqueItems: true
