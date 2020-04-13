@@ -171,8 +171,8 @@ sub has_device_location ($self) {
 
 =head2 hardware_product
 
-The L<Conch::DB::Result::HardwareProduct> object for the device being validated
-(originally determined by the sku reported for the device).
+The L<Conch::DB::Result::HardwareProduct> object to be used for validation.
+Note that this might not be the same hardware as what the report sku says.
 
 Any additional data related to hardware_products may be read as normal using L<DBIx::Class>
 interfaces.  The result object is built using a read-only database handle, so attempts to alter
@@ -180,36 +180,35 @@ the data will B<not> be permitted.
 
 =head2 hardware_product_name
 
-Get the expected hardware product name for the device under validation.
+Get the name of the hardware product used for validation.
 
     if ($self->hardware_product_name eq 'Joyent-123') {...}
 
 =head2 hardware_legacy_product_name
 
-Get the expected hardware legacy product name for the device under validation.
+Get the expected hardware legacy product name used for validation.
 
     if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
 
 =head2 hardware_product_generation
 
-Get the expected hardware product generation for the device under validation.
+Get the expected hardware product generation used for validation.
 
     if ($self->hardware_product_generation eq 'Joyent-123') {...}
 
 =head2 hardware_product_sku
 
-Get the expected hardware product SKU for the device under validation.
+Get the hardware product SKU used for validation.
 
     if ($self->hardware_product_sku eq 'Joyent-123') {...}
 
 =head2 hardware_product_specification
 
-Get the expected hardware product specification for the device under
-validation. Returns a JSON string (for now).
+Get the hardware product specification used for validation. Returns a JSON string (for now).
 
 =head2 hardware_product_vendor
 
-Get the expected hardware product vendor name for the device under validation.
+Get the expected hardware product vendor name used for validation.
 
     if ($self->hardware_product_vendor eq 'Dell') {...}
 

@@ -29,7 +29,7 @@ my $device_report = $t->app->db_device_reports->create({
     report => to_json({
         product_name => $device->hardware_product->generation_name,
         bios_version => $device->hardware_product->bios_firmware,
-        sku => '123',   # device is not located, so it does not need to match
+        sku => $device->hardware_product->sku,
     }),
 });
 
@@ -94,6 +94,7 @@ subtest 'run_validation_plan, without saving state' => sub {
             ),
             bag(
                 methods(category => 'IDENTITY', validation_id => $validation_product->id),
+                methods(category => 'IDENTITY', validation_id => $validation_product->id),
                 methods(category => 'BIOS', validation_id => $validation_bios->id),
             ),
         ),
@@ -136,6 +137,7 @@ subtest 'run_validation_plan, with saving state' => sub {
                         ),
                     ),
                     bag(
+                        methods(category => 'IDENTITY', validation_id => $validation_product->id),
                         methods(category => 'IDENTITY', validation_id => $validation_product->id),
                         methods(category => 'BIOS', validation_id => $validation_bios->id),
                     ),

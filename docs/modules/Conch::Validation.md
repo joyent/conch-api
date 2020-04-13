@@ -113,8 +113,8 @@ location.
 
 ### hardware\_product
 
-The [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct) object for the device being validated
-(originally determined by the sku reported for the device).
+The [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct) object to be used for validation.
+Note that this might not be the same hardware as what the report sku says.
 
 Any additional data related to hardware\_products may be read as normal using [DBIx::Class](https://metacpan.org/pod/DBIx%3A%3AClass)
 interfaces.  The result object is built using a read-only database handle, so attempts to alter
@@ -122,7 +122,7 @@ the data will **not** be permitted.
 
 ### hardware\_product\_name
 
-Get the expected hardware product name for the device under validation.
+Get the name of the hardware product used for validation.
 
 ```perl
 if ($self->hardware_product_name eq 'Joyent-123') {...}
@@ -130,7 +130,7 @@ if ($self->hardware_product_name eq 'Joyent-123') {...}
 
 ### hardware\_legacy\_product\_name
 
-Get the expected hardware legacy product name for the device under validation.
+Get the expected hardware legacy product name used for validation.
 
 ```perl
 if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
@@ -138,7 +138,7 @@ if ($self->hardware_legacy_product_name eq 'Joyent-123') {...}
 
 ### hardware\_product\_generation
 
-Get the expected hardware product generation for the device under validation.
+Get the expected hardware product generation used for validation.
 
 ```perl
 if ($self->hardware_product_generation eq 'Joyent-123') {...}
@@ -146,7 +146,7 @@ if ($self->hardware_product_generation eq 'Joyent-123') {...}
 
 ### hardware\_product\_sku
 
-Get the expected hardware product SKU for the device under validation.
+Get the hardware product SKU used for validation.
 
 ```perl
 if ($self->hardware_product_sku eq 'Joyent-123') {...}
@@ -154,12 +154,11 @@ if ($self->hardware_product_sku eq 'Joyent-123') {...}
 
 ### hardware\_product\_specification
 
-Get the expected hardware product specification for the device under
-validation. Returns a JSON string (for now).
+Get the hardware product specification used for validation. Returns a JSON string (for now).
 
 ### hardware\_product\_vendor
 
-Get the expected hardware product vendor name for the device under validation.
+Get the expected hardware product vendor name used for validation.
 
 ```perl
 if ($self->hardware_product_vendor eq 'Dell') {...}

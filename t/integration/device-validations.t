@@ -63,9 +63,9 @@ subtest 'test validating a device' => sub {
             { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
         ->json_schema_is('ValidationResults')
-        ->json_cmp_deeply([ superhashof({
+        ->json_cmp_deeply(array_each(superhashof({
             id => undef,
-        }) ]);
+        })));
 
     my $validation_results = $t->tx->res->json;
 
@@ -141,7 +141,7 @@ $t->get_ok('/device/TEST/validation_state')
             hardware_product_id => $device->hardware_product_id,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             status => 'pass',   # we force-validated this device earlier
-            results => [ ignore ],
+            results => ignore,
         },
         {
             id => $fail_validation_state_id[0],

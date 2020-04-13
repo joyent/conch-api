@@ -8,7 +8,7 @@ test_validation(
     'Conch::Validation::DeviceProductName',
     device => {
         hardware_product => {
-            sku => 'actual device sku', # this is never used
+            sku => 'actual device sku',
             name => 'Test Product',
             generation_name => 'Joyent-G1',
         },
@@ -19,15 +19,27 @@ test_validation(
             data        => {},
         },
         {
-            description => 'Correct product name; no location to check sku',
+            description => 'Correct product name; sku does not match device',
             data        => { 'product_name' => 'Joyent-G1', sku => 'foo' },
+            failure_num => 1,
             success_num => 1
         },
         {
-            description => 'Incorrect product name; no location to check sku',
+            description => 'Incorrect product name; sku does not match device',
             data        => { 'product_name' => 'Bad Product', sku => 'foo' },
-            failure_num => 1
-        }
+            failure_num => 2,
+        },
+        {
+            description => 'Correct product name; sku matches device',
+            data        => { 'product_name' => 'Joyent-G1', sku => 'actual device sku' },
+            success_num => 2,
+        },
+        {
+            description => 'Incorrect product name; sku matches device',
+            data        => { 'product_name' => 'Bad Product', sku => 'actual device sku' },
+            failure_num => 1,
+            success_num => 1,
+        },
     ]
 );
 
@@ -35,28 +47,29 @@ test_validation(
     'Conch::Validation::DeviceProductName',
     device => {
         hardware_product => {
-            sku => 'actual device sku', # this is never used
+            sku => 'actual device sku',
             name => 'Test Product',
         },
     },
     cases            => [
         {
-            description => 'switch: correct product name; no location to check sku',
+            description => 'switch: correct product name; sku does not match device',
             data        => {
                 device_type  => 'switch',
                 sku          => 'foo',
                 product_name => 'Test Product'
             },
+            failure_num => 1,
             success_num => 1
         },
         {
-            description => 'switch: incorrect product name; no location to check sku',
+            description => 'switch: incorrect product name; sku does not match device',
             data        => {
                 device_type  => 'switch',
                 sku          => 'foo',
                 product_name => 'Test Product2'
             },
-            failure_num => 1
+            failure_num => 2,
         }
     ]
 );
@@ -65,7 +78,7 @@ test_validation(
     'Conch::Validation::DeviceProductName',
     device => {
         hardware_product => {
-            sku => 'actual device sku',     # this is never used
+            sku => 'actual device sku',
             name => 'Test Product',
             generation_name => 'Joyent-G1',
         },
@@ -92,18 +105,19 @@ test_validation(
             description => 'Correct product name, wrong sku',
             data        => { 'product_name' => 'Joyent-G1', sku => 'foo' },
             success_num => 1,
-            failure_num => 1,
+            failure_num => 2,
         },
         {
-            description => 'Incorrect product name, right sku',
+            description => 'Incorrect product name, wrong device sku, right layout sku',
             data        => { 'product_name' => 'Bad Product', sku => 'intended device sku' },
             success_num => 1,
-            failure_num => 1
+            failure_num => 2,
         },
         {
-            description => 'Correct product name and sku',
+            description => 'Correct product name, wrong device sku, right layout sku',
             data        => { 'product_name' => 'Joyent-G1', sku => 'intended device sku' },
             success_num => 2,
+            failure_num => 1,
         },
     ]
 );
