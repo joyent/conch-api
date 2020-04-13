@@ -19,15 +19,6 @@ is_nullable: 0
 size: 16
 ```
 
-### hardware\_product\_id
-
-```
-data_type: 'uuid'
-is_foreign_key: 1
-is_nullable: 0
-size: 16
-```
-
 ### validation\_id
 
 ```
@@ -100,7 +91,6 @@ size: 16
 ### `validation_result_all_columns_key`
 
 - ["device\_id"](#device_id)
-- ["hardware\_product\_id"](#hardware_product_id)
 - ["validation\_id"](#validation_id)
 - ["message"](#message)
 - ["hint"](#hint)
@@ -115,12 +105,6 @@ size: 16
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
-
-### hardware\_product
-
-Type: belongs\_to
-
-Related object: [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct)
 
 ### validation
 

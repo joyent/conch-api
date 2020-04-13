@@ -2413,8 +2413,14 @@
         "device_serial_number" : {
           "$ref" : "common.json#/definitions/device_serial_number"
         },
+        "hardware_product_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
         "results" : {
           "$ref" : "/definitions/ValidationResults"
+        },
+        "sku" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "status" : {
           "$ref" : "common.json#/definitions/validation_status"
@@ -2426,6 +2432,8 @@
       "required" : [
         "device_serial_number",
         "validation_plan_id",
+        "hardware_product_id",
+        "sku",
         "status",
         "results"
       ],
@@ -2864,9 +2872,6 @@
             }
           ]
         },
-        "hardware_product_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
         "hint" : {
           "oneOf" : [
             {
@@ -2901,7 +2906,6 @@
         "id",
         "category",
         "component",
-        "hardware_product_id",
         "hint",
         "message",
         "status",
@@ -2929,6 +2933,9 @@
         "device_report_id" : {
           "$ref" : "common.json#/definitions/uuid"
         },
+        "hardware_product_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
         },
@@ -2953,6 +2960,7 @@
         "results",
         "status",
         "validation_plan_id",
+        "hardware_product_id",
         "device_report_id"
       ],
       "type" : "object"

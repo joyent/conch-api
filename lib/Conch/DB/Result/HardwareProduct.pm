@@ -424,24 +424,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 validation_results
+=head2 validation_states
 
 Type: has_many
 
-Related object: L<Conch::DB::Result::ValidationResult>
+Related object: L<Conch::DB::Result::ValidationState>
 
 =cut
 
 __PACKAGE__->has_many(
-  "validation_results",
-  "Conch::DB::Result::ValidationResult",
+  "validation_states",
+  "Conch::DB::Result::ValidationState",
   { "foreign.hardware_product_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:dWj98mMvxDNsTIYjHOOsGQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9Q3v8Ag2aFFkitFegf0t2g
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

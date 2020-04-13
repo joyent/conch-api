@@ -90,6 +90,8 @@ subtest 'run report without an existing device and without making updates' => su
         ->json_cmp_deeply({
             device_serial_number => 'different_device',
             validation_plan_id => $full_validation_plan->id,
+            hardware_product_id => $hardware_product->id,
+            sku => $hardware_product->sku,
             status => any(qw(error fail pass)), # likely some validations will hate this report.
             # validations each produce one or more results
             results => array_each(any(map +{
@@ -97,7 +99,6 @@ subtest 'run report without an existing device and without making updates' => su
                 validation_id => $_->id,
                 category => $_->module->category,
                 component => ignore,
-                hardware_product_id => $hardware_product->id,
                 hint => ignore,
                 message => ignore,
                 status => any(qw(error fail pass)),
@@ -507,13 +508,13 @@ subtest 'hardware_product is different' => sub {
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => $device->id,
+            hardware_product_id => $new_product->id,
             status => ignore,
             results => [{
                 id => ignore,
                 validation_id => ignore,
                 category => Conch::Validation::DeviceProductName->category,
                 component => ignore,
-                hardware_product_id => $new_product->id,
                 hint => ignore,
                 message => ignore,
                 status => 'fail',

@@ -313,7 +313,6 @@ deactivated
 [validation_result] {bgcolor: "#fbfbdb"}
 *id
 +device_id
-+hardware_product_id
 +validation_id
 message
 hint
@@ -329,6 +328,7 @@ created
 +device_id
 created
 status
++hardware_product_id
 
 [validation_state_member] {bgcolor: "#fbfbdb"}
 *+validation_state_id
@@ -385,10 +385,10 @@ user_workspace_role *--1 workspace
 validation_plan_member *--1 validation
 validation_plan_member *--1 validation_plan
 validation_result *--1 device
-validation_result *--1 hardware_product
 validation_result *--1 validation
 validation_state *--1 device
 validation_state *--1 device_report
+validation_state *--1 hardware_product
 validation_state_member +--1 validation_result
 validation_state_member *--1 validation_state
 validation_state *--1 validation_plan
