@@ -442,9 +442,18 @@ subtest 'located device' => sub {
             ->status_is(403)
             ->log_debug_is('User lacks the required role (admin) for device '.$located_device_id);
 
+        $t->post_ok('/device/LOCATED_DEVICE/'.$_, json => { sku => $hardware_product2->sku })
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (admin) for device '.$located_device_id)
+                foreach qw(hardware_product sku);
+
         $t->authenticate(email => $admin_user->email);
         $t->post_ok('/device/LOCATED_DEVICE/settings/hello', json => { 'hello' => 'bye' })
             ->status_is(204);
+
+        $t->post_ok('/device/LOCATED_DEVICE/sku', json => { sku => $hardware_product2->sku })
+            ->status_is(303)
+            ->location_is('/device/'.$located_device_id);
 
         $t->authenticate(email => $ro_user->email);
         foreach my $query (@post_queries) {
@@ -803,6 +812,20 @@ subtest 'mutate device attributes' => sub {
         ->json_cmp_deeply({
             $detailed_device->%*,
             updated => str($test_device->updated),    # needless update is not performed
+        });
+
+    $t->post_ok('/device/TEST/hardware_product', json => { sku => $hardware_product2->sku })
+        ->status_is(303)
+        ->location_is('/device/'.$test_device_id);
+    $detailed_device->@{qw(hardware_product_id sku)} = map $hardware_product2->$_, qw(id sku);
+
+    $t->get_ok('/device/TEST/sku')
+        ->status_is(200)
+        ->json_schema_is('DeviceSku')
+        ->json_is({
+            id => $test_device_id,
+            hardware_product_id => $hardware_product2->id,
+            sku => $hardware_product2->sku,
         });
 
     $t->post_ok('/device/TEST/links', json => { links => [ 'https://foo.com/1' ] })

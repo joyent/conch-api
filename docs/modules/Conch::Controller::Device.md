@@ -81,6 +81,12 @@ Moves the device to a new build.
 
 Also requires read/write access to the old and new builds.
 
+### set\_hardware\_product
+
+Changes the hardware product (sku) assigned to the device.
+
+Requires admin access to the device.
+
 ## LICENSING
 
 Copyright Joyent, Inc.

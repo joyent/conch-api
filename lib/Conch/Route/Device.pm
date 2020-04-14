@@ -31,6 +31,8 @@ sub routes {
         my $with_device = $device->under('/:device_id_or_serial_number')->to('device#find_device');
         my $with_device_ro = $device->under('/:device_id_or_serial_number')
             ->to('device#find_device', require_role => 'ro');
+        my $with_device_admin = $device->under('/:device_id_or_serial_number')
+            ->to('device#find_device', require_role => 'admin');
         my $with_device_phase_earlier_than_prod = $device->under('/:device_id_or_serial_number')
             ->to('device#find_device', phase_earlier_than => 'production');
 
@@ -56,6 +58,10 @@ sub routes {
         $with_device->delete('/links')->to('device#remove_links');
         # POST /device/:device_id_or_serial_number/build
         $with_device->post('/build')->to('device#set_build');
+        # POST /device/:device_id_or_serial_number/hardware_product
+        # POST /device/:device_id_or_serial_number/sku
+        $with_device_admin->post('/:path2', [ path2 => [qw(hardware_product sku)] ])
+            ->to('device#set_hardware_product');
 
         {
             my $with_device_location = $with_device_phase_earlier_than_prod->any('/location')
@@ -263,6 +269,20 @@ below.
 =item * User requires the read/write role for the device, as well as the old and new builds
 
 =item * Request: F<request.yaml#/definitions/DeviceBuild>
+
+=item * Response: Redirect to the updated device
+
+=back
+
+=head2 C<POST /device/:device_id_or_serial_number/hardware_product>
+
+=head2 C<POST /device/:device_id_or_serial_number/sku>
+
+=over 4
+
+=item * User requires the admin role for the device
+
+=item * Request: F<request.yaml#/definitions/DeviceHardware>
 
 =item * Response: Redirect to the updated device
 
