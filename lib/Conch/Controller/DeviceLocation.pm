@@ -29,8 +29,9 @@ sub get ($c) {
 
 =head2 set
 
-Sets the location for a device, given a valid rack id and rack unit. The existing occupant is
-removed, if there is one.
+Sets the location for a device, given a valid rack id and rack unit. If there is an existing
+occupant, it is removed; the new occupant's hardware_product is updated to match the layout
+(and its health is set to unknown if it changed).
 
 =cut
 
@@ -47,6 +48,17 @@ sub set ($c) {
         if $layout_rs->search_related('device_location', { device_id => $device_id })->exists;
 
     $c->txn_wrapper(sub ($c) {
+        my $hardware_product_id = $layout_rs->get_column('hardware_product_id')->single;
+        my $device = $c->stash('device_rs')->single;
+        if ($c->stash('device_rs')->get_column('hardware_product_id')->single ne $hardware_product_id) {
+            # device inherits the hardware product of the layout it is moved to
+            $c->stash('device_rs')->update({
+                hardware_product_id => $hardware_product_id,
+                health => 'unknown',
+                updated => \'now()',
+            });
+        }
+
         # remove current occupant if it exists
         $layout_rs->related_resultset('device_location')->delete;
 
