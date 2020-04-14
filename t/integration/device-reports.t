@@ -84,6 +84,22 @@ subtest 'run report without an existing device and without making updates' => su
     $report_data->{serial_number} = 'different_device';
     $report_data->{system_uuid} = create_uuid_str();
 
+    $t->txn_local('hardware_product must not be deactivated', sub {
+        $hardware_product->update({ deactivated => \'now()' });
+
+        $t->post_ok('/device_report?no_save_db=1', json => $report_data)
+            ->status_is(409)
+            ->json_is({ error => 'hardware_product (id '.$hardware_product->id.') is deactivated and cannot be used' });
+    });
+
+    $t->txn_local('validation_plan must not be deactivated', sub {
+        $hardware_product->validation_plan->update({ deactivated => \'now()' });
+
+        $t->post_ok('/device_report?no_save_db=1', json => $report_data)
+            ->status_is(409)
+            ->json_is({ error => 'validation_plan (id '.$hardware_product->validation_plan_id.') is deactivated and cannot be used' });
+    });
+
     $t->post_ok('/device_report?no_save_db=1', json => $report_data)
         ->status_is(200)
         ->json_schema_is('ReportValidationResults')
@@ -129,6 +145,15 @@ subtest 'save reports for device' => sub {
     # 7: pass
 
     my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
+
+    $t->txn_local('hardware_product must not be deactivated', sub {
+        $hardware_product->update({ deactivated => \'now()' });
+
+        $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
+            ->status_is(409)
+            ->json_is({ error => 'hardware_product (id '.$hardware_product->id.') is deactivated and cannot be used' });
+    });
+
     $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
         ->location_is('/device/'.$t->tx->res->json->{device_id})
@@ -177,6 +202,13 @@ subtest 'save reports for device' => sub {
     is($t->app->db_validation_results->count, 1, 'one validation result row created');
     is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
 
+    $t->txn_local('validation_plan must not be deactivated', sub {
+        $hardware_product->validation_plan->update({ deactivated => \'now()' });
+
+        $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
+            ->status_is(409)
+            ->json_is({ error => 'validation_plan (id '.$hardware_product->validation_plan_id.') is deactivated and cannot be used' });
+    });
 
     # submit another passing report, this time swapping around some iface_names...
     my $altered_report = from_json($good_report);
