@@ -428,6 +428,7 @@ sub set_build ($c) {
     return $c->status(204) if $device->build_id and $device->build_id eq $input->{build_id};
 
     if (not $c->is_system_admin) {
+        # TODO: once workspaces are removed, this check should be redundant
         if ($device->build_id and not $device->related_resultset('build')->user_has_role($c->stash('user_id'), 'rw')) {
             $c->log->debug('User lacks the required role (rw) for existing build '.$device->build_id);
             return $c->status(403);
