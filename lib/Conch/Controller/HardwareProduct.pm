@@ -163,7 +163,8 @@ sub delete ($c) {
     my $id = $c->stash('hardware_product_rs')->get_column('id')->single;
     $c->stash('hardware_product_rs')->deactivate;
 
-    $c->log->debug('Deleted hardware product '.$id);
+    my $device_count = $c->stash('hardware_product_rs')->related_resultset('devices')->count;
+    $c->log->debug('Deleted hardware product '.$id.' ('.$device_count.' devices using this hardware)');
     return $c->status(204);
 }
 
