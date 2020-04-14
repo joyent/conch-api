@@ -30,8 +30,7 @@ sub get ($c) {
 =head2 set
 
 Sets the location for a device, given a valid rack id and rack unit. The existing occupant is
-removed, if there is one. The device is created based on the hardware_product specified for
-the layout if it does not yet exist.
+removed, if there is one.
 
 =cut
 
@@ -48,15 +47,6 @@ sub set ($c) {
         if $layout_rs->search_related('device_location', { device_id => $device_id })->exists;
 
     $c->txn_wrapper(sub ($c) {
-        # create a device if it doesn't exist
-        if (not $c->db_devices->search({ id => $device_id })->exists) {
-            $c->db_devices->create({
-                id      => $device_id,
-                hardware_product_id => $layout_rs->get_column('hardware_product_id')->as_query,
-                health  => 'unknown',
-            });
-        }
-
         # remove current occupant if it exists
         $layout_rs->related_resultset('device_location')->delete;
 
