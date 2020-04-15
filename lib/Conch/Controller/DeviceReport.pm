@@ -100,6 +100,14 @@ sub process ($c) {
     });
 
     if (not $device) {
+        if (my $serial_device = $c->db_devices->find({ id => $c->stash('device_id') })) {
+            $serial_device->health('error');
+            $serial_device->update({ updated => \'now()' }) if $serial_device->is_changed;
+        }
+        if (my $system_uuid_device = $c->db_devices->find({ system_uuid => $unserialized_report->{system_uuid} })) {
+            $system_uuid_device->health('error');
+            $system_uuid_device->update({ updated => \'now()' }) if $system_uuid_device->is_changed;
+        }
         return $c->status(400, { error => 'could not process report for device '
             .$c->stash('device_id')
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
