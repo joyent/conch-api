@@ -83,6 +83,12 @@ sub process ($c) {
         $device->discard_changes;
         $device->health('error');
         $device->update({ updated => \'now()' }) if $device->is_changed;
+
+        if (my $system_uuid_device = $c->db_devices->find({ system_uuid => $unserialized_report->{system_uuid} })) {
+            $system_uuid_device->health('error');
+            $system_uuid_device->update({ updated => \'now()' }) if $system_uuid_device->is_changed;
+        }
+
         return $c->status(400, { error => 'could not process report for device '
             .$unserialized_report->{serial_number}
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
