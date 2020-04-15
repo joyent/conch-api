@@ -108,9 +108,9 @@ sub process ($c) {
             $system_uuid_device->health('error');
             $system_uuid_device->update({ updated => \'now()' }) if $system_uuid_device->is_changed;
         }
+        my $exception = delete $c->stash->{exception};
         return $c->status(400, { error => 'could not process report for device '
-            .$c->stash('device_id')
-            .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
+            .$c->stash('device_id').($exception ? ': '.(split(/\n/, $exception, 2))[0] : '') });
     }
 
     $c->log->debug('Creating device report');
@@ -468,8 +468,9 @@ sub validate_report ($c) {
         die 'rollback: device used for report validation should not be persisted';
     });
 
+    my $exception = delete $c->stash->{exception};
     return $c->status(400, { error => 'no validations ran'
-            .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') })
+            .($exception ? ': '.(split(/\n/, $exception, 2))[0] : '') })
         if not @validation_results;
 
     $c->status(200, {
