@@ -79,4 +79,24 @@ subtest 'run report without an existing device' => sub {
         });
 };
 
+subtest 'system_uuid collisions' => sub {
+    my $report_data = Mojo::JSON::from_json($report);
+    $report_data->{serial_number} = 'i_was_here_first';
+
+    my $existing_device = $t->generate_fixtures('device', { id => 'i_was_here_first' });
+
+    $t->post_ok('/device_report', json => $report_data)
+        ->status_is(400)
+        ->json_cmp_deeply({ error => re(qr/no validations ran: .*duplicate key value violates unique constraint "device_system_uuid_key"/) });
+
+    $t->post_ok('/device/i_was_here_first', json => $report_data)
+        ->json_cmp_deeply({ error => re(qr/could not process report for device i_was_here_first.*duplicate key value violates unique constraint "device_system_uuid_key"/) });
+
+    $existing_device->discard_changes;
+    is($existing_device->health, 'error', 'existing device had health set to error');
+
+    my $test_device = $t->app->db_devices->find('TEST');
+    is($test_device->health, 'error', 'TEST device had health set to error as well');
+};
+
 done_testing;
