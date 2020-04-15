@@ -11,10 +11,12 @@ use HTTP::Tiny;
 sub get {
     my $short = shift;
     my $url = "https://api.github.com$short";
+    my $headers = {};
     if (my $token = $ENV{TOKEN} // $ENV{GITHUB_OAUTH_TOKEN}) {
-        $url .= "?access_token=$token";
+        $headers->{Authorization} = "token $token";
     }
-    my $res = HTTP::Tiny->new->get($url);
+    my $res = HTTP::Tiny->new->get($url, $headers);
+
     if ($res->{success}) {
         return decode_json($res->{content});
     }
