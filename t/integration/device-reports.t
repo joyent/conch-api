@@ -425,6 +425,9 @@ subtest 'system_uuid collisions' => sub {
 
     $existing_device->discard_changes;
     is($existing_device->health, 'error', 'bad reports flip device health to error');
+
+    my $test_device = $t->app->db_devices->find({ serial_number => 'TEST' });
+    is($test_device->health, 'error', 'TEST device had health set to error as well');
 };
 
 subtest 'submit report for decommissioned device' => sub {
