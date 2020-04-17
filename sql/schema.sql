@@ -687,7 +687,6 @@ ALTER TABLE public.validation_plan_member OWNER TO conch;
 
 CREATE TABLE public.validation_result (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    hardware_product_id uuid NOT NULL,
     validation_id uuid NOT NULL,
     message text NOT NULL,
     hint text,
@@ -710,9 +709,9 @@ CREATE TABLE public.validation_state (
     validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     status public.validation_status_enum NOT NULL,
-    completed timestamp with time zone NOT NULL,
     device_report_id uuid NOT NULL,
-    device_id uuid NOT NULL
+    device_id uuid NOT NULL,
+    hardware_product_id uuid NOT NULL
 );
 
 
@@ -1099,7 +1098,7 @@ ALTER TABLE ONLY public.validation_plan
 --
 
 ALTER TABLE ONLY public.validation_result
-    ADD CONSTRAINT validation_result_all_columns_key UNIQUE (device_id, hardware_product_id, validation_id, message, hint, status, category, component);
+    ADD CONSTRAINT validation_result_all_columns_key UNIQUE (device_id, validation_id, message, hint, status, category, component);
 
 
 --
@@ -1116,6 +1115,14 @@ ALTER TABLE ONLY public.validation_result
 
 ALTER TABLE ONLY public.validation_state_member
     ADD CONSTRAINT validation_state_member_pkey PRIMARY KEY (validation_state_id, validation_result_id);
+
+
+--
+-- Name: validation_state_member validation_state_member_validation_state_id_result_order_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_state_member
+    ADD CONSTRAINT validation_state_member_validation_state_id_result_order_key UNIQUE (validation_state_id, result_order);
 
 
 --
@@ -1452,24 +1459,10 @@ CREATE UNIQUE INDEX validation_plan_name_idx ON public.validation_plan USING btr
 
 
 --
--- Name: validation_result_hardware_product_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_result_hardware_product_id_idx ON public.validation_result USING btree (hardware_product_id);
-
-
---
 -- Name: validation_result_validation_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
 CREATE INDEX validation_result_validation_id_idx ON public.validation_result USING btree (validation_id);
-
-
---
--- Name: validation_state_completed_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_state_completed_idx ON public.validation_state USING btree (completed);
 
 
 --
@@ -1480,17 +1473,17 @@ CREATE INDEX validation_state_created_idx ON public.validation_state USING btree
 
 
 --
--- Name: validation_state_device_id_validation_plan_id_completed_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_state_device_id_validation_plan_id_completed_idx ON public.validation_state USING btree (device_id, validation_plan_id, completed DESC);
-
-
---
 -- Name: validation_state_device_report_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
 CREATE INDEX validation_state_device_report_id_idx ON public.validation_state USING btree (device_report_id);
+
+
+--
+-- Name: validation_state_hardware_product_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_state_hardware_product_id_idx ON public.validation_state USING btree (hardware_product_id);
 
 
 --
@@ -1816,14 +1809,6 @@ ALTER TABLE ONLY public.validation_result
 
 
 --
--- Name: validation_result validation_result_hardware_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.validation_result
-    ADD CONSTRAINT validation_result_hardware_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id);
-
-
---
 -- Name: validation_result validation_result_validation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1845,6 +1830,14 @@ ALTER TABLE ONLY public.validation_state
 
 ALTER TABLE ONLY public.validation_state
     ADD CONSTRAINT validation_state_device_report_id_fkey FOREIGN KEY (device_report_id) REFERENCES public.device_report(id) ON DELETE CASCADE;
+
+
+--
+-- Name: validation_state validation_state_hardware_product_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_state
+    ADD CONSTRAINT validation_state_hardware_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id);
 
 
 --

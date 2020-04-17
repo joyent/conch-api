@@ -31,10 +31,6 @@ subtest preliminaries => sub {
         ->status_is(308)
         ->location_is('/device_report');
 
-    $t->post_ok('/device_report', json => $report_data)
-        ->status_is(409)
-        ->json_is({ error => 'Could not find hardware product with sku '.$report_data->{sku} });
-
     $t->post_ok('/device_report?no_save_db=1', json => $report_data)
         ->status_is(409)
         ->json_is({ error => 'Could not find hardware product with sku '.$report_data->{sku} });
@@ -84,12 +80,30 @@ subtest 'run report without an existing device and without making updates' => su
     $report_data->{serial_number} = 'different_device';
     $report_data->{system_uuid} = create_uuid_str();
 
+    $t->txn_local('hardware_product must not be deactivated', sub {
+        $hardware_product->update({ deactivated => \'now()' });
+
+        $t->post_ok('/device_report?no_save_db=1', json => $report_data)
+            ->status_is(409)
+            ->json_is({ error => 'hardware_product (id '.$hardware_product->id.') is deactivated and cannot be used' });
+    });
+
+    $t->txn_local('validation_plan must not be deactivated', sub {
+        $hardware_product->validation_plan->update({ deactivated => \'now()' });
+
+        $t->post_ok('/device_report?no_save_db=1', json => $report_data)
+            ->status_is(409)
+            ->json_is({ error => 'validation_plan (id '.$hardware_product->validation_plan_id.') is deactivated and cannot be used' });
+    });
+
     $t->post_ok('/device_report?no_save_db=1', json => $report_data)
         ->status_is(200)
         ->json_schema_is('ReportValidationResults')
         ->json_cmp_deeply({
             device_serial_number => 'different_device',
             validation_plan_id => $full_validation_plan->id,
+            hardware_product_id => $hardware_product->id,
+            sku => $hardware_product->sku,
             status => any(qw(error fail pass)), # likely some validations will hate this report.
             # validations each produce one or more results
             results => array_each(any(map +{
@@ -97,7 +111,6 @@ subtest 'run report without an existing device and without making updates' => su
                 validation_id => $_->id,
                 category => $_->module->category,
                 component => ignore,
-                hardware_product_id => $hardware_product->id,
                 hint => ignore,
                 message => ignore,
                 status => any(qw(error fail pass)),
@@ -128,6 +141,15 @@ subtest 'save reports for device' => sub {
     # 7: pass
 
     my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
+
+    $t->txn_local('hardware_product must not be deactivated', sub {
+        $hardware_product->update({ deactivated => \'now()' });
+
+        $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
+            ->status_is(409)
+            ->json_is({ error => 'hardware_product (id '.$hardware_product->id.') is deactivated and cannot be used' });
+    });
+
     $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
         ->location_is('/device/'.$t->tx->res->json->{device_id})
@@ -135,12 +157,11 @@ subtest 'save reports for device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => re(Conch::UUID::UUID_FORMAT),
             status => 'pass',
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            results => [
+            results => array_each(
                 superhashof({
                     status => 'pass',
                 }),
-            ],
+            ),
         }));
 
     my $device_id = $t->tx->res->json->{device_id};
@@ -174,9 +195,17 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 1, 'one device_report row created');
     is($device->related_resultset('validation_states')->count, 1, 'one validation_state row created');
-    is($t->app->db_validation_results->count, 1, 'one validation result row created');
+    # DeviceProductName now creates two results in most cases
+    is($t->app->db_validation_results->count, 2, 'two validation result rows created');
     is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
 
+    $t->txn_local('validation_plan must not be deactivated', sub {
+        $hardware_product->validation_plan->update({ deactivated => \'now()' });
+
+        $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
+            ->status_is(409)
+            ->json_is({ error => 'validation_plan (id '.$hardware_product->validation_plan_id.') is deactivated and cannot be used' });
+    });
 
     # submit another passing report, this time swapping around some iface_names...
     my $altered_report = from_json($good_report);
@@ -190,7 +219,6 @@ subtest 'save reports for device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
             status => 'pass',
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         }));
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
@@ -198,7 +226,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 2, 'two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'two validation_state rows exist');
-    is($t->app->db_validation_results->count, 1, 'the second validation result is the same as the first');
+    is($t->app->db_validation_results->count, 2, 'the second two validation results are the same as the first two');
 
 
     # submit another passing report (this makes 3)
@@ -209,7 +237,6 @@ subtest 'save reports for device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
             status => 'pass',
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         }));
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
@@ -218,7 +245,7 @@ subtest 'save reports for device' => sub {
     # now the 2nd of the 3 reports should be deleted.
     is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
-    is($t->app->db_validation_results->count, 1, 'still just one validation result row exists');
+    is($t->app->db_validation_results->count, 2, 'still only two validation result rows exist');
 
     ok(!$t->app->db_device_reports->search({ id => $device_report_ids[1] })->exists,
         'second device_report deleted');
@@ -235,7 +262,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
-    is($t->app->db_validation_results->count, 1, 'still just one validation result row exists');
+    is($t->app->db_validation_results->count, 2, 'still only two validation result rows exist');
 
     $t->get_ok('/device/'.$device_id)
         ->status_is(200)
@@ -251,7 +278,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
-    is($t->app->db_validation_results->count, 1, 'still just one validation result row exists');
+    is($t->app->db_validation_results->count, 2, 'still only two validation result rows exist');
 
     $t->get_ok('/device/TEST')
         ->status_is(200)
@@ -268,7 +295,6 @@ subtest 'save reports for device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
             status => 'pass',
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         }));
 
     push @device_report_ids, $t->tx->res->json->{device_report_id};
@@ -281,7 +307,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two rows exist');
-    is($t->app->db_validation_results->count, 1, 'the latest validation result is the same as the first');
+    is($t->app->db_validation_results->count, 2, 'the second two validation results are the same as the first two');
 
 
     my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
@@ -306,7 +332,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 3, 'now another device_report row exists');
     is($device->related_resultset('validation_states')->count, 3, 'now another validation_state row exists');
-    is($t->app->db_validation_results->count, 2, 'now two validation results rows exist');
+    is($t->app->db_validation_results->count, 3, 'now three validation result rows exist');
 
     $t->get_ok('/device/TEST')
         ->status_is(200)
@@ -326,7 +352,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 4, 'now another device_report row exists');
     is($device->related_resultset('validation_states')->count, 4, 'now another validation_state row exists');
-    is($t->app->db_validation_results->count, 2, 'still just two validation result rows exist');
+    is($t->app->db_validation_results->count, 3, 'still just three validation result rows exist');
 
 
     cmp_deeply(
@@ -464,7 +490,6 @@ subtest 'submit report for production device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => re(Conch::UUID::UUID_FORMAT),
             status => ignore,
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             results => ignore,
         }));
 
@@ -482,7 +507,6 @@ subtest 'submit report for production device' => sub {
         ->json_cmp_deeply(superhashof({
             device_id => $device->id,
             status => ignore,
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             results => ignore,
         }));
 
@@ -513,25 +537,24 @@ subtest 'hardware_product is different' => sub {
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => $device->id,
+            hardware_product_id => $hardware_product->id,   # this must NOT change
             status => ignore,
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            results => [{
+            results => array_each({
                 id => ignore,
                 validation_id => ignore,
                 category => Conch::Validation::DeviceProductName->category,
                 component => ignore,
-                hardware_product_id => $new_product->id,
                 hint => ignore,
                 message => ignore,
                 status => 'fail',
-            }],
+            }),
         }));
 
     $device->discard_changes;
     is(
         $device->hardware_product_id,
-        $new_product->id,
-        'device was updated to reflect the hardware in the report',
+        $hardware_product->id,
+        'device hardware_product was *not* updated to the hardware in the report',
     );
 };
 

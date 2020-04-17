@@ -6,9 +6,12 @@ SELECT run_migration(144, $$
     -- was truncated) there are no duplicates, so it is now safe to turn this index into a
     -- unique constraint.
 
+    -- we copied hardware_product_id to validation_state in migration 0129.
+    alter table validation_result drop column hardware_product_id;
+
     alter table validation_result
         add constraint validation_result_all_columns_key unique
-        (device_id, hardware_product_id, validation_id, message, hint, status, category, component);
+        (device_id, validation_id, message, hint, status, category, component);
 
     drop index if exists validation_result_all_columns_idx;
     drop index validation_result_device_id_idx; -- redundant with unique constraint

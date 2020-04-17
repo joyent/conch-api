@@ -519,6 +519,16 @@ definitions:
     properties:
       build_id:
         $ref: common.yaml#/definitions/uuid
+  DeviceHardware:
+    type: object
+    additionalProperties: false
+    minProperties: 1
+    maxProperties: 1
+    properties:
+      hardware_product_id:
+        $ref: common.yaml#/definitions/uuid
+      sku:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
   DeviceSetting:
     allOf:
       - $ref: /definitions/DeviceSettings

@@ -52,7 +52,10 @@ my $report = path('t/integration/resource/passing-device-report.json')->slurp_ut
 $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $report)
     ->status_is(200)
     ->json_schema_is('ValidationStateWithResults')
-    ->json_is('/device_id', $devices[0]->id);
+    ->json_cmp_deeply(superhashof({
+        device_id => $devices[0]->id,
+        status => 'pass',
+    }));
 
 $t->post_ok('/device/'.$devices[0]->id.'/validated')
     ->status_is(303)

@@ -10,6 +10,38 @@ SELECT run_migration(129, $$
     -- and validation_result tables into the master database:
     -- pg_dump -U postgres -t validation_result -t validation_state_member source_database | psql -U conch conch
 
+    -- ..but before we do that, we need to copy hardware_product_id to validation_state
+    -- for all historical records...
+
+    alter table validation_state add column hardware_product_id uuid references hardware_product (id);
+
+    update validation_state set hardware_product_id = result_hardware_product_id
+    from (
+      select
+        validation_state_id,
+        validation_result.hardware_product_id as result_hardware_product_id,
+        row_number() over (partition by validation_state_id order by result_order asc) as result_num
+      from validation_state
+      left join validation_state_member on validation_state.id = validation_state_member.validation_state_id
+      left join validation_result on validation_result.id = validation_state_member.validation_result_id
+    ) _tmp
+    where result_num = 1
+      and validation_state.id = validation_state_id;
+
+    select count(*) from validation_state where hardware_product_id is null;
+
+    update validation_state set hardware_product_id = device.hardware_product_id
+    from device
+    where validation_state.device_id = device.id
+      and validation_state.hardware_product_id is null;
+
+    -- this should now be zero.
+    select count(*) from validation_state where hardware_product_id is null;
+
+
+    alter table validation_state alter column hardware_product_id set not null;
+    create index validation_state_hardware_product_id_idx on validation_state (hardware_product_id);
+
     truncate validation_state_member, validation_result;
 
 
@@ -46,6 +78,7 @@ SELECT run_migration(129, $$
     alter table validation_result drop column result_order;
 
     drop index if exists validation_result_all_columns_idx;
+    -- note that migration 0144 later changes this to a unique constraint
     create index validation_result_all_columns_idx on validation_result
         (device_id, hardware_product_id, validation_id, message, hint, status, category, component);
 

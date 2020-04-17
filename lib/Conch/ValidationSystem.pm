@@ -330,7 +330,6 @@ sub run_validation_plan ($self, %options) {
             $validation_result_rs->new_result({
                 validation_id       => $validation->id,
                 device_id           => $device->id,
-                hardware_product_id => $validator->hardware_product->id,
                 $_->%{qw(message hint status category component)},
             }),
             $validator->validation_results;
@@ -361,8 +360,8 @@ sub run_validation_plan ($self, %options) {
         device_id => $device->id,
         device_report_id => $device_report->id,
         validation_plan_id => $validation_plan->id,
+        hardware_product_id => $device->hardware_product_id,
         status => $status,
-        completed => \'now()',
         # provided column data is used to determine if these result(s) already exist in the db,
         # and they are reused if so, otherwise they are inserted
         validation_state_members => [ map +{
@@ -404,7 +403,6 @@ sub run_validation ($self, %options) {
         $validation_result_rs->new_result({
             validation_id       => $validation->id,
             device_id           => $device->id,
-            hardware_product_id => $validator->hardware_product->id,
             $_->%{qw(message hint status category component)},
         }),
         $validator->validation_results;

@@ -55,11 +55,6 @@ __PACKAGE__->table("validation_state");
   extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
   is_nullable: 0
 
-=head2 completed
-
-  data_type: 'timestamp with time zone'
-  is_nullable: 0
-
 =head2 device_report_id
 
   data_type: 'uuid'
@@ -68,6 +63,13 @@ __PACKAGE__->table("validation_state");
   size: 16
 
 =head2 device_id
+
+  data_type: 'uuid'
+  is_foreign_key: 1
+  is_nullable: 0
+  size: 16
+
+=head2 hardware_product_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -102,11 +104,11 @@ __PACKAGE__->add_columns(
     },
     is_nullable => 0,
   },
-  "completed",
-  { data_type => "timestamp with time zone", is_nullable => 0 },
   "device_report_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "device_id",
+  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  "hardware_product_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
@@ -152,6 +154,21 @@ __PACKAGE__->belongs_to(
   "Conch::DB::Result::DeviceReport",
   { id => "device_report_id" },
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
+);
+
+=head2 hardware_product
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::HardwareProduct>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "hardware_product",
+  "Conch::DB::Result::HardwareProduct",
+  { id => "hardware_product_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 validation_plan
@@ -200,11 +217,10 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:f8SllJpdeXETPJmX41yS7w
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:I4WF2oVdb3eXDAwlpmud0w
 
 __PACKAGE__->add_columns(
     '+created' => { retrieve_on_insert => 1 },
-    '+completed' => { retrieve_on_insert => 1 },
 );
 
 use experimental 'signatures';

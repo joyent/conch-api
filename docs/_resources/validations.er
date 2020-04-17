@@ -91,7 +91,6 @@ deactivated
 [validation_result]
 *id
 +device_id
-+hardware_product_id
 +validation_id
 message
 hint
@@ -107,7 +106,7 @@ created
 +device_id
 created
 status
-completed
++hardware_product_id
 
 [validation_state_member] {bgcolor: "#d0e0d0"}
 *+validation_state_id
@@ -121,10 +120,10 @@ hardware_product *--1 validation_plan
 validation_plan_member *--1 validation
 validation_plan_member *--1 validation_plan
 validation_result *--1 device
-validation_result *--1 hardware_product
 validation_result *--1 validation
 validation_state *--1 device
 validation_state *--1 device_report
+validation_state *--1 hardware_product
 validation_state_member +--1 validation_result
 validation_state_member *--1 validation_state
 validation_state *--1 validation_plan

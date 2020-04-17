@@ -8,13 +8,13 @@ SELECT run_migration(133, $$
         assert
             (select count(*) from (
                 select
-                    hardware_product_id,
+                    device.hardware_product_id,
                     count(distinct validation_plan_id) as count
                     from validation_state
                     left join device on device.id = validation_state.device_id
                     left join validation_plan on validation_plan.id = validation_state.validation_plan_id
                     where validation_plan.name != 'Conch device_validate results placeholder'
-                    group by hardware_product_id
+                    group by device.hardware_product_id
                 ) tmp1
                 where count > 1)
             = 0,

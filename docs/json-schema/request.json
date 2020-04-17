@@ -322,6 +322,20 @@
       ],
       "type" : "object"
     },
+    "DeviceHardware" : {
+      "additionalProperties" : false,
+      "maxProperties" : 1,
+      "minProperties" : 1,
+      "properties" : {
+        "hardware_product_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "sku" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        }
+      },
+      "type" : "object"
+    },
     "DeviceLinks" : {
       "additionalProperties" : false,
       "properties" : {

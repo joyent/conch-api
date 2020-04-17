@@ -35,13 +35,6 @@ __PACKAGE__->table("validation_result");
   is_nullable: 0
   size: 16
 
-=head2 hardware_product_id
-
-  data_type: 'uuid'
-  is_foreign_key: 1
-  is_nullable: 0
-  size: 16
-
 =head2 validation_id
 
   data_type: 'uuid'
@@ -99,8 +92,6 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "hardware_product_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "validation_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "message",
@@ -151,8 +142,6 @@ __PACKAGE__->set_primary_key("id");
 
 =item * L</device_id>
 
-=item * L</hardware_product_id>
-
 =item * L</validation_id>
 
 =item * L</message>
@@ -173,7 +162,6 @@ __PACKAGE__->add_unique_constraint(
   "validation_result_all_columns_key",
   [
     "device_id",
-    "hardware_product_id",
     "validation_id",
     "message",
     "hint",
@@ -197,21 +185,6 @@ __PACKAGE__->belongs_to(
   "device",
   "Conch::DB::Result::Device",
   { id => "device_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-=head2 hardware_product
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::HardwareProduct>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "hardware_product",
-  "Conch::DB::Result::HardwareProduct",
-  { id => "hardware_product_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
@@ -261,7 +234,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:cdTosC+PxDTHDZw4mNjetQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:00k1URNkOBldwrhf2z7WVg
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },

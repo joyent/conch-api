@@ -444,6 +444,33 @@ sub set_build ($c) {
     $c->status(303);
 }
 
+=head2 set_hardware_product
+
+Changes the hardware product (sku) assigned to the device.
+
+Requires admin access to the device.
+
+=cut
+
+sub set_hardware_product ($c) {
+    my $input = $c->validate_request('DeviceHardware');
+    return if not $input;
+
+    my $device = $c->stash('device_rs')->single;
+
+    my $hardware_product = $c->db_hardware_products->search({
+        $input->{sku} ? ( sku => $input->{sku} ) : ( id => $input->{hardware_product_id} )
+    })
+    ->columns([qw(id deactivated)])->single;
+
+    return $c->status(404) if not $hardware_product;
+    return $c->status(410) if $hardware_product->deactivated;
+    return $c->status(204) if $device->hardware_product_id eq $hardware_product->id;
+
+    $device->update({ hardware_product_id => $hardware_product->id, updated => \'now()' });
+    $c->status(303);
+}
+
 1;
 __END__
 

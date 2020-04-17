@@ -31,10 +31,6 @@ sub process ($c) {
     my $unserialized_report = $c->validate_request('DeviceReport');
     return if not $unserialized_report;
 
-    # Make sure that the remote side is telling us about a hardware product we understand
-    my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
-    return $c->status(409, { error => 'Could not find hardware product with sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
-
     if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
         my $relay_rs = $c->db_relays->active->search({ serial_number => $relay_serial });
         return $c->status(409, { error => 'relay serial '.$relay_serial.' is not registered' })
@@ -43,7 +39,9 @@ sub process ($c) {
             if not $relay_rs->search({ user_id => $c->stash('user_id') })->exists;
     }
 
-    my $device = $c->db_devices->find({ serial_number => $unserialized_report->{serial_number} });
+    my $device = $c->db_devices
+        ->prefetch({ hardware_product => 'validation_plan' })
+        ->find({ serial_number => $unserialized_report->{serial_number} });
     if (not $device) {
         $c->log->warn('Could not find device '.$unserialized_report->{serial_number});
         return $c->status(404);
@@ -52,6 +50,20 @@ sub process ($c) {
     if ($device->phase eq 'decommissioned') {
         $c->log->warn('report submitted for decommissioned device '.$unserialized_report->{serial_number});
         return $c->status(409, { error => 'device is decommissioned' });
+    }
+
+    if ($device->hardware_product->deactivated) {
+        $device->health('error');
+        $device->update({ updated => \'now()' }) if $device->is_changed;
+        return $c->status(409, { error => 'hardware_product (id '.$device->hardware_product_id
+            .') is deactivated and cannot be used' });
+    }
+
+    if ($device->hardware_product->validation_plan->deactivated) {
+        $device->health('error');
+        $device->update({ updated => \'now()' }) if $device->is_changed;
+        return $c->status(409, { error => 'validation_plan (id '
+            .$device->hardware_product->validation_plan_id.') is deactivated and cannot be used' });
     }
 
     # capture information about the last report before we store the new one
@@ -69,7 +81,6 @@ sub process ($c) {
     my $prev_uptime = $device->uptime_since;
     $c->txn_wrapper(sub ($c) {
         $device->update({
-            hardware_product_id => $hardware_product_id,
             system_uuid => $unserialized_report->{system_uuid},
             last_seen   => \'now()',
             exists $unserialized_report->{uptime_since} ? ( uptime_since => $unserialized_report->{uptime_since} ) : (),
@@ -117,9 +128,7 @@ sub process ($c) {
     }
 
     # Time for validations https://www.ctvscifi.ca/wp-content/uploads/2017/05/giphy-1.gif
-    my $validation_plan = $c->db_validation_plans->search({
-        id => { '=' => $c->db_hardware_products->search({ id => $hardware_product_id })->get_column('validation_plan_id')->as_query },
-    })->single;
+    my $validation_plan = $device->hardware_product->validation_plan;
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
     my $validation_state = Conch::ValidationSystem->new(
@@ -381,7 +390,8 @@ sub get ($c) {
 =head2 validate_report
 
 Process a device report without writing anything to the database; otherwise behaves like
-L</process>. The described device does not have to exist.
+L</process>. The validation plan is determined from the report sku if the device does not
+exist; otherwise, it uses the device sku as L</process> does.
 
 Response uses the ReportValidationResults json schema.
 
@@ -394,32 +404,47 @@ sub validate_report ($c) {
         return;
     }
 
-    my $hardware_product_id = $c->db_hardware_products->active->search({ sku => $unserialized_report->{sku} })->get_column('id')->single;
-    return $c->status(409, { error => 'Could not find hardware product with sku '.$unserialized_report->{sku} }) if not $hardware_product_id;
+    my $device = $c->db_devices
+        ->prefetch({ hardware_product => 'validation_plan' })
+        ->find({ serial_number => $unserialized_report->{serial_number} });
 
-    if (my $current_hardware_product_id = $c->db_devices->search({ serial_number => $unserialized_report->{serial_number} })->get_column('hardware_product_id')->single) {
-        return $c->status(409, { error => 'Report sku does not match expected hardware_product for device '.$unserialized_report->{serial_number} })
-            if $current_hardware_product_id ne $hardware_product_id;
-    }
+    my $hardware_product = ($device ? $device->hardware_product
+            : $c->db_hardware_products->find({ sku => $unserialized_report->{sku} }))
+        || return $c->status(409, { error => 'Could not find hardware product with sku '.$unserialized_report->{sku} });
 
-    my $validation_plan = $c->db_validation_plans->search({
-        id => { '=' => $c->db_hardware_products->search({ id => $hardware_product_id })->get_column('validation_plan_id')->as_query },
-    })->single;
+    return $c->status(409, { error => 'hardware_product (id '.$hardware_product->id
+            .') is deactivated and cannot be used' })
+        if $hardware_product->deactivated;
+
+    my $validation_plan = $hardware_product->validation_plan;
+    return $c->status(409, { error => 'validation_plan (id '.$validation_plan->id.') is deactivated and cannot be used' })
+        if $validation_plan->deactivated;
+
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
     my ($status, @validation_results);
     $c->txn_wrapper(sub ($c) {
-        my $device = $c->db_devices->update_or_create({
-            serial_number       => $unserialized_report->{serial_number},
-            system_uuid         => $unserialized_report->{system_uuid},
-            hardware_product_id => $hardware_product_id,
-            health              => 'unknown',
-            last_seen           => \'now()',
-            uptime_since        => $unserialized_report->{uptime_since},
-            hostname            => $unserialized_report->{os}{hostname},
-            updated             => \'now()',
-        },
-        { key => 'device_serial_number_key' });
+        if ($device) {
+            $c->db_devices->update({
+                serial_number       => $unserialized_report->{serial_number},
+                system_uuid         => $unserialized_report->{system_uuid},
+                uptime_since        => $unserialized_report->{uptime_since},
+                hostname            => $unserialized_report->{os}{hostname},
+                updated             => \'now()',
+            },
+            { key => 'device_serial_number_key' });
+        }
+        else {
+            $device = $c->db_devices->create({
+                serial_number       => $unserialized_report->{serial_number},
+                system_uuid         => $unserialized_report->{system_uuid},
+                hardware_product_id => $hardware_product->id,
+                health              => 'unknown',
+                last_seen           => \'now()',
+                uptime_since        => $unserialized_report->{uptime_since},
+                hostname            => $unserialized_report->{os}{hostname},
+            });
+        }
 
         # we do not call _record_device_configuration, because no validations
         # should be using that information, instead choosing to respect the report data.
@@ -445,6 +470,8 @@ sub validate_report ($c) {
     $c->status(200, {
         device_serial_number => $unserialized_report->{serial_number},
         validation_plan_id => $validation_plan->id,
+        hardware_product_id => $hardware_product->id,
+        sku => $hardware_product->sku,
         status => $status,
         results => \@validation_results,
     });

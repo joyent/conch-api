@@ -29,7 +29,7 @@ my $device_report = $t->app->db_device_reports->create({
     report => to_json({
         product_name => $device->hardware_product->generation_name,
         bios_version => $device->hardware_product->bios_firmware,
-        sku => '123',   # device is not located, so it does not need to match
+        sku => $device->hardware_product->sku,
     }),
 });
 
@@ -89,11 +89,11 @@ subtest 'run_validation_plan, without saving state' => sub {
                     in_storage => bool(0),
                     id => undef,
                     device_id => $device->id,
-                    hardware_product_id => $device->hardware_product_id,
                     status => 'pass',
                 ),
             ),
             bag(
+                methods(category => 'IDENTITY', validation_id => $validation_product->id),
                 methods(category => 'IDENTITY', validation_id => $validation_product->id),
                 methods(category => 'BIOS', validation_id => $validation_bios->id),
             ),
@@ -122,8 +122,8 @@ subtest 'run_validation_plan, with saving state' => sub {
                 [ isa => 'Conch::DB::Result::ValidationState' ] => bool(1),
                 in_storage => bool(1),
                 validation_plan_id => $validation_plan->id,
+                hardware_product_id => $device->hardware_product_id,
                 status => 'pass',
-                completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 device_report_id => $device_report->id,
             ),
             listmethods(
@@ -133,11 +133,11 @@ subtest 'run_validation_plan, with saving state' => sub {
                             [ isa => 'Conch::DB::Result::ValidationResult' ] => bool(1),
                             in_storage => bool(1),
                             device_id => $device->id,
-                            hardware_product_id => $device->hardware_product_id,
                             status => 'pass',
                         ),
                     ),
                     bag(
+                        methods(category => 'IDENTITY', validation_id => $validation_product->id),
                         methods(category => 'IDENTITY', validation_id => $validation_product->id),
                         methods(category => 'BIOS', validation_id => $validation_bios->id),
                     ),
@@ -170,7 +170,6 @@ subtest run_validation => sub {
                     in_storage => bool(0),
                     id => undef,
                     device_id => $device->id,
-                    hardware_product_id => $device->hardware_product_id,
                     validation_id => $validation_multi->id,
                 ),
             ),

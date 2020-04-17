@@ -72,6 +72,25 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("validation_state_id", "validation_result_id");
 
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<validation_state_member_validation_state_id_result_order_key>
+
+=over 4
+
+=item * L</validation_state_id>
+
+=item * L</result_order>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint(
+  "validation_state_member_validation_state_id_result_order_key",
+  ["validation_state_id", "result_order"],
+);
+
 =head1 RELATIONS
 
 =head2 validation_result
@@ -106,7 +125,7 @@ __PACKAGE__->belongs_to(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uqNRvm7JRcN3eZg57CJEUg
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QmmAbZxCPyBfmUvcnNaMFA
 
 1;
 __END__

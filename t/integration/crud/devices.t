@@ -14,6 +14,7 @@ $t->load_fixture_set('workspace_room_rack_layout', 0);
 my $rack = $t->load_fixture('rack_0a');
 my $rack_id = $rack->id;
 my $hardware_product = $t->load_fixture('hardware_product_compute');
+my $hardware_product2 = $t->load_fixture('hardware_product_storage');
 my $global_ws = $t->load_fixture('global_workspace');
 
 $t->load_validation_plans([{
@@ -441,9 +442,18 @@ subtest 'located device' => sub {
             ->status_is(403)
             ->log_debug_is('User lacks the required role (admin) for device '.$located_device_id);
 
+        $t->post_ok('/device/LOCATED_DEVICE/'.$_, json => { sku => $hardware_product2->sku })
+            ->status_is(403)
+            ->log_debug_is('User lacks the required role (admin) for device '.$located_device_id)
+                foreach qw(hardware_product sku);
+
         $t->authenticate(email => $admin_user->email);
         $t->post_ok('/device/LOCATED_DEVICE/settings/hello', json => { 'hello' => 'bye' })
             ->status_is(204);
+
+        $t->post_ok('/device/LOCATED_DEVICE/sku', json => { sku => $hardware_product2->sku })
+            ->status_is(303)
+            ->location_is('/device/'.$located_device_id);
 
         $t->authenticate(email => $ro_user->email);
         foreach my $query (@post_queries) {
@@ -773,17 +783,16 @@ subtest 'mutate device attributes' => sub {
     $t->post_ok('/device/TEST/phase', json => { phase => 'decommissioned' })
         ->status_is(303)
         ->location_is('/device/'.$test_device_id);
-    $detailed_device->{phase} = 'decommissioned';
+
+    local $detailed_device->{phase} = 'decommissioned';
+    delete local $detailed_device->@{qw(location nics disks)};
+
+    my $test_device = $t->app->db_devices->find({ serial_number => 'TEST' }, { prefetch => 'hardware_product' });
 
     $t->get_ok('/device/TEST/phase')
         ->status_is(200)
         ->json_schema_is('DevicePhase')
         ->json_is({ id => $test_device_id, phase => 'decommissioned' });
-
-    $detailed_device->{phase} = 'decommissioned';
-    delete $detailed_device->@{qw(location nics disks)};
-
-    my $test_device = $t->app->db_devices->find({ serial_number => 'TEST' }, { prefetch => 'hardware_product' });
 
     $t->get_ok('/device/TEST/sku')
         ->status_is(200)
@@ -791,7 +800,7 @@ subtest 'mutate device attributes' => sub {
         ->json_is({
             id => $test_device_id,
             hardware_product_id => $hardware_product->id,
-            sku => $test_device->hardware_product->sku,
+            sku => $hardware_product->sku,
         });
 
     $t->delete_ok('/device/TEST/links')
@@ -805,6 +814,20 @@ subtest 'mutate device attributes' => sub {
             updated => str($test_device->updated),    # needless update is not performed
         });
 
+    $t->post_ok('/device/TEST/hardware_product', json => { sku => $hardware_product2->sku })
+        ->status_is(303)
+        ->location_is('/device/'.$test_device_id);
+    $detailed_device->@{qw(hardware_product_id sku)} = map $hardware_product2->$_, qw(id sku);
+
+    $t->get_ok('/device/TEST/sku')
+        ->status_is(200)
+        ->json_schema_is('DeviceSku')
+        ->json_is({
+            id => $test_device_id,
+            hardware_product_id => $hardware_product2->id,
+            sku => $hardware_product2->sku,
+        });
+
     $t->post_ok('/device/TEST/links', json => { links => [ 'https://foo.com/1' ] })
         ->status_is(303)
         ->location_is('/device/'.$test_device_id);
@@ -813,7 +836,7 @@ subtest 'mutate device attributes' => sub {
 
     $t->post_ok('/device/TEST/build', json => { build_id => $build2->id })
         ->status_is(403)
-        ->log_debug_is('User lacks the required role (rw) for existing build '.$test_device->build_id);
+        ->log_debug_is('User lacks the required role (rw) for existing build '.$build->id);
     my $ubr = $build->create_related('user_build_roles', { user_id => $ro_user->id, role => 'rw' });
 
     $t->post_ok('/device/TEST/build', json => { build_id => $build2->id })
@@ -1178,11 +1201,14 @@ subtest 'Device location' => sub {
         ->status_is(409)
         ->json_is({ error => "slot 42 does not exist in the layout for rack $rack_id" });
 
-    $t_build->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
+    # make sure device is using the Storage sku
+    $t_build->app->db_devices->search({ id => $test_device_id })
+        ->update({ hardware_product_id => $hardware_product2->id });
+
+    # now move device back to a Compute rack_unit
+    $t_build->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 1 })
         ->status_is(303)
         ->location_is('/device/'.$test_device_id.'/location');
-
-    my $layout = $rack->search_related('rack_layouts', { rack_unit_start => 3 })->single;
 
     $t_build->get_ok('/device/TEST/location')
         ->status_is(200)
@@ -1191,12 +1217,24 @@ subtest 'Device location' => sub {
             az => $rack->datacenter_room->az,
             datacenter_room => $rack->datacenter_room->alias,
             rack => $rack->datacenter_room->vendor_name.':'.$rack->name,
-            rack_unit_start => 3,
+            rack_unit_start => 1,
             target_hardware_product => {
-                (map +($_ => $layout->hardware_product->$_), qw(id name alias sku hardware_vendor_id)),
+                (map +($_ => $hardware_product->$_), qw(id name alias sku hardware_vendor_id)),
             },
         });
     my $location_data = $t_build->tx->res->json;
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply({
+            $detailed_device->%*,
+            hardware_product_id => $hardware_product->id,
+            sku => $hardware_product->sku,
+            health => 'unknown',
+            updated => ignore,
+            location => $location_data,
+        });
 
     $t_build->app->db_devices->search({ id => $test_device_id })->update({ phase => 'production' });
 

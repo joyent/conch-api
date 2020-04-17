@@ -41,7 +41,8 @@ Response uses the DeviceReportRow json schema.
 ### validate\_report
 
 Process a device report without writing anything to the database; otherwise behaves like
-["process"](#process). The described device does not have to exist.
+["process"](#process). The validation plan is determined from the report sku if the device does not
+exist; otherwise, it uses the device sku as ["process"](#process) does.
 
 Response uses the ReportValidationResults json schema.
 

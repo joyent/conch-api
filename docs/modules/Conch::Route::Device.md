@@ -93,6 +93,14 @@ below.
 - Request: [request.json#/definitions/DeviceBuild](../json-schema/request.json#/definitions/DeviceBuild)
 - Response: Redirect to the updated device
 
+### `POST /device/:device_id_or_serial_number/hardware_product`
+
+### `POST /device/:device_id_or_serial_number/sku`
+
+- User requires the admin role for the device
+- Request: [request.json#/definitions/DeviceHardware](../json-schema/request.json#/definitions/DeviceHardware)
+- Response: Redirect to the updated device
+
 ### `GET /device/:device_id_or_serial_number/location`
 
 - User requires the read-only role

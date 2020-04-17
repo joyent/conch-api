@@ -30,9 +30,9 @@ sub get_validation_states ($c) {
     my @validation_states = $c->stash('device_rs')
         ->search_related('validation_states',
             $params->{status} ? { 'validation_states.status' => $params->{status} } : ())
-        ->latest_completed_state_per_plan
+        ->latest_state_per_plan
         ->prefetch({ validation_state_members => 'validation_result' })
-        ->order_by([ qw(validation_states.completed validation_state_members.result_order) ])
+        ->order_by([ qw(validation_states.created validation_state_members.result_order) ])
         ->all;
 
     $c->log->debug('Found '.scalar(@validation_states).' records');

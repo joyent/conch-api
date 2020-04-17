@@ -40,6 +40,13 @@ is_nullable: 0
 - ["validation\_state\_id"](#validation_state_id)
 - ["validation\_result\_id"](#validation_result_id)
 
+## UNIQUE CONSTRAINTS
+
+### `validation_state_member_validation_state_id_result_order_key`
+
+- ["validation\_state\_id"](#validation_state_id)
+- ["result\_order"](#result_order)
+
 ## RELATIONS
 
 ### validation\_result

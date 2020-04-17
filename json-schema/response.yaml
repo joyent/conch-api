@@ -973,7 +973,6 @@ definitions:
       - id
       - category
       - component
-      - hardware_product_id
       - hint
       - message
       - status
@@ -989,8 +988,6 @@ definitions:
         oneOf:
           - type: 'null'
           - type: string
-      hardware_product_id:
-        $ref: common.yaml#/definitions/uuid
       hint:
         oneOf:
           - type: 'null'
@@ -1016,19 +1013,16 @@ definitions:
     additionalProperties: false
     required:
       - id
-      - completed
       - created
       - device_id
       - results
       - status
       - validation_plan_id
+      - hardware_product_id
       - device_report_id
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
-      completed:
-        type: string
-        format: date-time
       created:
         type: string
         format: date-time
@@ -1043,6 +1037,8 @@ definitions:
         $ref: common.yaml#/definitions/validation_status
       validation_plan_id:
         $ref: common.yaml#/definitions/uuid
+      hardware_product_id:
+        $ref: common.yaml#/definitions/uuid
       device_report_id:
         $ref: common.yaml#/definitions/uuid
   ReportValidationResults:
@@ -1051,6 +1047,8 @@ definitions:
     required:
       - device_serial_number
       - validation_plan_id
+      - hardware_product_id
+      - sku
       - status
       - results
     properties:
@@ -1058,6 +1056,10 @@ definitions:
         $ref: common.yaml#/definitions/device_serial_number
       validation_plan_id:
         $ref: common.yaml#/definitions/uuid
+      hardware_product_id:
+        $ref: common.yaml#/definitions/uuid
+      sku:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       status:
         $ref: common.yaml#/definitions/validation_status
       results:

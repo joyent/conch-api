@@ -45,13 +45,6 @@ extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pa
 is_nullable: 0
 ```
 
-### completed
-
-```
-data_type: 'timestamp with time zone'
-is_nullable: 0
-```
-
 ### device\_report\_id
 
 ```
@@ -62,6 +55,15 @@ size: 16
 ```
 
 ### device\_id
+
+```
+data_type: 'uuid'
+is_foreign_key: 1
+is_nullable: 0
+size: 16
+```
+
+### hardware\_product\_id
 
 ```
 data_type: 'uuid'
@@ -87,6 +89,12 @@ Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::DeviceReport](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADeviceReport)
+
+### hardware\_product
+
+Type: belongs\_to
+
+Related object: [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct)
 
 ### validation\_plan
 

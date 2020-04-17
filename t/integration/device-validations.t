@@ -63,9 +63,9 @@ subtest 'test validating a device' => sub {
             { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
         ->json_schema_is('ValidationResults')
-        ->json_cmp_deeply([ superhashof({
+        ->json_cmp_deeply(array_each(superhashof({
             id => undef,
-        }) ]);
+        })));
 
     my $validation_results = $t->tx->res->json;
 
@@ -92,13 +92,12 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
     device_id => $device->id,
     validation_plan_id => $test_validation_plan->id,
     device_report_id => $device_reports[1]->id,
+    hardware_product_id => $device->hardware_product_id,
     status => 'fail',
-    completed => \'now()',
     validation_state_members => [{
         result_order => 0,
         validation_result => {
             device_id => $device->id,
-            hardware_product_id => $device->hardware_product_id,
             validation_id => $validation->id,
             message => 'faked failure',
             hint => 'boo',
@@ -113,14 +112,14 @@ push @fail_validation_state_id, $t->app->db_validation_states->create({
     device_id => $device->id,
     validation_plan_id => $test_validation_plan->id,
     device_report_id => $device_reports[1]->id,
+    hardware_product_id => $device->hardware_product_id,
     status => 'fail',
-    completed => '2001-01-01',
+    created => '2001-01-01',
     validation_state_members => [{
         result_order => 0,
         validation_result => {
             created => '2001-01-01',
             device_id => $device->id,
-            hardware_product_id => $device->hardware_product_id,
             validation_id => $validation->id,
             message => 'earlier failure',
             hint => 'boo',
@@ -139,22 +138,21 @@ $t->get_ok('/device/TEST/validation_state')
             validation_plan_id => $server_validation_plan->id,
             device_id => $device->id,
             device_report_id => $device_reports[1]->id,
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            hardware_product_id => $device->hardware_product_id,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             status => 'pass',   # we force-validated this device earlier
-            results => [ ignore ],
+            results => ignore,
         },
         {
             id => $fail_validation_state_id[0],
             validation_plan_id => $test_validation_plan->id,
+            hardware_product_id => $device->hardware_product_id,
             device_id => $device->id,
             device_report_id => $device_reports[1]->id,
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             status => 'fail',
             results => [{
                 id => re(Conch::UUID::UUID_FORMAT),
-                hardware_product_id => $device->hardware_product_id,
                 validation_id => $validation->id,
                 component => undef,
                 message => 'faked failure',
@@ -190,12 +188,11 @@ $t->get_ok('/device/TEST/validation_state?status=error')
             validation_plan_id => $server_validation_plan->id,
             device_id => $device->id,
             device_report_id => $device_reports[0]->id,
-            completed => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            hardware_product_id => $device->hardware_product_id,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             status => 'error',
             results => [{
                 id => re(Conch::UUID::UUID_FORMAT),
-                hardware_product_id => $device->hardware_product_id,
                 validation_id => re(Conch::UUID::UUID_FORMAT),
                 component => undef,
                 message => 'Missing \'product_name\' property',

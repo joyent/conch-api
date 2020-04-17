@@ -15,9 +15,9 @@ Interface to queries involving validation states.
 
 =head1 METHODS
 
-=head2 latest_completed_state_per_plan
+=head2 latest_state_per_plan
 
-Generates a resultset that returns the single most recent B<completed> validation_state entry
+Generates a resultset that returns the single most recent validation_state entry
 per validation plan (using whatever other search criteria are already in the resultset).
 
 The query will be closed off as a subselect (that additional chaining will SELECT FROM),
@@ -26,14 +26,14 @@ method.
 
 =cut
 
-sub latest_completed_state_per_plan ($self) {
+sub latest_state_per_plan ($self) {
     my $me = $self->current_source_alias;
     $self->search(
-        { "$me.completed" => { '!=' => undef } },
+        undef,
         {
-            order_by => { -desc => "$me.completed" },
+            order_by => { -desc => "$me.created" },
             '+select' => [{
-                '' => \'row_number() over (partition by validation_plan_id order by completed desc)',
+                '' => \"row_number() over (partition by validation_plan_id order by $me.created desc)",
                 -as => 'result_num',
             }],
         },
