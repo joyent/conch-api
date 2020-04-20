@@ -177,6 +177,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 validation_state_members
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::ValidationStateMember>
+
+=cut
+
+__PACKAGE__->has_many(
+  "validation_state_members",
+  "Conch::DB::Result::ValidationStateMember",
+  { "foreign.validation_state_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 legacy_validation_results
 
 Type: many_to_many
@@ -191,9 +206,23 @@ __PACKAGE__->many_to_many(
   "legacy_validation_result",
 );
 
+=head2 validation_results
+
+Type: many_to_many
+
+Composing rels: L</validation_state_members> -> validation_result
+
+=cut
+
+__PACKAGE__->many_to_many(
+  "validation_results",
+  "validation_state_members",
+  "validation_result",
+);
+
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JMaInrC4A1KF+QE0TplOCA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XXllCgKi4icCQQKcXCPF/Q
 
 __PACKAGE__->add_columns(
     '+created' => { retrieve_on_insert => 1 },

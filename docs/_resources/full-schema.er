@@ -318,6 +318,20 @@ category
 component
 created
 
+[validation_result] {bgcolor: "#fbfbdb"}
+*id
++json_schema_id
+created
+status
+data_location
+schema_location
+error
+
+[validation_state_member] {bgcolor: "#fbfbdb"}
+*+validation_state_id
+*+validation_result_id
+result_order
+
 [validation_state] {bgcolor: "#fbfbdb"}
 *id
 +device_report_id
@@ -384,5 +398,8 @@ legacy_validation_result *--1 legacy_validation
 validation_state *--1 device
 validation_state *--1 device_report
 validation_state *--1 hardware_product
+validation_result *--1 json_schema
+validation_state_member +--1 validation_result
+validation_state_member *--1 validation_state
 legacy_validation_state_member +--1 legacy_validation_result
 legacy_validation_state_member *--1 validation_state

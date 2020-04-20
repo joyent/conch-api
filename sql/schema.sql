@@ -729,6 +729,26 @@ CREATE TABLE public.user_setting (
 ALTER TABLE public.user_setting OWNER TO conch;
 
 --
+-- Name: validation_result; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.validation_result (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    json_schema_id uuid NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    status public.validation_status_enum NOT NULL,
+    data_location text,
+    schema_location text,
+    absolute_schema_location text,
+    error text,
+    CONSTRAINT validation_result_absolute_schema_location_check CHECK (((absolute_schema_location IS NULL) OR ((absolute_schema_location IS NOT NULL) AND (absolute_schema_location !~~ 'http%'::text)))),
+    CONSTRAINT validation_result_check CHECK ((((status = 'pass'::public.validation_status_enum) AND (data_location IS NULL) AND (schema_location IS NULL) AND (absolute_schema_location IS NULL) AND (error IS NULL)) OR ((status <> 'pass'::public.validation_status_enum) AND (data_location IS NOT NULL) AND (schema_location IS NOT NULL) AND (absolute_schema_location IS NOT NULL) AND (error IS NOT NULL))))
+);
+
+
+ALTER TABLE public.validation_result OWNER TO conch;
+
+--
 -- Name: validation_state; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -743,6 +763,20 @@ CREATE TABLE public.validation_state (
 
 
 ALTER TABLE public.validation_state OWNER TO conch;
+
+--
+-- Name: validation_state_member; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.validation_state_member (
+    validation_state_id uuid NOT NULL,
+    validation_result_id uuid NOT NULL,
+    result_order integer NOT NULL,
+    CONSTRAINT validation_state_member_result_order_check CHECK ((result_order >= 0))
+);
+
+
+ALTER TABLE public.validation_state_member OWNER TO conch;
 
 --
 -- Name: build build_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
@@ -1121,6 +1155,38 @@ ALTER TABLE ONLY public.user_setting
 
 
 --
+-- Name: validation_result validation_result_all_columns_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_result
+    ADD CONSTRAINT validation_result_all_columns_key UNIQUE (json_schema_id, status, data_location, schema_location, absolute_schema_location, error);
+
+
+--
+-- Name: validation_result validation_result_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_result
+    ADD CONSTRAINT validation_result_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: validation_state_member validation_state_member_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_state_member
+    ADD CONSTRAINT validation_state_member_pkey PRIMARY KEY (validation_state_id, validation_result_id);
+
+
+--
+-- Name: validation_state_member validation_state_member_validation_state_id_result_order_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_state_member
+    ADD CONSTRAINT validation_state_member_validation_state_id_result_order_key UNIQUE (validation_state_id, result_order);
+
+
+--
 -- Name: validation_state validation_state_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1465,6 +1531,13 @@ CREATE UNIQUE INDEX user_setting_user_id_name_idx ON public.user_setting USING b
 
 
 --
+-- Name: validation_result_json_schema_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_result_json_schema_id_idx ON public.validation_result USING btree (json_schema_id);
+
+
+--
 -- Name: validation_state_created_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1490,6 +1563,13 @@ CREATE INDEX validation_state_device_report_id_idx ON public.validation_state US
 --
 
 CREATE INDEX validation_state_hardware_product_id_idx ON public.validation_state USING btree (hardware_product_id);
+
+
+--
+-- Name: validation_state_member_validation_result_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_state_member_validation_result_id_idx ON public.validation_state_member USING btree (validation_result_id);
 
 
 --
@@ -1789,6 +1869,14 @@ ALTER TABLE ONLY public.user_setting
 
 
 --
+-- Name: validation_result validation_result_json_schema_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_result
+    ADD CONSTRAINT validation_result_json_schema_id_fkey FOREIGN KEY (json_schema_id) REFERENCES public.json_schema(id);
+
+
+--
 -- Name: validation_state validation_state_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1810,6 +1898,22 @@ ALTER TABLE ONLY public.validation_state
 
 ALTER TABLE ONLY public.validation_state
     ADD CONSTRAINT validation_state_hardware_product_id_fkey FOREIGN KEY (hardware_product_id) REFERENCES public.hardware_product(id);
+
+
+--
+-- Name: validation_state_member validation_state_member_validation_result_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_state_member
+    ADD CONSTRAINT validation_state_member_validation_result_id_fkey FOREIGN KEY (validation_result_id) REFERENCES public.validation_result(id) ON DELETE CASCADE;
+
+
+--
+-- Name: validation_state_member validation_state_member_validation_state_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.validation_state_member
+    ADD CONSTRAINT validation_state_member_validation_state_id_fkey FOREIGN KEY (validation_state_id) REFERENCES public.validation_state(id) ON DELETE CASCADE;
 
 
 --
@@ -2030,10 +2134,24 @@ GRANT SELECT ON TABLE public.user_setting TO conch_read_only;
 
 
 --
+-- Name: TABLE validation_result; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.validation_result TO conch_read_only;
+
+
+--
 -- Name: TABLE validation_state; Type: ACL; Schema: public; Owner: conch
 --
 
 GRANT SELECT ON TABLE public.validation_state TO conch_read_only;
+
+
+--
+-- Name: TABLE validation_state_member; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.validation_state_member TO conch_read_only;
 
 
 --

@@ -60,7 +60,7 @@ sub run ($self, @opts) {
 
     $device_rs = $device_rs->search({ updated => { '>=', $opt->updated_since } }) if $opt->updated_since;
 
-    my ($device_count, $device_reports_deleted, $validation_results_deleted) = (0)x3;
+    my ($device_count, $device_reports_deleted, $legacy_validation_results_deleted, $validation_results_deleted) = (0)x4;
 
     foreach my $page (1 .. $device_rs->pager->last_page) {
         $device_rs = $device_rs->page($page);
@@ -73,7 +73,7 @@ sub run ($self, @opts) {
                 });
                 ++$device_count;
                 $device_reports_deleted += $deleted[0];
-                $validation_results_deleted += $deleted[1];
+                $legacy_validation_results_deleted += $deleted[1];
             }
             catch {
                 if (/Rollback failed/) {
@@ -85,8 +85,16 @@ sub run ($self, @opts) {
         }
     }
 
+    # now delete all newly-orphaned validation_result rows
+    $validation_results_deleted += $self->app->db_validation_results->search(
+      { 'validation_state_members.validation_state_id' => undef },
+      { join => 'validation_state_members' },
+    )->delete
+      if not $self->dry_run;
+
     say "\n$device_count devices processed.";
     say $device_reports_deleted.' device_reports '.($self->dry_run ? 'would be ' : '').'deleted.' if $device_reports_deleted;
+    say $legacy_validation_results_deleted.' legacy_validation_results deleted.' if $legacy_validation_results_deleted;
     say $validation_results_deleted.' validation_results deleted.' if $validation_results_deleted;
 
     say 'at finish, we have this many records:';
@@ -98,6 +106,8 @@ sub _print_stats ($self) {
     say 'validation_state:               ', $self->app->db_ro_validation_states->count;
     say 'legacy_validation_state_member: ', $self->app->db_ro_legacy_validation_state_members->count;
     say 'legacy_validation_result:       ', $self->app->db_ro_legacy_validation_results->count;
+    say 'validation_state_member:        ', $self->app->db_ro_validation_state_members->count;
+    say 'validation_result:              ', $self->app->db_ro_validation_results->count;
     say '';
 }
 
@@ -128,14 +138,14 @@ select id from (
 where status != 'NOT_UNIQUE' and seq > 1 and created < (now() - interval '6 months')
 SQL
 
-    # delete all device_report rows (cascading to validation_state,
+    # delete all device_report rows (cascading to validation_state, validation_state_member,
     # legacy_validation_state_member) which are older than six months, except for the most recent
     # report of each validation status (error, fail, pass)
     my $device_report_rs = $self->app->db_device_reports
         ->search({ 'device_report.id' => { -in => \[ $query, $device->id ] } });
 
     my $device_reports_deleted;
-    my $validation_results_deleted = 0;
+    my $legacy_validation_results_deleted = 0;
 
     print "\n";
 
@@ -156,18 +166,18 @@ SQL
 
         # now delete all newly-orphaned validation_result rows for this device (legacy only --
         # current results are not linked to a device)
-        $validation_results_deleted += $device->delete_related('legacy_validation_results',
+        $legacy_validation_results_deleted += $device->delete_related('legacy_validation_results',
             { 'legacy_validation_state_members.validation_state_id' => undef },
             { join => 'legacy_validation_state_members' },
         );
 
-        say 'deleted ', $validation_results_deleted,
-            ' validation_result rows for device id ', $device->id;
+        say 'deleted ', $legacy_validation_results_deleted,
+            ' legacy_validation_result rows for device id ', $device->id;
     }
 
     print "\n";
 
-    return ($device_reports_deleted, $validation_results_deleted);
+    return ($device_reports_deleted, $legacy_validation_results_deleted);
 }
 
 1;
