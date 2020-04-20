@@ -162,38 +162,38 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 validation_state_members
+=head2 legacy_validation_state_members
 
 Type: has_many
 
-Related object: L<Conch::DB::Result::ValidationStateMember>
+Related object: L<Conch::DB::Result::LegacyValidationStateMember>
 
 =cut
 
 __PACKAGE__->has_many(
-  "validation_state_members",
-  "Conch::DB::Result::ValidationStateMember",
+  "legacy_validation_state_members",
+  "Conch::DB::Result::LegacyValidationStateMember",
   { "foreign.validation_state_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 validation_results
+=head2 legacy_validation_results
 
 Type: many_to_many
 
-Composing rels: L</validation_state_members> -> validation_result
+Composing rels: L</legacy_validation_state_members> -> legacy_validation_result
 
 =cut
 
 __PACKAGE__->many_to_many(
-  "validation_results",
-  "validation_state_members",
-  "validation_result",
+  "legacy_validation_results",
+  "legacy_validation_state_members",
+  "legacy_validation_result",
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pep0iRoZHez2p2JTgmW8Qw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JMaInrC4A1KF+QE0TplOCA
 
 __PACKAGE__->add_columns(
     '+created' => { retrieve_on_insert => 1 },
@@ -213,11 +213,11 @@ Include all the associated validation results, when available.
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
-    # add validation_results data, if it has been prefetched
-    if (my $cached_members = $self->related_resultset('validation_state_members')->get_cache) {
+    # add legacy_validation_results data, if it has been prefetched
+    if (my $cached_members = $self->related_resultset('legacy_validation_state_members')->get_cache) {
         $data->{results} = [
             map {
-                my $cached_result = $_->related_resultset('validation_result')->get_cache;
+                my $cached_result = $_->related_resultset('legacy_validation_result')->get_cache;
                 # cache is always a listref even for a belongs_to relationship
                 !$cached_result ? () : +{
                     $cached_result->[0]->TO_JSON->%*,

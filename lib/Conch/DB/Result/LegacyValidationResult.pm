@@ -1,12 +1,12 @@
 use utf8;
-package Conch::DB::Result::ValidationResult;
+package Conch::DB::Result::LegacyValidationResult;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::DB::Result::ValidationResult
+Conch::DB::Result::LegacyValidationResult
 
 =cut
 
@@ -20,11 +20,11 @@ use warnings;
 
 use base 'Conch::DB::Result';
 
-=head1 TABLE: C<validation_result>
+=head1 TABLE: C<legacy_validation_result>
 
 =cut
 
-__PACKAGE__->table("validation_result");
+__PACKAGE__->table("legacy_validation_result");
 
 =head1 ACCESSORS
 
@@ -136,7 +136,7 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<validation_result_all_columns_key>
+=head2 C<l_validation_result_all_columns_key>
 
 =over 4
 
@@ -159,7 +159,7 @@ __PACKAGE__->set_primary_key("id");
 =cut
 
 __PACKAGE__->add_unique_constraint(
-  "validation_result_all_columns_key",
+  "l_validation_result_all_columns_key",
   [
     "device_id",
     "validation_id",
@@ -188,6 +188,21 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 legacy_validation_state_members
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::LegacyValidationStateMember>
+
+=cut
+
+__PACKAGE__->has_many(
+  "legacy_validation_state_members",
+  "Conch::DB::Result::LegacyValidationStateMember",
+  { "foreign.legacy_validation_result_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 validation
 
 Type: belongs_to
@@ -203,38 +218,23 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 validation_state_members
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::ValidationStateMember>
-
-=cut
-
-__PACKAGE__->has_many(
-  "validation_state_members",
-  "Conch::DB::Result::ValidationStateMember",
-  { "foreign.validation_result_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 validation_states
 
 Type: many_to_many
 
-Composing rels: L</validation_state_members> -> validation_state
+Composing rels: L</legacy_validation_state_members> -> validation_state
 
 =cut
 
 __PACKAGE__->many_to_many(
   "validation_states",
-  "validation_state_members",
+  "legacy_validation_state_members",
   "validation_state",
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:00k1URNkOBldwrhf2z7WVg
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AyIuSfVRtnQeLmgJYEileQ
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },

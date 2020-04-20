@@ -1,12 +1,12 @@
-# Conch::DB::Result::ValidationStateMember
+# Conch::DB::Result::LegacyValidationStateMember
 
 ## SOURCE
 
-[https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/ValidationStateMember.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/ValidationStateMember.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/LegacyValidationStateMember.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/LegacyValidationStateMember.pm)
 
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-## TABLE: `validation_state_member`
+## TABLE: `legacy_validation_state_member`
 
 ## ACCESSORS
 
@@ -19,7 +19,7 @@ is_nullable: 0
 size: 16
 ```
 
-### validation\_result\_id
+### legacy\_validation\_result\_id
 
 ```
 data_type: 'uuid'
@@ -38,22 +38,22 @@ is_nullable: 0
 ## PRIMARY KEY
 
 - ["validation\_state\_id"](#validation_state_id)
-- ["validation\_result\_id"](#validation_result_id)
+- ["legacy\_validation\_result\_id"](#legacy_validation_result_id)
 
 ## UNIQUE CONSTRAINTS
 
-### `validation_state_member_validation_state_id_result_order_key`
+### `l_validation_state_member_validation_state_id_result_order_key`
 
 - ["validation\_state\_id"](#validation_state_id)
 - ["result\_order"](#result_order)
 
 ## RELATIONS
 
-### validation\_result
+### legacy\_validation\_result
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
+Related object: [Conch::DB::Result::LegacyValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ALegacyValidationResult)
 
 ### validation\_state
 

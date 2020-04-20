@@ -140,6 +140,21 @@ __PACKAGE__->add_unique_constraint("validation_name_version_key", ["name", "vers
 
 =head1 RELATIONS
 
+=head2 legacy_validation_results
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::LegacyValidationResult>
+
+=cut
+
+__PACKAGE__->has_many(
+  "legacy_validation_results",
+  "Conch::DB::Result::LegacyValidationResult",
+  { "foreign.validation_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 validation_plan_members
 
 Type: has_many
@@ -151,21 +166,6 @@ Related object: L<Conch::DB::Result::ValidationPlanMember>
 __PACKAGE__->has_many(
   "validation_plan_members",
   "Conch::DB::Result::ValidationPlanMember",
-  { "foreign.validation_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 validation_results
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::ValidationResult>
-
-=cut
-
-__PACKAGE__->has_many(
-  "validation_results",
-  "Conch::DB::Result::ValidationResult",
   { "foreign.validation_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -186,7 +186,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7TMTq8HbrTSucb+jym+imw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Q5zVfluTnWFosxWSX3fZ8w
 
 __PACKAGE__->add_columns(
     '+module' => { is_serializable => 0 },

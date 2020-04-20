@@ -94,10 +94,10 @@ sub run ($self, @opts) {
 }
 
 sub _print_stats ($self) {
-    say 'device_report:           ', $self->app->db_ro_device_reports->count;
-    say 'validation_state:        ', $self->app->db_ro_validation_states->count;
-    say 'validation_state_member: ', $self->app->db_ro_validation_state_members->count;
-    say 'validation_result:       ', $self->app->db_ro_validation_results->count;
+    say 'device_report:                  ', $self->app->db_ro_device_reports->count;
+    say 'validation_state:               ', $self->app->db_ro_validation_states->count;
+    say 'legacy_validation_state_member: ', $self->app->db_ro_legacy_validation_state_members->count;
+    say 'legacy_validation_result:       ', $self->app->db_ro_legacy_validation_results->count;
     say '';
 }
 
@@ -128,9 +128,9 @@ select id from (
 where status != 'NOT_UNIQUE' and seq > 1 and created < (now() - interval '6 months')
 SQL
 
-    # delete all device_report rows (cascading to validation_state, validation_state_member) which
-    # are older than six months, except for the most recent report of each validation status (error,
-    # fail, pass)
+    # delete all device_report rows (cascading to validation_state,
+    # legacy_validation_state_member) which are older than six months, except for the most recent
+    # report of each validation status (error, fail, pass)
     my $device_report_rs = $self->app->db_device_reports
         ->search({ 'device_report.id' => { -in => \[ $query, $device->id ] } });
 
@@ -146,17 +146,19 @@ SQL
     }
     else {
         # delete all reports that we identified for deletion
-        # this may also cause cascade deletes on validation_state, validation_state_member.
+        # this may also cause cascade deletes on validation_state, legacy_validation_state_member,
+        # validation_state_member.
         say 'deleting reports for device id ', $device->id, '...';
 
         $device_reports_deleted = $device_report_rs->delete;
         say 'deleted ', $device_reports_deleted, ' reports for device id ', $device->id,
             ' out of ', $report_count, ' examined';
 
-        # now delete all newly-orphaned validation_result rows for this device
-        $validation_results_deleted += $device->delete_related('validation_results',
-            { 'validation_state_members.validation_state_id' => undef },
-            { join => 'validation_state_members' },
+        # now delete all newly-orphaned validation_result rows for this device (legacy only --
+        # current results are not linked to a device)
+        $validation_results_deleted += $device->delete_related('legacy_validation_results',
+            { 'legacy_validation_state_members.validation_state_id' => undef },
+            { join => 'legacy_validation_state_members' },
         );
 
         say 'deleted ', $validation_results_deleted,

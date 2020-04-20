@@ -1,12 +1,12 @@
-# Conch::DB::Result::ValidationResult
+# Conch::DB::Result::LegacyValidationResult
 
 ## SOURCE
 
-[https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/ValidationResult.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/ValidationResult.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/LegacyValidationResult.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/LegacyValidationResult.pm)
 
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-## TABLE: `validation_result`
+## TABLE: `legacy_validation_result`
 
 ## ACCESSORS
 
@@ -88,7 +88,7 @@ size: 16
 
 ## UNIQUE CONSTRAINTS
 
-### `validation_result_all_columns_key`
+### `l_validation_result_all_columns_key`
 
 - ["device\_id"](#device_id)
 - ["validation\_id"](#validation_id)
@@ -106,23 +106,23 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
+### legacy\_validation\_state\_members
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::LegacyValidationStateMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ALegacyValidationStateMember)
+
 ### validation
 
 Type: belongs\_to
 
 Related object: [Conch::DB::Result::Validation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidation)
 
-### validation\_state\_members
-
-Type: has\_many
-
-Related object: [Conch::DB::Result::ValidationStateMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationStateMember)
-
 ### validation\_states
 
 Type: many\_to\_many
 
-Composing rels: ["validation\_state\_members"](#validation_state_members) -> validation\_state
+Composing rels: ["legacy\_validation\_state\_members"](#legacy_validation_state_members) -> validation\_state
 
 ### TO\_JSON
 

@@ -307,7 +307,7 @@ deactivated
 *+validation_id
 *+validation_plan_id
 
-[validation_result] {bgcolor: "#fbfbdb"}
+[legacy_validation_result] {bgcolor: "#fbfbdb"}
 *id
 +device_id
 +validation_id
@@ -326,9 +326,9 @@ created
 status
 +hardware_product_id
 
-[validation_state_member] {bgcolor: "#fbfbdb"}
+[legacy_validation_state_member] {bgcolor: "#fbfbdb"}
 *+validation_state_id
-*+validation_result_id
+*+legacy_validation_result_id
 result_order
 
 [json_schema] {bgcolor: "#fbfbdb"}
@@ -379,10 +379,10 @@ user_session_token *--1 user_account
 user_setting *--1 user_account
 validation_plan_member *--1 validation
 validation_plan_member *--1 validation_plan
-validation_result *--1 device
-validation_result *--1 validation
+legacy_validation_result *--1 device
+legacy_validation_result *--1 validation
 validation_state *--1 device
 validation_state *--1 device_report
 validation_state *--1 hardware_product
-validation_state_member +--1 validation_result
-validation_state_member *--1 validation_state
+legacy_validation_state_member +--1 legacy_validation_result
+legacy_validation_state_member *--1 validation_state

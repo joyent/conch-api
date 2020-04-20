@@ -285,7 +285,7 @@ All provided data objects can and should be read-only (fetched with a ro db hand
 
 If C<< no_save_db => 1 >> is passed, the validation records are returned (along with the
 overall result status), without writing them to the database. Otherwise, a validation_state
-record is created and validation_result records saved with deduplication logic applied.
+record is created and legacy_validation_result records saved with deduplication logic applied.
 
 Takes options as a hash:
 
@@ -316,7 +316,7 @@ sub run_validation_plan ($self, %options) {
         ->active;
 
     my @validation_results;
-    my $validation_result_rs = $self->schema->resultset('validation_result');
+    my $validation_result_rs = $self->schema->resultset('legacy_validation_result');
     while (my $validation = $validation_rs->next) {
         require_module($validation->module);
         my $validator = $validation->module->new(
@@ -366,9 +366,9 @@ sub run_validation_plan ($self, %options) {
         status => $status,
         # provided column data is used to determine if these result(s) already exist in the db,
         # and they are reused if so, otherwise they are inserted
-        validation_state_members => [ map +{
+        legacy_validation_state_members => [ map +{
             result_order => $result_order++,
-            validation_result => $_,
+            legacy_validation_result => $_,
         }, @validation_results ],
     });
 }
@@ -376,7 +376,7 @@ sub run_validation_plan ($self, %options) {
 =head2 run_validation
 
 Runs the provided validation record against the provided device and device report.
-Creates and returns validation_result records, without writing them to the database.
+Creates and returns legacy_validation_result records, without writing them to the database.
 
 All provided data objects can and should be read-only (fetched with a ro db handle).
 
@@ -400,7 +400,7 @@ sub run_validation ($self, %options) {
     );
     $validator->run($data);
 
-    my $validation_result_rs = $self->schema->resultset('validation_result');
+    my $validation_result_rs = $self->schema->resultset('legacy_validation_result');
     my @validation_results = map {
         my $result = $validation_result_rs->new_result({
             validation_id       => $validation->id,

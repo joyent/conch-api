@@ -24,10 +24,10 @@ resultset.
 
 sub with_results ($self) {
     $self
-        ->prefetch({ validation_state_members => 'validation_result' })
-        ->order_by('validation_state_members.result_order')
-        ->search(undef, { join => { validation_state_members => { validation_result => 'validation' } } })
-        ->add_columns({ (map +('validation_state_members.validation_result.'.$_ => 'validation.'.$_), qw(name version description)) });
+        ->prefetch({ legacy_validation_state_members => 'legacy_validation_result' })
+        ->order_by('legacy_validation_state_members.result_order')
+        ->search(undef, { join => { legacy_validation_state_members => { legacy_validation_result => 'validation' } } })
+        ->add_columns({ (map +('legacy_validation_state_members.legacy_validation_result.'.$_ => 'validation.'.$_), qw(name version description)) });
 }
 
 1;

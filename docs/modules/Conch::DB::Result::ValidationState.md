@@ -87,17 +87,17 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct)
 
-### validation\_state\_members
+### legacy\_validation\_state\_members
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationStateMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationStateMember)
+Related object: [Conch::DB::Result::LegacyValidationStateMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ALegacyValidationStateMember)
 
-### validation\_results
+### legacy\_validation\_results
 
 Type: many\_to\_many
 
-Composing rels: ["validation\_state\_members"](#validation_state_members) -> validation\_result
+Composing rels: ["legacy\_validation\_state\_members"](#legacy_validation_state_members) -> legacy\_validation\_result
 
 ## METHODS
 

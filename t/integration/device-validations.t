@@ -107,10 +107,10 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
     device_report_id => $device_reports[1]->id,
     hardware_product_id => $device->hardware_product_id,
     status => 'fail',
-    validation_state_members => [
+    legacy_validation_state_members => [
         {
             result_order => 0,
-            validation_result => {
+            legacy_validation_result => {
                 device_id => $device->id,
                 validation_id => $validation->id,
                 message => 'faked failure',
@@ -121,7 +121,7 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
         },
         {
             result_order => 1,
-            validation_result => {
+            legacy_validation_result => {
                 device_id => $device->id,
                 validation_id => $validation->id,
                 message => 'faked success',
@@ -140,9 +140,9 @@ push @fail_validation_state_id, $t->app->db_validation_states->create({
     hardware_product_id => $device->hardware_product_id,
     status => 'fail',
     created => '2001-01-01',
-    validation_state_members => [{
+    legacy_validation_state_members => [{
         result_order => 0,
-        validation_result => {
+        legacy_validation_result => {
             created => '2001-01-01',
             device_id => $device->id,
             validation_id => $validation->id,
