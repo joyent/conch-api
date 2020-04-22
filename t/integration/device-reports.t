@@ -578,11 +578,11 @@ subtest 'hardware_product is different' => sub {
             results => array_each({
                 id => ignore,
                 validation_id => ignore,
-                category => Conch::Validation::DeviceProductName->category,
                 component => ignore,
                 hint => ignore,
                 message => ignore,
                 status => 'fail',
+                map +($_ => Conch::Validation::DeviceProductName->$_), qw(category name version description),
             }),
         }));
 

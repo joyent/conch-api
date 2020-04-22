@@ -2917,6 +2917,9 @@
             }
           ]
         },
+        "description" : {
+          "type" : "string"
+        },
         "hint" : {
           "oneOf" : [
             {
@@ -2940,11 +2943,17 @@
         "message" : {
           "type" : "string"
         },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
         "status" : {
           "$ref" : "common.json#/definitions/validation_status"
         },
         "validation_id" : {
           "$ref" : "common.json#/definitions/uuid"
+        },
+        "version" : {
+          "$ref" : "common.json#/definitions/positive_integer"
         }
       },
       "required" : [

@@ -1027,6 +1027,12 @@ definitions:
         $ref: common.yaml#/definitions/validation_status
       validation_id:
         $ref: common.yaml#/definitions/uuid
+      name:
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
+      version:
+        $ref: common.yaml#/definitions/positive_integer
+      description:
+        type: string
   ValidationResults:
     type: array
     uniqueItems: true
