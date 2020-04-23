@@ -50,6 +50,10 @@ $t->post_ok('/relay/deadbeef/register',
 
 my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
 $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $report)
+    ->status_is(201)
+    ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+$t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('ValidationStateWithResults')
     ->json_cmp_deeply(superhashof({

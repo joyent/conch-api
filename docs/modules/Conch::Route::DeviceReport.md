@@ -23,7 +23,7 @@ Device data will be updated in the database.
 report submission (as indicated via `#/relay/serial` in the report).
 - Controller/Action: ["process" in Conch::Controller::DeviceReport](../modules/Conch%3A%3AController%3A%3ADeviceReport#process)
 - Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
-- Response: [response.json#/definitions/ValidationStateWithResults](../json-schema/response.json#/definitions/ValidationStateWithResults)
+- Response: `201 Created`, plus Location header
 
 ### `POST /device_report?no_update_db=1`
 

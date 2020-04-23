@@ -61,7 +61,7 @@ report submission (as indicated via C<#/relay/serial> in the report).
 
 =item * Request: F<request.yaml#/definitions/DeviceReport>
 
-=item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
+=item * Response: C<201 Created>, plus Location header
 
 =back
 

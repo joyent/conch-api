@@ -19,7 +19,7 @@ Controller for processing and managing device reports.
 Processes the device report, turning it into the various device_* tables as well
 as running validations
 
-Response uses the ValidationStateWithResults json schema.
+Response contains no data but returns the resource to fetch the result in the Location header.
 
 =cut
 
@@ -183,11 +183,8 @@ sub process ($c) {
         }
     }
 
-    # prime the resultset cache for the serializer
-    $validation_state->prefetch_validation_results;
-
-    $c->res->headers->location($c->url_for('/device/'.$device->id));
-    $c->status(200, $validation_state);
+    $c->res->headers->location($c->url_for('/validation_state/'.$validation_state->id));
+    $c->status(201);
 }
 
 =head2 _record_device_configuration

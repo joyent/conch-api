@@ -120,14 +120,6 @@ Composing rels: ["validation\_state\_members"](#validation_state_members) -> val
 
 Include all the associated validation results, when available.
 
-### prefetch\_validation\_results
-
-Add validation\_state\_members, validation\_result rows to the resultset cache. This allows those
-rows to be included in serialized data (see ["TO\_JSON"](#to_json)).
-
-The implementation is gross because has-multi accessors always go to the db, so there is no
-non-private way of extracting related rows from the result.
-
 ## LICENSING
 
 Copyright Joyent, Inc.
