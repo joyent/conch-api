@@ -229,7 +229,7 @@ subtest '->register_result' => sub {
         [ $base_validation->successes ],
         [
             superhashof({
-                message => 'Expected like \'(?^:\w{3}\d{3})\'. Got \'foo123\'.',
+                message => re(qr/^Expected like '\([^)]+\)'\. Got 'foo123'\.$/),
                 hint => undef,
             }),
         ],
@@ -246,7 +246,7 @@ subtest '->register_result' => sub {
         [ $base_validation->failures ],
         [
             superhashof({
-                message => 'Expected like \'(?^:\w{3}\d{3})\'. Got \'bad42\'.',
+                message => re(qr/^Expected like '\([^)]+\)'\. Got 'bad42'\.$/),
                 hint => 'hi',
             }),
         ],

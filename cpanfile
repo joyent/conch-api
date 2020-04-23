@@ -43,10 +43,12 @@ requires 'IO::Socket::SSL';
 requires 'Path::Tiny';
 requires 'Moo';
 requires 'MooX::HandlesVia';
+requires 'Class::XSAccessor'; # faster Moo
 requires 'strictures', '2';
 requires 'namespace::clean';
 requires 'Types::Standard';
 requires 'Type::Tiny::XS';  # faster Type::Tiny and Types::Standard
+requires 'MooX::TypeTiny';  # faster Moo + Type::Tiny
 requires 'Role::Tiny';
 requires 'Getopt::Long::Descriptive';
 requires 'Session::Token';
@@ -67,6 +69,7 @@ requires 'Pod::Usage';
 requires 'Pod::Markdown::Github';
 requires 'Pod::Markdown', '3.200';
 requires 'Getopt::Long';
+requires 'JSON::MaybeXS';
 
 # database and rendering
 requires 'DBD::Pg';
