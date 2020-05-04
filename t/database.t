@@ -281,6 +281,7 @@ subtest 'database constraints' => sub {
             });
         },
         qr/violates check constraint "build_completed_iff_started_check"/,
+        'build_completed_iff_started_check',
     );
 
     like(
@@ -293,6 +294,7 @@ subtest 'database constraints' => sub {
             });
         },
         qr/violates check constraint "build_completed_xnor_completed_user_id_check"/,
+        'build_completed_xnor_completed_user_id_check',
     );
 
     like(
@@ -305,6 +307,7 @@ subtest 'database constraints' => sub {
             });
         },
         qr/violates check constraint "build_completed_xnor_completed_user_id_check"/,
+        'build_completed_xnor_completed_user_id_check',
     );
 };
 
