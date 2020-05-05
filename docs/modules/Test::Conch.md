@@ -46,7 +46,6 @@ Constructor. Takes the following arguments:
 ### init\_db
 
 Sets up the database for testing, using the final schema rather than running migrations.
-Mirrors functionality in ["initialize\_db" in Conch::DB::Util](../modules/Conch%3A%3ADB%3A%3AUtil#initialize_db).
 No data is added -- you must load all desired fixtures.
 
 Note that the [Test::PostgreSQL](https://metacpan.org/pod/Test%3A%3APostgreSQL) object must stay in scope for the duration of your tests.

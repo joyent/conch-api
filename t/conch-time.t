@@ -16,7 +16,7 @@ use constant PG_TIMESTAMP_FORMAT => qr/
 /x;
 
 
-my $pgtmp = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8');
+my $pgtmp = Test::PostgreSQL->new;
 $pgtmp or die;
 my $pg = Mojo::Pg->new($pgtmp->uri);
 
