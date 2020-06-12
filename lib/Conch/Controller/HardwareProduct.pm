@@ -21,10 +21,18 @@ Response uses the HardwareProducts json schema.
 =cut
 
 sub get_all ($c) {
-    my @hardware_products_raw = $c->db_hardware_products
-        ->active
-        ->order_by('name')
-        ->all;
+    my @hardware_products_raw =
+        map +{
+            $_->%*,
+            created => Conch::Time->new($_->{created}),
+            updated => Conch::Time->new($_->{updated}),
+        },
+        $c->db_hardware_products
+            ->active
+            ->columns([qw(id name alias generation_name sku created updated)])
+            ->order_by('name')
+            ->hri
+            ->all;
 
     $c->status(200, \@hardware_products_raw);
 }

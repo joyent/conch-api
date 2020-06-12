@@ -1677,7 +1677,49 @@
     },
     "HardwareProducts" : {
       "items" : {
-        "$ref" : "/definitions/HardwareProduct"
+        "additionalProperties" : false,
+        "properties" : {
+          "alias" : {
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+          },
+          "created" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "generation_name" : {
+            "oneOf" : [
+              {
+                "type" : "string"
+              },
+              {
+                "type" : "null"
+              }
+            ]
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "name" : {
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+          },
+          "sku" : {
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+          },
+          "updated" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [
+          "id",
+          "name",
+          "alias",
+          "generation_name",
+          "sku",
+          "created",
+          "updated"
+        ],
+        "type" : "object"
       },
       "type" : "array",
       "uniqueItems" : true

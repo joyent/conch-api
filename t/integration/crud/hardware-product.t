@@ -24,10 +24,7 @@ $t->get_ok('/hardware_product')
     ->json_schema_is('HardwareProducts');
 
 my $products = $t->tx->res->json;
-
 my $hw_id = $products->[0]{id};
-my $vendor_id = $products->[0]{hardware_vendor_id};
-my $validation_plan_id = $products->[0]{validation_plan_id};
 
 $t->get_ok('/hardware_product/'.create_uuid_str())
     ->status_is(404)
@@ -36,7 +33,10 @@ $t->get_ok('/hardware_product/'.create_uuid_str())
 $t->get_ok("/hardware_product/$hw_id")
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
-    ->json_is($products->[0]);
+    ->json_cmp_deeply(superhashof($products->[0]));
+
+my $vendor_id = $t->tx->res->json->{hardware_vendor_id};
+my $validation_plan_id = $t->tx->res->json->{validation_plan_id};
 
 $t->post_ok('/hardware_product', json => { wat => 'wat' })
     ->status_is(400)
@@ -117,7 +117,7 @@ my $new_hw_id = $new_product->{id};
 $t->get_ok('/hardware_product')
     ->status_is(200)
     ->json_schema_is('HardwareProducts')
-    ->json_cmp_deeply(bag(@$products, $new_product));
+    ->json_cmp_deeply(bag(@$products, +{ $new_product->%{qw(id name alias generation_name sku created updated)} }));
 
 $t->post_ok('/hardware_product', json => {
         name => 'sungo',

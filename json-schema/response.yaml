@@ -712,7 +712,35 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: /definitions/HardwareProduct
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - alias
+        - generation_name
+        - sku
+        - created
+        - updated
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        name:
+          $ref: common.yaml#/definitions/mojo_standard_placeholder
+        alias:
+          $ref: common.yaml#/definitions/mojo_standard_placeholder
+        generation_name:
+          oneOf:
+            - type: string
+            - type: 'null'
+        sku:
+          $ref: common.yaml#/definitions/mojo_standard_placeholder
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
   HardwareProduct:
     type: object
     additionalProperties: false
