@@ -40,11 +40,19 @@ sub routes {
         # GET /hardware_product/:hardware_product_id_or_other
         $with_hardware_product_id_or_other->get('/')->to('#get');
 
+        my $hwp_with_admin = $with_hardware_product_id_or_other->require_system_admin;
+
         # POST /hardware_product/:hardware_product_id_or_other
-        $with_hardware_product_id_or_other->require_system_admin->post('/')->to('#update');
+        $hwp_with_admin->post('/')->to('#update');
 
         # DELETE /hardware_product/:hardware_product_id_or_other
-        $with_hardware_product_id_or_other->require_system_admin->delete('/')->to('#delete');
+        $hwp_with_admin->delete('/')->to('#delete');
+
+        # PUT /hardware_product/:hardware_product_id_or_other/specification?path=:json_pointer_to_data
+        $hwp_with_admin->put('/specification')->to('#set_specification');
+
+        # DELETE /hardware_product/:hardware_product_id_or_other/specification?path=:json_pointer_to_data
+        $hwp_with_admin->delete('/specification')->to('#delete_specification');
     }
 }
 
@@ -109,6 +117,55 @@ Deactivates the indicated hardware product, preventing it from being used. All d
 hardware must be switched to other hardware first.
 
 Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
+
+=over 4
+
+=item * Requires system admin authorization
+
+=item * Response: C<204 No Content>
+
+=back
+
+=head2 C<PUT /hardware_product/:hardware_product_id_or_other/specification?path=:path_to_data>
+
+Sets a specific part of the json blob data in the C<specification> field, treating the URI fragment
+as the JSON pointer to the data to be added or modified. Existing data at the path is overwritten
+without regard to type, so long as the JSON Schema is respected. For example, this existing
+C<specification> field and this request:
+
+  {
+    "foo": { "bar": 123 },
+    "x": { "y": [ 1, 2, 3 ] }
+  }
+
+  POST /hardware_product/:hardware_product_id_or_other/specification?path=/foo/bar/baz  { "hello":1 }
+
+Results in this data in C<specification>, changing the data type at node C</foo/bar>:
+
+  {
+    "foo": { "bar": { "baz": { "hello": 1 } } },
+    "x": { "y": [ 1, 2, 3 ] }
+  }
+
+=over 4
+
+=item * Requires system admin authorization
+
+=item * Request: after the update operation, the C<specification> property must validate against
+F<common.yaml#/definitions/HardwareProductSpecification>.
+
+=item * Response: C<204 No Content>
+
+=back
+
+=head2 C<DELETE /hardware_product/:hardware_product_id_or_other/specification?path=:path_to_data>
+
+Deletes a specific part of the json blob data in the C<specification> field, treating the URI
+fragment as the JSON pointer to the data to be removed. All other properties in the json blob
+are left untouched.
+
+After the delete operation, the C<specification> property must validate against
+F<common.yaml#/definitions/HardwareProductSpecification>.
 
 =over 4
 

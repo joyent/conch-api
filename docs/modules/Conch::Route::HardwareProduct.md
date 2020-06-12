@@ -50,6 +50,48 @@ Identifiers accepted: `id`, `sku`, `name` and `alias`.
 - Requires system admin authorization
 - Response: `204 No Content`
 
+### `PUT /hardware_product/:hardware_product_id_or_other/specification?path=:path_to_data`
+
+Sets a specific part of the json blob data in the `specification` field, treating the URI fragment
+as the JSON pointer to the data to be added or modified. Existing data at the path is overwritten
+without regard to type, so long as the JSON Schema is respected. For example, this existing
+`specification` field and this request:
+
+```
+{
+  "foo": { "bar": 123 },
+  "x": { "y": [ 1, 2, 3 ] }
+}
+
+POST /hardware_product/:hardware_product_id_or_other/specification?path=/foo/bar/baz  { "hello":1 }
+```
+
+Results in this data in `specification`, changing the data type at node `/foo/bar`:
+
+```
+{
+  "foo": { "bar": { "baz": { "hello": 1 } } },
+  "x": { "y": [ 1, 2, 3 ] }
+}
+```
+
+- Requires system admin authorization
+- Request: after the update operation, the `specification` property must validate against
+[common.json#/definitions/HardwareProductSpecification](../json-schema/common.json#/definitions/HardwareProductSpecification).
+- Response: `204 No Content`
+
+### `DELETE /hardware_product/:hardware_product_id_or_other/specification?path=:path_to_data`
+
+Deletes a specific part of the json blob data in the `specification` field, treating the URI
+fragment as the JSON pointer to the data to be removed. All other properties in the json blob
+are left untouched.
+
+After the delete operation, the `specification` property must validate against
+[common.json#/definitions/HardwareProductSpecification](../json-schema/common.json#/definitions/HardwareProductSpecification).
+
+- Requires system admin authorization
+- Response: `204 No Content`
+
 ## LICENSING
 
 Copyright Joyent, Inc.

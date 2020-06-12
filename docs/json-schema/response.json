@@ -1611,9 +1611,14 @@
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "specification" : {
-          "description" : "json blob of additional data",
+          "$comment" : "json blob of additional data for hardware_product.specification (TO BE RESTRUCTURED SOON)",
           "oneOf" : [
             {
+              "$comment" : "Note that contentSchema is not validated automatically; the data must be json-decoded first and then the schema applied manually",
+              "contentMediaType" : "application/json",
+              "contentSchema" : {
+                "$ref" : "common.json#/definitions/HardwareProductSpecification"
+              },
               "type" : "string"
             },
             {

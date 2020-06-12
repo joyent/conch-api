@@ -114,6 +114,19 @@
       },
       "type" : "object"
     },
+    "HardwareProductSpecification" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "path" : {
+          "format" : "json-pointer",
+          "type" : "string"
+        }
+      },
+      "required" : [
+        "path"
+      ],
+      "type" : "object"
+    },
     "NotifyUsers" : {
       "additionalProperties" : false,
       "description" : "used for operations where email can optionally be sent",

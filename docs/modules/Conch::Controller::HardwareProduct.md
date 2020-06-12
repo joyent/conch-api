@@ -36,6 +36,23 @@ Updates an existing hardware\_product.
 
 ### delete
 
+### set\_specification
+
+Uses the URI fragment as a json pointer to determine the path within the `specification` property
+to operate on. New data is written, and existing data is overwritten without regard to type (so long
+as it conforms to the schema).
+
+After the update operation, the `specification` property must validate against
+[common.json#/definitions/HardwareProductSpecification](../json-schema/common.json#/definitions/HardwareProductSpecification).
+
+### delete\_specification
+
+Uses the URI fragment as a json pointer to determine the path within the `specification` property
+to operate on. All of the data at the indicated path is deleted.
+
+After the delete operation, the `specification` property must validate against
+[common.json#/definitions/HardwareProductSpecification](../json-schema/common.json#/definitions/HardwareProductSpecification).
+
 ## LICENSING
 
 Copyright Joyent, Inc.
