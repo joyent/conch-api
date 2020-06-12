@@ -1608,14 +1608,7 @@
           ]
         },
         "sku" : {
-          "oneOf" : [
-            {
-              "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "specification" : {
           "description" : "json blob of additional data",

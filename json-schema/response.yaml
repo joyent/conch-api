@@ -778,9 +778,7 @@ definitions:
           - type: string
           - type: 'null'
       sku:
-        oneOf:
-          - $ref: common.yaml#/definitions/mojo_standard_placeholder
-          - type: 'null'
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       specification:
         description: json blob of additional data
         oneOf:
