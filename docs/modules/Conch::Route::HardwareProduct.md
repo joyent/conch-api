@@ -32,6 +32,8 @@ Identifiers accepted: `id`, `sku`, `name` and `alias`.
 
 ### `POST /hardware_product/:hardware_product_id_or_other`
 
+Updates the indicated hardware product.
+
 Identifiers accepted: `id`, `sku`, `name` and `alias`.
 
 - Requires system admin authorization
@@ -39,6 +41,9 @@ Identifiers accepted: `id`, `sku`, `name` and `alias`.
 - Response: Redirect to the updated hardware product
 
 ### `DELETE /hardware_product/:hardware_product_id_or_other`
+
+Deactivates the indicated hardware product, preventing it from being used. All devices using this
+hardware must be switched to other hardware first.
 
 Identifiers accepted: `id`, `sku`, `name` and `alias`.
 

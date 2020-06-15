@@ -89,6 +89,8 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =head2 C<POST /hardware_product/:hardware_product_id_or_other>
 
+Updates the indicated hardware product.
+
 Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =over 4
@@ -102,6 +104,9 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 =back
 
 =head2 C<DELETE /hardware_product/:hardware_product_id_or_other>
+
+Deactivates the indicated hardware product, preventing it from being used. All devices using this
+hardware must be switched to other hardware first.
 
 Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
