@@ -106,11 +106,11 @@ my $db_credentials;
 my $pgsql;
 if ($opt->dry_run or $use_test_db) {
     require Test::PostgreSQL;
-    $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8', dbowner => 'conch');
+    $pgsql = Test::PostgreSQL->new;
     local @ENV{qw(POSTGRES_DB POSTGRES_HOST POSTGRES_USER POSTGRES_PASSWORD)};
     $db_credentials = Conch::DB::Util::get_credentials({
         dsn => $pgsql->dsn,
-        username => $pgsql->dbowner,
+        username => 'conch',    # this user must already have been created
         ro_username => '',  # prevents spurious log message
     }, $log);
 }

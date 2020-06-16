@@ -24,7 +24,8 @@ and therefore other helpers).
 
 ### status
 
-Helper method for setting the response status code and json content.
+Helper method for setting the response status code and json content. Calls
+`$c->render` as a side-effect.
 
 ### startup\_time
 

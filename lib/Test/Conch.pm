@@ -80,6 +80,14 @@ has fixtures => sub ($self) {
     );
 };
 
+=head2 stash
+
+After the request has been dispatched, contains the stash values.
+
+=cut
+
+has 'stash';
+
 =head2 new
 
 Constructor. Takes the following arguments:
@@ -107,7 +115,7 @@ sub new {
                 ($args->{config}//{})->{features} ? delete($args->{config}{features})->%* : (),
             },
             database => {
-                $pg ? ( dsn => $pg->dsn, username => $pg->dbowner, ro_username => 'conch_read_only' )
+                $pg ? ( dsn => $pg->dsn, username => 'conch', ro_username => 'conch_read_only' )
                     : ( dsn => 'there is no database', username => '' )
             },
             mail => {
@@ -149,6 +157,8 @@ sub new {
         push $t->{_mail_composed}->@*, $email;
     });
 
+    $t->app->hook(after_dispatch => sub ($c) { $t->stash($c->stash) });
+
     return $self;
 }
 
@@ -164,7 +174,6 @@ sub DESTROY ($self) {
 =head2 init_db
 
 Sets up the database for testing, using the final schema rather than running migrations.
-Mirrors functionality in L<Conch::DB::Util/initialize_db>.
 No data is added -- you must load all desired fixtures.
 
 Note that the L<Test::PostgreSQL> object must stay in scope for the duration of your tests.
@@ -173,12 +182,12 @@ Returns the L<Conch::DB> object as well when called in list context.
 =cut
 
 sub init_db ($class) {
-    my $pgsql = Test::PostgreSQL->new(pg_config => 'client_encoding=UTF-8', dbowner => 'conch');
+    my $pgsql = Test::PostgreSQL->new;
     die $Test::PostgreSQL::errstr if not $pgsql;
 
-    Test::More::note('connecting to ',$pgsql->dsn,' as user ',$pgsql->dbowner) if $ENV{DBIC_TRACE};
+    Test::More::note('connecting to ',$pgsql->dsn) if $ENV{DBIC_TRACE};
     my $schema = Conch::DB->connect(
-        $pgsql->dsn, $pgsql->dbowner, undef,
+        $pgsql->dsn, 'postgres', undef,
         {
             # same as from Mojo::Pg->new($uri)->options
             AutoCommit          => 1,
@@ -189,8 +198,11 @@ sub init_db ($class) {
         },
     );
 
+    # ensure that $schema is always destroyed first
+    $schema->{__conch_pgsql} = $pgsql;
+
     Test::More::note('initializing database with sql/schema.sql...');
-    Conch::DB::Util::initialize_db($schema);
+    Conch::DB::Util::initialize_db($schema, 'create_role_and_db');
 
     return wantarray ? ($pgsql, $schema) : $pgsql;
 }
@@ -348,6 +360,23 @@ sub json_cmp_deeply {
     my ($p, $data) = @_ > 1 ? (shift, shift) : ('', shift);
     my $desc = Test::Mojo::_desc(shift, qq{cmp_deeply match for JSON Pointer "$p"});
     return $self->test('Test::Deep::cmp_deeply', $self->tx->res->json($p), $data, $desc);
+}
+
+=head2 stash_cmp_deeply
+
+Test the L</stash> with L<Test::Deep/cmp_deeply>, with optional JSON Pointer.
+
+=cut
+
+sub stash_cmp_deeply {
+    my $self = shift;
+    my ($p, $data) = @_ > 1 ? (shift, shift) : ('', shift);
+    my $desc = Test::Mojo::_desc(shift, qq{cmp_deeply match for JSON Pointer "$p"});
+    my $got = Mojo::JSON::Pointer->new($self->stash)->get($p);
+    $self->test('Test::Deep::cmp_deeply', $got, $data, $desc);
+    Test::More::diag('got stash: ', Data::Dumper->new([ $got ])->Sortkeys(1)->Terse(1)->Dump)
+        if not $self->success;
+    return $self;
 }
 
 =head2 load_validation_plans

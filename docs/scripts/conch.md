@@ -52,10 +52,6 @@ Conch-specific commands are:
 
     force a user (or by default, all users) to change their password
 
-- [merge\_validation\_results](../modules/Conch%3A%3ACommand%3A%3Amerge_validation_results)
-
-    Collapse duplicate validation\_result rows together
-
 - [new\_organizations](../modules/Conch%3A%3ACommand%3A%3Anew_organizations)
 
     create new organization data

@@ -134,7 +134,7 @@ Initialize an empty database with the conch user and role and create empty table
 
 =cut
 
-sub initialize_db ($schema) {
+sub initialize_db ($schema, $create_role_and_db = 0) {
     my $debug = $schema->storage->debug;
     my $do = $debug
         ? sub { my $dbh = shift; say STDERR @_; $dbh->do(@_) }
@@ -142,10 +142,10 @@ sub initialize_db ($schema) {
 
     $schema->storage->dbh_do(sub ($storage, $dbh, @args) {
         # generally we don't execute this command, as the user already exists (we logged in as it)
-        # $dbh->$do('CREATE ROLE conch LOGIN');
+        $dbh->$do('CREATE ROLE conch LOGIN') if $create_role_and_db;
         # nor do we generally need to do this, as we have "a" database already, and will just
         # create tables in the default database
-        # $dbh->$do('CREATE DATABASE conch OWNER conch');
+        $dbh->$do('CREATE DATABASE conch OWNER conch') if $create_role_and_db;
 
         $dbh->$do('CREATE ROLE conch_read_only LOGIN');
         $dbh->$do('REVOKE ALL ON ALL TABLES IN SCHEMA public FROM conch_read_only');

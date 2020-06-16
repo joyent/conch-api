@@ -28,6 +28,10 @@ the same database.
 Provides access to the fixtures defined in [Test::Conch::Fixtures](../modules/Test%3A%3AConch%3A%3AFixtures).
 See ["load\_fixture"](#load_fixture).
 
+### stash
+
+After the request has been dispatched, contains the stash values.
+
 ### new
 
 Constructor. Takes the following arguments:
@@ -42,7 +46,6 @@ Constructor. Takes the following arguments:
 ### init\_db
 
 Sets up the database for testing, using the final schema rather than running migrations.
-Mirrors functionality in ["initialize\_db" in Conch::DB::Util](../modules/Conch%3A%3ADB%3A%3AUtil#initialize_db).
 No data is added -- you must load all desired fixtures.
 
 Note that the [Test::PostgreSQL](https://metacpan.org/pod/Test%3A%3APostgreSQL) object must stay in scope for the duration of your tests.
@@ -89,6 +92,10 @@ the hash as the schema to validate.
 Like ["json\_is" in Test::Mojo](https://metacpan.org/pod/Test%3A%3AMojo#json_is), but uses ["cmp\_deeply" in Test::Deep](https://metacpan.org/pod/Test%3A%3ADeep#cmp_deeply) for the comparison instead of
 ["is\_deep" in Test::More](https://metacpan.org/pod/Test%3A%3AMore#is_deep). This allows for more flexibility in how we test various parts of the
 data.
+
+### stash\_cmp\_deeply
+
+Test the ["stash"](#stash) with ["cmp\_deeply" in Test::Deep](https://metacpan.org/pod/Test%3A%3ADeep#cmp_deeply), with optional JSON Pointer.
 
 ### load\_validation\_plans
 

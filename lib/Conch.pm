@@ -116,7 +116,8 @@ sub startup {
 
 =head2 status
 
-Helper method for setting the response status code and json content.
+Helper method for setting the response status code and json content. Calls
+C<< $c->render >> as a side-effect.
 
 =cut
 

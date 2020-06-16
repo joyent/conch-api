@@ -145,7 +145,7 @@ aborting with HTTP 410 or HTTP 404 if not found.
     # find all the top level path components: these are the only paths that we will send rollbar alerts for
     state sub find_paths ($route) {
         if (my $pattern = $route->pattern->unparsed) {
-            return ($pattern =~ m{^(/[^/]+)})[0];
+            return ($pattern =~ m{^/([^/]+)})[0];
         }
 
         # this is an under route with no path -- keep looking
@@ -157,10 +157,12 @@ aborting with HTTP 410 or HTTP 404 if not found.
     $root->any('/*all', sub ($c) {
         $c->log->warn('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
 
-        $c->on(finish => sub ($c) {
-            $c->send_message_to_rollbar('warning', 'no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
-        })
-        if $c->feature('rollbar') and any { $c->req->url->path =~ m{^$_/} } @top_level_paths;
+        if (any { $c->req->url->path =~ m{^/$_\b} } @top_level_paths) {
+            $c->stash('top_level_path_match', 1);
+            $c->on(finish => sub ($c) {
+                $c->send_message_to_rollbar('warning', 'no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
+            }) if $c->feature('rollbar');
+        }
 
         $c->status(404, { error => 'Route Not Found' });
     })->name('catchall');
