@@ -4,6 +4,7 @@ use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 use Test::More;
 use Test::Warnings;
 use Test::Deep;
+use Test::Deep::JSON;
 use Test::Conch;
 use Conch::UUID 'create_uuid_str';
 
@@ -24,10 +25,7 @@ $t->get_ok('/hardware_product')
     ->json_schema_is('HardwareProducts');
 
 my $products = $t->tx->res->json;
-
 my $hw_id = $products->[0]{id};
-my $vendor_id = $products->[0]{hardware_vendor_id};
-my $validation_plan_id = $products->[0]{validation_plan_id};
 
 $t->get_ok('/hardware_product/'.create_uuid_str())
     ->status_is(404)
@@ -36,7 +34,10 @@ $t->get_ok('/hardware_product/'.create_uuid_str())
 $t->get_ok("/hardware_product/$hw_id")
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
-    ->json_is($products->[0]);
+    ->json_cmp_deeply(superhashof($products->[0]));
+
+my $vendor_id = $t->tx->res->json->{hardware_vendor_id};
+my $validation_plan_id = $t->tx->res->json->{validation_plan_id};
 
 $t->post_ok('/hardware_product', json => { wat => 'wat' })
     ->status_is(400)
@@ -117,7 +118,7 @@ my $new_hw_id = $new_product->{id};
 $t->get_ok('/hardware_product')
     ->status_is(200)
     ->json_schema_is('HardwareProducts')
-    ->json_cmp_deeply(bag(@$products, $new_product));
+    ->json_cmp_deeply(bag(@$products, +{ $new_product->%{qw(id name alias generation_name sku created updated)} }));
 
 $t->post_ok('/hardware_product', json => {
         name => 'sungo',
@@ -213,6 +214,167 @@ $t->post_ok('/hardware_product', json => {
 $t->get_ok('/hardware_product/sungo')
     ->status_is(409)
     ->json_is({ error => 'there is more than one match' });
+
+subtest 'manipulate hardware_product.specification' => sub {
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification', json => {})
+    ->status_is(400)
+    ->json_schema_is('QueryParamsValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/path', message => re(qr/Missing property/) } ]);
+
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=', json => {})
+    ->status_is(204)
+    ->location_is('/hardware_product/'.$new_hw_id);
+
+  $t->get_ok('/hardware_product/'.$new_hw_id)
+    ->status_is(200)
+    ->json_schema_is('HardwareProduct')
+    ->json_cmp_deeply(superhashof({ specification => '{}' }));
+
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=', json => 'hello')
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply(superhashof({
+      details => [ { path => '/', message => re(qr/Expected object - got string/) } ],
+      schema => '/schema/request/hardware_product_specification',
+    }));
+
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size', json => 1)
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply(superhashof({
+      details => [ { path => '/disk_size', message => re(qr/Expected object - got number/) } ],
+      schema => '/schema/request/hardware_product_specification',
+    }));
+
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size',
+      json => { _default => 128 })
+    ->status_is(204)
+    ->location_is('/hardware_product/'.$new_hw_id);
+
+  $t->get_ok('/hardware_product/'.$new_hw_id)
+    ->status_is(200)
+    ->json_schema_is('HardwareProduct')
+    ->json_cmp_deeply(superhashof({
+      specification => json({ disk_size => { _default => 128 } }),
+    }));
+
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/SEAGATE_8000',
+      json => {})
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply(superhashof({
+      details => [ { path => '/disk_size/SEAGATE_8000', message => re(qr/Expected integer - got object/) } ],
+      schema => '/schema/request/hardware_product_specification',
+    }));
+
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/SEAGATE_8000',
+      json => 1)
+    ->status_is(204)
+    ->location_is('/hardware_product/'.$new_hw_id);
+
+  $t->get_ok('/hardware_product/'.$new_hw_id)
+    ->status_is(200)
+    ->json_schema_is('HardwareProduct')
+    ->json_cmp_deeply(superhashof({
+      specification => json({ disk_size => { _default => 128, SEAGATE_8000 => 1 } }),
+    }));
+
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/_default', json => 64)
+    ->status_is(204)
+    ->location_is('/hardware_product/'.$new_hw_id);
+
+  $t->get_ok('/hardware_product/'.$new_hw_id)
+    ->status_is(200)
+    ->json_schema_is('HardwareProduct')
+    ->json_cmp_deeply(superhashof({
+      specification => json({ disk_size => { _default => 64, SEAGATE_8000 => 1 } })
+    }));
+
+  # the path we want to operate on is called .../~1~device/  and encodes as .../~01~0device/...
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/tilde~1~device', json => 2)
+    ->status_is(400)
+    ->json_schema_is('QueryParamsValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/path', message => re(qr/Does not match json-pointer format/) } ]);
+
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/tilde~01~0device', json => 2)
+    ->status_is(204)
+    ->location_is('/hardware_product/'.$new_hw_id);
+
+  $t->get_ok('/hardware_product/'.$new_hw_id)
+    ->status_is(200)
+    ->json_schema_is('HardwareProduct')
+    ->json_cmp_deeply(superhashof({
+      specification => json({ disk_size => {
+        _default => 64,
+        SEAGATE_8000 => 1,
+        'tilde~1~device' => 2,
+      } })
+    }));
+
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/other_prop', json => [ 1,2,3 ])
+    ->status_is(204)
+    ->location_is('/hardware_product/'.$new_hw_id);
+
+  $t->get_ok('/hardware_product/'.$new_hw_id)
+    ->status_is(200)
+    ->json_schema_is('HardwareProduct')
+    ->json_cmp_deeply(superhashof({
+      specification => json({
+        disk_size => { _default => 64, SEAGATE_8000 => 1, 'tilde~1~device' => 2 },
+        other_prop => [ 1, 2, 3 ],
+      }),
+    }));
+
+  $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification')
+    ->status_is(400)
+    ->json_schema_is('QueryParamsValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/path', message => re(qr/Missing property/) } ]);
+
+  # the path we want to operate on is called .../~1~device/  and encodes as .../~01~0device/...
+  $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/tilde~1~device')
+    ->status_is(400)
+    ->json_schema_is('QueryParamsValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/path', message => re(qr/Does not match json-pointer format/) } ]);
+
+  $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/_default')
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/disk_size/_default', message => re(qr/Missing property/) } ]);
+
+  $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/tilde~01~0device')
+    ->status_is(204)
+    ->location_is('/hardware_product/'.$new_hw_id);
+
+  $t->get_ok('/hardware_product/'.$new_hw_id)
+    ->status_is(200)
+    ->json_schema_is('HardwareProduct')
+    ->json_cmp_deeply(superhashof({
+      specification => json({
+        disk_size => { _default => 64, SEAGATE_8000 => 1 },
+        other_prop => [ 1, 2, 3 ],
+      }),
+    }));
+
+  $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size')
+    ->status_is(204)
+    ->location_is('/hardware_product/'.$new_hw_id);
+
+  $t->get_ok('/hardware_product/'.$new_hw_id)
+    ->status_is(200)
+    ->json_schema_is('HardwareProduct')
+    ->json_cmp_deeply(superhashof({
+      specification => json({ other_prop => [ 1, 2, 3 ] }),
+    }));
+
+  $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=')
+    ->status_is(204)
+    ->location_is('/hardware_product/'.$new_hw_id);
+
+  $t->get_ok('/hardware_product/'.$new_hw_id)
+    ->status_is(200)
+    ->json_schema_is('HardwareProduct')
+    ->json_cmp_deeply(superhashof({ specification => undef }));
+};
 
 subtest 'delete a hardware product' => sub {
     $t->delete_ok("/hardware_product/$new_hw_id")

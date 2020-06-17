@@ -3,6 +3,7 @@ package Conch::Controller::HardwareProduct;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::UUID 'is_uuid';
+use Mojo::JSON qw(to_json from_json);
 
 =pod
 
@@ -21,10 +22,18 @@ Response uses the HardwareProducts json schema.
 =cut
 
 sub get_all ($c) {
-    my @hardware_products_raw = $c->db_hardware_products
-        ->active
-        ->order_by('name')
-        ->all;
+    my @hardware_products_raw =
+        map +{
+            $_->%*,
+            created => Conch::Time->new($_->{created}),
+            updated => Conch::Time->new($_->{updated}),
+        },
+        $c->db_hardware_products
+            ->active
+            ->columns([qw(id name alias generation_name sku created updated)])
+            ->order_by('name')
+            ->hri
+            ->all;
 
     $c->status(200, \@hardware_products_raw);
 }
@@ -166,6 +175,95 @@ sub delete ($c) {
     my $device_count = $c->stash('hardware_product_rs')->related_resultset('devices')->count;
     $c->log->debug('Deleted hardware product '.$id.' ('.$device_count.' devices using this hardware)');
     return $c->status(204);
+}
+
+=head2 set_specification
+
+Uses the URI fragment as a json pointer to determine the path within the C<specification> property
+to operate on. New data is written, and existing data is overwritten without regard to type (so long
+as it conforms to the schema).
+
+After the update operation, the C<specification> property must validate against
+F<common.yaml#/definitions/HardwareProductSpecification>.
+
+=cut
+
+sub set_specification ($c) {
+  my $params = $c->validate_query_params('HardwareProductSpecification');
+  return if not $params;
+
+  my $hardware_product_id = $c->stash('hardware_product_rs')->get_column('id')->single;
+  my $rs = $c->db_hardware_products->search({ id => $hardware_product_id });
+  my $json = to_json($c->req->json);
+  my $jsonp = $params->{path};
+
+  my $specification_clause = $jsonp ? do {
+    my @path = map s!~1!/!gr =~ s!~0!~!gr, split('/', $jsonp, -1);
+    \[ 'jsonb_set(specification, ?, ?)', '{'.join(',', map '"'.$_.'"', @path[1..$#path]).'}', $json ]
+  } : $json;
+
+  # update the specification field in a transaction, then read it back and see if it validates
+  # against the schema -- rolling back and returning an error if it does not.
+  my $rendered;
+  my $result = $c->txn_wrapper(sub ($c) {
+    $rs->update({ specification => $specification_clause });
+
+    my $new_specification = from_json($rs->get_column('specification')->single);
+    if (not $c->validate_request('HardwareProductSpecification', $new_specification)) {
+      $rendered = 1;
+      die 'rollback';
+    }
+
+    return 1;
+  });
+
+  return $rendered ? () : $c->status(400) if not $result;
+
+  $c->res->headers->location('/hardware_product/'.$hardware_product_id);
+  $c->status(204);
+}
+
+=head2 delete_specification
+
+Uses the URI fragment as a json pointer to determine the path within the C<specification> property
+to operate on. All of the data at the indicated path is deleted.
+
+After the delete operation, the C<specification> property must validate against
+F<common.yaml#/definitions/HardwareProductSpecification>.
+
+=cut
+
+sub delete_specification ($c) {
+  my $params = $c->validate_query_params('HardwareProductSpecification');
+  return if not $params;
+
+  my $hardware_product_id = $c->stash('hardware_product_rs')->get_column('id')->single;
+  my $rs = $c->db_hardware_products->search({ id => $hardware_product_id });
+  my $jsonp = $params->{path};
+
+  my $specification_clause = $jsonp ? do {
+    my @path = map s!~1!/!gr =~ s!~0!~!gr, split('/', $jsonp, -1);
+    \[ 'specification #- ?', '{'.join(',', map '"'.$_.'"', @path[1..$#path]).'}' ]
+  } : undef;
+
+  my $rendered;
+  my $result = $c->txn_wrapper(sub ($c) {
+    $rs->update({ specification => $specification_clause });
+
+    my $new_specification = $rs->get_column('specification')->single;
+    return 1 if not defined $new_specification;
+    if (not $c->validate_request('HardwareProductSpecification', from_json($new_specification))) {
+      $rendered = 1;
+      die 'rollback';
+    }
+
+    return 1;
+  });
+
+  return $rendered ? () : $c->status(400) if not $result;
+
+  $c->res->headers->location('/hardware_product/'.$hardware_product_id);
+  $c->status(204);
 }
 
 1;

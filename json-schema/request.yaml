@@ -246,6 +246,9 @@ definitions:
         - purpose
         - bios_firmware
         - cpu_type
+  HardwareProductSpecification:
+    # this is just a hack for the /hardware_product/*/specification endpoints
+    $ref: common.yaml#/definitions/HardwareProductSpecification
   HardwareProductUpdate:
     type: object
     additionalProperties: false
@@ -262,9 +265,13 @@ definitions:
       hardware_vendor_id:
         $ref: common.yaml#/definitions/uuid
       specification:
-        description: json blob of additional data
+        $comment: json blob of additional data for hardware_product.specification (TO BE RESTRUCTURED SOON)
         oneOf:
-          - type: string
+          - $comment: Note that contentSchema is not validated automatically; the data must be json-decoded first and then the schema applied manually
+            type: string
+            contentMediaType: application/json
+            contentSchema:
+              $ref: common.yaml#/definitions/HardwareProductSpecification
           - type: 'null'
       sku:
         $ref: common.yaml#/definitions/mojo_standard_placeholder

@@ -712,7 +712,35 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: /definitions/HardwareProduct
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - alias
+        - generation_name
+        - sku
+        - created
+        - updated
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        name:
+          $ref: common.yaml#/definitions/mojo_standard_placeholder
+        alias:
+          $ref: common.yaml#/definitions/mojo_standard_placeholder
+        generation_name:
+          oneOf:
+            - type: string
+            - type: 'null'
+        sku:
+          $ref: common.yaml#/definitions/mojo_standard_placeholder
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
   HardwareProduct:
     type: object
     additionalProperties: false
@@ -778,13 +806,15 @@ definitions:
           - type: string
           - type: 'null'
       sku:
-        oneOf:
-          - $ref: common.yaml#/definitions/mojo_standard_placeholder
-          - type: 'null'
+        $ref: common.yaml#/definitions/mojo_standard_placeholder
       specification:
-        description: json blob of additional data
+        $comment: json blob of additional data for hardware_product.specification (TO BE RESTRUCTURED SOON)
         oneOf:
-          - type: string
+          - $comment: Note that contentSchema is not validated automatically; the data must be json-decoded first and then the schema applied manually
+            type: string
+            contentMediaType: application/json
+            contentSchema:
+              $ref: common.yaml#/definitions/HardwareProductSpecification
           - type: 'null'
       rack_unit_size:
         $ref: common.yaml#/definitions/positive_integer

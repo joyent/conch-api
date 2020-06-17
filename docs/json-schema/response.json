@@ -1608,19 +1608,17 @@
           ]
         },
         "sku" : {
-          "oneOf" : [
-            {
-              "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-            },
-            {
-              "type" : "null"
-            }
-          ]
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
         "specification" : {
-          "description" : "json blob of additional data",
+          "$comment" : "json blob of additional data for hardware_product.specification (TO BE RESTRUCTURED SOON)",
           "oneOf" : [
             {
+              "$comment" : "Note that contentSchema is not validated automatically; the data must be json-decoded first and then the schema applied manually",
+              "contentMediaType" : "application/json",
+              "contentSchema" : {
+                "$ref" : "common.json#/definitions/HardwareProductSpecification"
+              },
               "type" : "string"
             },
             {
@@ -1684,7 +1682,49 @@
     },
     "HardwareProducts" : {
       "items" : {
-        "$ref" : "/definitions/HardwareProduct"
+        "additionalProperties" : false,
+        "properties" : {
+          "alias" : {
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+          },
+          "created" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "generation_name" : {
+            "oneOf" : [
+              {
+                "type" : "string"
+              },
+              {
+                "type" : "null"
+              }
+            ]
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "name" : {
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+          },
+          "sku" : {
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+          },
+          "updated" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "required" : [
+          "id",
+          "name",
+          "alias",
+          "generation_name",
+          "sku",
+          "created",
+          "updated"
+        ],
+        "type" : "object"
       },
       "type" : "array",
       "uniqueItems" : true

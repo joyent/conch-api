@@ -188,5 +188,14 @@ definitions:
     properties:
       no_save_db:
         $ref: /definitions/boolean_integer_default_false
+  HardwareProductSpecification:
+    type: object
+    additionalProperties: false
+    required:
+      - path
+    properties:
+      path:
+        type: string
+        format: json-pointer
 
 # vim: set sts=2 sw=2 et :

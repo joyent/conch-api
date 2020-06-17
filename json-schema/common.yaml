@@ -97,5 +97,33 @@ definitions:
       - type: string
         format: email
       - $ref: /definitions/mojo_relaxed_placeholder
+  HardwareProductSpecification:
+    description: this is the structure of the hardware_product.specification database column
+    type: object
+    properties:
+      disk_size:
+        type: object
+        $comment: property names correspond to device report /disks/<disk serial>/model
+        required:
+          - _default
+        additionalProperties:
+          $comment: property values are compared to device report /disks/<disk serial>/block_sz
+          type: integer
+      chassis:
+        type: object
+        properties:
+          memory:
+            type: object
+            properties:
+              dimms:
+                $comment: items are in slot order, as in device report /dimms/*
+                type: array
+                minItems: 1
+                items:
+                  type: object
+                  properties:
+                    slot:
+                      $comment: compared to device report /dimms/*/memory-locator/memory-serial-number
+                      type: string
 
 # vim: set sts=2 sw=2 et :

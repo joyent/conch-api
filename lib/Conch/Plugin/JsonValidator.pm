@@ -129,6 +129,7 @@ L<https://github.com/mojolicious/json-validator/issues/158>.
         return $_query_params_validator if $_query_params_validator;
         # TODO: ->new(coerce => '...,defaults')
         $_query_params_validator = JSON::Validator->new(coerce => 'numbers');
+        $_query_params_validator->formats->{'json-pointer'} = \&_check_json_pointer;
         # FIXME: JSON::Validator should be extracting $schema out of the document - see https://github.com/mojolicious/json-validator/pull/152
         $_query_params_validator->load_and_validate_schema(
             'json-schema/query_params.yaml',
@@ -146,6 +147,7 @@ Returns a L<JSON::Validator> object suitable for validating an endpoint's json r
     $app->helper(get_request_validator => sub ($c) {
         return $_request_validator if $_request_validator;
         $_request_validator = JSON::Validator->new;
+        $_request_validator->formats->{'json-pointer'} = \&_check_json_pointer;
         # FIXME: JSON::Validator should be picking this up out of the schema on its own.
         $_request_validator->load_and_validate_schema(
             'json-schema/request.yaml',
@@ -164,12 +166,19 @@ Returns a L<JSON::Validator> object suitable for validating an endpoint's json r
     $app->helper(get_response_validator => sub ($c) {
         return $_response_validator if $_response_validator;
         my $_response_validator = JSON::Validator->new;
+        $_response_validator->formats->{'json-pointer'} = \&_check_json_pointer;
         # FIXME: JSON::Validator should be picking this up out of the schema on its own.
         $_response_validator->load_and_validate_schema(
             'json-schema/response.yaml',
             { schema => 'http://json-schema.org/draft-07/schema#' });
         return $_response_validator;
     });
+}
+
+# from JSON::Schema::Draft201909
+sub _check_json_pointer {
+  (!length($_[0]) || $_[0] =~ m{^/}) && $_[0] !~ m{~(?![01])}
+    ? undef : 'Does not match json-pointer format.';
 }
 
 1;
