@@ -349,7 +349,8 @@ $t->get_ok("/rack/$rack_id/layout")
     ]);
 
 
-my $device = $hw_product_storage->create_related('devices', {
+# note that the hardware_product does not match the layout
+my $device = $hw_product_compute->create_related('devices', {
     serial_number => 'my_device',
     health => 'unknown',
     device_location => { rack_id => $rack_id, rack_unit_start => 20 },
@@ -378,6 +379,24 @@ $t->get_ok('/layout/'.$layout_3_6->id)
 # start 20, width 4     # occupied by 'my_device'
 # start 42, width 1
 
+# cannot change the hardware_product to something totally different
+$t->post_ok('/layout/'.$layout_20_23->id, json => { hardware_product_id => $hw_product_switch->id })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'cannot update a layout with a device occupying it' });
+
+# cannot change the hardware_product_id and rack_unit_start at the same time
+$t->post_ok('/layout/'.$layout_20_23->id,
+        json => { rack_unit_start => 5, hardware_product_id => $hw_product_compute->id })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'cannot update a layout with a device occupying it' });
+
+# can change just the hardware_product_id, as long as it matches the occupying device
+$t->post_ok('/layout/'.$layout_20_23->id, json => { hardware_product_id => $hw_product_compute->id })
+    ->status_is(303)
+    ->location_is('/layout/'.$layout_20_23->id);
+
 $t->post_ok('/rack/'.$rack_id.'/layout',
         json => [{ rack_unit_start => 1, hardware_product_id => create_uuid_str }])
     ->status_is(409)
@@ -401,9 +420,9 @@ $t->post_ok('/rack/'.$rack_id.'/layout',
             # unchanged
             { rack_unit_start => 1, hardware_product_id => $hw_product_compute->id },
             # unchanged, and has a located device
-            { rack_unit_start => 20, hardware_product_id => $hw_product_storage->id },
+            { rack_unit_start => 20, hardware_product_id => $hw_product_compute->id },
             # new layout
-            { rack_unit_start => 26, hardware_product_id => $hw_product_compute->id },
+            { rack_unit_start => 26, hardware_product_id => $hw_product_storage->id },
         ])
     ->status_is(303)
     ->location_is('/rack/'.$rack_id.'/layout')
@@ -415,8 +434,8 @@ $t->get_ok('/rack/'.$rack_id.'/layout')
     ->json_schema_is('RackLayouts')
     ->json_cmp_deeply([
         superhashof({ rack_unit_start => 1, hardware_product_id => $hw_product_compute->id }),
-        superhashof({ rack_unit_start => 20, hardware_product_id => $hw_product_storage->id }),
-        superhashof({ rack_unit_start => 26, hardware_product_id => $hw_product_compute->id }),
+        superhashof({ rack_unit_start => 20, hardware_product_id => $hw_product_compute->id }),
+        superhashof({ rack_unit_start => 26, hardware_product_id => $hw_product_storage->id }),
     ]);
 
 $t->get_ok('/rack/'.$rack_id.'/assignment')
@@ -434,18 +453,18 @@ $t->get_ok('/rack/'.$rack_id.'/assignment')
         },
         {
             rack_unit_start => 20,
-            rack_unit_size => 4,
-            hardware_product_name => $hw_product_storage->name,
-            sku => $hw_product_storage->sku,
+            rack_unit_size => 2,
+            hardware_product_name => $hw_product_compute->name,
+            sku => $hw_product_compute->sku,
             device_id => $device->id,
             device_serial_number => $device->serial_number,
             device_asset_tag => undef,
         },
         {
             rack_unit_start => 26,
-            rack_unit_size => 2,
-            hardware_product_name => $hw_product_compute->name,
-            sku => $hw_product_compute->sku,
+            rack_unit_size => 4,
+            hardware_product_name => $hw_product_storage->name,
+            sku => $hw_product_storage->sku,
             device_id => undef,
             device_serial_number => undef,
             device_asset_tag => undef,

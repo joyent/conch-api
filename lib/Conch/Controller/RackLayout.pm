@@ -173,10 +173,17 @@ sub update ($c) {
         return $c->status(400, { error => 'changing rack_id is not permitted' });
     }
 
-    # cannot alter an occupied layout
-    if (my $device_location = $layout->device_location) {
-        $c->log->debug('Cannot update layout: occupied by device id '.$device_location->device_id);
+    # only permit updating occupied layouts if the hardware_product_id is the only change,
+    # iff it is changing to the device_hardware_product_id.
+    if (my $device = $layout->related_resultset('device_location')
+        ->related_resultset('device')->columns([qw(id hardware_product_id)])->single) {
+      if (($input->{rack_unit_start} and $input->{rack_unit_start} != $layout->rack_unit_start)
+        or ($input->{hardware_product_id}
+          and $input->{hardware_product_id} ne $layout->hardware_product_id
+          and $input->{hardware_product_id} ne $device->hardware_product_id)) {
+        $c->log->debug('Cannot update layout: occupied by device id '.$device->id);
         return $c->status(409, { error => 'cannot update a layout with a device occupying it' });
+      }
     }
 
     # if changing hardware_product_id...
