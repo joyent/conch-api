@@ -167,12 +167,6 @@ sub update ($c) {
 
     my $layout = $c->stash('rack_layout_rs')->single;
 
-    # if changing rack...
-    if ($input->{rack_id} and $input->{rack_id} ne $layout->rack_id) {
-        $c->log->debug('Cannot move a layout to a new rack. Delete this layout and create a new one at the new location');
-        return $c->status(400, { error => 'changing rack_id is not permitted' });
-    }
-
     # only permit updating occupied layouts if the hardware_product_id is the only change,
     # iff it is changing to the device_hardware_product_id.
     if (my $device = $layout->related_resultset('device_location')

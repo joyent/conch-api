@@ -237,12 +237,6 @@ $t->get_ok($_)
 
 my $layout_3_6 = $t->load_fixture('rack_0a_layout_3_6');
 
-# can't move a layout to a new rack
-$t->post_ok('/layout/'.$layout_3_6->id,
-        json => { rack_id => $t->load_fixture('rack_1a')->id })
-    ->status_is(400)
-    ->json_is({ error => 'changing rack_id is not permitted' });
-
 # can't put something into an assigned position
 $t->post_ok('/layout/'.$layout_3_6->id, json => { rack_unit_start => 11 })
     ->status_is(409)
