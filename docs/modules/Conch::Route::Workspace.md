@@ -13,7 +13,7 @@ Sets up the routes for /workspace.
 Note that in all routes using `:workspace_id_or_name`, the stash for `workspace_id` will be
 populated, as well as `workspace_name` if the identifier was not a UUID.
 
-All `/workspace` routes are deprecated and will be removed in Conch API v3.1.
+**All `/workspace` routes are deprecated and will be removed in Conch API v3.1.**
 
 ## ROUTE ENDPOINTS
 
