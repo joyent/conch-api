@@ -69,6 +69,8 @@ All routes require authentication.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/get_all>
+
 =item * Response: F<response.yaml#/definitions/HardwareProducts>
 
 =back
@@ -78,6 +80,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/create>
 
 =item * Request: F<request.yaml#/definitions/HardwareProductCreate>
 
@@ -90,6 +94,8 @@ All routes require authentication.
 Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/get>
 
 =item * Response: F<response.yaml#/definitions/HardwareProduct>
 
@@ -104,6 +110,8 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/update>
 
 =item * Request: F<request.yaml#/definitions/HardwareProductUpdate>
 
@@ -121,6 +129,8 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/delete>
 
 =item * Response: C<204 No Content>
 
@@ -151,6 +161,8 @@ Results in this data in C<specification>, changing the data type at node C</foo/
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/set_specification>
+
 =item * Request: after the update operation, the C<specification> property must validate against
 F<common.yaml#/definitions/HardwareProductSpecification>.
 
@@ -170,6 +182,8 @@ F<common.yaml#/definitions/HardwareProductSpecification>.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/delete_specification>
 
 =item * Response: C<204 No Content>
 

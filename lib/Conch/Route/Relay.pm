@@ -50,6 +50,8 @@ All routes require authentication.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::Relay/register>
+
 =item * Request: F<request.yaml#/definitions/RegisterRelay>
 
 =item * Response: C<201 Created> or C<204 No Content>, plus Location header
@@ -62,6 +64,8 @@ All routes require authentication.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::Relay/get_all>
+
 =item * Response: F<response.yaml#/definitions/Relays>
 
 =back
@@ -72,6 +76,8 @@ All routes require authentication.
 
 =item * Requires system admin authorization, or the user to have previously registered the relay.
 
+=item * Controller/Action: L<Conch::Controller::Relay/get>
+
 =item * Response: F<response.yaml#/definitions/Relay>
 
 =back
@@ -81,6 +87,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::Relay/delete>
 
 =item * Response: C<204 No Content>
 

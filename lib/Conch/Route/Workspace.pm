@@ -17,7 +17,7 @@ Sets up the routes for /workspace.
 Note that in all routes using C<:workspace_id_or_name>, the stash for C<workspace_id> will be
 populated, as well as C<workspace_name> if the identifier was not a UUID.
 
-All C</workspace> routes are deprecated and will be removed in Conch API v3.1.
+B<All C</workspace> routes are deprecated and will be removed in Conch API v3.1.>
 
 =cut
 

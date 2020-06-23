@@ -70,6 +70,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::RackLayout/get_all>
+
 =item * Response: F<response.yaml#/definitions/RackLayouts>
 
 =back
@@ -79,6 +81,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::RackLayout/create>
 
 =item * Request: F<request.yaml#/definitions/RackLayoutCreate>
 
@@ -92,6 +96,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::RackLayout/get>
+
 =item * Response: F<response.yaml#/definitions/RackLayout>
 
 =back
@@ -101,6 +107,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::RackLayout/update>
 
 =item * Request: F<request.yaml#/definitions/RackLayoutUpdate>
 
@@ -113,6 +121,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::RackLayout/delete>
 
 =item * Response: C<204 No Content>
 

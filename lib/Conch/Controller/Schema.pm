@@ -89,7 +89,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
             }
 
             ++$refs{'/traversed_definitions/'.$name};
-            tie my %ref, 'JSON::Validator::Ref', $tied->schema, '/definitions/'.$name;
+            tie my %ref, 'JSON::Validator::Ref', $tied->schema, '#/definitions/'.$name;
             return \%ref;
         }
 
@@ -112,7 +112,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
 
     # cannot return a $ref at the top level (sibling keys disallowed) - inline the $ref.
     while (my $tied = tied %$target) {
-        (my $name = $tied->fqn) =~ s!^/definitions/!!;
+        (my $name = $tied->fqn) =~ s!^#/definitions/!!;
         $target = $definitions->{$name};
         delete $definitions->{$name} if $refs{'/traversed_definitions/'.$name} == 1;
     }

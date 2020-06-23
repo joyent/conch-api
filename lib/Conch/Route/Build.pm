@@ -128,6 +128,8 @@ Supports the following optional query parameters:
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::Build/get_all>
+
 =item * Response: response.yaml#/Builds
 
 =back
@@ -137,6 +139,8 @@ Supports the following optional query parameters:
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::Build/create>
 
 =item * Request: request.yaml#/BuildCreate
 
@@ -160,6 +164,8 @@ Supports the following optional query parameters:
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::Build/get>
+
 =item * Requires system admin authorization or the read-only role on the build
 
 =item * Response: response.yaml#/Build
@@ -171,6 +177,8 @@ Supports the following optional query parameters:
 =over 4
 
 =item * Requires system admin authorization or the admin role on the build
+
+=item * Controller/Action: L<Conch::Controller::Build/update>
 
 =item * Request: request.yaml#/BuildUpdate
 
@@ -184,6 +192,8 @@ Supports the following optional query parameters:
 
 =item * Requires system admin authorization or the admin role on the build
 
+=item * Controller/Action: L<Conch::Controller::Build/get_users>
+
 =item * Response: response.yaml#/BuildUsers
 
 =back
@@ -196,6 +206,8 @@ an email to the user.
 =over 4
 
 =item * Requires system admin authorization or the admin role on the build
+
+=item * Controller/Action: L<Conch::Controller::Build/add_user>
 
 =item * Request: request.yaml#/BuildAddUser
 
@@ -212,6 +224,8 @@ an email to the user.
 
 =item * Requires system admin authorization or the admin role on the build
 
+=item * Controller/Action: L<Conch::Controller::Build/remove_user>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -221,6 +235,8 @@ an email to the user.
 =over 4
 
 =item * User requires the admin role
+
+=item * Controller/Action: L<Conch::Controller::Build/get_organizations>
 
 =item * Response: F<response.yaml#/definitions/BuildOrganizations>
 
@@ -234,6 +250,8 @@ an email to the organization members and build admins.
 =over 4
 
 =item * User requires the admin role
+
+=item * Controller/Action: L<Conch::Controller::Build/add_organization>
 
 =item * Request: F<request.yaml#/definitions/BuildAddOrganization>
 
@@ -249,6 +267,8 @@ an email to the organization members and build admins.
 =over 4
 
 =item * User requires the admin role
+
+=item * Controller/Action: L<Conch::Controller::Build/remove_organization>
 
 =item * Response: C<204 No Content>
 
@@ -273,6 +293,8 @@ Accepts the following optional query parameters:
 
 =item * Requires system admin authorization or the read-only role on the build
 
+=item * Controller/Action: L<Conch::Controller::Build/get_devices>
+
 =item * Response: one of F<response.yaml#/definitions/Devices>, F<response.yaml#/definitions/DeviceIds> or F<response.yaml#/definitions/DeviceSerials>
 
 =back
@@ -282,6 +304,8 @@ Accepts the following optional query parameters:
 =over 4
 
 =item * Requires system admin authorization or the read-only role on the build
+
+=item * Controller/Action: L<Conch::Controller::Build/get_pxe_devices>
 
 =item * Response: F<response.yaml#/definitions/DevicePXEs>
 
@@ -294,6 +318,8 @@ Accepts the following optional query parameters:
 =item * Requires system admin authorization, or the read/write role on the build and the
 read-write role on existing device(s) (via a workspace or build; see
 L<Conch::Route::Device/routes>)
+
+=item * Controller/Action: L<Conch::Controller::Build/create_and_add_devices>
 
 =item * Request: F<request.yaml#/definitions/BuildCreateDevices>
 
@@ -308,6 +334,8 @@ L<Conch::Route::Device/routes>)
 =item * Requires system admin authorization, or the read/write role on the build and the
 read-write role on the device (via a workspace or build; see L<Conch::Route::Device/routes>)
 
+=item * Controller/Action: L<Conch::Controller::Build/add_device>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -317,6 +345,8 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build
+
+=item * Controller/Action: L<Conch::Controller::Build/remove_device>
 
 =item * Response: C<204 No Content>
 
@@ -328,6 +358,8 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 
 =item * Requires system admin authorization or the read-only role on the build
 
+=item * Controller/Action: L<Conch::Controller::Build/get_racks>
+
 =item * Response: response.yaml#/Racks
 
 =back
@@ -338,6 +370,8 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 
 =item * Requires system admin authorization, or the read/write role on the build and the
 read-write role on a workspace or build that contains the rack
+
+=item * Controller/Action: L<Conch::Controller::Build/add_rack>
 
 =item * Response: C<204 No Content>
 

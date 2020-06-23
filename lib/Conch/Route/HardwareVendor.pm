@@ -53,6 +53,8 @@ All routes require authentication.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::HardwareVendor/get_all>
+
 =item * Response: F<response.yaml#/definitions/HardwareVendors>
 
 =back
@@ -60,6 +62,8 @@ All routes require authentication.
 =head2 C<GET /hardware_vendor/:hardware_vendor_id_or_name>
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::HardwareVendor/get_one>
 
 =item * Response: F<response.yaml#/definitions/HardwareVendor>
 
@@ -71,6 +75,8 @@ All routes require authentication.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::HardwareVendor/delete>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -80,6 +86,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::HardwareVendor/create>
 
 =item * Request: F<request.yaml#/definitions/Null>
 

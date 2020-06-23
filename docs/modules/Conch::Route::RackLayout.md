@@ -26,28 +26,33 @@ well as
 ### `GET /layout`
 
 - Requires system admin authorization
+- Controller/Action: ["get\_all" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#get_all)
 - Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
 
 ### `POST /layout`
 
 - Requires system admin authorization
+- Controller/Action: ["create" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#create)
 - Request: [request.json#/definitions/RackLayoutCreate](../json-schema/request.json#/definitions/RackLayoutCreate)
 - Response: Redirect to the created rack layout
 
 ### `GET /layout/:layout_id`
 
 - Requires system admin authorization
+- Controller/Action: ["get" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#get)
 - Response: [response.json#/definitions/RackLayout](../json-schema/response.json#/definitions/RackLayout)
 
 ### `POST /layout/:layout_id`
 
 - Requires system admin authorization
+- Controller/Action: ["update" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#update)
 - Request: [request.json#/definitions/RackLayoutUpdate](../json-schema/request.json#/definitions/RackLayoutUpdate)
 - Response: Redirect to the update rack layout
 
 ### `DELETE /layout/:layout_id`
 
 - Requires system admin authorization
+- Controller/Action: ["delete" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#delete)
 - Response: `204 No Content`
 
 ## LICENSING

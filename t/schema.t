@@ -27,7 +27,7 @@ subtest 'extraction with $refs' => sub {
                     ref1 => {
                         type => 'array',
                         items => {
-                            '$ref' => '/definitions/ref2',
+                            '$ref' => '#/definitions/ref2',
                         },
                     },
                     ref2 => {
@@ -39,10 +39,10 @@ subtest 'extraction with $refs' => sub {
                 type => 'object',
                 properties => {
                     my_key1 => {
-                        '$ref' => '/definitions/ref1',
+                        '$ref' => '#/definitions/ref1',
                     },
                     my_key2 => {
-                        '$ref' => '/definitions/ref1',
+                        '$ref' => '#/definitions/ref1',
                     },
                 },
             },
@@ -62,7 +62,7 @@ subtest 'extraction with $refs' => sub {
                             name => { type => 'string' },
                             children => {
                                 type => 'array',
-                                items => { '$ref' => '/definitions/i_have_a_recursive_ref' },
+                                items => { '$ref' => '#/definitions/i_have_a_recursive_ref' },
                                 default => [],
                             },
                         },
@@ -76,7 +76,7 @@ subtest 'extraction with $refs' => sub {
                     name => { type => 'string' },
                     children => {
                         type => 'array',
-                        items => { '$ref' => '/definitions/i_have_a_recursive_ref' },
+                        items => { '$ref' => '#/definitions/i_have_a_recursive_ref' },
                         default => [],
                     },
                 },
@@ -102,14 +102,14 @@ subtest 'extraction with $refs' => sub {
                                 type => 'string',
                             },
                             city => {
-                                '$ref' => '/definitions/my_name',
+                                '$ref' => '#/definitions/my_name',
                             },
                         },
                     },
                     ref1 => {
                         type => 'array',
                         items => {
-                            '$ref' => '/definitions/ref2',
+                            '$ref' => '#/definitions/ref2',
                         },
                     },
                     ref2 => {
@@ -121,9 +121,9 @@ subtest 'extraction with $refs' => sub {
                 type => 'object',
                 properties => {
                     # these ref targets are rewritten
-                    name => { '$ref' => '/definitions/my_name' },
-                    address => { '$ref' => '/definitions/my_address' },
-                    secrets => { '$ref' => '/definitions/ref1' },
+                    name => { '$ref' => '#/definitions/my_name' },
+                    address => { '$ref' => '#/definitions/my_address' },
+                    secrets => { '$ref' => '#/definitions/ref1' },
                 },
             },
             'find and resolve references to other local files',
@@ -144,7 +144,7 @@ subtest 'extraction with $refs' => sub {
                 # begin i_am_a_ref definition - which is actually ref1
                 type => 'array',
                 items => {
-                    '$ref' => '/definitions/ref2',
+                    '$ref' => '#/definitions/ref2',
                 },
             },
             'find and resolve references where the definition itself is a ref',
@@ -176,7 +176,7 @@ subtest 'extraction with $refs' => sub {
                 type => 'object',
                 properties => {
                     me => {
-                        '$ref' => '/definitions/i_am_a_ref_with_the_same_name',
+                        '$ref' => '#/definitions/i_am_a_ref_with_the_same_name',
                     },
                 },
             },
@@ -217,7 +217,7 @@ subtest 'extraction with $refs' => sub {
                     name => { type => 'string' },
                     children => {
                         type => 'array',
-                        items => { '$ref' => '/definitions/i_have_a_ref_with_the_same_name' },
+                        items => { '$ref' => '#/definitions/i_have_a_ref_with_the_same_name' },
                         default => [],
                     },
                 },
@@ -237,7 +237,7 @@ subtest 'extraction with $refs' => sub {
                 # begin i_am_a_ref_to_another_file definition - which is actually i_have_a_ref_to_the_first_filename
                 type => 'object',
                 properties => {
-                    gotcha => { '$ref' => '/definitions/ref3' },
+                    gotcha => { '$ref' => '#/definitions/ref3' },
                 },
             },
             'find and resolve a reference that immediately leaps to another file',
@@ -337,9 +337,9 @@ $t->get_ok('/schema/request/Login')
         required => [ 'password' ],
         oneOf => [ { required => [ 'user_id' ] }, { required => [ 'email' ] } ],
         properties => {
-            user_id => { '$ref' => '/definitions/uuid' },
-            email => { '$ref' => '/definitions/email_address' },
-            password => { '$ref' => '/definitions/non_empty_string' },
+            user_id => { '$ref' => '#/definitions/uuid' },
+            email => { '$ref' => '#/definitions/email_address' },
+            password => { '$ref' => '#/definitions/non_empty_string' },
             set_session => { type => 'boolean', default => JSON::PP::false },
         },
         definitions => {
@@ -363,7 +363,7 @@ $t->get_ok('/schema/query_params/workspace_relays')
         type => 'object',
         additionalProperties => bool(0),
         properties => {
-            active_minutes => { '$ref' => '/definitions/non_negative_integer' },
+            active_minutes => { '$ref' => '#/definitions/non_negative_integer' },
         },
     });
 

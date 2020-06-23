@@ -54,6 +54,8 @@ All routes require authentication.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::Datacenter/get_all>
+
 =item * Response: F<response.yaml#/definitions/Datacenters>
 
 =back
@@ -63,6 +65,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::Datacenter/create>
 
 =item * Request: F<request.yaml#/definitions/DatacenterCreate>
 
@@ -76,6 +80,8 @@ All routes require authentication.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::Datacenter/get_one>
+
 =item * Response: F<response.yaml#/definitions/Datacenter>
 
 =back
@@ -85,6 +91,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::Datacenter/update>
 
 =item * Request: F<request.yaml#/definitions/DatacenterUpdate>
 
@@ -98,6 +106,8 @@ All routes require authentication.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::Datacenter/delete>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -107,6 +117,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::Datacenter/get_rooms>
 
 =item * Response: F<response.yaml#/definitions/DatacenterRoomsDetailed>
 

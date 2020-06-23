@@ -54,11 +54,13 @@ Error responses will use:
 
 ### `POST /login`
 
+- Controller/Action: ["login" in Conch::Controller::Login](../modules/Conch%3A%3AController%3A%3ALogin#login)
 - Request: [request.json#/definitions/Login](../json-schema/request.json#/definitions/Login)
 - Response: [response.json#/definitions/LoginToken](../json-schema/response.json#/definitions/LoginToken)
 
 ### `POST /logout`
 
+- Controller/Action: ["logout" in Conch::Controller::Login](../modules/Conch%3A%3AController%3A%3ALogin#logout)
 - Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
 - Response: `204 No Content`
 
@@ -74,6 +76,7 @@ All `/workspace` routes are deprecated and will be removed in Conch API v3.1.
 
 ### `POST /refresh_token`
 
+- Controller/Action: ["refresh\_token" in Conch::Controller::Login](../modules/Conch%3A%3AController%3A%3ALogin#refresh_token)
 - Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
 - Response: [response.json#/definitions/LoginToken](../json-schema/response.json#/definitions/LoginToken)
 

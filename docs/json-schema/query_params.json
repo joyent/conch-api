@@ -31,7 +31,7 @@
           ]
         },
         "ids_only" : {
-          "$ref" : "/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_integer_default_false"
         },
         "phase_earlier_than" : {
           "oneOf" : [
@@ -44,7 +44,7 @@
           ]
         },
         "serials_only" : {
-          "$ref" : "/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_integer_default_false"
         }
       },
       "type" : "object"
@@ -65,7 +65,7 @@
       "type" : "object"
     },
     "DeactivateUser" : {
-      "$ref" : "/definitions/ChangePassword"
+      "$ref" : "#/definitions/ChangePassword"
     },
     "GetDeviceByAttribute" : {
       "additionalProperties" : {
@@ -132,7 +132,7 @@
       "description" : "used for operations where email can optionally be sent",
       "properties" : {
         "send_mail" : {
-          "$ref" : "/definitions/boolean_integer_default_true"
+          "$ref" : "#/definitions/boolean_integer_default_true"
         }
       },
       "type" : "object"
@@ -141,7 +141,7 @@
       "additionalProperties" : false,
       "properties" : {
         "no_save_db" : {
-          "$ref" : "/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_integer_default_false"
         }
       },
       "type" : "object"
@@ -159,7 +159,7 @@
           "type" : "string"
         },
         "send_mail" : {
-          "$ref" : "/definitions/boolean_integer_default_true"
+          "$ref" : "#/definitions/boolean_integer_default_true"
         }
       },
       "type" : "object"
@@ -170,13 +170,13 @@
           "additionalProperties" : false,
           "properties" : {
             "api_only" : {
-              "$ref" : "/definitions/boolean_integer_default_false"
+              "$ref" : "#/definitions/boolean_integer_default_false"
             },
             "login_only" : {
-              "$ref" : "/definitions/boolean_integer_default_false"
+              "$ref" : "#/definitions/boolean_integer_default_false"
             },
             "send_mail" : {
-              "$ref" : "/definitions/boolean_integer_default_true"
+              "$ref" : "#/definitions/boolean_integer_default_true"
             }
           },
           "type" : "object"
@@ -204,7 +204,7 @@
       "additionalProperties" : false,
       "properties" : {
         "rack_only" : {
-          "$ref" : "/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_integer_default_false"
         }
       },
       "type" : "object"
@@ -213,13 +213,13 @@
       "additionalProperties" : false,
       "properties" : {
         "with_device_health" : {
-          "$ref" : "/definitions/boolean_integer_or_flag"
+          "$ref" : "#/definitions/boolean_integer_or_flag"
         },
         "with_device_phases" : {
-          "$ref" : "/definitions/boolean_integer_or_flag"
+          "$ref" : "#/definitions/boolean_integer_or_flag"
         },
         "with_rack_phases" : {
-          "$ref" : "/definitions/boolean_integer_or_flag"
+          "$ref" : "#/definitions/boolean_integer_or_flag"
         }
       },
       "type" : "object"
@@ -253,13 +253,13 @@
           ]
         },
         "ids_only" : {
-          "$ref" : "/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_integer_default_false"
         },
         "serials_only" : {
-          "$ref" : "/definitions/boolean_integer_default_false"
+          "$ref" : "#/definitions/boolean_integer_default_false"
         },
         "validated" : {
-          "$ref" : "/definitions/boolean_integer"
+          "$ref" : "#/definitions/boolean_integer"
         }
       },
       "type" : "object"
@@ -297,7 +297,7 @@
           "const" : ""
         },
         {
-          "$ref" : "/definitions/boolean_integer"
+          "$ref" : "#/definitions/boolean_integer"
         }
       ]
     }

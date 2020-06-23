@@ -218,6 +218,8 @@ Error responses will use:
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::Login/login>
+
 =item * Request: F<request.yaml#/definitions/Login>
 
 =item * Response: F<response.yaml#/definitions/LoginToken>
@@ -227,6 +229,8 @@ Error responses will use:
 =head2 C<POST /logout>
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::Login/logout>
 
 =item * Request: F<request.yaml#/definitions/Null>
 
@@ -253,6 +257,8 @@ All C</workspace> routes are deprecated and will be removed in Conch API v3.1.
 =head2 C<POST /refresh_token>
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::Login/refresh_token>
 
 =item * Request: F<request.yaml#/definitions/Null>
 
