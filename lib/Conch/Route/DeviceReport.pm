@@ -57,6 +57,8 @@ Device data will be updated in the database.
 =item * The authenticated user must have previously registered the relay being used for the
 report submission (as indicated via C<#/relay/serial> in the report).
 
+=item * Controller/Action: L<Conch::Controller::DeviceReport/process>
+
 =item * Request: F<request.yaml#/definitions/DeviceReport>
 
 =item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
@@ -70,6 +72,8 @@ only validations will be run.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::DeviceReport/validate_report>
+
 =item * Request: F<request.yaml#/definitions/DeviceReport>
 
 =item * Response: F<response.yaml#/definitions/ReportValidationResults>
@@ -81,6 +85,8 @@ only validations will be run.
 =over 4
 
 =item * User requires the read-only role, as described in L<Conch::Route::Device/routes>.
+
+=item * Controller/Action: L<Conch::Controller::DeviceReport/get>
 
 =item * Response: F<response.yaml#/definitions/DeviceReportRow>
 

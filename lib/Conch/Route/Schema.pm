@@ -48,6 +48,8 @@ Returns the schema specified by type and name.
 
 =item * Does not require authentication.
 
+=item * Controller/Action: L<Conch::Controller::Schema/get>
+
 =item * Response: a JSON Schema (L<http://json-schema.org/draft-07/schema#>)
 
 =back

@@ -21,6 +21,7 @@ Sets up the routes for /schema.
 Returns the schema specified by type and name.
 
 - Does not require authentication.
+- Controller/Action: ["get" in Conch::Controller::Schema](../modules/Conch%3A%3AController%3A%3ASchema#get)
 - Response: a JSON Schema ([http://json-schema.org/draft-07/schema#](http://json-schema.org/draft-07/schema#))
 
 ## LICENSING

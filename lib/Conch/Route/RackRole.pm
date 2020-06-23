@@ -50,6 +50,8 @@ All routes require authentication.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::RackRole/get_all>
+
 =item * Response: F<response.yaml#/definitions/RackRoles>
 
 =back
@@ -59,6 +61,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::RackRole/create>
 
 =item * Request: F<request.yaml#/definitions/RackRoleCreate>
 
@@ -70,6 +74,8 @@ All routes require authentication.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::RackRole/get>
+
 =item * Response: F<response.yaml#/definitions/RackRole>
 
 =back
@@ -79,6 +85,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::RackRole/update>
 
 =item * Request: F<request.yaml#/definitions/RackRoleUpdate>
 
@@ -91,6 +99,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::RackRole/delete>
 
 =item * Response: C<204 No Content>
 

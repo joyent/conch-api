@@ -160,6 +160,8 @@ below.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::Device/lookup_by_other_attribute>
+
 =item * Response: F<response.yaml#/definitions/Devices>
 
 =back
@@ -169,6 +171,8 @@ below.
 =over 4
 
 =item * User requires the read-only role
+
+=item * Controller/Action: L<Conch::Controller::Device/get>
 
 =item * Response: F<response.yaml#/definitions/DetailedDevice>
 
@@ -180,6 +184,8 @@ below.
 
 =item * User requires the read-only role
 
+=item * Controller/Action: L<Conch::Controller::Device/get_pxe>
+
 =item * Response: F<response.yaml#/definitions/DevicePXE>
 
 =back
@@ -189,6 +195,8 @@ below.
 =over 4
 
 =item * User requires the read-only role
+
+=item * Controller/Action: L<Conch::Controller::Device/get_phase>
 
 =item * Response: F<response.yaml#/definitions/DevicePhase>
 
@@ -200,6 +208,8 @@ below.
 
 =item * User requires the read-only role
 
+=item * Controller/Action: L<Conch::Controller::Device/get_sku>
+
 =item * Response: F<response.yaml#/definitions/DeviceSku>
 
 =back
@@ -209,6 +219,8 @@ below.
 =over 4
 
 =item * User requires the read/write role
+
+=item * Controller/Action: L<Conch::Controller::Device/set_asset_tag>
 
 =item * Request: F<request.yaml#/definitions/DeviceAssetTag>
 
@@ -222,6 +234,8 @@ below.
 
 =item * User requires the read/write role
 
+=item * Controller/Action: L<Conch::Controller::Device/set_validated>
+
 =item * Request: F<request.yaml#/definitions/Null>
 
 =item * Response: Redirect to the updated device
@@ -233,6 +247,8 @@ below.
 =over 4
 
 =item * User requires the read/write role
+
+=item * Controller/Action: L<Conch::Controller::Device/set_phase>
 
 =item * Request: F<request.yaml#/definitions/DevicePhase>
 
@@ -246,6 +262,8 @@ below.
 
 =item * User requires the read/write role
 
+=item * Controller/Action: L<Conch::Controller::Device/add_links>
+
 =item * Request: F<request.yaml#/definitions/DeviceLinks>
 
 =item * Response: Redirect to the updated device
@@ -258,6 +276,8 @@ below.
 
 =item * User requires the read/write role
 
+=item * Controller/Action: L<Conch::Controller::Device/remove_links>
+
 =item * Response: 204 No Content
 
 =back
@@ -267,6 +287,8 @@ below.
 =over 4
 
 =item * User requires the read/write role for the device, as well as the old and new builds
+
+=item * Controller/Action: L<Conch::Controller::Device/set_build>
 
 =item * Request: F<request.yaml#/definitions/DeviceBuild>
 
@@ -282,6 +304,8 @@ below.
 
 =item * User requires the admin role for the device
 
+=item * Controller/Action: L<Conch::Controller::Device/set_hardware_product>
+
 =item * Request: F<request.yaml#/definitions/DeviceHardware>
 
 =item * Response: Redirect to the updated device
@@ -294,6 +318,8 @@ below.
 
 =item * User requires the read-only role
 
+=item * Controller/Action: L<Conch::Controller::DeviceLocation/get>
+
 =item * Response: F<response.yaml#/definitions/DeviceLocation>
 
 =back
@@ -303,6 +329,8 @@ below.
 =over 4
 
 =item * User requires the read/write role
+
+=item * Controller/Action: L<Conch::Controller::DeviceLocation/set>
 
 =item * Request: F<request.yaml#/definitions/DeviceLocationUpdate>
 
@@ -316,6 +344,8 @@ below.
 
 =item * User requires the read/write role
 
+=item * Controller/Action: L<Conch::Controller::DeviceLocation/delete>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -325,6 +355,8 @@ below.
 =over 4
 
 =item * User requires the read-only role
+
+=item * Controller/Action: L<Conch::Controller::DeviceSettings/get_all>
 
 =item * Response: F<response.yaml#/definitions/DeviceSettings>
 
@@ -336,6 +368,8 @@ below.
 
 =item * User requires the read/write role, or admin when overwriting existing
 settings that do not start with C<tag.>.
+
+=item * Controller/Action: L<Conch::Controller::DeviceSettings/set_all>
 
 =item * Request: F<request.yaml#/definitions/DeviceSettings>
 
@@ -349,6 +383,8 @@ settings that do not start with C<tag.>.
 
 =item * User requires the read-only role
 
+=item * Controller/Action: L<Conch::Controller::DeviceSettings/get_single>
+
 =item * Response: F<response.yaml#/definitions/DeviceSetting>
 
 =back
@@ -359,6 +395,8 @@ settings that do not start with C<tag.>.
 
 =item * User requires the read/write role, or admin when overwriting existing
 settings that do not start with C<tag.>.
+
+=item * Controller/Action: L<Conch::Controller::DeviceSettings/set_single>
 
 =item * Request: F<request.yaml#/definitions/DeviceSettings>
 
@@ -373,6 +411,8 @@ settings that do not start with C<tag.>.
 =item * User requires the read/write role for settings that start with C<tag.>, and admin
 otherwise.
 
+=item * Controller/Action: L<Conch::Controller::DeviceSettings/delete_single>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -384,6 +424,8 @@ Does not store validation results.
 =over 4
 
 =item * User requires the read-only role
+
+=item * Controller/Action: L<Conch::Controller::DeviceValidation/validate>
 
 =item * Request: F<request.yaml#/definitions/DeviceReport>
 
@@ -398,6 +440,8 @@ Does not store validation results.
 =over 4
 
 =item * User requires the read-only role
+
+=item * Controller/Action: L<Conch::Controller::DeviceValidation/run_validation_plan>
 
 =item * Request: F<request.yaml#/definitions/DeviceReport>
 
@@ -414,6 +458,8 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =item * User requires the read-only role
 
+=item * Controller/Action: L<Conch::Controller::DeviceValidation/get_validation_states>
+
 =item * Response: F<response.yaml#/definitions/ValidationStatesWithResults>
 
 =back
@@ -423,6 +469,8 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 =over 4
 
 =item * User requires the read-only role
+
+=item * Controller/Action: L<Conch::Controller::DeviceInterface/get_all>
 
 =item * Response: F<response.yaml#/definitions/DeviceNics>
 
@@ -434,6 +482,8 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =item * User requires the read-only role
 
+=item * Controller/Action: L<Conch::Controller::DeviceInterface/get_one>
+
 =item * Response: F<response.yaml#/definitions/DeviceNic>
 
 =back
@@ -443,6 +493,8 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 =over 4
 
 =item * User requires the read-only role
+
+=item * Controller/Action: L<Conch::Controller::DeviceInterface/get_one_field>
 
 =item * Response: F<response.yaml#/definitions/DeviceNicField>
 

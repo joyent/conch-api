@@ -81,6 +81,8 @@ All routes require authentication.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::DatacenterRoom/get_all>
+
 =item * Response: F<response.yaml#/definitions/DatacenterRoomsDetailed>
 
 =back
@@ -90,6 +92,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::DatacenterRoom/create>
 
 =item * Request: F<request.yaml#/definitions/DatacenterRoomCreate>
 
@@ -104,6 +108,8 @@ All routes require authentication.
 =item * User requires system admin authorization, or the read-only role on a rack located in
 the room
 
+=item * Controller/Action: L<Conch::Controller::DatacenterRoom/get_one>
+
 =item * Response: F<response.yaml#/definitions/DatacenterRoomDetailed>
 
 =back
@@ -113,6 +119,8 @@ the room
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::DatacenterRoom/update>
 
 =item * Request: F<request.yaml#/definitions/DatacenterRoomUpdate>
 
@@ -126,6 +134,8 @@ the room
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::DatacenterRoom/delete>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -137,114 +147,47 @@ the room
 =item * User requires system admin authorization, or the read-only role on a rack located in
 the room (in which case data returned is restricted to those racks)
 
+=item * Controller/Action: L<Conch::Controller::DatacenterRoom/racks>
+
 =item * Response: F<response.yaml#/definitions/Racks>
 
 =back
 
 =head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
 
-=over 4
-
-=item * User requires the read-only role on the rack
-
-=item * Response: F<response.yaml#/definitions/Rack>
-
-=back
+See L<Conch::Route::Rack/C<GET /rack/:rack_id_or_name>>.
 
 =head2 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
 
-=over 4
-
-=item * User requires the read/write role on the rack
-
-=item * Request: F<request.yaml#/definitions/RackUpdate>
-
-=item * Response: Redirect to the updated rack
-
-=back
+See L<Conch::Route::Rack/C<POST /rack/:rack_id_or_name>>.
 
 =head2 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name>
 
-=over 4
-
-=item * Requires system admin authorization
-
-=item * Response: C<204 No Content>
-
-=back
+See L<Conch::Route::Rack/C<DELETE /rack/:rack_id_or_name>>.
 
 =head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout>
 
-=over 4
-
-=item * User requires the read-only role on the rack
-
-=item * Response: F<response.yaml#/definitions/RackLayouts>
-
-=back
+See L<Conch::Route::Rack/C<GET /rack/:rack_id_or_name/layout>>.
 
 =head2 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout>
 
-=over 4
-
-=item * User requires the read/write role on the rack
-
-=item * Request: F<request.yaml#/definitions/RackLayouts>
-
-=item * Response: Redirect to the rack's layouts
-
-=back
+See L<Conch::Route::Rack/C<POST /rack/:rack_id_or_name/layout>>.
 
 =head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
 
-=over 4
-
-=item * User requires the read-only role on the rack
-
-=item * Response: F<response.yaml#/definitions/RackAssignments>
-
-=back
+See L<Conch::Route::Rack/C<GET /rack/:rack_id_or_name/assignment>>.
 
 =head2 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
 
-=over 4
-
-=item * User requires the read/write role on the rack
-
-=item * Request: F<request.yaml#/definitions/RackAssignmentUpdates>
-
-=item * Response: Redirect to the updated rack assignment
-
-=back
+See L<Conch::Route::Rack/C<POST /rack/:rack_id_or_name/assignment>>.
 
 =head2 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment>
 
-This method requires a request body.
-
-=over 4
-
-=item * User requires the read/write role on the rack
-
-=item * Request: F<request.yaml#/definitions/RackAssignmentDeletes>
-
-=item * Response: C<204 No Content>
-
-=back
+See L<Conch::Route::Rack/C<DELETE /rack/:rack_id_or_name/assignment>>.
 
 =head2 C<< POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/phase?rack_only=<0|1> >>
 
-The query parameter C<rack_only> (defaults to C<0>) specifies whether to update
-only the rack's phase, or all the rack's devices' phases as well.
-
-=over 4
-
-=item * User requires the read/write role on the rack
-
-=item * Request: F<request.yaml#/definitions/RackPhase>
-
-=item * Response: Redirect to the updated rack
-
-=back
+See L<Conch::Route::Rack/POST /rack/:rack_id_or_name/phase?rack_only=01>.
 
 =head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
 

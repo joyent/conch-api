@@ -16,11 +16,13 @@ All routes require authentication.
 
 ### `GET /hardware_product`
 
+- Controller/Action: ["get\_all" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#get_all)
 - Response: [response.json#/definitions/HardwareProducts](../json-schema/response.json#/definitions/HardwareProducts)
 
 ### `POST /hardware_product`
 
 - Requires system admin authorization
+- Controller/Action: ["create" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#create)
 - Request: [request.json#/definitions/HardwareProductCreate](../json-schema/request.json#/definitions/HardwareProductCreate)
 - Response: Redirect to the created hardware product
 
@@ -28,6 +30,7 @@ All routes require authentication.
 
 Identifiers accepted: `id`, `sku`, `name` and `alias`.
 
+- Controller/Action: ["get" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#get)
 - Response: [response.json#/definitions/HardwareProduct](../json-schema/response.json#/definitions/HardwareProduct)
 
 ### `POST /hardware_product/:hardware_product_id_or_other`
@@ -37,6 +40,7 @@ Updates the indicated hardware product.
 Identifiers accepted: `id`, `sku`, `name` and `alias`.
 
 - Requires system admin authorization
+- Controller/Action: ["update" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#update)
 - Request: [request.json#/definitions/HardwareProductUpdate](../json-schema/request.json#/definitions/HardwareProductUpdate)
 - Response: Redirect to the updated hardware product
 
@@ -48,6 +52,7 @@ hardware must be switched to other hardware first.
 Identifiers accepted: `id`, `sku`, `name` and `alias`.
 
 - Requires system admin authorization
+- Controller/Action: ["delete" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#delete)
 - Response: `204 No Content`
 
 ### `PUT /hardware_product/:hardware_product_id_or_other/specification?path=:path_to_data`
@@ -76,6 +81,7 @@ Results in this data in `specification`, changing the data type at node `/foo/ba
 ```
 
 - Requires system admin authorization
+- Controller/Action: ["set\_specification" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#set_specification)
 - Request: after the update operation, the `specification` property must validate against
 [common.json#/definitions/HardwareProductSpecification](../json-schema/common.json#/definitions/HardwareProductSpecification).
 - Response: `204 No Content`
@@ -90,6 +96,7 @@ After the delete operation, the `specification` property must validate against
 [common.json#/definitions/HardwareProductSpecification](../json-schema/common.json#/definitions/HardwareProductSpecification).
 
 - Requires system admin authorization
+- Controller/Action: ["delete\_specification" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#delete_specification)
 - Response: `204 No Content`
 
 ## LICENSING

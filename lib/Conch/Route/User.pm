@@ -136,6 +136,8 @@ All routes require authentication.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::User/get>
+
 =item * Response: F<response.yaml#/definitions/UserDetailed>
 
 =back
@@ -146,6 +148,8 @@ Optionally take the query parameter C<send_mail> (defaults to C<1>) to send
 an email telling the user their account was updated
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::User/update>
 
 =item * Request: F<request.yaml#/definitions/UpdateUser>
 
@@ -175,6 +179,8 @@ C<api_only> and C<login_only> cannot both be C<1>.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::User/revoke_user_tokens>
+
 =item * Request: F<request.yaml#/definitions/UserSettings>
 
 =item * Response: C<204 No Content>
@@ -201,6 +207,8 @@ otherwise, the user is logged out.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::User/change_own_password>
+
 =item * Request: F<request.yaml#/definitions/UserSettings>
 
 =item * Response: C<204 No Content>
@@ -212,6 +220,8 @@ otherwise, the user is logged out.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::User/get_settings>
+
 =item * Response: F<response.yaml#/definitions/UserSettings>
 
 =back
@@ -219,6 +229,8 @@ otherwise, the user is logged out.
 =head2 C<POST /user/me/settings>
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::User/set_settings>
 
 =item * Request: F<request.yaml#/definitions/UserSettings>
 
@@ -230,6 +242,8 @@ otherwise, the user is logged out.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::User/get_setting>
+
 =item * Response: F<response.yaml#/definitions/UserSetting>
 
 =back
@@ -237,6 +251,8 @@ otherwise, the user is logged out.
 =head2 C<POST /user/me/settings/:key>
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::User/set_setting>
 
 =item * Request: F<request.yaml#/definitions/UserSetting>
 
@@ -248,6 +264,8 @@ otherwise, the user is logged out.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::User/delete_setting>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -256,6 +274,8 @@ otherwise, the user is logged out.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::User/get_api_tokens>
+
 =item * Response: F<response.yaml#/definitions/UserTokens>
 
 =back
@@ -263,6 +283,8 @@ otherwise, the user is logged out.
 =head2 C<POST /user/me/token>
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::User/create_api_token>
 
 =item * Request: F<request.yaml#/definitions/NewUserToken>
 
@@ -274,6 +296,8 @@ otherwise, the user is logged out.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::User/get_api_token>
+
 =item * Response: F<response.yaml#/definitions/UserToken>
 
 =back
@@ -281,6 +305,8 @@ otherwise, the user is logged out.
 =head2 C<DELETE /user/me/token/:token_name>
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::User/expire_api_token>
 
 =item * Response: C<204 No Content>
 
@@ -291,6 +317,8 @@ otherwise, the user is logged out.
 =over 4
 
 =item * Requires system admin authorization (when updating a different account than one's own)
+
+=item * Controller/Action: L<Conch::Controller::User/get>
 
 =item * Response: F<response.yaml#/definitions/UserDetailed>
 
@@ -304,6 +332,8 @@ an email telling the user their account was updated
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::User/update>
 
 =item * Request: F<request.yaml#/definitions/UpdateUser>
 
@@ -325,6 +355,8 @@ revoke all session tokens for the user forcing all tools to log in again.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::User/deactivate>
 
 =item * Response: C<204 No Content>
 
@@ -348,6 +380,8 @@ C<api_only> and C<login_only> cannot both be C<1>.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::User/revoke_user_tokens>
 
 =item * Response: C<204 No Content>
 
@@ -379,6 +413,8 @@ Optionally accepts the following query parameters:
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::User/reset_user_password>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -388,6 +424,8 @@ Optionally accepts the following query parameters:
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::User/get_all>
 
 =item * Response: F<response.yaml#/definitions/UsersDetailed>
 
@@ -401,6 +439,8 @@ email to the user with the new password.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::User/create>
 
 =item * Request: F<request.yaml#/definitions/NewUser>
 
@@ -416,6 +456,8 @@ email to the user with the new password.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::User/get_api_tokens>
+
 =item * Response: F<response.yaml#/definitions/UserTokens>
 
 =back
@@ -426,6 +468,8 @@ email to the user with the new password.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::User/get_api_token>
+
 =item * Response: F<response.yaml#/definitions/UserTokens>
 
 =back
@@ -435,6 +479,8 @@ email to the user with the new password.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::User/expire_api_token>
 
 =item * Success Response: C<204 No Content>
 

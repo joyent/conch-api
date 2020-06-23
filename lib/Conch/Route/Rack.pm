@@ -104,6 +104,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::Rack/create>
+
 =item * Request: F<request.yaml#/definitions/RackCreate>
 
 =item * Response: Redirect to the created rack
@@ -116,6 +118,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * User requires the read-only role on the rack
 
+=item * Controller/Action: L<Conch::Controller::Rack/get>
+
 =item * Response: F<response.yaml#/definitions/Rack>
 
 =back
@@ -125,6 +129,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 =over 4
 
 =item * User requires the read/write role on the rack
+
+=item * Controller/Action: L<Conch::Controller::Rack/update>
 
 =item * Request: F<request.yaml#/definitions/RackUpdate>
 
@@ -138,6 +144,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::Rack/delete>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -148,6 +156,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * User requires the read-only role on the rack
 
+=item * Controller/Action: L<Conch::Controller::Rack/get_layouts>
+
 =item * Response: F<response.yaml#/definitions/RackLayouts>
 
 =back
@@ -157,6 +167,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 =over 4
 
 =item * User requires the read/write role on the rack
+
+=item * Controller/Action: L<Conch::Controller::Rack/overwrite_layouts>
 
 =item * Request: F<request.yaml#/definitions/RackLayouts>
 
@@ -170,6 +182,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * User requires the read-only role on the rack
 
+=item * Controller/Action: L<Conch::Controller::Rack/get_assignment>
+
 =item * Response: F<response.yaml#/definitions/RackAssignments>
 
 =back
@@ -179,6 +193,8 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 =over 4
 
 =item * User requires the read/write role on the rack
+
+=item * Controller/Action: L<Conch::Controller::Rack/set_assignment>
 
 =item * Request: F<request.yaml#/definitions/RackAssignmentUpdates>
 
@@ -194,6 +210,8 @@ This method requires a request body.
 
 =item * User requires the read/write role on the rack
 
+=item * Controller/Action: L<Conch::Controller::Rack/delete_assignment>
+
 =item * Request: F<request.yaml#/definitions/RackAssignmentDeletes>
 
 =item * Response: C<204 No Content>
@@ -208,6 +226,8 @@ only the rack's phase, or all the rack's devices' phases as well.
 =over 4
 
 =item * User requires the read/write role on the rack
+
+=item * Controller/Action: L<Conch::Controller::Rack/set_phase>
 
 =item * Request: F<request.yaml#/definitions/RackPhase>
 

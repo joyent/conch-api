@@ -22,11 +22,13 @@ Supports the following optional query parameters:
 - `with_device_phases` - includes correlated counts of devices having each phase value
 - `with_rack_phases` - includes correlated counts of racks having each phase value
 
+- Controller/Action: ["get\_all" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_all)
 - Response: response.yaml#/Builds
 
 ### `POST /build`
 
 - Requires system admin authorization
+- Controller/Action: ["create" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#create)
 - Request: request.yaml#/BuildCreate
 - Response: Redirect to the build
 
@@ -38,18 +40,21 @@ Supports the following optional query parameters:
 - `with_device_phases` - includes correlated counts of devices having each phase value
 - `with_rack_phases` - includes correlated counts of racks having each phase value
 
+- Controller/Action: ["get" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get)
 - Requires system admin authorization or the read-only role on the build
 - Response: response.yaml#/Build
 
 ### `POST /build/:build_id_or_name`
 
 - Requires system admin authorization or the admin role on the build
+- Controller/Action: ["update" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#update)
 - Request: request.yaml#/BuildUpdate
 - Response: Redirect to the build
 
 ### `GET /build/:build_id_or_name/user`
 
 - Requires system admin authorization or the admin role on the build
+- Controller/Action: ["get\_users" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_users)
 - Response: response.yaml#/BuildUsers
 
 ### `POST /build/:build_id_or_name/user?send_mail=<1|0`>
@@ -58,6 +63,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the user.
 
 - Requires system admin authorization or the admin role on the build
+- Controller/Action: ["add\_user" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_user)
 - Request: request.yaml#/BuildAddUser
 - Response: `204 No Content`
 
@@ -67,11 +73,13 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the user.
 
 - Requires system admin authorization or the admin role on the build
+- Controller/Action: ["remove\_user" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#remove_user)
 - Response: `204 No Content`
 
 ### `GET /build/:build_id_or_name/organization`
 
 - User requires the admin role
+- Controller/Action: ["get\_organizations" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_organizations)
 - Response: [response.json#/definitions/BuildOrganizations](../json-schema/response.json#/definitions/BuildOrganizations)
 
 ### `POST /build/:build_id_or_name/organization?send_mail=<1|0>`
@@ -80,6 +88,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the organization members and build admins.
 
 - User requires the admin role
+- Controller/Action: ["add\_organization" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_organization)
 - Request: [request.json#/definitions/BuildAddOrganization](../json-schema/request.json#/definitions/BuildAddOrganization)
 - Response: `204 No Content`
 
@@ -89,6 +98,7 @@ Takes one optional query parameter `send_mail=<1|0>` (defaults to 1) to send
 an email to the organization members and build admins.
 
 - User requires the admin role
+- Controller/Action: ["remove\_organization" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#remove_organization)
 - Response: `204 No Content`
 
 ### `GET /build/:build_id_or_name/device`
@@ -101,11 +111,13 @@ Accepts the following optional query parameters:
 - `ids_only=1` only return device IDs, not full device details
 
 - Requires system admin authorization or the read-only role on the build
+- Controller/Action: ["get\_devices" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_devices)
 - Response: one of [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices), [response.json#/definitions/DeviceIds](../json-schema/response.json#/definitions/DeviceIds) or [response.json#/definitions/DeviceSerials](../json-schema/response.json#/definitions/DeviceSerials)
 
 ### `GET /build/:build_id_or_name/device/pxe`
 
 - Requires system admin authorization or the read-only role on the build
+- Controller/Action: ["get\_pxe\_devices" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_pxe_devices)
 - Response: [response.json#/definitions/DevicePXEs](../json-schema/response.json#/definitions/DevicePXEs)
 
 ### `POST /build/:build_id_or_name/device`
@@ -113,6 +125,7 @@ Accepts the following optional query parameters:
 - Requires system admin authorization, or the read/write role on the build and the
 read-write role on existing device(s) (via a workspace or build; see
 ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
+- Controller/Action: ["create\_and\_add\_devices" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#create_and_add_devices)
 - Request: [request.json#/definitions/BuildCreateDevices](../json-schema/request.json#/definitions/BuildCreateDevices)
 - Response: `204 No Content`
 
@@ -120,22 +133,26 @@ read-write role on existing device(s) (via a workspace or build; see
 
 - Requires system admin authorization, or the read/write role on the build and the
 read-write role on the device (via a workspace or build; see ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
+- Controller/Action: ["add\_device" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_device)
 - Response: `204 No Content`
 
 ### `DELETE /build/:build_id_or_name/device/:device_id_or_serial_number`
 
 - Requires system admin authorization, or the read/write role on the build
+- Controller/Action: ["remove\_device" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#remove_device)
 - Response: `204 No Content`
 
 ### `GET /build/:build_id_or_name/rack`
 
 - Requires system admin authorization or the read-only role on the build
+- Controller/Action: ["get\_racks" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_racks)
 - Response: response.yaml#/Racks
 
 ### `POST /build/:build_id_or_name/rack/:rack_id_or_name`
 
 - Requires system admin authorization, or the read/write role on the build and the
 read-write role on a workspace or build that contains the rack
+- Controller/Action: ["add\_rack" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_rack)
 - Response: `204 No Content`
 
 ## LICENSING

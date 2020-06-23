@@ -16,20 +16,24 @@ All routes require authentication.
 
 ### `GET /hardware_vendor`
 
+- Controller/Action: ["get\_all" in Conch::Controller::HardwareVendor](../modules/Conch%3A%3AController%3A%3AHardwareVendor#get_all)
 - Response: [response.json#/definitions/HardwareVendors](../json-schema/response.json#/definitions/HardwareVendors)
 
 ### `GET /hardware_vendor/:hardware_vendor_id_or_name`
 
+- Controller/Action: ["get\_one" in Conch::Controller::HardwareVendor](../modules/Conch%3A%3AController%3A%3AHardwareVendor#get_one)
 - Response: [response.json#/definitions/HardwareVendor](../json-schema/response.json#/definitions/HardwareVendor)
 
 ### `DELETE /hardware_vendor/:hardware_vendor_id_or_name`
 
 - Requires system admin authorization
+- Controller/Action: ["delete" in Conch::Controller::HardwareVendor](../modules/Conch%3A%3AController%3A%3AHardwareVendor#delete)
 - Response: `204 No Content`
 
 ### `POST /hardware_vendor/:hardware_vendor_name`
 
 - Requires system admin authorization
+- Controller/Action: ["create" in Conch::Controller::HardwareVendor](../modules/Conch%3A%3AController%3A%3AHardwareVendor#create)
 - Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
 - Response: Redirect to the created hardware vendor
 

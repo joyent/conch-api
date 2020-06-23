@@ -65,6 +65,8 @@ All routes require authentication.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::Organization/get_all>
+
 =item * Response: F<response.yaml#/definitions/Organizations>
 
 =back
@@ -74,6 +76,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::Organization/create>
 
 =item * Request: F<request.yaml#/definitions/OrganizationCreate>
 
@@ -87,6 +91,8 @@ All routes require authentication.
 
 =item * Requires system admin authorization or the admin role on the organization
 
+=item * Controller/Action: L<Conch::Controller::Organization/get>
+
 =item * Response: F<response.yaml#/definitions/Organization>
 
 =back
@@ -96,6 +102,8 @@ All routes require authentication.
 =over 4
 
 =item * Requires system admin authorization or the admin role on the organization
+
+=item * Controller/Action: L<Conch::Controller::Organization/update>
 
 =item * Request: request.yaml#/OrganizationUpdate
 
@@ -109,6 +117,8 @@ All routes require authentication.
 
 =item * Requires system admin authorization
 
+=item * Controller/Action: L<Conch::Controller::Organization/delete>
+
 =item * Response: C<204 No Content>
 
 =back
@@ -121,6 +131,8 @@ an email to the user.
 =over 4
 
 =item * Requires system admin authorization or the admin role on the organization
+
+=item * Controller/Action: L<Conch::Controller::Organization/add_user>
 
 =item * Request: F<request.yaml#/definitions/OrganizationAddUser>
 
@@ -136,6 +148,8 @@ an email to the user.
 =over 4
 
 =item * Requires system admin authorization or the admin role on the organization
+
+=item * Controller/Action: L<Conch::Controller::Organization/remove_user>
 
 =item * Response: C<204 No Content>
 

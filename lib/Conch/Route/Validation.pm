@@ -74,6 +74,8 @@ All routes require authentication.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::Validation/get_all>
+
 =item * Response: F<response.yaml#/definitions/Validations>
 
 =back
@@ -81,6 +83,8 @@ All routes require authentication.
 =head2 C<GET /validation/:validation_id_or_name>
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::Validation/get>
 
 =item * Response: F<response.yaml#/definitions/Validation>
 
@@ -90,6 +94,8 @@ All routes require authentication.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::ValidationPlan/get_all>
+
 =item * Response: F<response.yaml#/definitions/ValidationPlans>
 
 =back
@@ -97,6 +103,8 @@ All routes require authentication.
 =head2 C<GET /validation_plan/:validation_plan_id_or_name>
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::ValidationPlan/get>
 
 =item * Response: F<response.yaml#/definitions/ValidationPlan>
 
@@ -106,6 +114,8 @@ All routes require authentication.
 
 =over 4
 
+=item * Controller/Action: L<Conch::Controller::ValidationPlan/validations>
+
 =item * Response: F<response.yaml#/definitions/Validations>
 
 =back
@@ -113,6 +123,8 @@ All routes require authentication.
 =head2 C<GET /validation_state/:validation_state_id>
 
 =over 4
+
+=item * Controller/Action: L<Conch::Controller::ValidationState/get>
 
 =item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
 
