@@ -1,7 +1,7 @@
 package Conch::Route;
 
 use Mojo::Base -strict, -signatures;
-use List::Util qw(uniq any);
+use List::Util qw(uniqstr any);
 use feature 'state';
 use feature 'current_sub';
 
@@ -152,7 +152,7 @@ aborting with HTTP 410 or HTTP 404 if not found.
         return map __SUB__->($_), $route->children->@*;
     }
 
-    my @top_level_paths = uniq map find_paths($_), $root->children->@*;
+    my @top_level_paths = uniqstr map find_paths($_), $root->children->@*;
 
     $root->any('/*all', sub ($c) {
         $c->log->warn('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);

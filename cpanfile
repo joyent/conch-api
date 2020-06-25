@@ -60,6 +60,7 @@ requires 'Digest::SHA';
 requires 'Digest::MD5';
 requires 'Unicode::UTF8';       # used internally by some things to speed up utf8 operations, when available
 requires 'PerlIO::utf8_strict'; # ""
+requires 'List::Util', '1.55';
 
 # debugging aids
 requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';

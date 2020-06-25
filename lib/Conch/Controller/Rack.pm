@@ -2,7 +2,7 @@ package Conch::Controller::Rack;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use List::Util qw(any none first uniq max);
+use List::Util 1.55 qw(any none first uniqstr uniqint max);
 use Conch::UUID 'is_uuid';
 
 =pod
@@ -385,10 +385,10 @@ sub set_assignment ($c) {
     }
 
     return $c->status(400, { error => 'duplication of devices is not permitted' })
-        if (uniq map $_->{device_id} // (), $input->@*) != (grep $_->{device_id}, $input->@*)
-            or (uniq map $_->{device_serial_number} // (), $input->@*) != (grep $_->{device_serial_number}, $input->@*);
+        if (uniqstr map $_->{device_id} // (), $input->@*) != (grep $_->{device_id}, $input->@*)
+            or (uniqstr map $_->{device_serial_number} // (), $input->@*) != (grep $_->{device_serial_number}, $input->@*);
     return $c->status(400, { error => 'duplication of rack_unit_starts is not permitted' })
-        if (uniq map $_->{rack_unit_start}, $input->@*) != $input->@*;
+        if (uniqint map $_->{rack_unit_start}, $input->@*) != $input->@*;
 
     my @layouts = $c->stash('rack_rs')->search_related('rack_layouts',
             { 'rack_layouts.rack_unit_start' => { -in => [ map $_->{rack_unit_start}, $input->@* ] } })
