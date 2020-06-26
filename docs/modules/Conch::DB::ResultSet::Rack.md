@@ -22,14 +22,12 @@ This is used for identifying potential conflicts when adjusting layouts.
 ### with\_user\_role
 
 Constrains the resultset to those where the provided user\_id has (at least) the specified role
-in at least one workspace or build associated with the specified rack(s), including parent
-workspaces.
+in at least one build associated with the specified rack(s).
 
 ### user\_has\_role
 
-Checks that the provided user\_id has (at least) the specified role in at least one workspace
-associated with the specified rack(s) (implicitly including parent workspaces), or at least one
-build associated with the rack(s).
+Checks that the provided user\_id has (at least) the specified role in at least one build
+associated with the specified rack(s).
 
 Returns a boolean.
 

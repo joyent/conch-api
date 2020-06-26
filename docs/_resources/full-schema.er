@@ -20,7 +20,7 @@ title {label: "Conch database schema (as of v3.0.7, 2020-11-xx)", size: "50"}
 entity {bgcolor: "#eeeeee", size: "20"}
 
 # user stuff: green - {bgcolor: "#d0e0d0"}
-# groupings (workspaces, builds) - orange - {bgcolor: "#eee0a0"}
+# groupings (builds) - orange - {bgcolor: "#eee0a0"}
 # device stuff - blue -- {bgcolor: "#ececfc"}
 # locations - red {bgcolor: "#fcecec"}
 # validations - yellow {bgcolor: "#fbfbdb"}
@@ -286,11 +286,6 @@ value
 created
 deactivated
 
-[user_workspace_role] {bgcolor: "#d0e0d0"}
-*+user_id
-*+workspace_id
-role {label: "ro, rw, admin"}
-
 [validation] {bgcolor: "#fbfbdb"}
 *id
 name
@@ -336,16 +331,6 @@ status
 *+validation_result_id
 result_order
 
-[workspace] {bgcolor: "#eee0a0"}
-*id
-name
-description
-+parent_workspace_id
-
-[workspace_rack] {bgcolor: "#eee0a0"}
-*+workspace_id
-*+rack_id
-
 # Cardinality    Syntax
 # 0 or 1         ?
 # exactly 1      1
@@ -381,8 +366,6 @@ user_organization_role +--1 organization
 user_organization_role *--1 user_account
 user_session_token *--1 user_account
 user_setting *--1 user_account
-user_workspace_role *--1 user_account
-user_workspace_role *--1 workspace
 validation_plan_member *--1 validation
 validation_plan_member *--1 validation_plan
 validation_result *--1 device
@@ -392,6 +375,3 @@ validation_state *--1 device_report
 validation_state *--1 hardware_product
 validation_state_member +--1 validation_result
 validation_state_member *--1 validation_state
-workspace 1--* workspace {label: "parent of", size: "14"}
-workspace_rack +--1 rack
-workspace_rack *--1 workspace

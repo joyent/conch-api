@@ -105,9 +105,6 @@ Available top-level routes are:
 * [Conch::Route::ValidationState](modules/Conch::Route::ValidationState)
   * `/validation_state`
 
-* [Conch::Route::Workspace](modules/Conch::Route::Workspace)
-  * `/workspace`
-
 # Features
 
 The Conch API has many features to make it a fully-functional and robust REST

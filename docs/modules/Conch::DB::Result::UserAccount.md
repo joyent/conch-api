@@ -136,12 +136,6 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::UserSetting](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserSetting)
 
-### user\_workspace\_roles
-
-Type: has\_many
-
-Related object: [Conch::DB::Result::UserWorkspaceRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserWorkspaceRole)
-
 ### builds
 
 Type: many\_to\_many
@@ -154,12 +148,6 @@ Type: many\_to\_many
 
 Composing rels: ["user\_organization\_roles"](#user_organization_roles) -> organization
 
-### workspaces
-
-Type: many\_to\_many
-
-Composing rels: ["user\_workspace\_roles"](#user_workspace_roles) -> workspace
-
 ## METHODS
 
 ### check\_password
@@ -169,7 +157,7 @@ Because hard cryptography is used, this is **not** a fast call!
 
 ### TO\_JSON
 
-Include information about the user's workspaces, organizations and builds, if available.
+Include information about the user's organizations and builds, if available.
 
 ## LICENSING
 

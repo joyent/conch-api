@@ -315,57 +315,6 @@
       },
       "type" : "object"
     },
-    "WorkspaceDevices" : {
-      "additionalProperties" : false,
-      "deprecated" : true,
-      "not" : {
-        "required" : [
-          "ids_only",
-          "serials_only"
-        ],
-        "type" : "object"
-      },
-      "properties" : {
-        "active_minutes" : {
-          "$ref" : "common.json#/definitions/non_negative_integer"
-        },
-        "health" : {
-          "oneOf" : [
-            {
-              "$ref" : "common.json#/definitions/device_health"
-            },
-            {
-              "items" : {
-                "$ref" : "common.json#/definitions/device_health"
-              },
-              "minItems" : 2,
-              "type" : "array",
-              "uniqueItems" : true
-            }
-          ]
-        },
-        "ids_only" : {
-          "$ref" : "#/definitions/boolean_integer_default_false"
-        },
-        "serials_only" : {
-          "$ref" : "#/definitions/boolean_integer_default_false"
-        },
-        "validated" : {
-          "$ref" : "#/definitions/boolean_integer"
-        }
-      },
-      "type" : "object"
-    },
-    "WorkspaceRelays" : {
-      "additionalProperties" : false,
-      "deprecated" : true,
-      "properties" : {
-        "active_minutes" : {
-          "$ref" : "common.json#/definitions/non_negative_integer"
-        }
-      },
-      "type" : "object"
-    },
     "boolean_integer" : {
       "maximum" : 1,
       "minimum" : 0,

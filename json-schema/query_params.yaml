@@ -114,39 +114,6 @@ definitions:
     properties:
       rack_only:
         $ref: '#/definitions/boolean_integer_default_false'
-  WorkspaceDevices:
-    deprecated: true
-    type: object
-    additionalProperties: false
-    properties:
-      validated:
-        $ref: '#/definitions/boolean_integer'
-      health:
-        oneOf:
-          - $ref: common.yaml#/definitions/device_health
-          - type: array
-            uniqueItems: true
-            minItems: 2
-            items:
-              $ref: common.yaml#/definitions/device_health
-      active_minutes:
-        $ref: common.yaml#/definitions/non_negative_integer
-      ids_only:
-        $ref: '#/definitions/boolean_integer_default_false'
-      serials_only:
-        $ref: '#/definitions/boolean_integer_default_false'
-    not:
-      type: object
-      required:
-        - ids_only
-        - serials_only
-  WorkspaceRelays:
-    deprecated: true
-    type: object
-    additionalProperties: false
-    properties:
-      active_minutes:
-        $ref: common.yaml#/definitions/non_negative_integer
   GetBuilds:
     type: object
     properties:

@@ -11,7 +11,6 @@ bin/conch-db [subcommand subcommand...] [-hnv] [long options...] [arguments]
 
 initialize               initialize a new Conch database and its tables
 create-validations       create validation plans for the Conch application
-create-global-workspace  create the GLOBAL workspace
 create-admin-user        create a user with admin privileges
 migrate                  run outstanding migrations on a Conch database (no effect with 'all')
 apply-dump-migration [n] generate new DBIC result classes, schema.sql after applying a migration(s)

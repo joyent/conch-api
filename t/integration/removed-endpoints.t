@@ -17,7 +17,8 @@ $t->get_ok($_)
     ->json_is({ error => 'Route Not Found' })
       foreach
         '/rack',
-        '/validation';
+        '/validation',
+        '/workspace';
 
 done_testing;
 # vim: set ts=4 sts=4 sw=4 et :

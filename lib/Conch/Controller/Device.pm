@@ -238,12 +238,12 @@ sub lookup_by_other_attribute ($c) {
     # Now filter the results by what the user is permitted to see. Depending on the size of the
     # initial resultset, this could be slow!
     if (not $c->is_system_admin) {
-        my $device_in_workspace_or_build_rs = $device_rs
+        my $device_in_build_rs = $device_rs
             ->with_user_role($c->stash('user_id'), 'ro');
 
         my $device_via_relay_rs = $device_rs
             ->devices_reported_by_user_relay($c->stash('user_id'));
-        $device_rs = $device_in_workspace_or_build_rs->union($device_via_relay_rs);
+        $device_rs = $device_in_build_rs->union($device_via_relay_rs);
     }
 
     my @devices = $device_rs
@@ -450,7 +450,7 @@ sub set_build ($c) {
     return $c->status(204) if $device->build_id and $device->build_id eq $input->{build_id};
 
     if (not $c->is_system_admin) {
-        # TODO: once workspaces are removed, this check should be redundant
+        # this check is not redundant with find_device, because of relay connections
         if ($device->build_id and not $device->related_resultset('build')->user_has_role($c->stash('user_id'), 'rw')) {
             $c->log->debug('User lacks the required role (rw) for existing build '.$device->build_id);
             return $c->status(403);

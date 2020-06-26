@@ -24,14 +24,6 @@ Conch-specific commands are:
 
     check all validations and validation plans
 
-- [check\_workspace\_racks](../modules/Conch%3A%3ACommand%3A%3Acheck_workspace_racks)
-
-    verify the integrity of all workspace\_rack rows
-
-- [clean\_roles](../modules/Conch%3A%3ACommand%3A%3Aclean_roles)
-
-    Clean up unnecessary user\_workspace\_role entries
-
 - [copy\_user\_data](../modules/Conch%3A%3ACommand%3A%3Acopy_user_data)
 
     Copy user records and authentication tokens between databases
@@ -67,14 +59,6 @@ Conch-specific commands are:
 - [update\_validation\_plans](../modules/Conch%3A%3ACommand%3A%3Aupdate_validation_plans)
 
     bring validation\_plans up to date with new versions of all validations
-
-- [workspace\_to\_build](../modules/Conch%3A%3ACommand%3A%3Aworkspace_to_build)
-
-    convert workspace content to a build
-
-- [workspaces](../modules/Conch%3A%3ACommand%3A%3Aworkspaces)
-
-    View all workspaces in their heirarchical order
 
 ## LICENSING
 

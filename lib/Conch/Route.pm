@@ -7,7 +7,6 @@ use feature 'current_sub';
 
 use Conch::UUID;
 use Conch::Route::JSONSchema;
-use Conch::Route::Workspace;
 use Conch::Route::Device;
 use Conch::Route::DeviceReport;
 use Conch::Route::Relay;
@@ -127,9 +126,6 @@ Returns the root node.
     # * /json_schema/...
     Conch::Route::JSONSchema->unsecured_routes($root->any('/json_schema'));
 
-    # GET /workspace/:workspace/device-totals
-    $root->get('/workspace/:workspace/device-totals')->to('workspace_device#device_totals', deprecated => 'v3.1');
-
     # all routes after this point require authentication
 
     my $secured = $root->under('/')->to('login#authenticate');
@@ -143,7 +139,6 @@ Returns the root node.
     # POST /refresh_token
     $secured->post('/refresh_token')->to('login#refresh_token');
 
-    Conch::Route::Workspace->routes($secured->any('/workspace')->to(deprecated => 'v3.1'));
     Conch::Route::Device->routes($secured->any('/device'), $app);
     Conch::Route::DeviceReport->routes($secured->any('/device_report'));
     Conch::Route::Relay->routes($secured->any('/relay'));
@@ -171,7 +166,7 @@ Returns the root node.
     }
 
     my @top_level_paths = (uniqstr (map find_paths($_), $root->children->@*),
-        qw(validation));
+        qw(validation workspace));
 
     $root->any('/*all', sub ($c) {
         $c->log->warn('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
@@ -196,8 +191,7 @@ __END__
 
 Unless otherwise specified, all routes require authentication.
 
-Full access is granted to system admin users, regardless of workspace, build or other role
-entries.
+Full access is granted to system admin users, regardless of build or other role entries.
 
 Successful (HTTP 2xx code) response structures are as described for each endpoint.
 
@@ -254,22 +248,6 @@ Error responses will use:
 =item * Request: F<request.yaml#/definitions/Null>
 
 =item * Response: C<204 No Content>
-
-=back
-
-=head2 C<GET /workspace/:workspace/device-totals>
-
-=head2 C<GET /workspace/:workspace/device-totals.circ>
-
-All C</workspace> routes are deprecated and will be removed in Conch API v3.1.
-
-=over 4
-
-=item * Does not require authentication.
-
-=item * Response: F<response.yaml#/definitions/DeviceTotals>
-
-=item * Response (Circonus): F<response.yaml#/definitions/DeviceTotalsCirconus>
 
 =back
 
@@ -336,12 +314,6 @@ See L<Conch::Route::ValidationPlan/routes>
 =head2 C<* /validation_state>
 
 See L<Conch::Route::ValidationState/routes>
-
-=head2 C<* /workspace>
-
-See L<Conch::Route::Workspace/routes>.
-
-All C</workspace> routes are deprecated and will be removed in Conch API v3.1.
 
 =head1 LICENSING
 

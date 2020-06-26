@@ -631,19 +631,6 @@ CREATE TABLE public.user_setting (
 ALTER TABLE public.user_setting OWNER TO conch;
 
 --
--- Name: user_workspace_role; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.user_workspace_role (
-    user_id uuid NOT NULL,
-    workspace_id uuid NOT NULL,
-    role public.role_enum DEFAULT 'ro'::public.role_enum NOT NULL
-);
-
-
-ALTER TABLE public.user_workspace_role OWNER TO conch;
-
---
 -- Name: validation; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -737,32 +724,6 @@ CREATE TABLE public.validation_state_member (
 
 
 ALTER TABLE public.validation_state_member OWNER TO conch;
-
---
--- Name: workspace; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.workspace (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name text NOT NULL,
-    description text,
-    parent_workspace_id uuid
-);
-
-
-ALTER TABLE public.workspace OWNER TO conch;
-
---
--- Name: workspace_rack; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.workspace_rack (
-    workspace_id uuid NOT NULL,
-    rack_id uuid NOT NULL
-);
-
-
-ALTER TABLE public.workspace_rack OWNER TO conch;
 
 --
 -- Name: build build_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
@@ -1061,14 +1022,6 @@ ALTER TABLE ONLY public.user_setting
 
 
 --
--- Name: user_workspace_role user_workspace_role_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_workspace_role
-    ADD CONSTRAINT user_workspace_role_pkey PRIMARY KEY (user_id, workspace_id);
-
-
---
 -- Name: validation validation_name_version_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1138,30 +1091,6 @@ ALTER TABLE ONLY public.validation_state_member
 
 ALTER TABLE ONLY public.validation_state
     ADD CONSTRAINT validation_state_pkey PRIMARY KEY (id);
-
-
---
--- Name: workspace workspace_name_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace
-    ADD CONSTRAINT workspace_name_key UNIQUE (name);
-
-
---
--- Name: workspace workspace_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace
-    ADD CONSTRAINT workspace_pkey PRIMARY KEY (id);
-
-
---
--- Name: workspace_rack workspace_rack_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_rack
-    ADD CONSTRAINT workspace_rack_pkey PRIMARY KEY (workspace_id, rack_id);
 
 
 --
@@ -1452,13 +1381,6 @@ CREATE UNIQUE INDEX user_setting_user_id_name_idx ON public.user_setting USING b
 
 
 --
--- Name: user_workspace_role_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX user_workspace_role_workspace_id_idx ON public.user_workspace_role USING btree (workspace_id);
-
-
---
 -- Name: validation_module_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1519,27 +1441,6 @@ CREATE INDEX validation_state_hardware_product_id_idx ON public.validation_state
 --
 
 CREATE INDEX validation_state_member_validation_result_id_idx ON public.validation_state_member USING btree (validation_result_id);
-
-
---
--- Name: workspace_parent_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE UNIQUE INDEX workspace_parent_id_idx ON public.workspace USING btree (((parent_workspace_id IS NULL))) WHERE (parent_workspace_id IS NULL);
-
-
---
--- Name: workspace_parent_workspace_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX workspace_parent_workspace_id_idx ON public.workspace USING btree (parent_workspace_id);
-
-
---
--- Name: workspace_rack_rack_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX workspace_rack_rack_id_idx ON public.workspace_rack USING btree (rack_id);
 
 
 --
@@ -1783,22 +1684,6 @@ ALTER TABLE ONLY public.user_setting
 
 
 --
--- Name: user_workspace_role user_workspace_role_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_workspace_role
-    ADD CONSTRAINT user_workspace_role_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.user_account(id);
-
-
---
--- Name: user_workspace_role user_workspace_role_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.user_workspace_role
-    ADD CONSTRAINT user_workspace_role_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspace(id);
-
-
---
 -- Name: validation_plan_member validation_plan_member_validation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1868,30 +1753,6 @@ ALTER TABLE ONLY public.validation_state_member
 
 ALTER TABLE ONLY public.validation_state_member
     ADD CONSTRAINT validation_state_member_validation_state_id_fkey FOREIGN KEY (validation_state_id) REFERENCES public.validation_state(id) ON DELETE CASCADE;
-
-
---
--- Name: workspace workspace_parent_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace
-    ADD CONSTRAINT workspace_parent_workspace_id_fkey FOREIGN KEY (parent_workspace_id) REFERENCES public.workspace(id);
-
-
---
--- Name: workspace_rack workspace_rack_rack_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_rack
-    ADD CONSTRAINT workspace_rack_rack_id_fkey FOREIGN KEY (rack_id) REFERENCES public.rack(id) ON DELETE CASCADE;
-
-
---
--- Name: workspace_rack workspace_rack_workspace_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.workspace_rack
-    ADD CONSTRAINT workspace_rack_workspace_id_fkey FOREIGN KEY (workspace_id) REFERENCES public.workspace(id);
 
 
 --
@@ -2070,13 +1931,6 @@ GRANT SELECT ON TABLE public.user_setting TO conch_read_only;
 
 
 --
--- Name: TABLE user_workspace_role; Type: ACL; Schema: public; Owner: conch
---
-
-GRANT SELECT ON TABLE public.user_workspace_role TO conch_read_only;
-
-
---
 -- Name: TABLE validation; Type: ACL; Schema: public; Owner: conch
 --
 
@@ -2116,20 +1970,6 @@ GRANT SELECT ON TABLE public.validation_state TO conch_read_only;
 --
 
 GRANT SELECT ON TABLE public.validation_state_member TO conch_read_only;
-
-
---
--- Name: TABLE workspace; Type: ACL; Schema: public; Owner: conch
---
-
-GRANT SELECT ON TABLE public.workspace TO conch_read_only;
-
-
---
--- Name: TABLE workspace_rack; Type: ACL; Schema: public; Owner: conch
---
-
-GRANT SELECT ON TABLE public.workspace_rack TO conch_read_only;
 
 
 --

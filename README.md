@@ -87,7 +87,6 @@ parameters.
 # Edit compose file for desired release
 docker-compose up -d postgres # initialize the postgres database
 docker-compose run --rm web bin/conch-db all --username conch --email conch@example.com --password kaewee3hipheem8BaiHoo6waed7pha
-docker-compose run --rm web bin/conch-db create-global-workspace
 docker-compose up -d
 ```
 

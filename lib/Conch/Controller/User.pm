@@ -347,26 +347,16 @@ sub get ($c) {
     my ($user) = $c->db_user_accounts
         ->search({ 'user_account.id' => $c->stash('target_user')->id })
         ->prefetch({
-                user_workspace_roles => 'workspace',
                 user_organization_roles => { organization => {
                         organization_build_roles => 'build',
                     } },
                 user_build_roles => 'build',
             })
         # no need to filter out deactivated rows here, as the *_roles rows will be removed
-        ->order_by([ map $_.'.name', qw(workspace organization build) ])
+        ->order_by([ map $_.'.name', qw(organization build) ])
         ->all;
 
-    return $c->status(200, $user) if $c->is_system_admin;
-
-    my $user_data = $user->TO_JSON;
-    my %workspace_ids; @workspace_ids{map $_->{id}, $user_data->{workspaces}->@*} = ();
-    foreach my $ws ($user_data->{workspaces}->@*) {
-        undef $ws->{parent_workspace_id}
-            if $ws->{parent_workspace_id} and not exists $workspace_ids{$ws->{parent_workspace_id}};
-    }
-
-    return $c->status(200, $user_data);
+    return $c->status(200, $user);
 }
 
 =head2 update
@@ -509,7 +499,7 @@ Optionally takes a query parameter C<clear_tokens> (defaulting to true), to also
 session tokens for the user, which would force all tools to log in again should the account be
 reactivated (for which there is no api endpoint at present).
 
-All memberships in workspaces, organizations and builds are removed and are not recoverable.
+All memberships in organizations and builds are removed and are not recoverable.
 
 Response uses the UserError json schema on some error conditions.
 
@@ -550,19 +540,14 @@ sub deactivate ($c) {
     my $builds = join(', ', map $_->{build}{name}.' ('.$_->{role}.')',
         $user->search_related('user_build_roles', undef, { join => 'build' })
             ->columns([ qw(build.name role) ])->hri->all);
-    my $workspaces = join(', ', map $_->{workspace}{name}.' ('.$_->{role}.')',
-        $user->search_related('user_workspace_roles', undef, { join => 'workspace' })
-            ->columns([ qw(workspace.name role) ])->hri->all);
 
     $c->log->warn('user '.$c->stash('user')->name.' deactivating user '.$user->name
         .($organizations ? ', member of organizations: '.$organizations : '')
-        .($builds ? ', member of builds: '.$builds : '')
-        .($workspaces ? ', direct member of workspaces: '.$workspaces : ''));
+        .($builds ? ', member of builds: '.$builds : ''));
     $user->update({ password => Authen::Passphrase::RejectAll->new, deactivated => \'now()' });
 
     $user->delete_related('user_organization_roles');
     $user->delete_related('user_build_roles');
-    $user->delete_related('user_workspace_roles');
 
     if ($params->{clear_tokens} // 1) {
         $c->log->warn('user '.$c->stash('user')->name.' deleting all user session tokens for user '.$user->name);

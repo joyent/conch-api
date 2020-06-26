@@ -217,7 +217,6 @@ subtest 'User' => sub {
                     (map +($_ => $organization->$_), qw(id name description)),
                     role => 'admin',
                 } ],
-                workspaces => [],
                 builds => [
                     { (map +($_ => $build1->$_), qw(id name description)), role => 'rw', role_via_organization_id => $organization->id },
                     { (map +($_ => $build2->$_), qw(id name description)), role => 'ro', role_via_organization_id => $organization->id },
@@ -251,7 +250,6 @@ subtest 'User' => sub {
             force_password_change => JSON::PP::false,
             is_admin => JSON::PP::true,
             organizations => [],
-            workspaces => [],
             builds => [],
         });
     $super_user_data = $t_super->tx->res->json;
@@ -332,7 +330,6 @@ subtest 'User' => sub {
             ->json_cmp_deeply({
                 $user_detailed->%*,
                 refuse_session_auth => bool(1),
-                workspaces => [],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -346,7 +343,6 @@ subtest 'User' => sub {
             ->json_cmp_deeply({
                 $user_detailed->%*,
                 refuse_session_auth => bool(1),
-                workspaces => [],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -375,7 +371,6 @@ subtest 'User' => sub {
         ->json_schema_is('UserDetailed')
         ->json_cmp_deeply({
             $user_detailed->%*,
-            workspaces => [],
             last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         });
@@ -420,7 +415,6 @@ subtest 'User' => sub {
             ->json_cmp_deeply({
                 $user_detailed->%*,
                 refuse_session_auth => bool(1),
-                workspaces => [],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -710,7 +704,6 @@ subtest 'modify another user' => sub {
             force_password_change => JSON::PP::true,
             is_admin => JSON::PP::false,
             organizations => [],
-            workspaces => [],
             builds => [],
         }, 'returned all the right fields (and not the password)');
 

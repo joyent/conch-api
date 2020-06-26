@@ -137,7 +137,7 @@ Accepts the following optional query parameters:
 ### `POST /build/:build_id_or_name/device`
 
 - Requires system admin authorization, or the read/write role on the build and the
-read-write role on existing device(s) (via a workspace or build; see
+read-only role on the device (via a build or a relay registration, see
 ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
 - Controller/Action: ["create\_and\_add\_devices" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#create_and_add_devices)
 - Request: [request.json#/definitions/BuildCreateDevices](../json-schema/request.json#/definitions/BuildCreateDevices)
@@ -146,7 +146,7 @@ read-write role on existing device(s) (via a workspace or build; see
 ### `POST /build/:build_id_or_name/device/:device_id_or_serial_number`
 
 - Requires system admin authorization, or the read/write role on the build and the
-read-write role on the device (via a workspace or build; see ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
+read-write role on the device (via a build; see ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
 - Controller/Action: ["add\_device" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_device)
 - Response: `204 No Content`
 
@@ -164,14 +164,15 @@ Accepts the following optional query parameters:
 (can be used more than once)
 - `ids_only=1` only return rack IDs, not full rack details
 
-- Requires system admin authorization or the read-only role on the build
+- Requires system admin authorization, or the read/write role on the build and the
+read-only role on a build that contains the rack
 - Controller/Action: ["get\_racks" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_racks)
 - Response: one of [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks) or [response.json#/definitions/RackIds](../json-schema/response.json#/definitions/RackIds)
 
 ### `POST /build/:build_id_or_name/rack/:rack_id_or_name`
 
 - Requires system admin authorization, or the read/write role on the build and the
-read-write role on a workspace or build that contains the rack
+read-write role on a build that contains the rack
 - Controller/Action: ["add\_rack" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_rack)
 - Response: `204 No Content`
 

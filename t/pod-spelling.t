@@ -68,11 +68,8 @@ sku
 subref
 subselect
 subtest
-subworkspace
 timestamptz
 TODO
 unstarted
 validator
 VLAN
-workspace
-workspaces

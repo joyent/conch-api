@@ -16,9 +16,8 @@ All routes require authentication.
 
 The user's role (required for most endpoints) is determined by the build the device is
 contained in (where users are assigned a [role](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserBuildRole#role) in that
-build), and the rack location of the device and the workspace(s) or build the rack is contained
-in (where users are assigned a [role](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserBuildRole#role) in that build and
-a [role](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserWorkspaceRole#role) in that workspace).
+build), and the rack location of the device and the build the rack is contained in (where users
+are assigned a [role](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserBuildRole#role) in that build).
 
 Full (admin-level) access is also granted to a device if a report was sent for that device
 using a relay that registered with that user's credentials.

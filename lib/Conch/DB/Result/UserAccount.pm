@@ -231,21 +231,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 user_workspace_roles
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::UserWorkspaceRole>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_workspace_roles",
-  "Conch::DB::Result::UserWorkspaceRole",
-  { "foreign.user_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 builds
 
 Type: many_to_many
@@ -266,19 +251,9 @@ Composing rels: L</user_organization_roles> -> organization
 
 __PACKAGE__->many_to_many("organizations", "user_organization_roles", "organization");
 
-=head2 workspaces
-
-Type: many_to_many
-
-Composing rels: L</user_workspace_roles> -> workspace
-
-=cut
-
-__PACKAGE__->many_to_many("workspaces", "user_workspace_roles", "workspace");
-
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:mYY3hXrpzC2XLZV001VlZA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Z/W/ZicAAbn2tKnbs6xxBw
 
 use DBIx::Class::PassphraseColumn 0.04 ();
 __PACKAGE__->load_components('PassphraseColumn');
@@ -309,7 +284,7 @@ Because hard cryptography is used, this is B<not> a fast call!
 
 =head2 TO_JSON
 
-Include information about the user's workspaces, organizations and builds, if available.
+Include information about the user's organizations and builds, if available.
 
 =cut
 
@@ -319,11 +294,10 @@ sub TO_JSON ($self) {
     # Mojo::JSON renders \0, \1 as json booleans
     $data->{$_} = \(0+$data->{$_}) for qw(refuse_session_auth force_password_change is_admin);
 
-    # add organization, build and workspace data, if they have been prefetched
+    # add organization and build data, if they have been prefetched
     # (we expect none or all)
     # (see also Conch::DB::Result::Organization::TO_JSON)
-    if (my $cached_uwrs = $self->related_resultset('user_workspace_roles')->get_cache
-        and my $cached_uors = $self->related_resultset('user_organization_roles')->get_cache
+    if (my $cached_uors = $self->related_resultset('user_organization_roles')->get_cache
         and my $cached_ubrs = $self->related_resultset('user_build_roles')->get_cache) {
 
         $data->{organizations} = [
@@ -370,32 +344,6 @@ sub TO_JSON ($self) {
                 $_->organization->related_resultset('organization_build_roles')->get_cache->@*,
                 $cached_uors->@*)
         );
-
-
-        my %seen_workspaces;
-        $data->{workspaces} = [
-            # we process the direct uwr+workspace entries first so we do not produce redundant rows
-            (map {
-                ++$seen_workspaces{$_->workspace->id};
-                +{
-                    $_->workspace->TO_JSON->%*,
-                    role => $_->role,
-                }
-            } $cached_uwrs->@*),
-
-            # all the workspaces the user can reach indirectly
-            (map +(
-                map +(
-                    # $_ is a workspace where the user inherits a role
-                    $seen_workspaces{$_->id}++ ? () : do {
-                        # instruct the workspace serializer to fill in the role fields
-                        $self->is_admin ? $_->role('admin') : $_->user_id_for_role($self->id);
-                        $_->TO_JSON
-                    }
-                ), $self->result_source->schema->resultset('workspace')
-                    ->workspaces_beneath($_->workspace_id)
-            ), $cached_uwrs->@*),
-        ];
     }
 
     return $data;
