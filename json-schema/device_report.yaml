@@ -7,7 +7,7 @@ definitions:
     oneOf:
       - type: integer
       - type: string
-        pattern: "^[0-9]+$"
+        pattern: '^[0-9]+$'
   DeviceReport_v3.0.0:
     description: the contents of a posted device report from relays and reporters
     type: object
@@ -40,7 +40,7 @@ definitions:
                 - type: 'null'
             memory-size:
               oneOf:
-                - $ref: "#/definitions/int_or_stringy_int"
+                - $ref: '#/definitions/int_or_stringy_int'
                 - type: 'null'
       disks:
         type: object
@@ -50,7 +50,7 @@ definitions:
           type: object
           properties:
             slot:
-              $ref: "#/definitions/int_or_stringy_int"
+              $ref: '#/definitions/int_or_stringy_int'
             size:
               type: integer
             vendor:
@@ -66,11 +66,11 @@ definitions:
             drive_type:
               type: string
             temp:
-              $ref: "#/definitions/int_or_stringy_int"
+              $ref: '#/definitions/int_or_stringy_int'
             enclosure:
-              $ref: "#/definitions/int_or_stringy_int"
+              $ref: '#/definitions/int_or_stringy_int'
             hba:
-              $ref: "#/definitions/int_or_stringy_int"
+              $ref: '#/definitions/int_or_stringy_int'
             block_sz:
               type: integer
             # any additional fields are not currently used.
@@ -107,7 +107,7 @@ definitions:
                 - type: 'null'
             mtu:
               oneOf:
-                - $ref: "#/definitions/int_or_stringy_int"
+                - $ref: '#/definitions/int_or_stringy_int'
                 - type: 'null'
             peer_mac:
               oneOf:
@@ -147,13 +147,13 @@ definitions:
           - cpu1
         properties:
           cpu0:
-            $ref: "#/definitions/int_or_stringy_int"
+            $ref: '#/definitions/int_or_stringy_int'
           cpu1:
-            $ref: "#/definitions/int_or_stringy_int"
+            $ref: '#/definitions/int_or_stringy_int'
           exhaust:
-            $ref: "#/definitions/int_or_stringy_int"
+            $ref: '#/definitions/int_or_stringy_int'
           inlet:
-            $ref: "#/definitions/int_or_stringy_int"
+            $ref: '#/definitions/int_or_stringy_int'
       uptime_since:
         type: string
       links:

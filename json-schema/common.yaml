@@ -3,10 +3,10 @@ $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
   uuid:
     type: string
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
   non_zero_uuid:
     allOf:
-      - $ref: "#/definitions/uuid"
+      - $ref: '#/definitions/uuid'
       - not:
           const: 00000000-0000-0000-0000-000000000000
   ipaddr:
@@ -17,7 +17,7 @@ definitions:
         format: ipv6
   macaddr:
     type: string
-    pattern: "^[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}$"
+    pattern: '^[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}$'
   relay_serial_number:
     type: string
     pattern: ^\S+$
@@ -25,7 +25,7 @@ definitions:
     allOf:
       - type: string
         pattern: ^\S+$
-      - $ref: "#/definitions/mojo_standard_placeholder"
+      - $ref: '#/definitions/mojo_standard_placeholder'
   device_asset_tag:
     type: string
     pattern: ^\S+$
@@ -50,9 +50,9 @@ definitions:
     allOf:
       - type: string
         pattern: ^\S+$
-      - $ref: "#/definitions/mojo_relaxed_placeholder"
+      - $ref: '#/definitions/mojo_relaxed_placeholder'
   device_setting_key:
-    $ref: "#/definitions/mojo_relaxed_placeholder"
+    $ref: '#/definitions/mojo_relaxed_placeholder'
   disk_serial_number:
     type: string
     pattern: ^\S+$
@@ -60,7 +60,7 @@ definitions:
     type: string
     pattern: ^[\w-]+$
   user_setting_key:
-    $ref: "#/definitions/mojo_relaxed_placeholder"
+    $ref: '#/definitions/mojo_relaxed_placeholder'
   role:
     description: corresponds to role_enum in the database
     type: string
@@ -87,16 +87,16 @@ definitions:
   mojo_standard_placeholder:
     description: see https://metacpan.org/pod/Mojolicious::Guides::Routing#Standard-placeholders
     type: string
-    pattern: "^[^/.]+$"
+    pattern: '^[^/.]+$'
   mojo_relaxed_placeholder:
     description: see https://metacpan.org/pod/Mojolicious::Guides::Routing#Relaxed-placeholders
     type: string
-    pattern: "^[^/]+$"
+    pattern: '^[^/]+$'
   email_address:
     allOf:
       - type: string
         format: email
-      - $ref: "#/definitions/mojo_relaxed_placeholder"
+      - $ref: '#/definitions/mojo_relaxed_placeholder'
   HardwareProductSpecification:
     description: this is the structure of the hardware_product.specification database column
     type: object

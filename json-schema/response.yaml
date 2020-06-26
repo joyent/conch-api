@@ -33,22 +33,22 @@ definitions:
     properties:
       error:
         type: string
-        pattern: " did not match required format$"
+        pattern: ' did not match required format$'
       details:
         type: array
         uniqueItems: true
         minItems: 1
         items:
-          $ref: "#/definitions/JsonValidationError"
+          $ref: '#/definitions/JsonValidationError'
       schema:
         type: string
         format: uri
-        pattern: "/schema/[^/]+/[^/]+$"
+        pattern: '/schema/[^/]+/[^/]+$'
       data:
         description: any supplementary details will be included here
   QueryParamsValidationError:
     allOf:
-      - $ref: "#/definitions/ValidationError"
+      - $ref: '#/definitions/ValidationError'
       - type: object
         required:
           - data
@@ -56,7 +56,7 @@ definitions:
           error:
             const: query parameters did not match required format
           schema:
-            pattern: "/schema/query_params/[^/]+$"
+            pattern: '/schema/query_params/[^/]+$'
           data:
             description: the parsed form of the query parameters, as they were passed to the schema for validation
             type: object
@@ -74,13 +74,13 @@ definitions:
                       - type: string
   RequestValidationError:
     allOf:
-      - $ref: "#/definitions/ValidationError"
+      - $ref: '#/definitions/ValidationError'
       - type: object
         properties:
           error:
             const: request did not match required format
           schema:
-            pattern: "/schema/request/[^/]+$"
+            pattern: '/schema/request/[^/]+$'
   Ping:
     type: object
     additionalProperties: false
@@ -97,7 +97,7 @@ definitions:
     properties:
       jwt_token:
         type: string
-        pattern: "[^.]+\\.[^.]+\\.[^.]+"
+        pattern: '[^.]+\.[^.]+\.[^.]+'
   DetailedDevice:
     type: object
     additionalProperties: false
@@ -183,7 +183,7 @@ definitions:
       location:
         $comment: location is included only when device 'phase' is earlier than 'production'
         oneOf:
-          - $ref: "#/definitions/DeviceLocation"
+          - $ref: '#/definitions/DeviceLocation'
           - type: 'null'
       nics: # NOTE: see also DeviceNic
         $comment: nics is included only when device 'phase' is earlier than 'production'
@@ -333,7 +333,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/Device"
+      $ref: '#/definitions/Device'
   Device:
     type: object
     additionalProperties: false
@@ -453,10 +453,10 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/DeviceNic"
+      $ref: '#/definitions/DeviceNic'
   DeviceNic:
     allOf:
-      - $ref: "#/definitions/DeviceNicFields"
+      - $ref: '#/definitions/DeviceNicFields'
       - type: object
         required:
           - device_id
@@ -497,7 +497,7 @@ definitions:
           - type: 'null'
   DeviceNicField:
     allOf:
-      - $ref: "#/definitions/DeviceNicFields"
+      - $ref: '#/definitions/DeviceNicFields'
       - type: object
         minProperties: 1
         maxProperties: 1
@@ -521,7 +521,7 @@ definitions:
       location:
         oneOf:
           - type: 'null'
-          - $ref: "#/definitions/DeviceLocation"
+          - $ref: '#/definitions/DeviceLocation'
       ipmi:
         oneOf:
           - type: 'null'
@@ -565,7 +565,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/DevicePXE"
+      $ref: '#/definitions/DevicePXE'
   DevicePhase:
     type: object
     additionalProperties: false
@@ -613,7 +613,7 @@ definitions:
         # (location), where phase_earlier_than would remove the entire result, as well as nullify
         # 'location'
         location:
-          $ref: "#/definitions/DeviceLocation"
+          $ref: '#/definitions/DeviceLocation'
         ipmi:
           oneOf:
             - type: 'null'
@@ -700,7 +700,7 @@ definitions:
             $ref: common.yaml#/definitions/uuid
   DeviceSetting:
     allOf:
-      - $ref: "#/definitions/DeviceSettings"
+      - $ref: '#/definitions/DeviceSettings'
       - type: object
         maxProperties: 1
   DeviceSettings:
@@ -943,7 +943,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/Validation"
+      $ref: '#/definitions/Validation'
   Validation:
     type: object
     additionalProperties: false
@@ -979,7 +979,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/ValidationPlan"
+      $ref: '#/definitions/ValidationPlan'
   ValidationPlan:
     type: object
     additionalProperties: false
@@ -1034,12 +1034,12 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/ValidationResult"
+      $ref: '#/definitions/ValidationResult'
   ValidationStatesWithResults:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/ValidationStateWithResults"
+      $ref: '#/definitions/ValidationStateWithResults'
   ValidationStateWithResults:
     type: object
     additionalProperties: false
@@ -1064,7 +1064,7 @@ definitions:
         type: array
         uniqueItems: true
         items:
-          $ref: "#/definitions/ValidationResult"
+          $ref: '#/definitions/ValidationResult'
       status:
         $ref: common.yaml#/definitions/validation_status
       validation_plan_id:
@@ -1095,7 +1095,7 @@ definitions:
       status:
         $ref: common.yaml#/definitions/validation_status
       results:
-        $ref: "#/definitions/ValidationResults"
+        $ref: '#/definitions/ValidationResults'
   WorkspaceRelays:
     deprecated: true
     type: array
@@ -1204,7 +1204,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/WorkspaceAndRole"
+      $ref: '#/definitions/WorkspaceAndRole'
   WorkspaceUsers:
     deprecated: true
     type: array
@@ -1232,7 +1232,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/Datacenter"
+      $ref: '#/definitions/Datacenter'
   Datacenter:
     type: object
     additionalProperties: false
@@ -1268,7 +1268,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/DatacenterRoomDetailed"
+      $ref: '#/definitions/DatacenterRoomDetailed'
   DatacenterRoomDetailed:
     type: object
     additionalProperties: false
@@ -1302,7 +1302,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/Relay"
+      $ref: '#/definitions/Relay'
   Relay:
     type: object
     additionalProperties: false
@@ -1361,7 +1361,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/Rack"
+      $ref: '#/definitions/Rack'
   Rack:
     type: object
     additionalProperties: false
@@ -1446,12 +1446,12 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/RackRole"
+      $ref: '#/definitions/RackRole'
   RackLayouts:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/RackLayout"
+      $ref: '#/definitions/RackLayout'
   RackLayout:
     type: object
     additionalProperties: false
@@ -1491,7 +1491,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/RackAssignment"
+      $ref: '#/definitions/RackAssignment'
   RackAssignment:
     type: object
     additionalProperties: false
@@ -1616,7 +1616,7 @@ definitions:
       workspaces:
         allOf:
           - deprecated: true
-          - $ref: "#/definitions/WorkspacesAndRoles"
+          - $ref: '#/definitions/WorkspacesAndRoles'
       organizations:
         type: array
         uniqueItems: true
@@ -1667,7 +1667,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-       $ref: "#/definitions/UserDetailed"
+       $ref: '#/definitions/UserDetailed'
   UserSettings:
     type: object
     propertyNames:
@@ -1676,14 +1676,14 @@ definitions:
       type: string
   UserSetting:
     allOf:
-      - $ref: "#/definitions/UserSettings"
+      - $ref: '#/definitions/UserSettings'
       - type: object
         maxProperties: 1
   UserTokens:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/UserToken"
+      $ref: '#/definitions/UserToken'
   UserToken:
     type: object
     additionalProperties: false
@@ -1723,7 +1723,7 @@ definitions:
     properties:
       token:
         type: string
-        pattern: "[^.]+\\.[^.]+\\.[^.]+"
+        pattern: '[^.]+\.[^.]+\.[^.]+'
       created:
         type: string
         format: date-time
@@ -1760,7 +1760,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/HardwareVendor"
+      $ref: '#/definitions/HardwareVendor'
   DeviceTotals:
     type: object
     required:
@@ -1962,7 +1962,7 @@ definitions:
           uniqueItems: true
           minItems: 1
           items:
-            $ref: "#/definitions/UserTerse"
+            $ref: '#/definitions/UserTerse'
         builds:
           type: array
           uniqueItems: true
@@ -2024,11 +2024,11 @@ definitions:
         uniqueItems: true
         minItems: 1
         items:
-          $ref: "#/definitions/UserTerse"
+          $ref: '#/definitions/UserTerse'
       completed_user:
         oneOf:
           - type: 'null'
-          - $ref: "#/definitions/UserTerse"
+          - $ref: '#/definitions/UserTerse'
       device_health:
         type: object
         minProperties: 4
@@ -2057,7 +2057,7 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: "#/definitions/Build"
+      $ref: '#/definitions/Build'
   BuildUsers:
     type: array
     uniqueItems: true
@@ -2112,6 +2112,6 @@ definitions:
           uniqueItems: true
           minItems: 1
           items:
-            $ref: "#/definitions/UserTerse"
+            $ref: '#/definitions/UserTerse'
 
 # vim: set sts=2 sw=2 et :
