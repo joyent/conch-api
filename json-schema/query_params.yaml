@@ -115,6 +115,7 @@ definitions:
       rack_only:
         $ref: "#/definitions/boolean_integer_default_false"
   WorkspaceDevices:
+    deprecated: true
     type: object
     additionalProperties: false
     properties:

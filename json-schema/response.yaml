@@ -592,6 +592,7 @@ definitions:
       sku:
         $ref: common.yaml#/definitions/mojo_standard_placeholder
   WorkspaceDevicePXEs:
+    deprecated: true
     type: array
     uniqueItems: true
     items:
@@ -901,6 +902,7 @@ definitions:
       usb_num:
         type: integer
   WorkspaceRackSummary:
+    deprecated: true
     type: object
     additionalProperties: false
     propertyNames:
@@ -1095,6 +1097,7 @@ definitions:
       results:
         $ref: "#/definitions/ValidationResults"
   WorkspaceRelays:
+    deprecated: true
     type: array
     uniqueItems: true
     items:
@@ -1170,6 +1173,7 @@ definitions:
         num_devices:
           $ref: common.yaml#/definitions/positive_integer
   WorkspaceAndRole:
+    deprecated: true
     type: object
     additionalProperties: false
     required:
@@ -1196,11 +1200,13 @@ definitions:
       role_via_workspace_id:
         $ref: common.yaml#/definitions/uuid
   WorkspacesAndRoles:
+    deprecated: true
     type: array
     uniqueItems: true
     items:
       $ref: "#/definitions/WorkspaceAndRole"
   WorkspaceUsers:
+    deprecated: true
     type: array
     uniqueItems: true
     items:
@@ -1608,7 +1614,9 @@ definitions:
       is_admin:
         type: boolean
       workspaces:
-        $ref: "#/definitions/WorkspacesAndRoles"
+        allOf:
+          - deprecated: true
+          - $ref: "#/definitions/WorkspacesAndRoles"
       organizations:
         type: array
         uniqueItems: true
