@@ -16,17 +16,8 @@ my $global_ws_id = $t->load_fixture('admin_user_global_workspace')->workspace_id
 
 $t->authenticate(email => $null_user->email);
 
-$t->get_ok('/workspace/'.$global_ws_id.'/relay')
-    ->status_is(403)
-    ->log_debug_is('User lacks the required role (ro) for workspace '.$global_ws_id);
-
 my $t_super = Test::Conch->new(pg => $t->pg);
 $t_super->authenticate(email => $super_user->email);
-
-$t_super->get_ok('/workspace/'.$global_ws_id.'/relay')
-    ->status_is(200)
-    ->json_schema_is('WorkspaceRelays')
-    ->json_is([]);
 
 # two workspaces under GLOBAL, each with a room,rack and layout.
 $t->load_fixture_set('workspace_room_rack_layout', $_) for 0..1;
@@ -244,132 +235,6 @@ $t->app->db_device_relay_connections->create($_) foreach (
         last_seen => '2018-01-04',      # <-- latest known location for relay1
     },
 );
-
-# update relay last_seen to match our doctored values
-$relay0->update({ last_seen => '2018-01-02' });
-$relay1->update({ last_seen => '2018-01-04' });
-
-subtest list => sub {
-    # the global workspace can see all relays, by virtue of all racks being in the global workspace
-    # and we connected the relays to devices located in a rack.
-    $t_super->get_ok("/workspace/$global_ws_id/relay")
-        ->status_is(200)
-        ->json_schema_is('WorkspaceRelays')
-        ->json_cmp_deeply([
-            {
-                id => $relay0->id,
-                serial_number => 'relay0',
-                name => 'relay_number_0',
-                version => 'v2.0',
-                ipaddr  => '192.168.0.2',
-                ssh_port => 123,
-                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-                updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-                location => {
-                    $rack_layouts[1][2]->%{qw(rack_id rack_unit_start)},
-                    rack_name => 'rack.1a',
-                    rack_role_name => 'rack_role 42U',
-                    az => 'room-1a',
-                },
-                last_seen => '2018-01-02T00:00:00.000Z',
-                user_id => $null_user->id,
-                num_devices => 2,
-            },
-            {
-                id => $relay1->id,
-                serial_number => 'relay1',
-                name => 'relay_number_1',
-                version => 'v1.1',
-                ipaddr  => '192.168.1.2',
-                ssh_port => 123,
-                created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-                updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-                location => {
-                    $rack_layouts[0][0]->%{qw(rack_id rack_unit_start)},
-                    rack_name => 'rack.0a',
-                    rack_role_name => 'rack_role 42U',
-                    az => 'room-0a',
-                },
-                last_seen => '2018-01-04T00:00:00.000Z',
-                user_id => $null_user->id,
-                num_devices => 3,
-            },
-        ]);
-
-    my $all_relays = $t_super->tx->res->json;
-
-    $t_super->get_ok("/workspace/$workspace_ids[0]/relay")
-        ->status_is(200)
-        ->json_schema_is('WorkspaceRelays')
-        ->json_is('', [ $all_relays->[1] ], 'this workspace can only see relay1');
-
-    $t_super->get_ok("/workspace/$workspace_ids[1]/relay")
-        ->status_is(200)
-        ->json_schema_is('WorkspaceRelays')
-        ->json_is('', [ $all_relays->[0] ], 'this workspace can only see relay0');
-
-
-    # calculate how many minutes it's been since that last relay updated
-    my $elapsed_minutes =
-        int((Conch::Time->now->epoch - Conch::Time->new('2018-01-04T00:00:00.000Z')->epoch) / 60) + 2;
-
-    $t_super->get_ok("/workspace/$global_ws_id/relay?active_minutes=$elapsed_minutes")
-        ->status_is(200)
-        ->json_schema_is('WorkspaceRelays')
-        ->json_is('', [ $all_relays->[1] ],
-            'X minutes after last update, active_minutes=X+2 only sees one relay');
-};
-
-my $relay0_id = $relay0->id;
-my $relay1_id = $relay1->id;
-
-subtest get_relay_devices => sub {
-    $t_super->get_ok("/workspace/$global_ws_id/relay/$relay0_id/device")
-        ->status_is(200)
-        ->json_schema_is('Devices')
-        ->json_cmp_deeply('', [
-            superhashof({ id => $devices[0]->id }),
-            superhashof({ id => $devices[5]->id }),
-        ]);
-
-    $t_super->get_ok("/workspace/$global_ws_id/relay/$relay1_id/device")
-        ->status_is(200)
-        ->json_schema_is('Devices')
-        ->json_cmp_deeply([
-            superhashof({ id => $devices[0]->id }),
-            superhashof({ id => $devices[2]->id }),
-            superhashof({ id => $devices[4]->id }),
-        ]);
-
-    $t_super->get_ok("/workspace/$workspace_ids[0]/relay/$relay0_id/device")
-        ->status_is(200)
-        ->json_schema_is('Devices')
-        ->json_cmp_deeply([
-            superhashof({ id => $devices[0]->id }),
-        ]);
-
-    $t_super->get_ok("/workspace/$workspace_ids[0]/relay/$relay1_id/device")
-        ->status_is(200)
-        ->json_schema_is('Devices')
-        ->json_cmp_deeply([
-            superhashof({ id => $devices[0]->id }),
-            superhashof({ id => $devices[2]->id }),
-        ]);
-
-    $t_super->get_ok("/workspace/$workspace_ids[1]/relay/$relay0_id/device")
-        ->status_is(200)
-        ->json_schema_is('Devices')
-        ->json_cmp_deeply([
-            superhashof({ id => $devices[5]->id }),
-        ]);
-
-    $t_super->get_ok("/workspace/$workspace_ids[1]/relay/$relay1_id/device")
-        ->status_is(200)
-        ->json_schema_is('Devices')
-        ->json_cmp_deeply([
-            superhashof({ id => $devices[4]->id }),
-        ]);
-};
 
 subtest delete => sub {
     $t->delete_ok('/relay/'.$relay0->id)
