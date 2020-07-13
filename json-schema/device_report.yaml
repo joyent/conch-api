@@ -2,13 +2,11 @@
 $schema: 'https://json-schema.org/draft/2019-09/schema'
 $defs:
   int_or_stringy_int:
-    description: an integer that may be presented as a json string
-    oneOf:
-      - type: integer
-      - type: string
-        pattern: '^[0-9]+$'
+    $comment: an integer that may be presented as a json string
+    type: [ integer, string ]
+    pattern: '^[0-9]+$'
   DeviceReport_v3_0_0:
-    description: the contents of a posted device report from relays and reporters
+    $comment: the contents of a posted device report from relays and reporters
     type: object
     required:
       - bios_version
@@ -74,7 +72,6 @@ $defs:
               type: integer
             # any additional fields are not currently used.
       device_type:
-        type: string
         enum:
           - server
           - switch
@@ -97,9 +94,7 @@ $defs:
             vendor:
               type: string
             state:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             ipaddr:
               oneOf:
                 - $ref: common.yaml#/$defs/ipaddr
@@ -156,8 +151,7 @@ $defs:
       uptime_since:
         type: string
       links:
-        allOf:
-          - $ref: common.yaml#/$defs/links
-          - minItems: 1
+        $ref: common.yaml#/$defs/links
+        minItems: 1
 
 # vim: set sts=2 sw=2 et :

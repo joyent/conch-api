@@ -116,8 +116,7 @@
             "none",
             "login_only",
             "all"
-          ],
-          "type" : "string"
+          ]
         }
       },
       "type" : "object"
@@ -129,6 +128,7 @@
       "additionalProperties" : true,
       "properties" : {
         "phase_earlier_than" : {
+          "$comment" : "usually defaults to 'production'",
           "oneOf" : [
             {
               "const" : ""
@@ -227,11 +227,11 @@
       "type" : "object"
     },
     "NotifyUsers" : {
+      "$comment" : "used for operations where email can optionally be sent",
       "additionalProperties" : false,
       "default" : {
         "send_mail" : "1"
       },
-      "description" : "used for operations where email can optionally be sent",
       "properties" : {
         "send_mail" : {
           "$ref" : "#/$defs/boolean_string"
@@ -263,8 +263,7 @@
             "none",
             "login_only",
             "all"
-          ],
-          "type" : "string"
+          ]
         },
         "send_mail" : {
           "$ref" : "#/$defs/boolean_string"
@@ -342,18 +341,16 @@
       "type" : "string"
     },
     "boolean_string_or_flag" : {
-      "description" : "\"?foo\" and \"?foo=1\" are true; \"?foo=0\" is false",
-      "oneOf" : [
-        {
-          "const" : ""
-        },
-        {
-          "$ref" : "#/$defs/boolean_string"
-        }
-      ]
+      "$comment" : "\"?foo\" and \"?foo=1\" are true; \"?foo=0\" is false",
+      "enum" : [
+        "",
+        "0",
+        "1"
+      ],
+      "type" : "string"
     },
     "non_negative_integer_string" : {
-      "description" : "see common.json#/$defs/non_negative_integer",
+      "$comment" : "see common.json#/$defs/non_negative_integer",
       "pattern" : "^[0-9]+$",
       "type" : "string"
     }

@@ -106,10 +106,10 @@ $t->get_ok('/json_schema/request/Login')
             uuid => superhashof({
               '$id' => '/json_schema/common/uuid',
             }),
-            email_address => {
+            email_address => superhashof({
               '$id' => '/json_schema/common/email_address',
-              allOf => supersetof({ '$ref' => '/json_schema/common/mojo_relaxed_placeholder' }),
-            },
+              '$ref' => '/json_schema/common/mojo_relaxed_placeholder',
+            }),
             mojo_relaxed_placeholder => superhashof({ '$id' => '/json_schema/common/mojo_relaxed_placeholder' }),
         },
         default => { set_session => bool(0) },
@@ -131,7 +131,7 @@ $t->get_ok('/json_schema/query_params/ResetUserPassword')
         type => 'object',
         additionalProperties => bool(0),
         properties => {
-            clear_tokens => { type => 'string', enum => [ qw(none login_only all) ] },
+            clear_tokens => { enum => [ qw(none login_only all) ] },
             send_mail => { '$ref' => '/json_schema/query_params/boolean_string' },
         },
         default => {
@@ -169,7 +169,7 @@ $t->get_ok('/json_schema/request/DeviceReport')
         '$ref' => '/json_schema/device_report/DeviceReport_v3_0_0',
         '$defs' => superhashof({
             'DeviceReport_v3_0_0' => superhashof({
-                description => ignore,
+                '$comment' => ignore,
                 '$id' => '/json_schema/device_report/DeviceReport_v3_0_0',
                 properties => superhashof({}),
                 required => superbagof(),
@@ -184,10 +184,8 @@ $t->get_ok('/json_schema/common/non_zero_uuid')
     ->json_cmp_deeply({
         '$id' => $base_uri.'json_schema/common/non_zero_uuid',
         '$schema' => SPEC_URL,
-        allOf => [
-            { '$ref' => '/json_schema/common/uuid' },
-            { not => { const => '00000000-0000-0000-0000-000000000000' } },
-        ],
+        '$ref' => '/json_schema/common/uuid',
+        not => { const => '00000000-0000-0000-0000-000000000000' },
         '$defs' => {
             uuid => {
                 '$id' => '/json_schema/common/uuid',
@@ -203,7 +201,7 @@ $t->get_ok('/json_schema/device_report/DeviceReport_v3_0_0')
     ->json_cmp_deeply({
         '$id' => $base_uri.'json_schema/device_report/DeviceReport_v3_0_0',
         '$schema' => SPEC_URL,
-        description => ignore,
+        '$comment' => ignore,
         type => 'object',
         required => ignore,
         properties => superhashof({}),

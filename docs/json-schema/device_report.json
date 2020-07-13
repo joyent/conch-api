@@ -2,7 +2,7 @@
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/device_report/$schema_name' endpoints, or within conch itself, json-schema/device_report.yaml.",
   "$defs" : {
     "DeviceReport_v3_0_0" : {
-      "description" : "the contents of a posted device report from relays and reporters",
+      "$comment" : "the contents of a posted device report from relays and reporters",
       "properties" : {
         "bios_version" : {
           "type" : "string"
@@ -17,8 +17,7 @@
           "enum" : [
             "server",
             "switch"
-          ],
-          "type" : "string"
+          ]
         },
         "dimms" : {
           "items" : {
@@ -142,13 +141,9 @@
                 "type" : "string"
               },
               "state" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "vendor" : {
@@ -168,14 +163,8 @@
           "type" : "object"
         },
         "links" : {
-          "allOf" : [
-            {
-              "$ref" : "common.json#/$defs/links"
-            },
-            {
-              "minItems" : 1
-            }
-          ]
+          "$ref" : "common.json#/$defs/links",
+          "minItems" : 1
         },
         "os" : {
           "properties" : {
@@ -246,15 +235,11 @@
       "type" : "object"
     },
     "int_or_stringy_int" : {
-      "description" : "an integer that may be presented as a json string",
-      "oneOf" : [
-        {
-          "type" : "integer"
-        },
-        {
-          "pattern" : "^[0-9]+$",
-          "type" : "string"
-        }
+      "$comment" : "an integer that may be presented as a json string",
+      "pattern" : "^[0-9]+$",
+      "type" : [
+        "integer",
+        "string"
       ]
     }
   },

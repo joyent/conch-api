@@ -15,6 +15,7 @@
                   "additionalProperties" : false,
                   "properties" : {
                     "trace" : {
+                      "$anchor" : "trace",
                       "additionalProperties" : false,
                       "properties" : {
                         "exception" : {
@@ -147,8 +148,7 @@
                 "warning",
                 "info",
                 "debug"
-              ],
-              "type" : "string"
+              ]
             },
             "notifier" : {
               "additionalProperties" : false,
@@ -233,7 +233,8 @@
               "type" : "integer"
             },
             "uuid" : {
-              "$ref" : "common.json#/$defs/uuid"
+              "format" : "uuid",
+              "type" : "string"
             }
           },
           "required" : [

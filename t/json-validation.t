@@ -89,10 +89,10 @@ subtest '/device/:id/interface/:iface_name/:field validation' => sub {
             valid => bool(0),
             errors => [
                 {
-                    instanceLocation => '',
-                    keywordLocation => '/allOf/2/not',
-                    absoluteKeywordLocation => 'response.yaml#/$defs/DeviceNicField/allOf/2/not',
-                    error => 'subschema is valid',
+                    instanceLocation => '/device_id',
+                    keywordLocation => '/properties/device_id',
+                    absoluteKeywordLocation => 'response.yaml#/$defs/DeviceNicField/properties/device_id',
+                    error => 'property not permitted',
                 },
             ],
         },
@@ -106,7 +106,7 @@ subtest '/device/:id/interface/:iface_name/:field validation' => sub {
             errors => [
                 {
                     instanceLocation => '/created',
-                    keywordLocation => '/allOf/0/$ref/additionalProperties',
+                    keywordLocation => '/$ref/additionalProperties',
                     absoluteKeywordLocation => 'response.yaml#/$defs/DeviceNicFields/additionalProperties',
                     error => 'additional property not permitted',
                 },
@@ -132,8 +132,8 @@ subtest 'device report validation' => sub {
             errors => [
                 {
                     instanceLocation => '',
-                    keywordLocation => '/$ref/allOf/1/not',
-                    absoluteKeywordLocation => 'common.yaml#/$defs/non_zero_uuid/allOf/1/not',
+                    keywordLocation => '/$ref/not',
+                    absoluteKeywordLocation => 'common.yaml#/$defs/non_zero_uuid/not',
                     error => 'subschema is valid',
                 },
             ],
@@ -199,45 +199,25 @@ subtest '*Error response schemas' => sub {
     my $defs = $validator->get('response.yaml#/$defs');
 
     my $schema = {
-        anyOf => [
-            {
-                required => [ '$ref' ],
-                properties => {
-                    '$ref' => { const => '#/$defs/ValidationError' },
-                },
-            },
-            {
+        type => 'object',
+        required => [ 'type', 'required', 'properties' ],
+        properties => {
+            type => { const => 'object' },
+            required => { contains => { const => 'error' } },
+            properties => { # the literal key /properties
                 type => 'object',
-                required => [ 'type', 'required', 'properties' ],
+                required => [ 'error' ],
                 properties => {
-                    type => { const => 'object' },
-                    required => { contains => { const => 'error' } },
-                    properties => { # the literal key /properties
+                    error => {  # the literal key /properties/error
                         type => 'object',
-                        required => [ 'error' ],
+                        required => [ 'type' ],
                         properties => {
-                            error => {  # the literal key /properties/error
-                                type => 'object',
-                                required => [ 'type' ],
-                                properties => {
-                                    type => { const => 'string' },  # /properties/error/type
-                                },
-                            },
+                            type => { const => 'string' },  # /properties/error/type
                         },
                     },
-                }
-            },
-            {
-                type => 'object',
-                propertyNames => { const => 'allOf' },
-                properties => {
-                    allOf => {  # /allOf/*
-                        type => 'array',
-                        items => { '$ref' => '#' },   # the original base schema
-                    },
                 },
-            }
-        ],
+            },
+        },
     };
 
     foreach my $schema_name (sort grep /Error$/, keys $defs->%*) {

@@ -5,16 +5,14 @@ $defs:
     type: string
     pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
   non_zero_uuid:
-    allOf:
-      - $ref: '#/$defs/uuid'
-      - not:
-          const: 00000000-0000-0000-0000-000000000000
+    $ref: '#/$defs/uuid'
+    not:
+      const: 00000000-0000-0000-0000-000000000000
   ipaddr:
+    type: string
     oneOf:
-      - type: string
-        format: ipv4
-      - type: string
-        format: ipv6
+      - format: ipv4
+      - format: ipv6
   macaddr:
     type: string
     pattern: '^[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}$'
@@ -22,24 +20,21 @@ $defs:
     type: string
     pattern: ^\S+$
   device_serial_number:
-    allOf:
-      - type: string
-        pattern: ^\S+$
-      - $ref: '#/$defs/mojo_standard_placeholder'
+    type: string
+    pattern: ^\S+$
+    $ref: '#/$defs/mojo_standard_placeholder'
   device_asset_tag:
     type: string
     pattern: ^\S+$
   device_health:
-    description: corresponds to device_health_enum in the database
-    type: string
+    $comment: corresponds to device_health_enum in the database
     enum:
       - error
       - fail
       - unknown
       - pass
   device_phase:
-    description: corresponds to device_phase_enum in the database (also used for racks)
-    type: string
+    $comment: corresponds to device_phase_enum in the database (also used for racks)
     enum:
       - integration
       - installation
@@ -47,10 +42,9 @@ $defs:
       - diagnostics
       - decommissioned
   device_interface_name:
-    allOf:
-      - type: string
-        pattern: ^\S+$
-      - $ref: '#/$defs/mojo_relaxed_placeholder'
+    type: string
+    pattern: ^\S+$
+    $ref: '#/$defs/mojo_relaxed_placeholder'
   device_setting_key:
     $ref: '#/$defs/mojo_relaxed_placeholder'
   disk_serial_number:
@@ -62,15 +56,13 @@ $defs:
   user_setting_key:
     $ref: '#/$defs/mojo_relaxed_placeholder'
   role:
-    description: corresponds to role_enum in the database
-    type: string
+    $comment: corresponds to role_enum in the database
     enum:
       - ro
       - rw
       - admin
   validation_status:
-    description: corresponds to validation_status_enum in the database
-    type: string
+    $comment: corresponds to validation_status_enum in the database
     enum:
       - error
       - fail
@@ -85,18 +77,17 @@ $defs:
     type: integer
     minimum: 0
   mojo_standard_placeholder:
-    description: see https://metacpan.org/pod/Mojolicious::Guides::Routing#Standard-placeholders
+    $comment: see https://metacpan.org/pod/Mojolicious::Guides::Routing#Standard-placeholders
     type: string
     pattern: '^[^/.]+$'
   mojo_relaxed_placeholder:
-    description: see https://metacpan.org/pod/Mojolicious::Guides::Routing#Relaxed-placeholders
+    $comment: see https://metacpan.org/pod/Mojolicious::Guides::Routing#Relaxed-placeholders
     type: string
     pattern: '^[^/]+$'
   email_address:
-    allOf:
-      - type: string
-        format: email
-      - $ref: '#/$defs/mojo_relaxed_placeholder'
+    type: string
+    format: email
+    $ref: '#/$defs/mojo_relaxed_placeholder'
   links:
     type: array
     uniqueItems: true
@@ -104,7 +95,7 @@ $defs:
       type: string
       format: uri
   HardwareProductSpecification:
-    description: this is the structure of the hardware_product.specification database column
+    $comment: this is the structure of the hardware_product.specification database column
     type: object
     properties:
       disk_size:

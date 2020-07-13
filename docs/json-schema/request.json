@@ -165,14 +165,8 @@
       "additionalProperties" : false,
       "properties" : {
         "links" : {
-          "allOf" : [
-            {
-              "$ref" : "common.json#/$defs/links"
-            },
-            {
-              "minItems" : 1
-            }
-          ]
+          "$ref" : "common.json#/$defs/links",
+          "minItems" : 1
         }
       },
       "required" : [
@@ -195,14 +189,10 @@
       "minProperties" : 1,
       "properties" : {
         "completed" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "description" : {
@@ -222,14 +212,10 @@
           "$ref" : "common.json#/$defs/mojo_standard_placeholder"
         },
         "started" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         }
       },
@@ -369,14 +355,8 @@
       "additionalProperties" : false,
       "properties" : {
         "links" : {
-          "allOf" : [
-            {
-              "$ref" : "common.json#/$defs/links"
-            },
-            {
-              "minItems" : 1
-            }
-          ]
+          "$ref" : "common.json#/$defs/links",
+          "minItems" : 1
         }
       },
       "required" : [
@@ -426,28 +406,16 @@
       "$ref" : "device_report.json#/$defs/DeviceReport_v3_0_0"
     },
     "DeviceSetting" : {
-      "allOf" : [
-        {
-          "$ref" : "#/$defs/DeviceSettings"
-        },
-        {
-          "maxProperties" : 1,
-          "type" : "object"
-        }
-      ]
+      "$ref" : "#/$defs/DeviceSettings",
+      "maxProperties" : 1
     },
     "DeviceSettings" : {
       "additionalProperties" : {
-        "anyOf" : [
-          {
-            "$ref" : "common.json#/$defs/non_empty_string"
-          },
-          {
-            "type" : "number"
-          },
-          {
-            "type" : "boolean"
-          }
+        "minLength" : 1,
+        "type" : [
+          "string",
+          "number",
+          "boolean"
         ]
       },
       "minProperties" : 1,
@@ -457,26 +425,21 @@
       "type" : "object"
     },
     "HardwareProductCreate" : {
-      "allOf" : [
-        {
-          "$ref" : "#/$defs/HardwareProductUpdate"
-        },
-        {
-          "required" : [
-            "name",
-            "alias",
-            "hardware_vendor_id",
-            "sku",
-            "rack_unit_size",
-            "validation_plan_id",
-            "purpose",
-            "bios_firmware",
-            "cpu_type"
-          ]
-        }
+      "$ref" : "#/$defs/HardwareProductUpdate",
+      "required" : [
+        "name",
+        "alias",
+        "hardware_vendor_id",
+        "sku",
+        "rack_unit_size",
+        "validation_plan_id",
+        "purpose",
+        "bios_firmware",
+        "cpu_type"
       ]
     },
     "HardwareProductSpecification" : {
+      "$comment" : "used for the /hardware_product/*/specification endpoints",
       "$ref" : "common.json#/$defs/HardwareProductSpecification"
     },
     "HardwareProductUpdate" : {
@@ -505,13 +468,9 @@
           "$ref" : "common.json#/$defs/uuid"
         },
         "hba_firmware" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "legacy_product_name" : {
@@ -534,23 +493,15 @@
           "type" : "integer"
         },
         "nvme_ssd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "nvme_ssd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "prefix" : {
@@ -582,92 +533,60 @@
           "type" : "integer"
         },
         "sas_hdd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "sas_hdd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "sas_ssd_num" : {
           "type" : "integer"
         },
         "sas_ssd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "sas_ssd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "sata_hdd_num" : {
           "type" : "integer"
         },
         "sata_hdd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "sata_hdd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "sata_ssd_num" : {
           "type" : "integer"
         },
         "sata_ssd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "sata_ssd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "sku" : {
@@ -688,11 +607,7 @@
         },
         "validation_plan_id" : {
           "$comment" : "this property will become nullable in v3.3 and removed in v4.0",
-          "allOf" : [
-            {
-              "$ref" : "common.json#/$defs/uuid"
-            }
-          ],
+          "$ref" : "common.json#/$defs/uuid",
           "deprecated" : true
         }
       },
@@ -1031,14 +946,8 @@
       "additionalProperties" : false,
       "properties" : {
         "links" : {
-          "allOf" : [
-            {
-              "$ref" : "common.json#/$defs/links"
-            },
-            {
-              "minItems" : 1
-            }
-          ]
+          "$ref" : "common.json#/$defs/links",
+          "minItems" : 1
         }
       },
       "required" : [
@@ -1146,7 +1055,7 @@
       "additionalProperties" : false,
       "properties" : {
         "ipaddr" : {
-          "description" : "postgres \"inet\": ipv4 or ipv6, with optional netmask",
+          "$comment" : "postgres \"inet\": ipv4 or ipv6, with optional netmask",
           "type" : "string"
         },
         "name" : {
@@ -1159,7 +1068,7 @@
           "$ref" : "common.json#/$defs/non_negative_integer"
         },
         "version" : {
-          "description" : "usually a git commit SHA",
+          "$comment" : "usually a git commit SHA",
           "type" : "string"
         }
       },
@@ -1221,15 +1130,8 @@
       "type" : "object"
     },
     "UserSetting" : {
-      "allOf" : [
-        {
-          "$ref" : "#/$defs/UserSettings"
-        },
-        {
-          "maxProperties" : 1,
-          "type" : "object"
-        }
-      ]
+      "$ref" : "#/$defs/UserSettings",
+      "maxProperties" : 1
     },
     "UserSettings" : {
       "additionalProperties" : {

@@ -217,10 +217,14 @@ subtest 'unlocated device with a registered relay' => sub {
             'response.yaml#/$defs/DetailedDevice')->TO_JSON,
         {
             valid => bool(0),
-            errors => [ superhashof({
-                absoluteKeywordLocation => 'response.yaml#/$defs/DetailedDevice/else/not',
-                error => 'subschema is valid',
-            }) ],
+            errors => [
+                map +{
+                    instanceLocation => '/'.$_,
+                    keywordLocation => '/else/properties/'.$_,
+                    absoluteKeywordLocation => 'response.yaml#/$defs/DetailedDevice/else/properties/'.$_,
+                    error => 'property not permitted',
+                }, sort qw(location nics disks),
+            ],
         },
         'location data is rejected by the response schema when phase=production',
     );
@@ -1038,17 +1042,17 @@ subtest 'Device settings' => sub {
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => undef })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ map superhashof({ error => 'wrong type (expected '.$_.')' }), qw(string number boolean) ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected one of string, number, boolean)' }) ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => undef })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ map superhashof({ error => 'wrong type (expected '.$_.')' }), qw(string number boolean) ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected one of string, number, boolean)' }) ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => { bar => 'baz' } })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ map superhashof({ error => 'wrong type (expected '.$_.')' }), qw(string number boolean) ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected one of string, number, boolean)' }) ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/fizzle', json => { no_match => 'gibbet' })
         ->status_is(400);

@@ -2,7 +2,6 @@
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/response/$schema_name' endpoints, or within conch itself, json-schema/response.yaml.",
   "$defs" : {
     "Build" : {
-      "additionalProperties" : false,
       "else" : {
         "properties" : {
           "completed" : {
@@ -36,21 +35,14 @@
           "type" : "array",
           "uniqueItems" : true
         },
-        "completed" : true,
-        "completed_status" : true,
-        "completed_user" : true,
         "created" : {
           "format" : "date-time",
           "type" : "string"
         },
         "description" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "type" : "string"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "device_health" : {
@@ -96,14 +88,10 @@
           "type" : "object"
         },
         "started" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         }
       },
@@ -129,7 +117,8 @@
           }
         }
       },
-      "type" : "object"
+      "type" : "object",
+      "unevaluatedProperties" : false
     },
     "BuildOrganizations" : {
       "items" : {
@@ -144,13 +133,9 @@
             "uniqueItems" : true
           },
           "description" : {
-            "oneOf" : [
-              {
-                "type" : "null"
-              },
-              {
-                "type" : "string"
-              }
+            "type" : [
+              "null",
+              "string"
             ]
           },
           "id" : {
@@ -214,7 +199,6 @@
     },
     "Builds" : {
       "items" : {
-        "additionalProperties" : false,
         "else" : {
           "properties" : {
             "completed" : {
@@ -237,20 +221,14 @@
           }
         },
         "properties" : {
-          "completed" : true,
-          "completed_status" : true,
           "created" : {
             "format" : "date-time",
             "type" : "string"
           },
           "description" : {
-            "oneOf" : [
-              {
-                "type" : "null"
-              },
-              {
-                "type" : "string"
-              }
+            "type" : [
+              "null",
+              "string"
             ]
           },
           "id" : {
@@ -263,14 +241,10 @@
             "$ref" : "common.json#/$defs/mojo_standard_placeholder"
           },
           "started" : {
-            "oneOf" : [
-              {
-                "type" : "null"
-              },
-              {
-                "format" : "date-time",
-                "type" : "string"
-              }
+            "format" : "date-time",
+            "type" : [
+              "null",
+              "string"
             ]
           }
         },
@@ -291,7 +265,8 @@
             }
           }
         },
-        "type" : "object"
+        "type" : "object",
+        "unevaluatedProperties" : false
       },
       "type" : "array",
       "uniqueItems" : true
@@ -320,14 +295,10 @@
           "type" : "string"
         },
         "vendor_name" : {
-          "description" : "the vendor's name for the datacenter",
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "$comment" : "the vendor's name for the datacenter",
+          "type" : [
+            "null",
+            "string"
           ]
         }
       },
@@ -366,6 +337,7 @@
           "type" : "string"
         },
         "vendor_name" : {
+          "$comment" : "the vendor's name for the room",
           "$ref" : "common.json#/$defs/mojo_relaxed_placeholder"
         }
       },
@@ -397,24 +369,10 @@
     "DetailedDevice" : {
       "additionalProperties" : false,
       "else" : {
-        "not" : {
-          "anyOf" : [
-            {
-              "required" : [
-                "location"
-              ]
-            },
-            {
-              "required" : [
-                "nics"
-              ]
-            },
-            {
-              "required" : [
-                "disks"
-              ]
-            }
-          ]
+        "properties" : {
+          "disks" : false,
+          "location" : false,
+          "nics" : false
         }
       },
       "if" : {
@@ -423,8 +381,7 @@
             "enum" : [
               "integration",
               "installation"
-            ],
-            "type" : "string"
+            ]
           }
         }
       },
@@ -473,66 +430,42 @@
                 "type" : "string"
               },
               "drive_type" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "enclosure" : {
-                "oneOf" : [
-                  {
-                    "type" : "integer"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "integer"
                 ]
               },
               "firmware" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "hba" : {
-                "oneOf" : [
-                  {
-                    "type" : "integer"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "integer"
                 ]
               },
               "health" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "id" : {
                 "$ref" : "common.json#/$defs/uuid"
               },
               "model" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "serial_number" : {
@@ -559,13 +492,9 @@
                 ]
               },
               "transport" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "updated" : {
@@ -573,13 +502,9 @@
                 "type" : "string"
               },
               "vendor" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               }
             },
@@ -610,42 +535,34 @@
           "$ref" : "common.json#/$defs/device_health"
         },
         "hostname" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "id" : {
           "$ref" : "common.json#/$defs/uuid"
         },
         "last_seen" : {
-          "oneOf" : [
-            {
-              "format" : "date-time",
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "latest_report" : {
+          "$comment" : "the contents of the device report. Given its age we cannot provide a schema.",
           "anyOf" : [
             {
-              "type" : "null"
+              "type" : [
+                "null",
+                "object"
+              ]
             },
             {
               "$ref" : "device_report.json#/$defs/DeviceReport_v3_0_0"
-            },
-            {
-              "type" : "object"
             }
-          ],
-          "description" : "the contents of the device report. Given its age we cannot provide a schema."
+          ]
         },
         "links" : {
           "$ref" : "common.json#/$defs/links"
@@ -679,33 +596,21 @@
                 "$ref" : "common.json#/$defs/macaddr"
               },
               "peer_mac" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "peer_port" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "peer_switch" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               }
             },
@@ -746,25 +651,17 @@
           "type" : "string"
         },
         "uptime_since" : {
-          "oneOf" : [
-            {
-              "format" : "date-time",
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "validated" : {
-          "oneOf" : [
-            {
-              "format" : "date-time",
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         }
       },
@@ -800,24 +697,10 @@
     "Device" : {
       "additionalProperties" : false,
       "else" : {
-        "not" : {
-          "anyOf" : [
-            {
-              "required" : [
-                "rack_id"
-              ]
-            },
-            {
-              "required" : [
-                "rack_name"
-              ]
-            },
-            {
-              "required" : [
-                "rack_unit_start"
-              ]
-            }
-          ]
+        "properties" : {
+          "rack_id" : false,
+          "rack_name" : false,
+          "rack_unit_start" : false
         }
       },
       "if" : {
@@ -826,8 +709,7 @@
             "enum" : [
               "integration",
               "installation"
-            ],
-            "type" : "string"
+            ]
           }
         }
       },
@@ -873,27 +755,19 @@
           "$ref" : "common.json#/$defs/device_health"
         },
         "hostname" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "id" : {
           "$ref" : "common.json#/$defs/uuid"
         },
         "last_seen" : {
-          "oneOf" : [
-            {
-              "format" : "date-time",
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "links" : {
@@ -913,7 +787,7 @@
           ]
         },
         "rack_name" : {
-          "description" : "rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)",
+          "$comment" : "rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)",
           "oneOf" : [
             {
               "$ref" : "common.json#/$defs/mojo_relaxed_placeholder"
@@ -954,25 +828,17 @@
           "type" : "string"
         },
         "uptime_since" : {
-          "oneOf" : [
-            {
-              "format" : "date-time",
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "validated" : {
-          "oneOf" : [
-            {
-              "format" : "date-time",
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         }
       },
@@ -1018,37 +884,33 @@
           "type" : "string"
         },
         "datacenter_room" : {
+          "$comment" : "datacenter_room.alias",
           "$ref" : "common.json#/$defs/mojo_standard_placeholder"
         },
         "rack" : {
+          "$comment" : "rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)",
           "$ref" : "common.json#/$defs/mojo_relaxed_placeholder"
         },
         "rack_unit_start" : {
           "$ref" : "common.json#/$defs/positive_integer"
         },
         "target_hardware_product" : {
+          "$comment" : "Details of the hardware product the device is expected to be based on its current position and the rack layout.",
           "additionalProperties" : false,
-          "description" : "Details of the hardware product the device is expected to be based on its current position and the rack layout.",
           "properties" : {
             "alias" : {
-              "description" : "Hardware product alias",
+              "$comment" : "Hardware product alias",
               "type" : "string"
             },
             "hardware_vendor_id" : {
               "$ref" : "common.json#/$defs/uuid"
             },
             "id" : {
-              "allOf" : [
-                {
-                  "description" : "hardware product ID"
-                },
-                {
-                  "$ref" : "common.json#/$defs/uuid"
-                }
-              ]
+              "$comment" : "hardware product ID",
+              "$ref" : "common.json#/$defs/uuid"
             },
             "name" : {
-              "description" : "Hardware product name",
+              "$comment" : "Hardware product name",
               "type" : "string"
             },
             "sku" : {
@@ -1075,43 +937,26 @@
       "type" : "object"
     },
     "DeviceNic" : {
-      "allOf" : [
-        {
-          "$ref" : "#/$defs/DeviceNicFields"
-        },
-        {
-          "required" : [
-            "device_id",
-            "mac",
-            "iface_name",
-            "iface_vendor",
-            "state",
-            "ipaddr",
-            "mtu"
-          ],
-          "type" : "object"
-        }
-      ]
+      "$ref" : "#/$defs/DeviceNicFields",
+      "required" : [
+        "device_id",
+        "mac",
+        "iface_name",
+        "iface_vendor",
+        "state",
+        "ipaddr",
+        "mtu"
+      ],
+      "type" : "object"
     },
     "DeviceNicField" : {
-      "allOf" : [
-        {
-          "$ref" : "#/$defs/DeviceNicFields"
-        },
-        {
-          "maxProperties" : 1,
-          "minProperties" : 1,
-          "type" : "object"
-        },
-        {
-          "not" : {
-            "required" : [
-              "device_id"
-            ],
-            "type" : "object"
-          }
-        }
-      ]
+      "$ref" : "#/$defs/DeviceNicFields",
+      "maxProperties" : 1,
+      "minProperties" : 1,
+      "properties" : {
+        "device_id" : false
+      },
+      "type" : "object"
     },
     "DeviceNicFields" : {
       "additionalProperties" : false,
@@ -1142,23 +987,15 @@
           "$ref" : "common.json#/$defs/macaddr"
         },
         "mtu" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "state" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         }
       },
@@ -1174,10 +1011,8 @@
     "DevicePXE" : {
       "additionalProperties" : false,
       "else" : {
-        "not" : {
-          "required" : [
-            "location"
-          ]
+        "properties" : {
+          "location" : false
         }
       },
       "if" : {
@@ -1186,8 +1021,7 @@
             "enum" : [
               "integration",
               "installation"
-            ],
-            "type" : "string"
+            ]
           }
         }
       },
@@ -1196,33 +1030,29 @@
           "$ref" : "common.json#/$defs/uuid"
         },
         "ipmi" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "additionalProperties" : false,
-              "properties" : {
-                "ip" : {
-                  "oneOf" : [
-                    {
-                      "type" : "null"
-                    },
-                    {
-                      "$ref" : "common.json#/$defs/ipaddr"
-                    }
-                  ]
+          "additionalProperties" : false,
+          "properties" : {
+            "ip" : {
+              "oneOf" : [
+                {
+                  "type" : "null"
                 },
-                "mac" : {
-                  "$ref" : "common.json#/$defs/macaddr"
+                {
+                  "$ref" : "common.json#/$defs/ipaddr"
                 }
-              },
-              "required" : [
-                "mac",
-                "ip"
-              ],
-              "type" : "object"
+              ]
+            },
+            "mac" : {
+              "$ref" : "common.json#/$defs/macaddr"
             }
+          },
+          "required" : [
+            "mac",
+            "ip"
+          ],
+          "type" : [
+            "null",
+            "object"
           ]
         },
         "location" : {
@@ -1239,22 +1069,18 @@
           "$ref" : "common.json#/$defs/device_phase"
         },
         "pxe" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "additionalProperties" : false,
-              "properties" : {
-                "mac" : {
-                  "$ref" : "common.json#/$defs/macaddr"
-                }
-              },
-              "required" : [
-                "mac"
-              ],
-              "type" : "object"
+          "additionalProperties" : false,
+          "properties" : {
+            "mac" : {
+              "$ref" : "common.json#/$defs/macaddr"
             }
+          },
+          "required" : [
+            "mac"
+          ],
+          "type" : [
+            "null",
+            "object"
           ]
         }
       },
@@ -1308,14 +1134,10 @@
           "$ref" : "common.json#/$defs/uuid"
         },
         "report" : {
-          "description" : "the contents of the device report. Given its age we cannot provide a schema.",
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "type" : "object"
-            }
+          "$comment" : "the contents of the device report. Given its age we cannot provide a schema.",
+          "type" : [
+            "null",
+            "object"
           ]
         }
       },
@@ -1335,15 +1157,8 @@
       "uniqueItems" : true
     },
     "DeviceSetting" : {
-      "allOf" : [
-        {
-          "$ref" : "#/$defs/DeviceSettings"
-        },
-        {
-          "maxProperties" : 1,
-          "type" : "object"
-        }
-      ]
+      "$ref" : "#/$defs/DeviceSettings",
+      "maxProperties" : 1
     },
     "DeviceSettings" : {
       "additionalProperties" : {
@@ -1382,8 +1197,8 @@
       "uniqueItems" : true
     },
     "Error" : {
+      "$comment" : "this is the superset of all error schemas",
       "additionalProperties" : false,
-      "description" : "this is the superset of all error schemas",
       "properties" : {
         "error" : {
           "type" : "string"
@@ -1417,39 +1232,27 @@
           "type" : "integer"
         },
         "generation_name" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "hardware_vendor_id" : {
           "$ref" : "common.json#/$defs/uuid"
         },
         "hba_firmware" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "id" : {
           "$ref" : "common.json#/$defs/uuid"
         },
         "legacy_product_name" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "name" : {
@@ -1462,33 +1265,21 @@
           "type" : "integer"
         },
         "nvme_ssd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "nvme_ssd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "prefix" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "psu_total" : {
@@ -1510,92 +1301,60 @@
           "type" : "integer"
         },
         "sas_hdd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "sas_hdd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "sas_ssd_num" : {
           "type" : "integer"
         },
         "sas_ssd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "sas_ssd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "sata_hdd_num" : {
           "type" : "integer"
         },
         "sata_hdd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "sata_hdd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "sata_ssd_num" : {
           "type" : "integer"
         },
         "sata_ssd_size" : {
-          "oneOf" : [
-            {
-              "type" : "integer"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "integer"
           ]
         },
         "sata_ssd_slots" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "sku" : {
@@ -1620,11 +1379,7 @@
         },
         "validation_plan_id" : {
           "$comment" : "this property will become nullable in v3.3 and removed in v4.0",
-          "allOf" : [
-            {
-              "$ref" : "common.json#/$defs/uuid"
-            }
-          ],
+          "$ref" : "common.json#/$defs/uuid",
           "deprecated" : true
         }
       },
@@ -1683,13 +1438,9 @@
             "type" : "string"
           },
           "generation_name" : {
-            "oneOf" : [
-              {
-                "type" : "string"
-              },
-              {
-                "type" : "null"
-              }
+            "type" : [
+              "null",
+              "string"
             ]
           },
           "id" : {
@@ -1754,9 +1505,8 @@
       "uniqueItems" : true
     },
     "JSONSchemaError" : {
-      "$comment" : "very similar to https://json-schema.org/draft/2019-09/output/schema#/$defs/outputUnit",
+      "$comment" : "very similar to https://json-schema.org/draft/2019-09/output/schema#/$defs/outputUnit - see https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10.4.2",
       "additionalProperties" : false,
-      "description" : "see https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10.4.2",
       "properties" : {
         "absolute_schema_location" : {
           "format" : "uri",
@@ -1879,26 +1629,18 @@
           "type" : "string"
         },
         "component" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "type" : "string"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "description" : {
           "type" : "string"
         },
         "hint" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "type" : "string"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "id" : {
@@ -2002,14 +1744,10 @@
           "type" : "string"
         },
         "last_used" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "name" : {
@@ -2037,13 +1775,9 @@
             "additionalProperties" : false,
             "properties" : {
               "description" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "id" : {
@@ -2072,13 +1806,9 @@
           "type" : "string"
         },
         "description" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "type" : "string"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "id" : {
@@ -2152,13 +1882,9 @@
               "additionalProperties" : false,
               "properties" : {
                 "description" : {
-                  "oneOf" : [
-                    {
-                      "type" : "string"
-                    },
-                    {
-                      "type" : "null"
-                    }
+                  "type" : [
+                    "null",
+                    "string"
                   ]
                 },
                 "id" : {
@@ -2187,13 +1913,9 @@
             "type" : "string"
           },
           "description" : {
-            "oneOf" : [
-              {
-                "type" : "null"
-              },
-              {
-                "type" : "string"
-              }
+            "type" : [
+              "null",
+              "string"
             ]
           },
           "id" : {
@@ -2229,45 +1951,35 @@
       "type" : "object"
     },
     "QueryParamsValidationError" : {
-      "allOf" : [
-        {
-          "$ref" : "#/$defs/ValidationError"
-        },
-        {
-          "properties" : {
-            "data" : {
-              "additionalProperties" : {
-                "anyOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "items" : {
-                      "type" : "string"
-                    },
-                    "minItems" : 2,
-                    "type" : "array"
-                  }
-                ]
-              },
-              "description" : "the parsed form of the query parameters, as they were passed to the schema for validation",
-              "type" : "object"
-            },
-            "error" : {
-              "const" : "query parameters did not match required format",
+      "$ref" : "#/$defs/ValidationError",
+      "properties" : {
+        "data" : {
+          "$comment" : "the parsed form of the query parameters, as they were passed to the schema for validation",
+          "additionalProperties" : {
+            "items" : {
               "type" : "string"
             },
-            "schema" : {
-              "pattern" : "/json_schema/query_params/[^/.~]+$"
-            }
+            "minItems" : 2,
+            "type" : [
+              "string",
+              "array"
+            ]
           },
-          "required" : [
-            "data",
-            "error"
-          ],
           "type" : "object"
+        },
+        "error" : {
+          "const" : "query parameters did not match required format",
+          "type" : "string"
+        },
+        "schema" : {
+          "pattern" : "/json_schema/query_params/[^/.~]+$"
         }
-      ]
+      },
+      "required" : [
+        "data",
+        "error"
+      ],
+      "type" : "object"
     },
     "Rack" : {
       "additionalProperties" : false,
@@ -2313,6 +2025,7 @@
           "$ref" : "common.json#/$defs/uuid"
         },
         "full_rack_name" : {
+          "$comment" : "rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)",
           "$ref" : "common.json#/$defs/mojo_relaxed_placeholder"
         },
         "id" : {
@@ -2334,13 +2047,9 @@
           "$ref" : "common.json#/$defs/mojo_standard_placeholder"
         },
         "serial_number" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "updated" : {
@@ -2455,6 +2164,7 @@
           "$ref" : "common.json#/$defs/uuid"
         },
         "rack_name" : {
+          "$comment" : "rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)",
           "$ref" : "common.json#/$defs/mojo_relaxed_placeholder"
         },
         "rack_unit_size" : {
@@ -2560,13 +2270,9 @@
           "type" : "string"
         },
         "name" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "serial_number" : {
@@ -2590,13 +2296,9 @@
           "$ref" : "common.json#/$defs/uuid"
         },
         "version" : {
-          "oneOf" : [
-            {
-              "type" : "string"
-            },
-            {
-              "type" : "null"
-            }
+          "type" : [
+            "null",
+            "string"
           ]
         }
       },
@@ -2650,26 +2352,20 @@
       "type" : "object"
     },
     "RequestValidationError" : {
-      "allOf" : [
-        {
-          "$ref" : "#/$defs/ValidationError"
+      "$ref" : "#/$defs/ValidationError",
+      "properties" : {
+        "error" : {
+          "const" : "request did not match required format",
+          "type" : "string"
         },
-        {
-          "properties" : {
-            "error" : {
-              "const" : "request did not match required format",
-              "type" : "string"
-            },
-            "schema" : {
-              "pattern" : "/json_schema/request/[^/.~]+$"
-            }
-          },
-          "required" : [
-            "error"
-          ],
-          "type" : "object"
+        "schema" : {
+          "pattern" : "/json_schema/request/[^/.~]+$"
         }
-      ]
+      },
+      "required" : [
+        "error"
+      ],
+      "type" : "object"
     },
     "UserDetailed" : {
       "additionalProperties" : false,
@@ -2679,13 +2375,9 @@
             "additionalProperties" : false,
             "properties" : {
               "description" : {
-                "oneOf" : [
-                  {
-                    "type" : "string"
-                  },
-                  {
-                    "type" : "null"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "id" : {
@@ -2729,25 +2421,17 @@
           "type" : "boolean"
         },
         "last_login" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "last_seen" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "name" : {
@@ -2758,13 +2442,9 @@
             "additionalProperties" : false,
             "properties" : {
               "description" : {
-                "oneOf" : [
-                  {
-                    "type" : "null"
-                  },
-                  {
-                    "type" : "string"
-                  }
+                "type" : [
+                  "null",
+                  "string"
                 ]
               },
               "id" : {
@@ -2821,14 +2501,10 @@
               "type" : "string"
             },
             "deactivated" : {
-              "oneOf" : [
-                {
-                  "format" : "date-time",
-                  "type" : "string"
-                },
-                {
-                  "type" : "null"
-                }
+              "format" : "date-time",
+              "type" : [
+                "null",
+                "string"
               ]
             },
             "email" : {
@@ -2858,15 +2534,8 @@
       "type" : "object"
     },
     "UserSetting" : {
-      "allOf" : [
-        {
-          "$ref" : "#/$defs/UserSettings"
-        },
-        {
-          "maxProperties" : 1,
-          "type" : "object"
-        }
-      ]
+      "$ref" : "#/$defs/UserSettings",
+      "maxProperties" : 1
     },
     "UserSettings" : {
       "additionalProperties" : {
@@ -2919,14 +2588,10 @@
           ]
         },
         "last_used" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
+          "format" : "date-time",
+          "type" : [
+            "null",
+            "string"
           ]
         },
         "name" : {
@@ -3007,11 +2672,11 @@
       "uniqueItems" : true
     },
     "ValidationError" : {
+      "$comment" : "base structure for all query_param, request, response validation error responses",
       "additionalProperties" : false,
-      "description" : "base structure for all query_param, request, response validation error responses",
       "properties" : {
         "data" : {
-          "description" : "any supplementary details will be included here"
+          "$comment" : "any supplementary details will be included here"
         },
         "details" : {
           "items" : {

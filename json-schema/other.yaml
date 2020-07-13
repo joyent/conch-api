@@ -28,6 +28,7 @@ $defs:
                   - trace
                 properties:
                   trace:
+                    $anchor: trace
                     type: object
                     additionalProperties: false
                     required:
@@ -89,6 +90,7 @@ $defs:
                           description:
                             type: string
 #                 telemetry:
+#                   $anchor: telemetry
 #                   type: array
 #                   items:
 #                     type: object
@@ -101,7 +103,6 @@ $defs:
 #                       - body
 #                     properties:
 #                       level:
-#                         type: string
 #                         enum:
 #                           - critical
 #                           - error
@@ -109,7 +110,6 @@ $defs:
 #                           - info
 #                           - debug
 #                       type:
-#                         type: string
 #                         enum:
 #                           - log
 #                           - network
@@ -159,9 +159,9 @@ $defs:
 #                   type: array
 #                   minItems: 1
 #                   items:
-#                     $ref: '#/$defs/RollbarPayload/properties/data/properties/body/oneOf/0/properties/trace'
+#                     $ref: '#trace'
 #                 telemetry:
-#                   $ref: '#/$defs/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry'
+#                   $ref: '#telemetry'
               - type: object
                 additionalProperties: false
                 required:
@@ -175,7 +175,7 @@ $defs:
                       body:
                         type: string
 #                 telemetry:
-#                   $ref: '#/$defs/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry'
+#                   $ref: '#telemetry'
 #             - type: object
 #               additionalProperties: false
 #               required:
@@ -190,9 +190,8 @@ $defs:
 #                     raw:
 #                       type: string
 #                 telemetry:
-#                   $ref: '#/$defs/RollbarPayload/properties/data/properties/body/oneOf/0/properties/telemetry'
+#                   $ref: '#telemetry'
           level:
-            type: string
             enum:
               - critical
               - error
@@ -290,7 +289,8 @@ $defs:
 #           type: string
 #           maxLength: 255
           uuid:
-            $ref: common.yaml#/$defs/uuid
+            type: string
+            format: uuid
           notifier:
             type: object
             additionalProperties: false

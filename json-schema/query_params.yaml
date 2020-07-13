@@ -6,12 +6,11 @@ $defs:
     type: string
     enum: [ '0', '1' ]
   boolean_string_or_flag:
-    description: '"?foo" and "?foo=1" are true; "?foo=0" is false'
-    oneOf:
-      - const: ''
-      - $ref: '#/$defs/boolean_string'
+    $comment: '"?foo" and "?foo=1" are true; "?foo=0" is false'
+    type: string
+    enum: [ '', '0', '1' ]
   non_negative_integer_string:
-    description: see common.yaml#/$defs/non_negative_integer
+    $comment: see common.yaml#/$defs/non_negative_integer
     type: string
     pattern: '^[0-9]+$'
 
@@ -44,7 +43,6 @@ $defs:
     additionalProperties: false
     properties:
       clear_tokens:
-        type: string
         enum:
           - none
           - login_only
@@ -58,7 +56,6 @@ $defs:
     additionalProperties: false
     properties:
       clear_tokens:
-        type: string
         enum:
           - none
           - login_only
@@ -69,7 +66,7 @@ $defs:
       clear_tokens: login_only
       send_mail: '1'
   NotifyUsers:
-    description: used for operations where email can optionally be sent
+    $comment: used for operations where email can optionally be sent
     type: object
     additionalProperties: false
     properties:
@@ -146,6 +143,7 @@ $defs:
     additionalProperties: true  # may be used at the same time as other schemas
     properties:
       phase_earlier_than:
+        $comment: usually defaults to 'production'
         oneOf:
           - const: ''
           - $ref: common.yaml#/$defs/device_phase

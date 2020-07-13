@@ -68,7 +68,7 @@ Population of missing data from specified defaults is performed.
 
     $app->helper(validate_query_params => sub ($c, $schema_name, $data = $c->req->query_params->to_hash) {
         my $validator = $c->json_schema_validator;
-        my $result = $validator->evaluate($data, 'query_params.yaml#/$defs/'.$schema_name, {collect_annotations => 1});
+        my $result = $validator->evaluate($data, 'query_params.yaml#/$defs/'.$schema_name);
         if (not $result) {
             my @errors = $c->normalize_evaluation_result($result);
             $c->log->warn("FAILED query_params validation for schema $schema_name: ".to_json(\@errors));
@@ -131,7 +131,7 @@ Returns a L<JSON::Schema::Draft201909> object with all JSON Schemas pre-loaded.
         $_validator = JSON::Schema::Draft201909->new(
             output_format => 'terse',
             validate_formats => 1,
-            collect_annotations => 0,   # enabled just for query_params evaluation
+            collect_annotations => 1,
         );
         # TODO: blocked on https://github.com/ingydotnet/yaml-libyaml-pm/issues/68
         # local $YAML::XS::Boolean = 'JSON::PP'; ... YAML::XS::LoadFile(...)
