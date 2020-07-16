@@ -242,21 +242,21 @@ subtest 'extraction with $refs' => sub {
     subtest $_->[1] => sub {
         my ($expected_output, $test_name) = $_->@*;
 
-        my $title = $expected_output->{title};
+        my $name = delete $expected_output->{title};
         my $got;
         my $exception = exception {
-            $got = Conch::Controller::JSONSchema::_extract_schema_definition($jv, $title);
+            $got = Conch::Controller::JSONSchema::_extract_schema_definition($jv, $name);
         };
 
         if (my $message = $expected_output->{exception}) {
-            like($exception, $message, 'died trying to extract schema for '.$title)
+            like($exception, $message, 'died trying to extract schema for '.$name)
                 or note('lived, and got: ', explain($got));
             return;
         }
 
-        is($exception, undef, 'no exceptions extracting schema for '.$title)
+        is($exception, undef, 'no exceptions extracting schema for '.$name)
             or return;
-        cmp_deeply($got, $expected_output, 'extracted schema for '.$title);
+        cmp_deeply($got, $expected_output, 'extracted schema for '.$name);
 
         my @errors = $_validator->validate($got);
         ok(!@errors, 'no validation errors in the generated schema');
@@ -307,7 +307,6 @@ $t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => $base_uri.'json_schema/response/Ping',
-        title => 'Ping',
         type => 'object',
         additionalProperties => bool(0),
         required => ['status'],
@@ -329,7 +328,6 @@ $t->get_ok('/schema/response/login_token')
     ->json_cmp_deeply(my $response_login_token = {
         '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => $base_uri.'json_schema/response/LoginToken',
-        title => 'LoginToken',
         type => 'object',
         additionalProperties => bool(0),
         required => ['jwt_token'],
@@ -348,7 +346,6 @@ $t->get_ok('/json_schema/request/Login')
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => $base_uri.'json_schema/request/Login',
-        title => 'Login',
         type => 'object',
         additionalProperties => bool(0),
         required => [ 'password' ],
@@ -373,7 +370,6 @@ $t->get_ok('/json_schema/query_params/ResetUserPassword')
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => $base_uri.'json_schema/query_params/ResetUserPassword',
-        title => 'ResetUserPassword',
         definitions => {
             boolean_integer_default_true => { type => 'integer', minimum => 0, maximum => 1, default => 1 },
         },

@@ -20,7 +20,7 @@ TODO: this (plus addition of the header fields) could mostly be replaced with ju
 
 ```perl
 my $new_defs = $jv->bundle({
-    schema => $jv->get('/definitions/'.$title),
+    schema => $jv->get('/definitions/'.$name),
     ref_key => 'definitions',
 });
 ```

@@ -53,7 +53,7 @@ headers.
 TODO: this (plus addition of the header fields) could mostly be replaced with just:
 
     my $new_defs = $jv->bundle({
-        schema => $jv->get('/definitions/'.$title),
+        schema => $jv->get('/definitions/'.$name),
         ref_key => 'definitions',
     });
 
@@ -116,7 +116,6 @@ sub _extract_schema_definition ($validator, $schema_name) {
     }
 
     return {
-        title => $schema_name,
         '$schema' => $validator->get('/$schema') || 'http://json-schema.org/draft-07/schema#',
         # no $id - we have no idea of this document's canonical location
         keys $definitions->%* ? ( definitions => $definitions ) : (),
