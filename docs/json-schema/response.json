@@ -2618,7 +2618,14 @@
           "type" : "boolean"
         },
         "workspaces" : {
-          "$ref" : "#/definitions/WorkspacesAndRoles"
+          "allOf" : [
+            {
+              "deprecated" : true
+            },
+            {
+              "$ref" : "#/definitions/WorkspacesAndRoles"
+            }
+          ]
         }
       },
       "required" : [
@@ -3033,6 +3040,7 @@
     },
     "WorkspaceAndRole" : {
       "additionalProperties" : false,
+      "deprecated" : true,
       "properties" : {
         "description" : {
           "oneOf" : [
@@ -3077,6 +3085,7 @@
       "type" : "object"
     },
     "WorkspaceDevicePXEs" : {
+      "deprecated" : true,
       "items" : {
         "additionalProperties" : false,
         "else" : {
@@ -3223,12 +3232,14 @@
         "type" : "array",
         "uniqueItems" : true
       },
+      "deprecated" : true,
       "propertyNames" : {
         "$ref" : "common.json#/definitions/room_az"
       },
       "type" : "object"
     },
     "WorkspaceRelays" : {
+      "deprecated" : true,
       "items" : {
         "additionalProperties" : false,
         "properties" : {
@@ -3347,6 +3358,7 @@
       "uniqueItems" : true
     },
     "WorkspaceUsers" : {
+      "deprecated" : true,
       "items" : {
         "additionalProperties" : false,
         "properties" : {
@@ -3378,6 +3390,7 @@
       "uniqueItems" : true
     },
     "WorkspacesAndRoles" : {
+      "deprecated" : true,
       "items" : {
         "$ref" : "#/definitions/WorkspaceAndRole"
       },

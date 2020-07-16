@@ -447,6 +447,7 @@ definitions:
       name:
         $ref: common.yaml#/definitions/non_empty_string
   WorkspaceAddRack:
+    deprecated: true
     type: object
     additionalProperties: false
     required:
@@ -459,6 +460,7 @@ definitions:
       asset_tag:
         $ref: common.yaml#/definitions/non_empty_string
   WorkspaceCreate:
+    deprecated: true
     type: object
     additionalProperties: false
     required:
@@ -471,6 +473,7 @@ definitions:
           - type: 'null'
           - $ref: common.yaml#/definitions/non_empty_string
   WorkspaceAddUser:
+    deprecated: true
     type: object
     additionalProperties: false
     required:

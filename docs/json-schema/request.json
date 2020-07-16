@@ -1170,6 +1170,7 @@
     },
     "WorkspaceAddRack" : {
       "additionalProperties" : false,
+      "deprecated" : true,
       "properties" : {
         "asset_tag" : {
           "$ref" : "common.json#/definitions/non_empty_string"
@@ -1188,6 +1189,7 @@
     },
     "WorkspaceAddUser" : {
       "additionalProperties" : false,
+      "deprecated" : true,
       "oneOf" : [
         {
           "required" : [
@@ -1218,6 +1220,7 @@
     },
     "WorkspaceCreate" : {
       "additionalProperties" : false,
+      "deprecated" : true,
       "properties" : {
         "description" : {
           "oneOf" : [

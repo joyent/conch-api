@@ -226,6 +226,7 @@
     },
     "WorkspaceDevices" : {
       "additionalProperties" : false,
+      "deprecated" : true,
       "not" : {
         "required" : [
           "ids_only",
