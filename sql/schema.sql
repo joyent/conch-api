@@ -100,26 +100,6 @@ CREATE TYPE public.validation_status_enum AS ENUM (
 ALTER TYPE public.validation_status_enum OWNER TO conch;
 
 --
--- Name: add_rack_to_global_workspace(); Type: FUNCTION; Schema: public; Owner: conch
---
-
-CREATE FUNCTION public.add_rack_to_global_workspace() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-      begin
-        insert into workspace_rack (workspace_id, rack_id)
-            select workspace.id, NEW.id
-            from workspace
-            where workspace.name = 'GLOBAL'
-            on conflict (workspace_id, rack_id) do nothing;
-        return NEW;
-      end;
-      $$;
-
-
-ALTER FUNCTION public.add_rack_to_global_workspace() OWNER TO conch;
-
---
 -- Name: array_cat_distinct(anyarray, anyarray); Type: FUNCTION; Schema: public; Owner: conch
 --
 
@@ -1547,13 +1527,6 @@ CREATE INDEX workspace_parent_workspace_id_idx ON public.workspace USING btree (
 --
 
 CREATE INDEX workspace_rack_rack_id_idx ON public.workspace_rack USING btree (rack_id);
-
-
---
--- Name: rack all_racks_in_global_workspace; Type: TRIGGER; Schema: public; Owner: conch
---
-
-CREATE TRIGGER all_racks_in_global_workspace AFTER INSERT ON public.rack FOR EACH ROW EXECUTE PROCEDURE public.add_rack_to_global_workspace();
 
 
 --
