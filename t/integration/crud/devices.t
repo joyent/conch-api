@@ -9,13 +9,12 @@ use Test::Conch;
 use Mojo::JSON 'from_json';
 
 my $t = Test::Conch->new;
-$t->load_fixture_set('workspace_room_rack_layout', 0);
+$t->load_fixture_set('universe_room_rack_layout', 0);
 
 my $rack = $t->load_fixture('rack_0a');
 my $rack_id = $rack->id;
 my $hardware_product = $t->load_fixture('hardware_product_compute');
 my $hardware_product2 = $t->load_fixture('hardware_product_storage');
-my $global_ws = $t->load_fixture('global_workspace');
 
 $t->load_validation_plans([{
     id          => $hardware_product->validation_plan_id,
@@ -24,24 +23,32 @@ $t->load_validation_plans([{
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
 
-# perform most tests as a user with read only access to the GLOBAL workspace
+# perform most tests as a user with read only access to the main build
 my $null_user = $t->generate_fixtures('user_account');
-my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
-my $rw_user = $t->load_fixture('rw_user_global_workspace')->user_account;
-my $admin_user = $t->load_fixture('admin_user_global_workspace')->user_account;
-my $super_user = $t->load_fixture('super_user');
-my $build_user = $t->generate_fixtures('user_account', { name => 'build_user' });
+my $ro_user = $t->load_fixture('ro_user');
+my $rw_user = $t->load_fixture('rw_user');
+my $admin_user = $t->load_fixture('admin_user');
 
-my $build = $t->generate_fixtures('build');
-$build->create_related('user_build_roles', { user_id => $build_user->id, role => 'admin' });
-$t->authenticate(email => $build_user->email)
-    ->post_ok('/build/'.$build->id.'/device', json => [ { serial_number => 'TEST', sku => $hardware_product->sku } ])
+# this build will be used as the rack's build
+my $build = $t->generate_fixtures('build', { name => 'build1' });
+$build->create_related('user_build_roles', { user_id => $ro_user->id, role => 'ro' });
+$build->create_related('user_build_roles', { user_id => $rw_user->id, role => 'rw' });
+$build->create_related('user_build_roles', { user_id => $admin_user->id, role => 'admin' });
+
+my $super_user = $t->load_fixture('super_user');
+my $build2_user = $t->generate_fixtures('user_account', { name => 'build2_user' });
+
+# this build will be used as the device's build
+my $build2 = $t->generate_fixtures('build', { name => 'build2' });
+$build2->create_related('user_build_roles', { user_id => $build2_user->id, role => 'admin' });
+$build2->create_related('user_build_roles', { user_id => $admin_user->id, role => 'admin' });
+
+$t->authenticate(email => $build2_user->email)
+    ->post_ok('/build/'.$build2->id.'/device', json => [ { serial_number => 'TEST', sku => $hardware_product->sku } ])
     ->status_is(204);
 
-my $build2 = $t->generate_fixtures('build');
-$build2->create_related('user_build_roles', { user_id => $build_user->id, role => 'admin' });
 
-$t->authenticate(email => $ro_user->email);
+$t->authenticate(email => $null_user->email);
 
 $t->get_ok('/device/nonexistent')
     ->status_is(404)
@@ -102,24 +109,23 @@ subtest 'unlocated device, no registered relay' => sub {
     }
 
     {
-        my $t_build = Test::Conch->new(pg => $t->pg);
-        $t_build->authenticate(email => $build_user->email);
+        $t->authenticate(email => $build2_user->email);
 
-        $t_build->get_ok('/device/TEST')
+        $t->get_ok('/device/TEST')
             ->status_is(200)
             ->json_schema_is('DetailedDevice')
             ->json_is('/id', $test_device_id)
             ->json_is('/serial_number', 'TEST')
             ->log_debug_is('User has ro access to device '.$test_device_id.' via role entry');
 
-        $t_build->get_ok('/device/'.$test_device_id)
+        $t->get_ok('/device/'.$test_device_id)
             ->status_is(200)
             ->json_schema_is('DetailedDevice')
             ->json_is('/id', $test_device_id)
             ->json_is('/serial_number', 'TEST')
             ->log_debug_is('User has ro access to device '.$test_device_id.' via role entry');
 
-        $t_build->get_ok('/device_report/'.$device_report_id)
+        $t->get_ok('/device_report/'.$device_report_id)
             ->status_is(200)
             ->json_schema_is('DeviceReportRow')
             ->log_debug_is('User has ro access to device '.$test_device_id.' via role entry');
@@ -164,7 +170,7 @@ subtest 'unlocated device with a registered relay' => sub {
             system_uuid => ignore,
             phase => 'integration',
             links => [],
-            (map +('build_'.$_ => $build->$_), qw(id name)),
+            (map +('build_'.$_ => $build2->$_), qw(id name)),
             (map +($_ => undef), qw(asset_tag uptime_since validated)),
             (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created updated last_seen)),
             hardware_product_id => $hardware_product->id,
@@ -347,12 +353,13 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_schema_is('DeviceReportRow');
 
     $null_user->update({ is_admin => 0 });
-    #$t->app->db_device_nics->search({ device_id => $test_device_id })->delete;
 };
 
 my $located_device_id;
 
 subtest 'located device' => sub {
+    $t->authenticate(email => $ro_user->email);
+
     # create the device in the requested rack location
     my $located_device = $t->app->db_devices->create({
         serial_number => 'LOCATED_DEVICE',
@@ -361,6 +368,7 @@ subtest 'located device' => sub {
         device_location => { rack_id => $rack_id, rack_unit_start => 1 },
     });
 
+    $rack->update({ build_id => $build->id });  # now users can access the rack
     $located_device_id = $located_device->id;
 
     $t->get_ok('/device/'.$located_device_id)
@@ -405,7 +413,7 @@ subtest 'located device' => sub {
             ->status_is(403)
             ->log_debug_is('User cannot access requested device(s)');
 
-        $global_ws->create_related('user_workspace_roles', { user_id => $null_user->id, role => 'ro' });
+        $t->authenticate(email => $ro_user->email);
 
         $t->get_ok('/device/'.$located_device_id)
             ->status_is(200)
@@ -418,8 +426,8 @@ subtest 'located device' => sub {
             ->json_cmp_deeply([ superhashof({ id => $located_device_id }) ]);
     }
 
-    $t->txn_local('remove device from its workspace', sub ($t) {
-        $t->app->db_workspace_racks->delete;
+    $t->txn_local('remove device from its rack build', sub ($t) {
+        $rack->update({ build_id => undef });
         $t->get_ok('/device/LOCATED_DEVICE')
             ->status_is(403)
             ->log_debug_is('User lacks the required role (ro) for device '.$located_device_id);
@@ -518,8 +526,8 @@ subtest 'located device' => sub {
                 ->status_is(200);
         }
 
-        $t->txn_local('remove all workspace roles', sub ($t) {
-            $t->app->db_user_workspace_roles->delete;
+        $t->txn_local('remove all build roles', sub ($t) {
+            $t->app->db_user_build_roles->delete;
 
             foreach my $query (@get_queries) {
                 $t->get_ok($query)
@@ -569,30 +577,61 @@ subtest 'located device' => sub {
         $t->authenticate(email => $ro_user->email);
     };
 
-    # give build user rw access to the device through device->device_location->rack->workspace
-    $global_ws->create_related('user_workspace_roles', { user_id => $build_user->id, role => 'rw' });
-    $t->authenticate(email => $build_user->email);
-    $t->post_ok('/build/'.$build->id.'/device/'.$located_device_id)
+    # a user must be able to access the target build, as well as the device (before moving it)
+    # so we authenticate as a user that has the target build, but not the device.
+    # device has no build right now...
+    # device is located in rack which is in build1.
+    $t->authenticate(email => $build2_user->email);
+    $t->post_ok('/build/'.$build2->id.'/device/'.$located_device_id)
+        ->status_is(403)
+        ->log_debug_is('User has rw access to build '.$build2->id.' via role entry')
+        ->log_debug_is('User lacks the required role (rw) for device '.$located_device_id);
+
+    # and then we need a user that has access to the new rack build,
+    # but not the device build,
+    # so when we remove the location, they lose access.
+
+    my $build3 = $t->generate_fixtures('build', { name => 'build3' });
+    $build3->create_related('user_build_roles', { user_id => $rw_user->id, role => 'rw' });
+
+    $t->authenticate(email => $rw_user->email);
+    $t->post_ok('/build/'.$build3->id.'/device/'.$located_device_id)
         ->status_is(204)
-        ->log_debug_is('User has rw access to build '.$build->id.' via role entry')
+        ->log_debug_is('User has rw access to build '.$build3->id.' via role entry')
         ->log_debug_is('User has rw access to device '.$located_device_id.' via role entry');
+
+    # this user can access the device through the rack's build
+    $t->authenticate(email => $ro_user->email);
+    $t->get_ok('/device/'.$located_device_id)
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply({
+            $device_data->%*,
+            build_id => $build3->id,
+            build_name => 'build3',
+            updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        })
+        ->log_debug_is('User has ro access to device '.$located_device_id.' via role entry');
 
     $located_device->update({ phase => 'production' });
     $device_data->@{qw(build_id build_name)} = map $build->$_, qw(id name);
     $device_data->{phase} = 'production';
     delete $device_data->@{qw(location nics disks)};
 
-    # build user still has access through the build
+    # user still has access through device->build
+    $t->authenticate(email => $rw_user->email);
     $t->get_ok('/device/'.$located_device_id)
         ->status_is(200)
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply({
             $device_data->%*,
+            build_id => $build3->id,
+            build_name => 'build3',
             updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         })
         ->log_debug_is('User has ro access to device '.$located_device_id.' via role entry');
 
-    # ro user only had access through device->device_location->rack->workspace
+    # ro user only had access through device->device_location->rack->build
     $t->authenticate(email => $ro_user->email);
     $t->get_ok('/device/'.$located_device_id)
         ->status_is(403)
@@ -602,6 +641,8 @@ subtest 'located device' => sub {
 };
 
 subtest 'device network interfaces' => sub {
+    $t->authenticate(email => $admin_user->email);
+
     $t->get_ok('/device/TEST/interface')
         ->status_is(200)
         ->json_schema_is('DeviceNics');
@@ -852,23 +893,28 @@ subtest 'mutate device attributes' => sub {
     $detailed_device->{links} = [ 'https://foo.com/1' ];
     $detailed_device->{updated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
-    $t->post_ok('/device/TEST/build', json => { build_id => $build2->id })
+    $t->authenticate(email => $ro_user->email);
+
+    $t->post_ok('/device/TEST/build', json => { build_id => $build->id })
         ->status_is(403)
-        ->log_debug_is('User lacks the required role (rw) for existing build '.$build->id);
-    my $ubr = $build->create_related('user_build_roles', { user_id => $ro_user->id, role => 'rw' });
+        ->log_debug_is('User lacks the required role (rw) for existing build '.$build2->id);
 
-    $t->post_ok('/device/TEST/build', json => { build_id => $build2->id })
+    my $ubr = $build2->create_related('user_build_roles', { user_id => $ro_user->id, role => 'rw' });
+
+    $t->post_ok('/device/TEST/build', json => { build_id => $build->id })
         ->status_is(403)
-        ->log_debug_is('User lacks the required role (rw) for new build '.$build2->id);
+        ->log_debug_is('User lacks the required role (rw) for new build '.$build->id);
 
-    $build2->create_related('user_build_roles', { user_id => $ro_user->id, role => 'rw' });
+    $build->search_related('user_build_roles', { user_id => $ro_user->id })->update({ role => 'rw' });
 
-    $t->post_ok('/device/TEST/build', json => { build_id => $build2->id })
+    $t->post_ok('/device/TEST/build', json => { build_id => $build->id })
         ->status_is(303)
         ->location_is('/device/'.$test_device_id);
-    $detailed_device->@{qw(build_id build_name)} = map $build2->$_, qw(id name);
+    $detailed_device->@{qw(build_id build_name)} = map $build->$_, qw(id name);
 
+    # restore original permissions
     $ubr->delete;
+    $build->search_related('user_build_roles', { user_id => $ro_user->id })->update({ role => 'ro' });
 
     $t->get_ok('/device/TEST')
         ->status_is(200)
@@ -1211,19 +1257,28 @@ subtest 'Device PXE' => sub {
 };
 
 subtest 'Device location' => sub {
-    my $t_rw = Test::Conch->new(pg => $t->pg);
-    $t_rw->authenticate(email => $rw_user->email);
+    $t->app->db_device_relay_connections->search({ device_id => $test_device_id })->delete;
 
-    $t_rw->post_ok('/device/TEST/location')
+    my $t_super = Test::Conch->new(pg => $t->pg);
+    $t_super->authenticate(email => $super_user->email);
+
+    # move the device back to build2
+    $t_super->post_ok('/build/'.$build2->id.'/device/'.$test_device_id)
+        ->status_is(204);
+    $detailed_device->@{qw(build_id build_name)} = map $build2->$_, qw(id name);
+
+    $t->authenticate(email => $ro_user->email);
+
+    $t->post_ok('/device/TEST/location')
         ->status_is(403)
         ->log_debug_is('User lacks the required role (rw) for device '.$test_device_id);
 
-    $t_rw->delete_ok('/device/TEST/location')
+    $t->delete_ok('/device/TEST/location')
         ->status_is(403)
         ->log_debug_is('User lacks the required role (rw) for device '.$test_device_id);
 
     my $t_build = Test::Conch->new(pg => $t->pg);
-    $t_build->authenticate(email => $build_user->email);
+    $t_build->authenticate(email => $build2_user->email);
 
     # TODO? possibly we should be able to set the location if the user has permission to
     # access the target location of the device.
@@ -1269,6 +1324,7 @@ subtest 'Device location' => sub {
             health => 'unknown',
             updated => ignore,
             location => $location_data,
+            #(map +('build_'.$_ => $build2->$_), qw(id name)),
         });
 
     $t_build->app->db_devices->search({ id => $test_device_id })->update({ phase => 'production' });
@@ -1290,11 +1346,11 @@ subtest 'Device location' => sub {
 
     $t_build->app->db_devices->search({ id => $test_device_id })->update({ phase => 'installation' });
 
-    $t_rw->delete_ok('/device/TEST/location')
+    $t_build->delete_ok('/device/TEST/location')
         ->status_is(204);
 
-    # rw user has lost access to the device because it no longer has a location
-    $t_rw->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
+    # ro user has lost access to the device because it no longer has a location
+    $t->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 3 })
         ->status_is(403);
 };
 

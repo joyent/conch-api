@@ -14,7 +14,7 @@ $t->get_ok('/dc')
     ->json_schema_is('Datacenters')
     ->json_is([]);
 
-$t->load_fixture_set('workspace_room_rack_layout', 0);
+$t->load_fixture_set('universe_room_rack_layout', 0);
 
 $t->get_ok('/dc')
     ->status_is(200)

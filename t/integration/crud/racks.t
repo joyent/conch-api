@@ -11,7 +11,7 @@ my $super_user = $t->load_fixture('super_user');
 
 $t->authenticate;
 
-$t->load_fixture_set('workspace_room_rack_layout', 0);
+$t->load_fixture_set('universe_room_rack_layout', 0);
 my $build = $t->generate_fixtures('build');
 
 my $completed_build = $t->generate_fixtures('build');

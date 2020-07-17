@@ -12,39 +12,12 @@ use Conch::UUID 'create_uuid_str';
 my $t = Test::Conch->new;
 my $super_user = $t->load_fixture('super_user');
 my $null_user = $t->generate_fixtures('user_account');
-my $global_ws_id = $t->load_fixture('admin_user_global_workspace')->workspace_id;
+my $hardware_product = $t->load_fixture('hardware_product_compute');
 
 $t->authenticate(email => $null_user->email);
 
 my $t_super = Test::Conch->new(pg => $t->pg);
 $t_super->authenticate(email => $super_user->email);
-
-# two workspaces under GLOBAL, each with a room,rack and layout.
-$t->load_fixture_set('workspace_room_rack_layout', $_) for 0..1;
-
-my $workspaces_rs = $t->app->db_workspaces->search({ 'workspace.name' => 'GLOBAL' })
-    ->related_resultset('workspaces')->order_by('workspaces.name');
-
-my @workspace_ids = $workspaces_rs->get_column('id')->all;
-
-# get all rack layouts in both workspaces into a two-dimensional array;
-# create and assign one device to each layout.
-my $device_num = 0;
-my @devices;
-my @rack_layouts = map {
-    my @_layouts = $workspaces_rs->search({ 'workspaces.id' => $_ })
-        ->related_resultset('workspace_racks')
-        ->related_resultset('rack')
-        ->related_resultset('rack_layouts')
-        ->order_by('rack_unit_start')->hri->all;
-    push @devices, map $t->app->db_devices->create({
-        serial_number => 'DEVICE'.$device_num++,
-        hardware_product_id => $_->{hardware_product_id},
-        health  => 'unknown',
-        device_location => { $_->%{qw(rack_id rack_unit_start)} },
-    }), @_layouts;
-    \@_layouts
-} @workspace_ids;
 
 $t->post_ok('/relay/relay'.$_.'/register',
         json => {
@@ -198,43 +171,17 @@ $t_super->get_ok('/relay')
 my $y2000 = Conch::Time->new(year => 2000);
 cmp_ok($relay0->last_seen, '>', $y2000, 'relay last_seen was updated');
 
-# now register the relays on various devices in both workspace racks...
-
-$t->app->db_device_relay_connections->create($_) foreach (
-    {
+my $device_num = 0;
+my @devices = map $t->app->db_devices->create({
+    serial_number => 'DEVICE'.$device_num++,
+    hardware_product_id => $hardware_product->id,
+    health  => 'unknown',
+    device_relay_connections => [{
         relay_id => $relay0->id,
-        device_id => $devices[0]->id,   # workspace 0, layout 0
         first_seen => '2001-01-01',
         last_seen => '2018-01-01',
-    },
-    {
-        relay_id => $relay0->id,
-        device_id => $devices[5]->id,   # workspace 1, layout 2
-        first_seen => '2001-01-01',
-        last_seen => '2018-01-02',      # <-- latest known location for relay0
-    },
-);
-
-$t->app->db_device_relay_connections->create($_) foreach (
-    {
-        relay_id => $relay1->id,
-        device_id => $devices[2]->id,   # workspace 0, layout 2
-        first_seen => '2001-01-01',
-        last_seen => '2018-01-02',
-    },
-    {
-        relay_id => $relay1->id,
-        device_id => $devices[4]->id,   # workspace 1, layout 1
-        first_seen => '2001-01-01',
-        last_seen => '2018-01-03',
-    },
-    {
-        relay_id => $relay1->id,
-        device_id => $devices[0]->id,   # workspace 0, layout 0
-        first_seen => '2001-01-01',
-        last_seen => '2018-01-04',      # <-- latest known location for relay1
-    },
-);
+    }],
+}), 0..1;
 
 subtest delete => sub {
     $t->delete_ok('/relay/'.$relay0->id)

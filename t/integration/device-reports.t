@@ -16,7 +16,7 @@ use List::Util 'first';
 
 my $t = Test::Conch->new;
 
-my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
+my $ro_user = $t->load_fixture('ro_user');
 $t->authenticate(email => $ro_user->email);
 
 my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
