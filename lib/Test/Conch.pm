@@ -817,7 +817,7 @@ is called, or if left undefined a test failure is generated.
 
 sub do_and_wait_for_event ($self, $emitter, $event_name, $task, $success, $fail = undef) {
     # resolved when event $event_name is received
-    my $event_promise = Mojo::Promise->new->timeout(2);
+    my $event_promise = Mojo::Promise->new->timeout(10);
 
     $emitter->once($event_name => sub ($, @args) {
         $event_promise->resolve(@args);
