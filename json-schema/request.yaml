@@ -217,7 +217,9 @@ definitions:
     minProperties: 1
     properties:
       rack_id:
-        $ref: common.yaml#/definitions/uuid
+        allOf:
+          - deprecated: true
+          - $ref: common.yaml#/definitions/uuid
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       rack_unit_start:

@@ -1034,6 +1034,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "iface_driver" : {
+          "deprecated" : true,
           "type" : "string"
         },
         "iface_name" : {
@@ -3013,6 +3014,7 @@
       "type" : "object"
     },
     "ValidationStatesWithResults" : {
+      "deprecated" : true,
       "items" : {
         "$ref" : "#/definitions/ValidationStateWithResults"
       },

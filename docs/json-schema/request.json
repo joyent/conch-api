@@ -958,7 +958,14 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "rack_id" : {
-          "$ref" : "common.json#/definitions/uuid"
+          "allOf" : [
+            {
+              "deprecated" : true
+            },
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ]
         },
         "rack_unit_start" : {
           "$ref" : "common.json#/definitions/positive_integer"

@@ -141,6 +141,7 @@ definitions:
         - ids_only
         - serials_only
   WorkspaceRelays:
+    deprecated: true
     type: object
     additionalProperties: false
     properties:
