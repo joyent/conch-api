@@ -356,6 +356,7 @@ $t->get_ok('/schema/query_params/workspace_relays')
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
         '$id' => 'urn:query_params.WorkspaceRelays.schema.json',
+        deprecated => bool(1),
         title => 'WorkspaceRelays',
         definitions => {
             non_negative_integer => { type => 'integer', minimum => 0 },

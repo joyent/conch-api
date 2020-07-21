@@ -267,6 +267,7 @@
     },
     "WorkspaceRelays" : {
       "additionalProperties" : false,
+      "deprecated" : true,
       "properties" : {
         "active_minutes" : {
           "$ref" : "common.json#/definitions/non_negative_integer"

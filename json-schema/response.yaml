@@ -482,6 +482,7 @@ definitions:
       iface_type:
         type: string
       iface_driver:
+        deprecated: true
         type: string
       state:
         oneOf:
@@ -1036,6 +1037,7 @@ definitions:
     items:
       $ref: '#/definitions/ValidationResult'
   ValidationStatesWithResults:
+    deprecated: true
     type: array
     uniqueItems: true
     items:
