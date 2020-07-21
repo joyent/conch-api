@@ -1764,6 +1764,7 @@ definitions:
     items:
       $ref: '#/definitions/HardwareVendor'
   DeviceTotals:
+    deprecated: true
     type: object
     required:
       - all
@@ -1791,6 +1792,7 @@ definitions:
           count:
             $ref: common.yaml#/definitions/positive_integer
   DeviceTotalsCirconus:
+    deprecated: true
     type: object
     properties:
       storage:

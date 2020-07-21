@@ -1317,6 +1317,7 @@
         "type" : "array",
         "uniqueItems" : true
       },
+      "deprecated" : true,
       "maxProperties" : 5,
       "minProperties" : 5,
       "required" : [
@@ -1357,6 +1358,7 @@
         ],
         "type" : "object"
       },
+      "deprecated" : true,
       "properties" : {
         "compute" : {
           "additionalProperties" : false,
