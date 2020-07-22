@@ -133,6 +133,19 @@ CREATE FUNCTION public.array_cat_distinct(anyarray, anyarray) RETURNS anyarray
 ALTER FUNCTION public.array_cat_distinct(anyarray, anyarray) OWNER TO conch;
 
 --
+-- Name: array_subtract(anyarray, anyarray); Type: FUNCTION; Schema: public; Owner: conch
+--
+
+CREATE FUNCTION public.array_subtract(anyarray, anyarray) RETURNS anyarray
+    LANGUAGE sql IMMUTABLE
+    AS $_$
+      select array(select unnest($1) except select unnest($2) order by 1);
+    $_$;
+
+
+ALTER FUNCTION public.array_subtract(anyarray, anyarray) OWNER TO conch;
+
+--
 -- Name: run_migration(integer, text); Type: FUNCTION; Schema: public; Owner: conch
 --
 

@@ -73,7 +73,8 @@ Appends the provided link(s) to the device record.
 
 ### remove\_links
 
-Removes all links from the device record.
+When a payload is specified, remove specified links from the device record;
+with a null payload, removes all links.
 
 ### set\_build
 

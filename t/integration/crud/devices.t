@@ -878,6 +878,23 @@ subtest 'mutate device attributes' => sub {
         ->json_schema_is('DetailedDevice')
         ->json_cmp_deeply($detailed_device);
 
+    $t->delete_ok('/device/TEST/links', json => { links => [ 'https://does-not-exist.com' ] })
+        ->status_is(204);
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply($detailed_device);
+
+    $t->delete_ok('/device/TEST/links', json => { links => [ 'https://foo.com/1' ] })
+        ->status_is(204);
+    $detailed_device->{links} = [ 'https://foo.com/0' ];
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply($detailed_device);
+
     $t->delete_ok('/device/TEST/links')
         ->status_is(204);
     $detailed_device->{links} = [];

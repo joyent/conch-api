@@ -278,6 +278,8 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/remove_links>
 
+=item * Request: F<request.yaml#/definitions/DeviceLinksOrNull>
+
 =item * Response: 204 No Content
 
 =back

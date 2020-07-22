@@ -2,7 +2,7 @@ package Conch::Plugin::JsonValidator;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-use feature 'unicode_strings';
+use feature 'unicode_strings', 'fc';
 use JSON::Validator;
 use Mojo::Util 'decamelize';
 
