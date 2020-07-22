@@ -699,10 +699,10 @@ subtest 'get by device attributes' => sub {
         ->json_is('', [ $undetailed_device ], 'got device by ipaddr');
 
     my $test_device = $t->app->db_devices->search({ id => $test_device_id })->single;
-    $test_device->update({ links => ['foo'] });
-    $undetailed_device->{links} = ['foo'];
+    $test_device->update({ links => ['http://foo.com'] });
+    $undetailed_device->{links} = ['http://foo.com'];
 
-    $t->get_ok('/device?link=foo')
+    $t->get_ok('/device?link=http://foo.com')
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_is('', [ $undetailed_device ], 'got device by link');
@@ -729,7 +729,7 @@ subtest 'get by device attributes' => sub {
 
     foreach my $query (qw(
         /device?hostname=elfo
-        /device?link=foo
+        /device?link=http://foo.com
         /device?key=value
     )) {
         $t->get_ok($query)
