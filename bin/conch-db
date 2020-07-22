@@ -106,11 +106,11 @@ my $db_credentials;
 
 my $pgsql;
 if ($opt->dry_run or $use_test_db) {
-    $pgsql = Test::PostgreSQL->new;
+    $pgsql = Test::PostgreSQL->new(dbowner => 'conch');
     die $Test::PostgreSQL::errstr if not $pgsql;
 
     local @ENV{qw(POSTGRES_DB POSTGRES_HOST POSTGRES_USER POSTGRES_PASSWORD)};
-    $db_credentials = { dsn => $pgsql->dsn, username => 'postgres' };
+    $db_credentials = { dsn => $pgsql->dsn };
 }
 else {
     # environment variables are used first, if set
@@ -180,7 +180,7 @@ if (@ARGV and $ARGV[0] eq 'apply-dump-migration') {
     shift @ARGV; my @migrations = @ARGV; @ARGV = ();
 
     # apply sql/schema.sql to test db, and pretend that all migration files were run
-    Conch::DB::Util::initialize_db($schema, 'create_role_and_db');
+    Conch::DB::Util::initialize_db($schema);
     # remove record that these migrations were "run"
     $schema->resultset('migration')->search({ id => { -in => [ grep /^\d+$/, @migrations ] } })->delete;
     # ..so now they will be run for real
