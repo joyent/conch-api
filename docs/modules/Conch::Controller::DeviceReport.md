@@ -12,7 +12,7 @@ Controller for processing and managing device reports.
 
 ### process
 
-Processes the device report, turning it into the various device\_ tables as well
+Processes the device report, turning it into the various device\_\* tables as well
 as running validations
 
 Response uses the ValidationStateWithResults json schema.

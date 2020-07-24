@@ -23,13 +23,13 @@ Supports the following optional query parameters:
 - `with_rack_phases` - includes correlated counts of racks having each phase value
 
 - Controller/Action: ["get\_all" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_all)
-- Response: response.yaml#/Builds
+- Response: [response.json#/definitions/Builds](../json-schema/response.json#/definitions/Builds)
 
 ### `POST /build`
 
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#create)
-- Request: request.yaml#/BuildCreate
+- Request: [request.json#/definitions/BuildCreate](../json-schema/request.json#/definitions/BuildCreate)
 - Response: Redirect to the build
 
 ### `GET /build/:build_id_or_name`
@@ -42,20 +42,20 @@ Supports the following optional query parameters:
 
 - Controller/Action: ["get" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get)
 - Requires system admin authorization or the read-only role on the build
-- Response: response.yaml#/Build
+- Response: [response.json#/definitions/Build](../json-schema/response.json#/definitions/Build)
 
 ### `POST /build/:build_id_or_name`
 
 - Requires system admin authorization or the admin role on the build
 - Controller/Action: ["update" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#update)
-- Request: request.yaml#/BuildUpdate
+- Request: [request.json#/definitions/BuildUpdate](../json-schema/request.json#/definitions/BuildUpdate)
 - Response: Redirect to the build
 
 ### `GET /build/:build_id_or_name/user`
 
 - Requires system admin authorization or the admin role on the build
 - Controller/Action: ["get\_users" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_users)
-- Response: response.yaml#/BuildUsers
+- Response: [response.json#/definitions/BuildUsers](../json-schema/response.json#/definitions/BuildUsers)
 
 ### `POST /build/:build_id_or_name/user?send_mail=<1|0`>
 
@@ -64,7 +64,7 @@ an email to the user.
 
 - Requires system admin authorization or the admin role on the build
 - Controller/Action: ["add\_user" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_user)
-- Request: request.yaml#/BuildAddUser
+- Request: [request.json#/definitions/BuildAddUser](../json-schema/request.json#/definitions/BuildAddUser)
 - Response: `204 No Content`
 
 ### `DELETE /build/:build_id_or_name/user/#target_user_id_or_email?send_mail=<1|0`>
@@ -146,7 +146,7 @@ read-write role on the device (via a workspace or build; see ["routes" in Conch:
 
 - Requires system admin authorization or the read-only role on the build
 - Controller/Action: ["get\_racks" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_racks)
-- Response: response.yaml#/Racks
+- Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)
 
 ### `POST /build/:build_id_or_name/rack/:rack_id_or_name`
 

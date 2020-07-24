@@ -36,7 +36,7 @@ All routes require authentication.
 
 - Requires system admin authorization or the admin role on the organization
 - Controller/Action: ["update" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#update)
-- Request: request.yaml#/OrganizationUpdate
+- Request: [request.json#/definitions/OrganizationUpdate](../json-schema/request.json#/definitions/OrganizationUpdate)
 - Response: Redirect to the organization
 
 ### `DELETE /organization/:organization_id_or_name`

@@ -39,8 +39,8 @@ Successful (HTTP 2xx code) response structures are as described for each endpoin
 Error responses will use:
 
 - failure to validate query parameters: HTTP 400, [response.json#/definitions/QueryParamsValidationError](../json-schema/response.json#/definitions/QueryParamsValidationError)
-- failure to validate request body payload: HTTP 400, [response.json#/RequestValidationError](../json-schema/response.json#/RequestValidationError)
-- all other errors, unless specified: HTTP 4xx, [response.json#/Error](../json-schema/response.json#/Error)
+- failure to validate request body payload: HTTP 400, [response.json#/definitions/RequestValidationError](../json-schema/response.json#/definitions/RequestValidationError)
+- all other errors, unless specified: HTTP 4xx, [response.json#/definitions/Error](../json-schema/response.json#/definitions/Error)
 
 ### `GET /ping`
 

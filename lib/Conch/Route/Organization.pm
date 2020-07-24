@@ -105,7 +105,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Organization/update>
 
-=item * Request: request.yaml#/OrganizationUpdate
+=item * Request: F<request.yaml#/definitions/OrganizationUpdate>
 
 =item * Response: Redirect to the organization
 
