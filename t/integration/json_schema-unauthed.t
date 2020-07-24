@@ -45,7 +45,7 @@ $t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan
     ->status_is(200)
     ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is(SPEC_URL)
+    ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply({
         '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/response/Ping',
@@ -67,27 +67,31 @@ $t->ua->max_redirects(10);
 $t->get_ok('/schema/response/login_token')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is(SPEC_URL)
+    ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply(my $response_login_token = {
         '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/response/LoginToken',
         type => 'object',
         additionalProperties => bool(0),
         required => ['jwt_token'],
-        properties => { jwt_token => { type => 'string', pattern => '[^.]+\.[^.]+\.[^.]+' } },
+        properties => { jwt_token => {
+            type => 'string',
+            pattern => '^[^.]+\.[^.]+\.[^.]+$',
+            contentMediaType => 'application/jwt',
+        } },
     });
 $t->ua->max_redirects(0);
 
 $t->get_ok('/json_schema/response/LoginToken')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is(SPEC_URL)
+    ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply($response_login_token);
 
 $t->get_ok('/json_schema/request/Login')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is(SPEC_URL)
+    ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply({
         '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/request/Login',
@@ -122,7 +126,7 @@ $t->get_ok('/json_schema/request/Login')
 $t->get_ok('/json_schema/query_params/ResetUserPassword')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is(SPEC_URL)
+    ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply({
         '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/query_params/ResetUserPassword',
@@ -147,7 +151,7 @@ $t->get_ok('/json_schema/query_params/ResetUserPassword')
 $t->get_ok('/json_schema/request/HardwareProductCreate')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is(SPEC_URL)
+    ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply('', superhashof({
         '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/request/HardwareProductCreate',
@@ -163,10 +167,40 @@ $t->get_ok('/json_schema/request/HardwareProductCreate')
         },
     }), 'nested definitions are found and included');
 
+$t->get_ok('/json_schema/response/JSONSchemaOnDisk')
+    ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
+    ->json_schema_is('JSONSchemaOnDisk')
+    ->json_cmp_deeply({
+        '$schema' => SPEC_URL,
+        '$id' => $base_uri.'json_schema/response/JSONSchemaOnDisk',
+        '$comment' => ignore,
+        contentMediaType => 'application/schema+json',
+        allOf => [
+          {
+            '$comment' => ignore,
+            '$id' => ignore,  # we just need there to be something here
+            '$ref' => SPEC_URL,
+            '$recursiveAnchor' => bool(1),
+            '$ref' => SPEC_URL,
+            properties => {
+              '$schema' => { const => SPEC_URL },
+            },
+            unevaluatedProperties => bool(0),
+          },
+          {
+            '$comment' => ignore,
+            type => ignore,
+            required => [ '$id', '$schema' ],
+            properties => ignore,
+          },
+        ],
+    });
+
 $t->get_ok('/json_schema/request/DeviceReport')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is(SPEC_URL)
+    ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply(superhashof({
         '$schema' => SPEC_URL,
         '$id' => re(qr{/json_schema/request/DeviceReport$}),
@@ -184,7 +218,7 @@ $t->get_ok('/json_schema/request/DeviceReport')
 $t->get_ok('/json_schema/common/non_zero_uuid')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is(SPEC_URL)
+    ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply({
         '$id' => $base_uri.'json_schema/common/non_zero_uuid',
         '$schema' => SPEC_URL,
@@ -201,7 +235,7 @@ $t->get_ok('/json_schema/common/non_zero_uuid')
 $t->get_ok('/json_schema/device_report/DeviceReport_v3_0_0')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is(SPEC_URL)
+    ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply({
         '$id' => $base_uri.'json_schema/device_report/DeviceReport_v3_0_0',
         '$schema' => SPEC_URL,
@@ -250,7 +284,7 @@ subtest 'schemas that contain an unresolvable $ref property because it is not a 
   $t->get_ok('/json_schema/response/MyNewSchema')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is(SPEC_URL)
+    ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply(superhashof({
         '$schema' => SPEC_URL,
         '$id' => re(qr{/json_schema/response/MyNewSchema$}),

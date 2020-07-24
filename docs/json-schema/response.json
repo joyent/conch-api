@@ -1540,6 +1540,38 @@
       "type" : "array",
       "uniqueItems" : true
     },
+    "JSONSchemaOnDisk" : {
+      "$comment" : "this is the structure for responses from GET /json_schema/[query_params|request|response|common_device_report]/:name only",
+      "allOf" : [
+        {
+          "$comment" : "Here we are essentially adding on to the main \"schema\" definition defined in the metaschema.",
+          "$id" : "/json_schema/response/JSONSchemaOnDisk_recurse",
+          "$recursiveAnchor" : true,
+          "$ref" : "https://json-schema.org/draft/2019-09/schema",
+          "properties" : {
+            "$schema" : {
+              "const" : "https://json-schema.org/draft/2019-09/schema"
+            }
+          },
+          "unevaluatedProperties" : false
+        },
+        {
+          "$comment" : "Here we are adding on additional requirements for the top level schema only.",
+          "properties" : {
+            "$id" : {
+              "format" : "uri",
+              "type" : "string"
+            }
+          },
+          "required" : [
+            "$id",
+            "$schema"
+          ],
+          "type" : "object"
+        }
+      ],
+      "contentMediaType" : "application/schema+json"
+    },
     "LegacyValidation" : {
       "$comment" : "this definition will be removed in v4.0",
       "additionalProperties" : false,
@@ -1705,7 +1737,8 @@
       "additionalProperties" : false,
       "properties" : {
         "jwt_token" : {
-          "pattern" : "[^.]+\\.[^.]+\\.[^.]+",
+          "contentMediaType" : "application/jwt",
+          "pattern" : "^[^.]+\\.[^.]+\\.[^.]+$",
           "type" : "string"
         }
       },
@@ -1756,7 +1789,7 @@
           "type" : "string"
         },
         "token" : {
-          "pattern" : "[^.]+\\.[^.]+\\.[^.]+",
+          "pattern" : "^[^.]+\\.[^.]+\\.[^.]+$",
           "type" : "string"
         }
       },
@@ -1978,8 +2011,9 @@
         }
       },
       "required" : [
-        "data",
-        "error"
+        "error",
+        "schema",
+        "data"
       ],
       "type" : "object",
       "unevaluatedProperties" : false
@@ -2366,7 +2400,8 @@
         }
       },
       "required" : [
-        "error"
+        "error",
+        "schema"
       ],
       "type" : "object",
       "unevaluatedProperties" : false

@@ -38,9 +38,7 @@ $defs:
     $ref: '#/$defs/ValidationError'
     type: object
     unevaluatedProperties: false
-    required:
-      - data
-      - error
+    required: [ error, schema, data ]
     properties:
       error:
         type: string
@@ -59,8 +57,7 @@ $defs:
     $ref: '#/$defs/ValidationError'
     type: object
     unevaluatedProperties: false
-    required:
-      - error
+    required: [ error, schema ]
     properties:
       error:
         type: string
@@ -108,7 +105,8 @@ $defs:
     properties:
       jwt_token:
         type: string
-        pattern: '[^.]+\.[^.]+\.[^.]+'
+        pattern: '^[^.]+\.[^.]+\.[^.]+$'
+        contentMediaType: application/jwt
   DetailedDevice:
     type: object
     additionalProperties: false
@@ -1410,7 +1408,7 @@ $defs:
     properties:
       token:
         type: string
-        pattern: '[^.]+\.[^.]+\.[^.]+'
+        pattern: '^[^.]+\.[^.]+\.[^.]+$'
       created:
         type: string
         format: date-time
@@ -1772,5 +1770,27 @@ $defs:
           minItems: 1
           items:
             $ref: '#/$defs/UserTerse'
+  JSONSchemaOnDisk:
+    $comment: this is the structure for responses from GET /json_schema/[query_params|request|response|common_device_report]/:name only
+    contentMediaType: application/schema+json
+    allOf:
+      - $comment: Here we are essentially adding on to the main "schema" definition defined in the metaschema.
+        # hack! we need an $id here in order to use this location as a $recursiveRef target
+        $id: /json_schema/response/JSONSchemaOnDisk_recurse
+        $recursiveAnchor: true
+        $ref: 'https://json-schema.org/draft/2019-09/schema'
+        properties:
+          $schema:
+            const: 'https://json-schema.org/draft/2019-09/schema'
+        unevaluatedProperties: false
+      - $comment: Here we are adding on additional requirements for the top level schema only.
+        type: object
+        required:
+          - $id       # the official path, e.g. https://conch.joyent.us/json_schema/request/Foo
+          - $schema
+        properties:
+          $id:
+            type: string
+            format: uri   # never merely a uri-reference
 
 # vim: set sts=2 sw=2 et :
