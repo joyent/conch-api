@@ -3,7 +3,7 @@
   "$schema" : "http://json-schema.org/draft-07/schema#",
   "definitions" : {
     "BuildDevices" : {
-      "additionalProperties" : false,
+      "additionalProperties" : true,
       "allOf" : [
         {
           "not" : {
@@ -69,16 +69,6 @@
             }
           ]
         },
-        "phase_earlier_than" : {
-          "oneOf" : [
-            {
-              "const" : ""
-            },
-            {
-              "$ref" : "common.json#/definitions/device_phase"
-            }
-          ]
-        },
         "serials_only" : {
           "$ref" : "#/definitions/boolean_integer_default_false"
         }
@@ -126,6 +116,22 @@
     },
     "DeactivateUser" : {
       "$ref" : "#/definitions/ChangePassword"
+    },
+    "FindDevice" : {
+      "additionalProperties" : true,
+      "properties" : {
+        "phase_earlier_than" : {
+          "oneOf" : [
+            {
+              "const" : ""
+            },
+            {
+              "$ref" : "common.json#/definitions/device_phase"
+            }
+          ]
+        }
+      },
+      "type" : "object"
     },
     "GetBuilds" : {
       "not" : {
@@ -179,7 +185,7 @@
       "type" : "object"
     },
     "GetValidationState" : {
-      "additionalProperties" : false,
+      "additionalProperties" : true,
       "properties" : {
         "status" : {
           "oneOf" : [

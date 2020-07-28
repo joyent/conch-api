@@ -673,7 +673,7 @@ devices for such phases).
 =cut
 
 sub find_devices ($c) {
-    my $params = $c->validate_query_params('BuildDevices');
+    my $params = $c->validate_query_params('FindDevice');
     return if not $params;
 
     # production devices do not consider location, interface data to be canonical
