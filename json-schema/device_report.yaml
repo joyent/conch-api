@@ -27,8 +27,7 @@ $defs:
         uniqueItems: true
         items:
           type: object
-          required:
-            - memory-locator
+          required: [ memory-locator ]
           properties:
             memory-locator:
               type: string
@@ -73,9 +72,7 @@ $defs:
               type: integer
             # any additional fields are not currently used.
       device_type:
-        enum:
-          - server
-          - switch
+        enum: [ server, switch ]
       interfaces:
         # TODO: this is required for servers
         type: object
@@ -83,10 +80,7 @@ $defs:
           $ref: common.yaml#/$defs/device_interface_name
         additionalProperties:
           type: object
-          required:
-            - mac
-            - product
-            - vendor
+          required: [ mac, product, vendor ]
           properties:
             mac:
               $ref: common.yaml#/$defs/macaddr
@@ -114,8 +108,7 @@ $defs:
             #   pattern: ^\S+$
       os:
         type: object
-        required:
-          - hostname
+        required: [ hostname ]
         properties:
           hostname:
             type: string
@@ -126,8 +119,7 @@ $defs:
         type: string
       relay:
         type: object
-        required:
-          - serial
+        required: [ serial ]
         properties:
           serial:
             $ref: common.yaml#/$defs/relay_serial_number
@@ -137,9 +129,7 @@ $defs:
         $ref: common.yaml#/$defs/non_zero_uuid
       temp:
         type: object
-        required:
-          - cpu0
-          - cpu1
+        required: [ cpu0, cpu1 ]
         properties:
           cpu0:
             $ref: '#/$defs/int_or_stringy_int'

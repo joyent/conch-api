@@ -5,8 +5,7 @@ $defs:
     $comment: this is the superset of all error schemas
     type: object
     additionalProperties: false
-    required:
-      - error
+    required: [ error ]
     properties:
       error:
         type: string
@@ -14,10 +13,7 @@ $defs:
     $comment: base structure for all query_param, request, response validation error responses
     type: object
     additionalProperties: false
-    required:
-      - error
-      - details
-      - schema
+    required: [ error, details, schema ]
     properties:
       error:
         type: string
@@ -67,10 +63,7 @@ $defs:
   JSONSchemaError:
     $comment: very similar to https://json-schema.org/draft/2019-09/output/schema#/$defs/outputUnit - see https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10.4.2
     type: object
-    required:
-      - data_location
-      - schema_location
-      - error
+    required: [ data_location, schema_location, error ]
     additionalProperties: false
     properties:
       data_location:
@@ -92,16 +85,14 @@ $defs:
   Ping:
     type: object
     additionalProperties: false
-    required:
-      - status
+    required: [ status ]
     properties:
       status:
         const: ok
   LoginToken:
     type: object
     additionalProperties: false
-    required:
-      - jwt_token
+    required: [ jwt_token ]
     properties:
       jwt_token:
         type: string
@@ -273,14 +264,9 @@ $defs:
     if:
       properties:
         phase:
-          enum:
-            - integration
-            - installation
+          enum: [ integration, installation ]
     then:
-      required:
-        - location
-        - nics
-        - disks
+      required: [ location, nics, disks ]
     else:
       properties:
         location: false
@@ -386,14 +372,9 @@ $defs:
     if:
       properties:
         phase:
-          enum:
-            - integration
-            - installation
+          enum: [ integration, installation ]
     then:
-      required:
-        - rack_id
-        - rack_name
-        - rack_unit_start
+      required: [ rack_id, rack_name, rack_unit_start ]
     else:
       properties:
         rack_id: false
@@ -449,11 +430,7 @@ $defs:
   DevicePXE:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - phase
-      - ipmi
-      - pxe
+    required: [ id, phase, ipmi, pxe ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -466,9 +443,7 @@ $defs:
       ipmi:
         type: [ 'null', object ]
         additionalProperties: false
-        required:
-          - mac
-          - ip
+        required: [ mac, ip ]
         properties:
           mac:
             $ref: common.yaml#/$defs/macaddr
@@ -479,20 +454,16 @@ $defs:
       pxe:
         type: [ 'null', object ]
         additionalProperties: false
-        required:
-          - mac
+        required: [ mac ]
         properties:
           mac:
             $ref: common.yaml#/$defs/macaddr
     if:
       properties:
         phase:
-          enum:
-            - integration
-            - installation
+          enum: [ integration, installation ]
     then:
-      required:
-        - location
+      required: [ location ]
     else:
       properties:
         location: false
@@ -504,9 +475,7 @@ $defs:
   DevicePhase:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - phase
+    required: [ id, phase ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -515,10 +484,7 @@ $defs:
   DeviceSku:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - hardware_product_id
-      - sku
+    required: [ id, hardware_product_id, sku ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -1015,8 +981,7 @@ $defs:
   Version:
     type: object
     additionalProperties: false
-    required:
-      - version
+    required: [ version ]
     properties:
       version:
         type: string
@@ -1196,10 +1161,7 @@ $defs:
   NewUser:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - email
-      - name
+    required: [ id, email, name ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -1210,21 +1172,14 @@ $defs:
   UserError:
     type: object
     additionalProperties: false
-    required:
-      - error
-      - user
+    required: [ error, user ]
     properties:
       error:
         type: string
       user:
         type: object
         additionalProperties: false
-        required:
-          - id
-          - email
-          - name
-          - created
-          - deactivated
+        required: [ id, email, name, created, deactivated ]
         properties:
           id:
             $ref: common.yaml#/$defs/uuid
@@ -1281,11 +1236,7 @@ $defs:
         items:
           type: object
           additionalProperties: false
-          required:
-            - id
-            - name
-            - description
-            - role
+          required: [ id, name, description, role ]
           properties:
             id:
               $ref: common.yaml#/$defs/uuid
@@ -1301,11 +1252,7 @@ $defs:
         items:
           type: object
           additionalProperties: false
-          required:
-            - id
-            - name
-            - description
-            - role
+          required: [ id, name, description, role ]
           properties:
             id:
               $ref: common.yaml#/$defs/uuid
@@ -1372,12 +1319,7 @@ $defs:
   UserToken:
     type: object
     additionalProperties: false
-    required:
-      - name
-      - created
-      - last_used
-      - expires
-      - last_ipaddr
+    required: [ name, created, last_used, expires, last_ipaddr ]
     properties:
       name:
         type: string
@@ -1397,12 +1339,7 @@ $defs:
   NewUserToken:
     type: object
     additionalProperties: false
-    required:
-      - token
-      - created
-      - last_used
-      - expires
-      - name
+    required: [ token, created, last_used, expires, name ]
     properties:
       token:
         type: string
@@ -1421,11 +1358,7 @@ $defs:
   HardwareVendor:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - name
-      - created
-      - updated
+    required: [ id, name, created, updated ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -1445,11 +1378,7 @@ $defs:
   DeviceReportRow:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - device_id
-      - report
-      - created
+    required: [ id, device_id, report, created ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -1464,10 +1393,7 @@ $defs:
   UserTerse:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - name
-      - email
+    required: [ id, name, email ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -1502,11 +1428,7 @@ $defs:
         items:
           type: object
           additionalProperties: false
-          required:
-            - id
-            - name
-            - email
-            - role
+          required: [ id, name, email, role ]
           properties:
             id:
               $ref: common.yaml#/$defs/uuid
@@ -1527,11 +1449,7 @@ $defs:
         items:
           type: object
           additionalProperties: false
-          required:
-            - id
-            - name
-            - description
-            - role
+          required: [ id, name, description, role ]
           properties:
             id:
               $ref: common.yaml#/$defs/uuid
@@ -1576,20 +1494,14 @@ $defs:
           items:
             type: object
             additionalProperties: false
-            required:
-              - id
-              - name
-              - description
-              - role
+            required: [ id, name, description, role ]
             properties:
               id:
                 $ref: common.yaml#/$defs/uuid
               name:
                 $ref: common.yaml#/$defs/mojo_standard_placeholder
               description:
-                type:
-                  - 'null'
-                  - string
+                type: [ 'null', string ]
               role:
                 $ref: common.yaml#/$defs/role
   Build:
@@ -1722,11 +1634,7 @@ $defs:
     items:
       type: object
       additionalProperties: false
-      required:
-        - id
-        - name
-        - email
-        - role
+      required: [ id, name, email, role ]
       properties:
         id:
           $ref: common.yaml#/$defs/uuid
@@ -1747,12 +1655,7 @@ $defs:
     items:
       type: object
       additionalProperties: false
-      required:
-        - id
-        - name
-        - description
-        - role
-        - admins
+      required: [ id, name, description, role, admins ]
       properties:
         id:
           $ref: common.yaml#/$defs/uuid
@@ -1783,9 +1686,8 @@ $defs:
         unevaluatedProperties: false
       - $comment: Here we are adding on additional requirements for the top level schema only.
         type: object
-        required:
-          - $id       # the official path, e.g. https://conch.joyent.us/json_schema/request/Foo
-          - $schema
+        # $id: the official path, e.g. https://conch.joyent.us/json_schema/request/Foo
+        required: [ $id, $schema ]
         properties:
           $id:
             type: string

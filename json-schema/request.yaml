@@ -6,10 +6,7 @@ $defs:
   DatacenterCreate:
     type: object
     additionalProperties: false
-    required:
-      - vendor
-      - region
-      - location
+    required: [ vendor, region, location ]
     properties:
       vendor:
         $ref: common.yaml#/$defs/non_empty_string
@@ -35,11 +32,7 @@ $defs:
   DatacenterRoomCreate:
     type: object
     additionalProperties: false
-    required:
-      - datacenter_id
-      - az
-      - alias
-      - vendor_name
+    required: [ datacenter_id, az, alias, vendor_name ]
     properties:
       datacenter_id:
         $ref: common.yaml#/$defs/uuid
@@ -67,11 +60,7 @@ $defs:
   RackCreate:
     type: object
     additionalProperties: false
-    required:
-      - name
-      - datacenter_room_id
-      - rack_role_id
-      - build_id
+    required: [ name, datacenter_room_id, rack_role_id, build_id ]
     properties:
       name:
         $ref: common.yaml#/$defs/mojo_relaxed_placeholder
@@ -117,8 +106,7 @@ $defs:
   RackLinks:
     type: object
     additionalProperties: false
-    required:
-      - links
+    required: [ links ]
     properties:
       links:
         $ref: common.yaml#/$defs/links
@@ -136,13 +124,10 @@ $defs:
   RackAssignmentUpdate:
     type: object
     additionalProperties: false
-    required:
-      - rack_unit_start
+    required: [ rack_unit_start ]
     anyOf:
-      - required:
-        - device_id
-      - required:
-        - device_serial_number
+      - required: [ device_id ]
+      - required: [ device_serial_number ]
     properties:
       device_id:
         $ref: common.yaml#/$defs/uuid
@@ -163,9 +148,7 @@ $defs:
   RackAssignmentDelete:
     type: object
     additionalProperties: false
-    required:
-      - device_id
-      - rack_unit_start
+    required: [ device_id, rack_unit_start ]
     properties:
       device_id:
         $ref: common.yaml#/$defs/uuid
@@ -174,17 +157,14 @@ $defs:
   RackPhase:
     type: object
     additionalProperties: false
-    required:
-      - phase
+    required: [ phase ]
     properties:
       phase:
         $ref: common.yaml#/$defs/device_phase
   RackRoleCreate:
     type: object
     additionalProperties: false
-    required:
-      - name
-      - rack_size
+    required: [ name, rack_size ]
     properties:
       name:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
@@ -202,10 +182,7 @@ $defs:
   RackLayoutCreate:
     type: object
     additionalProperties: false
-    required:
-      - rack_id
-      - hardware_product_id
-      - rack_unit_start
+    required: [ rack_id, hardware_product_id, rack_unit_start ]
     properties:
       rack_id:
         $ref: common.yaml#/$defs/uuid
@@ -219,9 +196,7 @@ $defs:
     items:
       type: object
       additionalProperties: false
-      required:
-        - hardware_product_id
-        - rack_unit_start
+      required: [ hardware_product_id, rack_unit_start ]
       properties:
         hardware_product_id:
           $ref: common.yaml#/$defs/uuid
@@ -239,9 +214,7 @@ $defs:
   DeviceLocationUpdate:
     type: object
     additionalProperties: false
-    required:
-      - rack_id
-      - rack_unit_start
+    required: [ rack_id, rack_unit_start ]
     properties:
       rack_id:
         $ref: common.yaml#/$defs/uuid
@@ -351,8 +324,7 @@ $defs:
     type: object
     $ref: '#/$defs/UserIdOrEmail'
     unevaluatedProperties: false
-    required:
-      - password
+    required: [ password ]
     properties:
       password:
         $ref: common.yaml#/$defs/non_empty_string
@@ -364,10 +336,8 @@ $defs:
     type: object
     additionalProperties: true  # used in non-terminal action: other parameters checked later
     oneOf:
-      - required:
-        - user_id
-      - required:
-        - email
+      - required: [ user_id ]
+      - required: [ email ]
     properties:
       user_id:
         $ref: common.yaml#/$defs/uuid
@@ -376,17 +346,14 @@ $defs:
   UserPassword:
     type: object
     additionalProperties: false
-    required:
-      - password
+    required: [ password ]
     properties:
       password:
         $ref: common.yaml#/$defs/non_empty_string
   NewUser:
     type: object
     additionalProperties: false
-    required:
-      - name
-      - email
+    required: [ name, email ]
     properties:
       name:
         $ref: common.yaml#/$defs/non_empty_string
@@ -421,16 +388,14 @@ $defs:
   NewUserToken:
     type: object
     additionalProperties: false
-    required:
-      - name
+    required: [ name ]
     properties:
       name:
         $ref: common.yaml#/$defs/non_empty_string
   DeviceAssetTag:
     type: object
     additionalProperties: false
-    required:
-      - asset_tag
+    required: [ asset_tag ]
     properties:
       asset_tag:
         oneOf:
@@ -439,16 +404,14 @@ $defs:
   DevicePhase:
     type: object
     additionalProperties: false
-    required:
-      - phase
+    required: [ phase ]
     properties:
       phase:
         $ref: common.yaml#/$defs/device_phase
   DeviceLinks:
     type: object
     additionalProperties: false
-    required:
-      - links
+    required: [ links ]
     properties:
       links:
         $ref: common.yaml#/$defs/links
@@ -460,8 +423,7 @@ $defs:
   DeviceBuild:
     type: object
     additionalProperties: false
-    required:
-      - build_id
+    required: [ build_id ]
     properties:
       build_id:
         $ref: common.yaml#/$defs/uuid
@@ -490,8 +452,7 @@ $defs:
   RegisterRelay:
     type: object
     additionalProperties: false
-    required:
-      - serial
+    required: [ serial ]
     properties:
       serial:
         $ref: common.yaml#/$defs/relay_serial_number
@@ -508,9 +469,7 @@ $defs:
   OrganizationCreate:
     type: object
     additionalProperties: false
-    required:
-      - name
-      - admins
+    required: [ name, admins ]
     properties:
       name:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
@@ -539,21 +498,17 @@ $defs:
     $ref: '#/$defs/UserIdOrEmail'
     type: object
     unevaluatedProperties: false
-    required:
-      - role
+    required: [ role ]
     properties:
       role:
         $ref: common.yaml#/$defs/role
   BuildCreate:
     type: object
     additionalProperties: false
-    required:
-      - name
+    required: [ name ]
     oneOf:
-      - required:
-        - admins
-      - required:
-        - build_id
+      - required: [ admins ]
+      - required: [ build_id ]
     properties:
       name:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
@@ -596,8 +551,7 @@ $defs:
   BuildLinks:
     type: object
     additionalProperties: false
-    required:
-      - links
+    required: [ links ]
     properties:
       links:
         $ref: common.yaml#/$defs/links
@@ -610,17 +564,14 @@ $defs:
     $ref: '#/$defs/UserIdOrEmail'
     type: object
     unevaluatedProperties: false
-    required:
-      - role
+    required: [ role ]
     properties:
       role:
         $ref: common.yaml#/$defs/role
   BuildAddOrganization:
     type: object
     additionalProperties: false
-    required:
-      - organization_id
-      - role
+    required: [ organization_id, role ]
     properties:
       organization_id:
         $ref: common.yaml#/$defs/uuid
@@ -633,13 +584,10 @@ $defs:
     items:
       type: object
       additionalProperties: false
-      required:
-        - sku
+      required: [ sku ]
       anyOf:
-        - required:
-          - id
-        - required:
-          - serial_number
+        - required: [ id ]
+        - required: [ serial_number ]
       properties:
         id:
           $ref: common.yaml#/$defs/uuid

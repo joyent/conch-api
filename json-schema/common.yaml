@@ -28,19 +28,10 @@ $defs:
     pattern: ^\S+$
   device_health:
     $comment: corresponds to device_health_enum in the database
-    enum:
-      - error
-      - fail
-      - unknown
-      - pass
+    enum: [ error, fail, unknown, pass ]
   device_phase:
     $comment: corresponds to device_phase_enum in the database (also used for racks)
-    enum:
-      - integration
-      - installation
-      - production
-      - diagnostics
-      - decommissioned
+    enum: [ integration, installation, production, diagnostics, decommissioned ]
   device_interface_name:
     type: string
     pattern: ^\S+$
@@ -55,16 +46,10 @@ $defs:
     pattern: ^[\w-]+$
   role:
     $comment: corresponds to role_enum in the database
-    enum:
-      - ro
-      - rw
-      - admin
+    enum: [ ro, rw, admin ]
   validation_status:
     $comment: corresponds to validation_status_enum in the database
-    enum:
-      - error
-      - fail
-      - pass
+    enum: [ error, fail, pass ]
   non_empty_string:
     type: string
     minLength: 1
@@ -104,8 +89,7 @@ $defs:
       disk_size:
         type: object
         $comment: property names correspond to device report /disks/<disk serial>/model
-        required:
-          - _default
+        required: [ _default ]
         additionalProperties:
           $comment: property values are compared to device report /disks/<disk serial>/block_sz
           type: integer

@@ -6,18 +6,14 @@ $defs:
   RollbarPayload:
     type: object
     additionalProperties: false
-    required:
-      - access_token
-      - data
+    required: [ access_token, data ]
     properties:
       access_token:
         type: string
       data:
         type: object
         additionalProperties: false
-        required:
-          - environment
-          - body
+        required: [ environment, body ]
         properties:
           environment:
             type: string
@@ -25,24 +21,20 @@ $defs:
             oneOf:
               - type: object
                 additionalProperties: false
-                required:
-                  - trace
+                required: [ trace ]
                 properties:
                   trace:
                     $anchor: trace
                     type: object
                     additionalProperties: false
-                    required:
-                      - frames
-                      - exception
+                    required: [ frames, exception ]
                     properties:
                       frames:
                         type: array
                         items:
                           type: object
                           additionalProperties: false
-                          required:
-                            - filename
+                          required: [ filename ]
                           properties:
                             filename:
                               type: string
@@ -81,8 +73,7 @@ $defs:
                       exception:
                         type: object
                         additionalProperties: false
-                        required:
-                          - class
+                        required: [ class ]
                         properties:
                           class:
                             type: string
@@ -96,28 +87,12 @@ $defs:
 #                   items:
 #                     type: object
 #                     additionalProperties: false
-#                     required:
-#                       - level
-#                       - type
-#                       - source
-#                       - timestamp_ms
-#                       - body
+#                     required: [ level, type, source, timestamp_ms, body ]
 #                     properties:
 #                       level:
-#                         enum:
-#                           - critical
-#                           - error
-#                           - warning
-#                           - info
-#                           - debug
+#                         enum: [ critical, error, warning, info, debug ]
 #                       type:
-#                         enum:
-#                           - log
-#                           - network
-#                           - dom
-#                           - navigation
-#                           - error
-#                           - manual
+#                         enum: [ log, network, dom, navigation, error, manual ]
 #                       source:
 #                         type: string
 #                       body:
@@ -130,24 +105,19 @@ $defs:
 #                                 type:
 #                                   const: log
 #                             then:
-#                               required:
-#                                 - message
+#                               required: [ message ]
 #                           - if:
 #                               properties:
 #                                 type:
 #                                   const: network
 #                             then:
-#                               required:
-#                                 - method
-#                                 - url
-#                                 - status_code
+#                               required: [ method, url, status_code ]
 #                           - if:
 #                               properties:
 #                                 type:
 #                                   const: dom
 #                             then:
-#                               required:
-#                                 - element
+#                               required: [ element ]
 #                           - if:
 #                               properties:
 #                                 type:
@@ -159,12 +129,10 @@ $defs:
 #                                 type:
 #                                   const: error
 #                             then:
-#                               required:
-#                                 - message
+#                               required: [ message ]
 #             - type: object
 #               additionalProperties: false
-#               required:
-#                 - trace_chain
+#               required: [ trace_chain ]
 #               properties:
 #                 trace_chain:
 #                   type: array
@@ -175,13 +143,11 @@ $defs:
 #                   $ref: '#telemetry'
               - type: object
                 additionalProperties: false
-                required:
-                  - message
+                required: [ message ]
                 properties:
                   message:
                     type: object
-                    required:
-                      - body
+                    required: [ body ]
                     properties:
                       body:
                         type: string
@@ -189,26 +155,19 @@ $defs:
 #                   $ref: '#telemetry'
 #             - type: object
 #               additionalProperties: false
-#               required:
-#                 - crash_report
+#               required: [ crash_report ]
 #               properties:
 #                 crash_report:
 #                   type: object
 #                   additionalProperties: false
-#                   required:
-#                     - raw
+#                   required: [ raw ]
 #                   properties:
 #                     raw:
 #                       type: string
 #                 telemetry:
 #                   $ref: '#telemetry'
           level:
-            enum:
-              - critical
-              - error
-              - warning
-              - info
-              - debug
+            enum: [ critical, error, warning, info, debug ]
           timestamp:
             type: integer
           code_version:
@@ -246,8 +205,7 @@ $defs:
                 type: string
               person:
                 type: object
-                required:
-                  - id
+                required: [ id ]
                 additionalProperties: false
                 properties:
                   id:

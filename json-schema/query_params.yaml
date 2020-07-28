@@ -30,9 +30,7 @@ $defs:
       send_mail: '1'
     not:
       type: object
-      required:
-        - login_only
-        - api_only
+      required: [ login_only, api_only ]
       properties:
         login_only:
           const: '1'
@@ -43,10 +41,7 @@ $defs:
     additionalProperties: false
     properties:
       clear_tokens:
-        enum:
-          - none
-          - login_only
-          - all
+        enum: [ none, login_only, all ]
     default:
       clear_tokens: login_only
   DeactivateUser:
@@ -56,10 +51,7 @@ $defs:
     additionalProperties: false
     properties:
       clear_tokens:
-        enum:
-          - none
-          - login_only
-          - all
+        enum: [ none, login_only, all ]
       send_mail:
         $ref: '#/$defs/boolean_string'
     default:
@@ -221,8 +213,7 @@ $defs:
   HardwareProductSpecification:
     type: object
     additionalProperties: false
-    required:
-      - path
+    required: [ path ]
     properties:
       path:
         type: string
