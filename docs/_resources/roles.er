@@ -1,4 +1,4 @@
-title {label: "Conch database schema (as of v3.0.0-b8, 2020-04-17): role management", size: "40"}
+title {label: "Conch database schema (as of v3.0.0-b10, 2020-08-04): role management", size: "40"}
 
 entity {bgcolor: "#ececfc", size: "20"}
 
