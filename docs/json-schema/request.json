@@ -354,6 +354,16 @@
       ],
       "type" : "object"
     },
+    "DeviceLinksOrNull" : {
+      "oneOf" : [
+        {
+          "type" : "null"
+        },
+        {
+          "$ref" : "#/definitions/DeviceLinks"
+        }
+      ]
+    },
     "DeviceLocationUpdate" : {
       "additionalProperties" : false,
       "properties" : {

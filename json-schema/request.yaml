@@ -523,6 +523,10 @@ definitions:
         items:
           type: string
           format: uri
+  DeviceLinksOrNull:
+    oneOf:
+      - type: 'null'
+      - $ref: '#/definitions/DeviceLinks'
   DeviceBuild:
     type: object
     additionalProperties: false

@@ -401,14 +401,31 @@ sub add_links ($c) {
 
 =head2 remove_links
 
-Removes all links from the device record.
+When a payload is specified, remove specified links from the device record;
+with a null payload, removes all links.
 
 =cut
 
 sub remove_links ($c) {
-    $c->stash('device_rs')
-        ->search({ links => { '!=' => '{}' } })
-        ->update({ links => '{}', updated => \'now()' });
+    my $input = $c->validate_request('DeviceLinksOrNull');
+    return if $c->res->code;
+
+    if ($input) {
+        $c->stash('device_rs')
+            # we do this instead of '? = any(links)' in order to take
+            # advantage of the built-in GIN indexing on the @> operator
+            ->search(\[ 'links @> ?', [{},$input->{links}] ])
+            ->update({
+                links => \[ 'array_subtract(links,?)', [{},$input->{links}] ],
+                updated => \'now()',
+            });
+    }
+    else {
+        $c->stash('device_rs')
+            ->search({ links => { '!=' => '{}' } })
+            ->update({ links => '{}', updated => \'now()' });
+    }
+
     $c->status(204);
 }
 

@@ -95,6 +95,7 @@ below.
 
 - User requires the read/write role
 - Controller/Action: ["remove\_links" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#remove_links)
+- Request: [request.json#/definitions/DeviceLinksOrNull](../json-schema/request.json#/definitions/DeviceLinksOrNull)
 - Response: 204 No Content
 
 ### `POST /device/:device_id_or_serial_number/build`

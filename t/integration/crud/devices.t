@@ -699,10 +699,10 @@ subtest 'get by device attributes' => sub {
         ->json_is('', [ $undetailed_device ], 'got device by ipaddr');
 
     my $test_device = $t->app->db_devices->search({ id => $test_device_id })->single;
-    $test_device->update({ links => ['foo'] });
-    $undetailed_device->{links} = ['foo'];
+    $test_device->update({ links => ['http://foo.com'] });
+    $undetailed_device->{links} = ['http://foo.com'];
 
-    $t->get_ok('/device?link=foo')
+    $t->get_ok('/device?link=http://foo.com')
         ->status_is(200)
         ->json_schema_is('Devices')
         ->json_is('', [ $undetailed_device ], 'got device by link');
@@ -729,7 +729,7 @@ subtest 'get by device attributes' => sub {
 
     foreach my $query (qw(
         /device?hostname=elfo
-        /device?link=foo
+        /device?link=http://foo.com
         /device?key=value
     )) {
         $t->get_ok($query)
@@ -872,6 +872,23 @@ subtest 'mutate device attributes' => sub {
         ->location_is('/device/'.$test_device_id);
     $detailed_device->{links} = [ 'https://foo.com/0', 'https://foo.com/1' ];
     $detailed_device->{updated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply($detailed_device);
+
+    $t->delete_ok('/device/TEST/links', json => { links => [ 'https://does-not-exist.com' ] })
+        ->status_is(204);
+
+    $t->get_ok('/device/TEST')
+        ->status_is(200)
+        ->json_schema_is('DetailedDevice')
+        ->json_cmp_deeply($detailed_device);
+
+    $t->delete_ok('/device/TEST/links', json => { links => [ 'https://foo.com/1' ] })
+        ->status_is(204);
+    $detailed_device->{links} = [ 'https://foo.com/0' ];
 
     $t->get_ok('/device/TEST')
         ->status_is(200)

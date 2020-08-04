@@ -2862,7 +2862,7 @@
           "type" : "string"
         },
         "schema" : {
-          "format" : "uri",
+          "format" : "uri-reference",
           "pattern" : "/schema/[^/]+/[^/]+$",
           "type" : "string"
         }
