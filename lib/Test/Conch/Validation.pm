@@ -137,7 +137,7 @@ sub test_validation {
     $fixtures{device} //= {};   # always create a device, even if generic
 
     my $cases = delete $args{cases};
-    warn 'unsupported arguments: ', join(', ', keys %args) if keys %args;
+    warn 'unsupported arguments: ', join(', ', keys %args) if %args;
 
     state $test_count = 0;
     subtest $test_count++.": $validation_module (".scalar($cases->@*).' cases)', sub {
