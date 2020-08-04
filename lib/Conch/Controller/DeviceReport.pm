@@ -16,7 +16,7 @@ Controller for processing and managing device reports.
 
 =head2 process
 
-Processes the device report, turning it into the various device_ tables as well
+Processes the device report, turning it into the various device_* tables as well
 as running validations
 
 Response uses the ValidationStateWithResults json schema.

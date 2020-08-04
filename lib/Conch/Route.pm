@@ -188,9 +188,9 @@ Error responses will use:
 
 =item * failure to validate query parameters: HTTP 400, F<response.yaml#/definitions/QueryParamsValidationError>
 
-=item * failure to validate request body payload: HTTP 400, F<response.yaml#/RequestValidationError>
+=item * failure to validate request body payload: HTTP 400, F<response.yaml#/definitions/RequestValidationError>
 
-=item * all other errors, unless specified: HTTP 4xx, F<response.yaml#/Error>
+=item * all other errors, unless specified: HTTP 4xx, F<response.yaml#/definitions/Error>
 
 =back
 

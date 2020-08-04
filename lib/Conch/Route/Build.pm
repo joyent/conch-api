@@ -130,7 +130,7 @@ Supports the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/get_all>
 
-=item * Response: response.yaml#/Builds
+=item * Response: F<response.yaml#/definitions/Builds>
 
 =back
 
@@ -142,7 +142,7 @@ Supports the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/create>
 
-=item * Request: request.yaml#/BuildCreate
+=item * Request: F<request.yaml#/definitions/BuildCreate>
 
 =item * Response: Redirect to the build
 
@@ -168,7 +168,7 @@ Supports the following optional query parameters:
 
 =item * Requires system admin authorization or the read-only role on the build
 
-=item * Response: response.yaml#/Build
+=item * Response: F<response.yaml#/definitions/Build>
 
 =back
 
@@ -180,7 +180,7 @@ Supports the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/update>
 
-=item * Request: request.yaml#/BuildUpdate
+=item * Request: F<request.yaml#/definitions/BuildUpdate>
 
 =item * Response: Redirect to the build
 
@@ -194,7 +194,7 @@ Supports the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/get_users>
 
-=item * Response: response.yaml#/BuildUsers
+=item * Response: F<response.yaml#/definitions/BuildUsers>
 
 =back
 
@@ -209,7 +209,7 @@ an email to the user.
 
 =item * Controller/Action: L<Conch::Controller::Build/add_user>
 
-=item * Request: request.yaml#/BuildAddUser
+=item * Request: F<request.yaml#/definitions/BuildAddUser>
 
 =item * Response: C<204 No Content>
 
@@ -360,7 +360,7 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 
 =item * Controller/Action: L<Conch::Controller::Build/get_racks>
 
-=item * Response: response.yaml#/Racks
+=item * Response: F<response.yaml#/definitions/Racks>
 
 =back
 
