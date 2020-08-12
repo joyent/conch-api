@@ -52,18 +52,33 @@ $t->post_ok('/hardware_product', json => { name => 'sungo', alias => 'sungo' })
         qw(hardware_vendor_id sku rack_unit_size validation_plan_id purpose bios_firmware cpu_type),
     ));
 
-$t->post_ok('/hardware_product', json => {
-        name => 'sungo',
-        hardware_vendor_id => $vendor_id,
-        alias => 'sungo',
-        rack_unit_size => 2,
-        sku => 'my sku',
-        validation_plan_id => $validation_plan_id,
-        purpose => 'myself',
-        bios_firmware => '1.2.3',
-        cpu_num => 2,
-        cpu_type => 'fooey',
-    })
+my %hw_fields = (
+    name => 'sungo',
+    hardware_vendor_id => $vendor_id,
+    alias => 'sungo',
+    rack_unit_size => 2,
+    sku => 'my sku',
+    validation_plan_id => $validation_plan_id,
+    purpose => 'myself',
+    bios_firmware => '1.2.3',
+    cpu_type => 'fooey',
+);
+
+$t->post_ok('/hardware_product', json => { %hw_fields, specification => 'not json!' } )
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/allOf/0/$ref/properties/specification', message => 'Does not match json format.' } ]);
+
+$t->post_ok('/hardware_product', json => { %hw_fields, specification => '{"disk_size":"not an object"}' } )
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply({
+        error => 'request did not match required format',
+        details => [ { path => '/disk_size', message => 'Expected object - got string.' } ],
+        schema => '/schema/request/hardware_product_specification',
+    });
+
+$t->post_ok('/hardware_product', json => \%hw_fields)
     ->status_is(303)
     ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
 
@@ -87,7 +102,7 @@ $t->get_ok($t->tx->res->headers->location)
         purpose => 'myself',
         bios_firmware => '1.2.3',
         hba_firmware => undef,
-        cpu_num => 2,
+        cpu_num => 0,
         cpu_type => 'fooey',
         dimms_num => 0,
         ram_total => 0,
@@ -165,6 +180,20 @@ $t->post_ok('/hardware_product', json => {
     ->json_schema_is('Error')
     ->json_is({ error => 'validation_plan_id does not exist' });
 
+$t->post_ok("/hardware_product/$new_hw_id", json => { specification => 'not json!' })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', [ { path => '/allOf/0/$ref/properties/specification', message => 'Does not match json format.' } ]);
+
+$t->post_ok("/hardware_product/$new_hw_id", json => { specification => '{"disk_size":"not an object"}' })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply({
+        error => 'request did not match required format',
+        details => [ { path => '/disk_size', message => 'Expected object - got string.' } ],
+        schema => '/schema/request/hardware_product_specification',
+    });
+
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
     ->status_is(303)
     ->location_is('/hardware_product/'.$new_hw_id);
@@ -205,7 +234,6 @@ $t->post_ok('/hardware_product', json => {
         validation_plan_id => $validation_plan_id,
         purpose => 'myself',
         bios_firmware => '1.2.3',
-        cpu_num => 2,
         cpu_type => 'fooey',
     })
     ->status_is(303)

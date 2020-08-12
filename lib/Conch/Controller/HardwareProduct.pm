@@ -113,6 +113,18 @@ sub create ($c) {
             if not $c->$rs_name->active->search({ id => $input->{$key} })->exists;
     }
 
+    # the specification field is json-encoded (for now); it must be decoded and validated separately
+    if (defined $input->{specification}) {
+        my $new_specification = eval { from_json($input->{specification}) };
+        return $c->status(400, {
+            error => 'request did not match required format',
+            details => [ { path => '/allOf/0/$ref/properties/specification', message => 'Does not match json format.' } ],
+            schema => $c->url_for('/schema/request/HardwareProductCreate'),
+        }) if not defined $new_specification;
+
+        return if not $c->validate_request('HardwareProductSpecification', $new_specification);
+    }
+
     my $hardware_product = $c->txn_wrapper(sub ($c) {
         $c->db_hardware_products->create($input);
     });
@@ -152,6 +164,18 @@ sub update ($c) {
         (my $rs_name = $key) =~ s/_id$/s/; $rs_name = 'db_'.$rs_name;
         return $c->status(409, { error => $key.' does not exist' })
             if not $c->$rs_name->active->search({ id => $input->{$key} })->exists;
+    }
+
+    # the specification field is json-encoded (for now); it must be decoded and validated separately
+    if (defined $input->{specification}) {
+        my $new_specification = eval { from_json($input->{specification}) };
+        return $c->status(400, {
+            error => 'request did not match required format',
+            details => [ { path => '/allOf/0/$ref/properties/specification', message => 'Does not match json format.' } ],
+            schema => $c->url_for('/schema/request/HardwareProductCreate'),
+        }) if not defined $new_specification;
+
+        return if not $c->validate_request('HardwareProductSpecification', $new_specification);
     }
 
     $c->txn_wrapper(sub ($c) {
