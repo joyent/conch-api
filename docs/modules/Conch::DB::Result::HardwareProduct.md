@@ -348,6 +348,10 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationState](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationState)
 
+### TO\_JSON
+
+Decode the json-encoded specification field for rendering in responses.
+
 ## LICENSING
 
 Copyright Joyent, Inc.

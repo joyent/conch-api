@@ -443,9 +443,25 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07049
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9Q3v8Ag2aFFkitFegf0t2g
 
+use experimental 'signatures';
+use Mojo::JSON 'from_json';
+
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },
 );
+
+=head2 TO_JSON
+
+Decode the json-encoded specification field for rendering in responses.
+
+=cut
+
+sub TO_JSON ($self) {
+    my $data = $self->next::method(@_);
+
+    $data->{specification} = from_json($data->{specification}) if defined $data->{specification};
+    return $data;
+}
 
 1;
 __END__
