@@ -203,9 +203,9 @@ sub delete ($c) {
 
 =head2 set_specification
 
-Uses the URI fragment as a json pointer to determine the path within the C<specification> property
-to operate on. New data is written, and existing data is overwritten without regard to type (so long
-as it conforms to the schema).
+Uses the URI query parameter C<path> as a json pointer to determine the path within the
+C<specification> property to operate on. New data is written, and existing data is overwritten
+without regard to type (so long as it conforms to the schema).
 
 After the update operation, the C<specification> property must validate against
 F<common.yaml#/definitions/HardwareProductSpecification>.
@@ -249,8 +249,8 @@ sub set_specification ($c) {
 
 =head2 delete_specification
 
-Uses the URI fragment as a json pointer to determine the path within the C<specification> property
-to operate on. All of the data at the indicated path is deleted.
+Uses the URI query parameter C<path> as a json pointer to determine the path within the
+C<specification> property to operate on. All of the data at the indicated path is deleted.
 
 After the delete operation, the C<specification> property must validate against
 F<common.yaml#/definitions/HardwareProductSpecification>.

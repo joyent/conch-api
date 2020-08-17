@@ -57,10 +57,10 @@ Identifiers accepted: `id`, `sku`, `name` and `alias`.
 
 ### `PUT /hardware_product/:hardware_product_id_or_other/specification?path=:path_to_data`
 
-Sets a specific part of the json blob data in the `specification` field, treating the URI fragment
-as the JSON pointer to the data to be added or modified. Existing data at the path is overwritten
-without regard to type, so long as the JSON Schema is respected. For example, this existing
-`specification` field and this request:
+Sets a specific part of the json blob data in the `specification` field, treating the URI query
+parameter `path` as the JSON pointer to the data to be added or modified. Existing data at the path
+is overwritten without regard to type, so long as the JSON Schema is respected. For example, this
+existing `specification` field and this request:
 
 ```
 {
@@ -88,9 +88,9 @@ Results in this data in `specification`, changing the data type at node `/foo/ba
 
 ### `DELETE /hardware_product/:hardware_product_id_or_other/specification?path=:path_to_data`
 
-Deletes a specific part of the json blob data in the `specification` field, treating the URI
-fragment as the JSON pointer to the data to be removed. All other properties in the json blob
-are left untouched.
+Deletes a specific part of the json blob data in the `specification` field, treating the URI query
+parameter `path` as the JSON pointer to the data to be removed. All other properties in the json
+blob are left untouched.
 
 After the delete operation, the `specification` property must validate against
 [common.json#/definitions/HardwareProductSpecification](../json-schema/common.json#/definitions/HardwareProductSpecification).
