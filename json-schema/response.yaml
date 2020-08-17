@@ -296,7 +296,7 @@ definitions:
         description: the contents of the device report. Given its age we cannot provide a schema.
         anyOf:
           - type: 'null'
-          - $ref: device_report.yaml#/definitions/DeviceReport_v3.0.0
+          - $ref: device_report.yaml#/definitions/DeviceReport_v3_0_0
           - type: object
     if:
       properties:

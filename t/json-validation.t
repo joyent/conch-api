@@ -137,7 +137,7 @@ subtest 'device report validation' => sub {
 
     cmp_deeply(
         [ $validator->validate('00000000-0000-0000-0000-000000000000',
-                $validator->get('/definitions/DeviceReport_v3.0.0/properties/system_uuid')) ],
+                $validator->get('/definitions/DeviceReport_v3_0_0/properties/system_uuid')) ],
         [ methods(
             path => '/',
             message => re(qr/should not match/i),
@@ -147,7 +147,7 @@ subtest 'device report validation' => sub {
 
     cmp_deeply(
         [ $validator->validate({ '' => {} },
-                $validator->get('/definitions/DeviceReport_v3.0.0/properties/disks')) ],
+                $validator->get('/definitions/DeviceReport_v3_0_0/properties/disks')) ],
         [ methods(
             path => '/',
             message => re(qr{/propertyName/ String does not match '?\^\\S\+\$'?}i),
