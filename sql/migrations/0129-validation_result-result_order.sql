@@ -42,6 +42,8 @@ SELECT run_migration(129, $$
     alter table validation_state alter column hardware_product_id set not null;
     create index validation_state_hardware_product_id_idx on validation_state (hardware_product_id);
 
+    \copy validation_result to '/mnt/tmp/validation_result_bak_pre_v3.sql';
+    \copy validation_state_member to '/mnt/tmp/validation_state_member_bak_pre_v3.sql';
     truncate validation_state_member, validation_result;
 
 
