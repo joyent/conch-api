@@ -3,6 +3,7 @@
   "$defs" : {
     "HardwareProductSpecification" : {
       "$comment" : "this is the structure of the hardware_product.specification database column",
+      "additionalProperties" : true,
       "properties" : {
         "chassis" : {
           "properties" : {
@@ -96,6 +97,11 @@
           "format" : "ipv6"
         }
       ],
+      "type" : "string"
+    },
+    "json_pointer_token" : {
+      "$comment" : "a json-pointer reference-token (see RFC6901). Special characters requiring escaping are disallowed for simplicity.",
+      "pattern" : "^[A-Za-z0-9_-]+$",
       "type" : "string"
     },
     "links" : {

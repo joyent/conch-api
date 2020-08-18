@@ -1,0 +1,130 @@
+{
+  "$comment" : "This is a superset of the draft-2019-09 meta-specification, that adds more restrictions that could have been in the schema but is not, and also additional constraints to ensure extraneous information is not accidentally added.",
+  "$recursiveAnchor" : true,
+  "$ref" : "https://json-schema.org/draft/2019-09/schema",
+  "$schema" : "https://json-schema.org/draft/2019-09/schema",
+  "properties" : {
+    "$defs" : {
+      "additionalProperties" : {
+        "$comment" : "all definitions (of object type) must be tight enough to either allow additional properties (they are a schema for a non-terminal route), or to disallow additional properties in this or all evaluated schemas",
+        "allOf" : [
+          {
+            "if" : {
+              "anyOf" : [
+                {
+                  "properties" : {
+                    "type" : {
+                      "anyOf" : [
+                        {
+                          "const" : "object"
+                        },
+                        {
+                          "contains" : {
+                            "const" : "object"
+                          },
+                          "type" : "array"
+                        }
+                      ]
+                    }
+                  },
+                  "required" : [
+                    "type"
+                  ]
+                },
+                {
+                  "required" : [
+                    "properties"
+                  ]
+                },
+                {
+                  "required" : [
+                    "patternProperties"
+                  ]
+                },
+                {
+                  "required" : [
+                    "propertyNames"
+                  ]
+                }
+              ]
+            },
+            "then" : {
+              "anyOf" : [
+                {
+                  "required" : [
+                    "additionalProperties"
+                  ]
+                },
+                {
+                  "properties" : {
+                    "unevaluatedProperties" : {
+                      "const" : false
+                    }
+                  },
+                  "required" : [
+                    "unevaluatedProperties"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "if" : {
+              "properties" : {
+                "type" : {
+                  "anyOf" : [
+                    {
+                      "const" : "array"
+                    },
+                    {
+                      "contains" : {
+                        "const" : "array"
+                      },
+                      "type" : "array"
+                    }
+                  ]
+                }
+              },
+              "required" : [
+                "type"
+              ]
+            },
+            "then" : {
+              "required" : [
+                "items"
+              ]
+            }
+          }
+        ]
+      },
+      "propertyNames" : {
+        "$ref" : "common.json#/$defs/json_pointer_token"
+      }
+    },
+    "definitions" : false,
+    "dependencies" : false,
+    "format" : {
+      "$comment" : "iri-reference and uri-template are not supported by JSON::Schema::Draft201909",
+      "enum" : [
+        "date-time",
+        "date",
+        "time",
+        "duration",
+        "email",
+        "idn-email",
+        "hostname",
+        "idn-hostname",
+        "ipv4",
+        "ipv6",
+        "uri",
+        "uri-reference",
+        "iri",
+        "uuid",
+        "json-pointer",
+        "relative-json-pointer",
+        "regex"
+      ]
+    }
+  },
+  "unevaluatedProperties" : false
+}

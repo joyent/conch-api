@@ -407,6 +407,7 @@
     },
     "DeviceSetting" : {
       "$ref" : "#/$defs/DeviceSettings",
+      "additionalProperties" : true,
       "maxProperties" : 1
     },
     "DeviceSettings" : {
@@ -1131,6 +1132,7 @@
     },
     "UserSetting" : {
       "$ref" : "#/$defs/UserSettings",
+      "additionalProperties" : true,
       "maxProperties" : 1
     },
     "UserSettings" : {

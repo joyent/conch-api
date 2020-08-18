@@ -109,7 +109,10 @@ Returns the root node.
     $root->add_type(uuid => Conch::UUID::UUID_FORMAT);
 
     # one component of a JSON Pointer, e.g. for specifying JSON Schemas
-    $root->add_type(json_pointer_token => qr{[^/.~]+});
+    # Mojolicius standard placeholders cannot contain / or .
+    # JSON pointers escape / and ~
+    # but we disallow all special characters to avoid escaping in regular expressions etc.
+    $root->add_type(json_pointer_token => qr{[A-Za-z0-9_-]+});
 
     # GET /ping
     $root->get('/ping', sub ($c) { $c->status(200, { status => 'ok' }) });

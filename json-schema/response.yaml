@@ -31,12 +31,13 @@ $defs:
       schema:
         type: string
         format: uri-reference
-        pattern: '/json_schema/[^/.~]+/[^/.~]+$'
+        pattern: '/json_schema/[^/.~]+/[A-Za-z0-9_-]+$'
       data:
         $comment: any supplementary details will be included here
   QueryParamsValidationError:
     $ref: '#/$defs/ValidationError'
     type: object
+    unevaluatedProperties: false
     required:
       - data
       - error
@@ -45,7 +46,7 @@ $defs:
         type: string
         const: query parameters did not match required format
       schema:
-        pattern: '/json_schema/query_params/[^/.~]+$'
+        pattern: '/json_schema/query_params/[A-Za-z0-9_-]+$'
       data:
         $comment: the parsed form of the query parameters, as they were passed to the schema for validation
         type: object
@@ -57,6 +58,7 @@ $defs:
   RequestValidationError:
     $ref: '#/$defs/ValidationError'
     type: object
+    unevaluatedProperties: false
     required:
       - error
     properties:
@@ -64,7 +66,7 @@ $defs:
         type: string
         const: request did not match required format
       schema:
-        pattern: '/json_schema/request/[^/.~]+$'
+        pattern: '/json_schema/request/[A-Za-z0-9_-]+$'
   JSONSchemaError:
     $comment: very similar to https://json-schema.org/draft/2019-09/output/schema#/$defs/outputUnit - see https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10.4.2
     type: object
@@ -409,6 +411,7 @@ $defs:
   DeviceNic:
     $ref: '#/$defs/DeviceNicFields'
     type: object
+    unevaluatedProperties: false
     required:
       - device_id
       - mac
@@ -441,6 +444,7 @@ $defs:
         type: [ 'null', integer ]
   DeviceNicField:
     $ref: '#/$defs/DeviceNicFields'
+    unevaluatedProperties: false
     type: object
     minProperties: 1
     maxProperties: 1

@@ -94,7 +94,8 @@ $defs:
       type: string
   GetValidationState:
     type: object
-    additionalProperties: true  # may be used at the same time as other schemas
+    $ref: '#/$defs/FindDevice'
+    unevaluatedProperties: false
     properties:
       status:
         oneOf:
@@ -114,6 +115,7 @@ $defs:
       rack_only: '0'
   GetBuilds:
     type: object
+    additionalProperties: false
     properties:
       started:
         $ref: '#/$defs/boolean_string'
@@ -130,7 +132,7 @@ $defs:
           const: 1
   WithDeviceRackData:
     type: object
-    additionalProperties: true  # overlays with other schemas
+    additionalProperties: true  # used in non-terminal action: other parameters checked later
     properties:
       with_device_health:
         $ref: '#/$defs/boolean_string_or_flag'
@@ -140,7 +142,7 @@ $defs:
         $ref: '#/$defs/boolean_string_or_flag'
   FindDevice:
     type: object
-    additionalProperties: true  # may be used at the same time as other schemas
+    additionalProperties: true  # used in non-terminal action: other parameters checked later
     properties:
       phase_earlier_than:
         $comment: usually defaults to 'production'
@@ -149,7 +151,8 @@ $defs:
           - $ref: common.yaml#/$defs/device_phase
   BuildDevices:
     type: object
-    additionalProperties: true  # may be used at the same time as other schemas
+    $ref: '#/$defs/FindDevice'
+    unevaluatedProperties: false
     properties:
       health:
         oneOf:

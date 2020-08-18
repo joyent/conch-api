@@ -29,6 +29,10 @@ $t->get_ok('/json_schema/REQUEST/hello')
     ->json_is({ error => 'Route Not Found' })
     ->log_warn_is('no endpoint found for: GET /json_schema/REQUEST/hello');
 
+$t->get_ok('/json_schema/request/b~a!!r')
+    ->status_is(404)
+    ->json_is({ error => 'Route Not Found' });
+
 $t->get_ok('/json_schema/request/Hello')
     ->status_is(404)
     ->log_warn_is('Could not find request schema Hello');
@@ -203,6 +207,7 @@ $t->get_ok('/json_schema/device_report/DeviceReport_v3_0_0')
         '$schema' => SPEC_URL,
         '$comment' => ignore,
         type => 'object',
+        additionalProperties => bool(1),
         required => ignore,
         properties => superhashof({}),
         '$defs' => {

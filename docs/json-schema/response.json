@@ -947,7 +947,8 @@
         "ipaddr",
         "mtu"
       ],
-      "type" : "object"
+      "type" : "object",
+      "unevaluatedProperties" : false
     },
     "DeviceNicField" : {
       "$ref" : "#/$defs/DeviceNicFields",
@@ -956,7 +957,8 @@
       "properties" : {
         "device_id" : false
       },
-      "type" : "object"
+      "type" : "object",
+      "unevaluatedProperties" : false
     },
     "DeviceNicFields" : {
       "additionalProperties" : false,
@@ -1972,14 +1974,15 @@
           "type" : "string"
         },
         "schema" : {
-          "pattern" : "/json_schema/query_params/[^/.~]+$"
+          "pattern" : "/json_schema/query_params/[A-Za-z0-9_-]+$"
         }
       },
       "required" : [
         "data",
         "error"
       ],
-      "type" : "object"
+      "type" : "object",
+      "unevaluatedProperties" : false
     },
     "Rack" : {
       "additionalProperties" : false,
@@ -2359,13 +2362,14 @@
           "type" : "string"
         },
         "schema" : {
-          "pattern" : "/json_schema/request/[^/.~]+$"
+          "pattern" : "/json_schema/request/[A-Za-z0-9_-]+$"
         }
       },
       "required" : [
         "error"
       ],
-      "type" : "object"
+      "type" : "object",
+      "unevaluatedProperties" : false
     },
     "UserDetailed" : {
       "additionalProperties" : false,
@@ -2692,7 +2696,7 @@
         },
         "schema" : {
           "format" : "uri-reference",
-          "pattern" : "/json_schema/[^/.~]+/[^/.~]+$",
+          "pattern" : "/json_schema/[^/.~]+/[A-Za-z0-9_-]+$",
           "type" : "string"
         }
       },

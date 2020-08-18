@@ -3,6 +3,7 @@
   "$defs" : {
     "DeviceReport_v3_0_0" : {
       "$comment" : "the contents of a posted device report from relays and reporters",
+      "additionalProperties" : true,
       "properties" : {
         "bios_version" : {
           "type" : "string"

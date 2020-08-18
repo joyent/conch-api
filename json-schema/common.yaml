@@ -84,6 +84,10 @@ $defs:
     $comment: see https://metacpan.org/pod/Mojolicious::Guides::Routing#Relaxed-placeholders
     type: string
     pattern: '^[^/]+$'
+  json_pointer_token:
+    $comment: a json-pointer reference-token (see RFC6901). Special characters requiring escaping are disallowed for simplicity.
+    type: string
+    pattern: '^[A-Za-z0-9_-]+$'
   email_address:
     type: string
     format: email
@@ -97,6 +101,7 @@ $defs:
   HardwareProductSpecification:
     $comment: this is the structure of the hardware_product.specification database column
     type: object
+    additionalProperties: true  # there is all kinds of junk in here still
     properties:
       disk_size:
         type: object

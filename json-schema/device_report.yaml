@@ -8,6 +8,7 @@ $defs:
   DeviceReport_v3_0_0:
     $comment: the contents of a posted device report from relays and reporters
     type: object
+    additionalProperties: true  # there is all kinds of junk in here still
     required:
       - bios_version
       - product_name

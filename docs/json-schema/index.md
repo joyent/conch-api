@@ -2,6 +2,7 @@
 
 * [common](../json-schema/common.json)
 * [device_report](../json-schema/device_report.json)
+* [draft-2019-09-strict](../json-schema/draft-2019-09-strict.json)
 * [other](../json-schema/other.json)
 * [query_params](../json-schema/query_params.json)
 * [request](../json-schema/request.json)
