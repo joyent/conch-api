@@ -63,7 +63,7 @@ definitions:
       vendor_name:
         $ref: common.yaml#/definitions/mojo_relaxed_placeholder
   DeviceReport:
-    $ref: device_report.yaml#/definitions/DeviceReport_v3.0.0
+    $ref: device_report.yaml#/definitions/DeviceReport_v3_0_0
   RackCreate:
     type: object
     additionalProperties: false

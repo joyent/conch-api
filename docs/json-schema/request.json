@@ -393,7 +393,7 @@
       "type" : "object"
     },
     "DeviceReport" : {
-      "$ref" : "device_report.json#/definitions/DeviceReport_v3.0.0"
+      "$ref" : "device_report.json#/definitions/DeviceReport_v3_0_0"
     },
     "DeviceSetting" : {
       "allOf" : [

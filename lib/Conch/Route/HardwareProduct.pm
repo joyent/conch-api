@@ -138,10 +138,10 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =head2 C<PUT /hardware_product/:hardware_product_id_or_other/specification?path=:path_to_data>
 
-Sets a specific part of the json blob data in the C<specification> field, treating the URI fragment
-as the JSON pointer to the data to be added or modified. Existing data at the path is overwritten
-without regard to type, so long as the JSON Schema is respected. For example, this existing
-C<specification> field and this request:
+Sets a specific part of the json blob data in the C<specification> field, treating the URI query
+parameter C<path> as the JSON pointer to the data to be added or modified. Existing data at the path
+is overwritten without regard to type, so long as the JSON Schema is respected. For example, this
+existing C<specification> field and this request:
 
   {
     "foo": { "bar": 123 },
@@ -172,9 +172,9 @@ F<common.yaml#/definitions/HardwareProductSpecification>.
 
 =head2 C<DELETE /hardware_product/:hardware_product_id_or_other/specification?path=:path_to_data>
 
-Deletes a specific part of the json blob data in the C<specification> field, treating the URI
-fragment as the JSON pointer to the data to be removed. All other properties in the json blob
-are left untouched.
+Deletes a specific part of the json blob data in the C<specification> field, treating the URI query
+parameter C<path> as the JSON pointer to the data to be removed. All other properties in the json
+blob are left untouched.
 
 After the delete operation, the C<specification> property must validate against
 F<common.yaml#/definitions/HardwareProductSpecification>.
