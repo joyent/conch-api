@@ -55,6 +55,9 @@ Available routes are:
   * [`/refresh_token`](modules/Conch::Route#post-refresh_token)
   * [`/me`](modules/Conch::Route#get-me)
 
+* [Conch::Route::Build](modules/Conch::Route::Build)
+  * `/build`
+
 * [Conch::Route::Datacenter](modules/Conch::Route::Datacenter)
   * `/dc`
 
