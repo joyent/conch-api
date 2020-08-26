@@ -48,7 +48,8 @@ sub find_rack ($c) {
     }
     elsif (my ($room_vendor_name, $rack_name) = ($identifier =~ /(.+):([^:]+)$/)) {
         # search up by long rack name
-        my $room_rs = ($c->stash('datacenter_room_rs') ? $c->stash('datacenter_room_rs') : $c->db_datacenter_rooms)->search({ 'datacenter_room.vendor_name' => $room_vendor_name });
+        my $room_rs = ($c->stash('datacenter_room_rs') // $c->db_datacenter_rooms)
+            ->search({ 'datacenter_room.vendor_name' => $room_vendor_name });
         $rack_rs = $room_rs->search_related('racks', { 'racks.name' => $rack_name });
     }
     else {
