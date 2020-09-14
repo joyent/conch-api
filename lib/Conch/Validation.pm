@@ -535,7 +535,6 @@ sub register_result ($self, %attrs) {
 
     my $validation_result = {
         message  => $attrs{message}  || $message,
-        name     => $attrs{name}     || $self->name,
         category => $attrs{category} || $self->category,
         component    => $attrs{component},
         status       => $success ? _STATUS_PASS : _STATUS_FAIL,
