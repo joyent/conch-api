@@ -73,7 +73,7 @@ sub validate {
             expected     => [@peer_ports],
             got          => $peer_port,
             cmp          => 'oneOf',
-            component    => $nic->{nic},
+            component    => $nic->{mac},
             name         => 'peer_ports'
         );
 
@@ -85,7 +85,7 @@ sub validate {
     $self->register_result(
         expected => 2,
         got      => $num_switches,
-        name     => 'num_switches'
+        component => 'num_switches',
     );
 
     # Validate the number of ports per switch
@@ -97,7 +97,6 @@ sub validate {
         $self->register_result(
             expected => 2,
             got      => $num_ports,
-            name     => 'num_ports',
             component => $switch_name,
         );
     }
