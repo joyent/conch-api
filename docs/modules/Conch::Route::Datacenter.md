@@ -18,26 +18,26 @@ All routes require authentication.
 
 - Requires system admin authorization
 - Controller/Action: ["get\_all" in Conch::Controller::Datacenter](../modules/Conch%3A%3AController%3A%3ADatacenter#get_all)
-- Response: [response.json#/definitions/Datacenters](../json-schema/response.json#/definitions/Datacenters)
+- Response: [response.json#/$defs/Datacenters](../json-schema/response.json#/$defs/Datacenters)
 
 ### `POST /dc`
 
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::Datacenter](../modules/Conch%3A%3AController%3A%3ADatacenter#create)
-- Request: [request.json#/definitions/DatacenterCreate](../json-schema/request.json#/definitions/DatacenterCreate)
+- Request: [request.json#/$defs/DatacenterCreate](../json-schema/request.json#/$defs/DatacenterCreate)
 - Response: `201 Created` or `204 No Content`, plus Location header
 
 ### `GET /dc/:datacenter_id`
 
 - Requires system admin authorization
 - Controller/Action: ["get\_one" in Conch::Controller::Datacenter](../modules/Conch%3A%3AController%3A%3ADatacenter#get_one)
-- Response: [response.json#/definitions/Datacenter](../json-schema/response.json#/definitions/Datacenter)
+- Response: [response.json#/$defs/Datacenter](../json-schema/response.json#/$defs/Datacenter)
 
 ### `POST /dc/:datacenter_id`
 
 - Requires system admin authorization
 - Controller/Action: ["update" in Conch::Controller::Datacenter](../modules/Conch%3A%3AController%3A%3ADatacenter#update)
-- Request: [request.json#/definitions/DatacenterUpdate](../json-schema/request.json#/definitions/DatacenterUpdate)
+- Request: [request.json#/$defs/DatacenterUpdate](../json-schema/request.json#/$defs/DatacenterUpdate)
 - Response: Redirect to the updated datacenter
 
 ### `DELETE /dc/:datacenter_id`
@@ -50,7 +50,7 @@ All routes require authentication.
 
 - Requires system admin authorization
 - Controller/Action: ["get\_rooms" in Conch::Controller::Datacenter](../modules/Conch%3A%3AController%3A%3ADatacenter#get_rooms)
-- Response: [response.json#/definitions/DatacenterRoomsDetailed](../json-schema/response.json#/definitions/DatacenterRoomsDetailed)
+- Response: [response.json#/$defs/DatacenterRoomsDetailed](../json-schema/response.json#/$defs/DatacenterRoomsDetailed)
 
 ## LICENSING
 

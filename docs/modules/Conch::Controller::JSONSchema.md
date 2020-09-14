@@ -15,15 +15,15 @@ respectively). Bundles all the referenced definitions together in the returned b
 ### \_extract\_schema\_definition
 
 Given a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object containing a schema definition, extract the requested portion
-out of the "definitions" section, including any named references, and add some standard
+out of the `$defs` section, including any named references, and add some standard
 headers.
 
 TODO: this (plus addition of the header fields) could mostly be replaced with just:
 
 ```perl
 my $new_defs = $jv->bundle({
-    schema => $jv->get('/definitions/'.$name),
-    ref_key => 'definitions',
+    schema => $jv->get('/$defs/'.$name),
+    ref_key => '$defs',
 });
 ```
 

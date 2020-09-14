@@ -56,7 +56,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Datacenter/get_all>
 
-=item * Response: F<response.yaml#/definitions/Datacenters>
+=item * Response: F<response.yaml#/$defs/Datacenters>
 
 =back
 
@@ -68,7 +68,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Datacenter/create>
 
-=item * Request: F<request.yaml#/definitions/DatacenterCreate>
+=item * Request: F<request.yaml#/$defs/DatacenterCreate>
 
 =item * Response: C<201 Created> or C<204 No Content>, plus Location header
 
@@ -82,7 +82,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Datacenter/get_one>
 
-=item * Response: F<response.yaml#/definitions/Datacenter>
+=item * Response: F<response.yaml#/$defs/Datacenter>
 
 =back
 
@@ -94,7 +94,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Datacenter/update>
 
-=item * Request: F<request.yaml#/definitions/DatacenterUpdate>
+=item * Request: F<request.yaml#/$defs/DatacenterUpdate>
 
 =item * Response: Redirect to the updated datacenter
 
@@ -120,7 +120,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Datacenter/get_rooms>
 
-=item * Response: F<response.yaml#/definitions/DatacenterRoomsDetailed>
+=item * Response: F<response.yaml#/$defs/DatacenterRoomsDetailed>
 
 =back
 

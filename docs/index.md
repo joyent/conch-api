@@ -41,9 +41,9 @@ Successful (HTTP 2xx code) response structures are as described for each endpoin
 (HTTP 4xx) responses are also listed, as well as the normal errors common across all endpoints, as
 noted below:
 
-* failure to validate query parameters: HTTP 400, [response.json#/definitions/QueryParamsValidationError](json-schema/response.json#/definitions/QueryParamsValidationError)
-* failure to validate request body payload: HTTP 400, [response.json#/definitions/RequestValidationError](json-schema/response.json#/definitions/RequestValidationError)
-* all other errors, unless specified, use the generic error structure, [response.json#/definitions/Error](json-schema/response.json#/definitions/Error)
+* failure to validate query parameters: HTTP 400, [response.json#/$defs/QueryParamsValidationError](json-schema/response.json#/$defs/QueryParamsValidationError)
+* failure to validate request body payload: HTTP 400, [response.json#/$defs/RequestValidationError](json-schema/response.json#/$defs/RequestValidationError)
+* all other errors, unless specified, use the generic error structure, [response.json#/$defs/Error](json-schema/response.json#/$defs/Error)
 * failure to properly authenticate (user not found, password incorrect, missing authentication token): HTTP 401
 * user is not authorized for this endpoint: HTTP 403
 

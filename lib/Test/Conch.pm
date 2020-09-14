@@ -327,7 +327,7 @@ sub location_like ($self, $pattern, $desc = 'location header') {
 =head2 json_schema_is
 
 Validates the JSON response of the most recent request. If given a string that looks like a URL,
-fetches that URL; otherwise if a string, looks up the schema in C<#/definitions> in the JSON Schema
+fetches that URL; otherwise if a string, looks up the schema in C<#/$defs> in the JSON Schema
 response specification document to validate. If given a hash, uses the hash as the schema to
 validate.
 
@@ -353,7 +353,7 @@ sub json_schema_is ($self, $schema, $message = undef) {
     else {
         $schema_name = $schema;
         $validator = $self->validator;
-        $schema = $validator->get('/definitions/'.$schema_name)
+        $schema = $validator->get('/$defs/'.$schema_name)
             or die "schema '$schema_name' not found";
     }
 

@@ -85,7 +85,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::DatacenterRoom/get_all>
 
-=item * Response: F<response.yaml#/definitions/DatacenterRoomsDetailed>
+=item * Response: F<response.yaml#/$defs/DatacenterRoomsDetailed>
 
 =back
 
@@ -97,7 +97,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::DatacenterRoom/create>
 
-=item * Request: F<request.yaml#/definitions/DatacenterRoomCreate>
+=item * Request: F<request.yaml#/$defs/DatacenterRoomCreate>
 
 =item * Response: Redirect to the created room
 
@@ -112,7 +112,7 @@ the room
 
 =item * Controller/Action: L<Conch::Controller::DatacenterRoom/get_one>
 
-=item * Response: F<response.yaml#/definitions/DatacenterRoomDetailed>
+=item * Response: F<response.yaml#/$defs/DatacenterRoomDetailed>
 
 =back
 
@@ -124,7 +124,7 @@ the room
 
 =item * Controller/Action: L<Conch::Controller::DatacenterRoom/update>
 
-=item * Request: F<request.yaml#/definitions/DatacenterRoomUpdate>
+=item * Request: F<request.yaml#/$defs/DatacenterRoomUpdate>
 
 =item * Response: Redirect to the updated room
 
@@ -151,7 +151,7 @@ the room (in which case data returned is restricted to those racks)
 
 =item * Controller/Action: L<Conch::Controller::DatacenterRoom/racks>
 
-=item * Response: F<response.yaml#/definitions/Racks>
+=item * Response: F<response.yaml#/$defs/Racks>
 
 =back
 

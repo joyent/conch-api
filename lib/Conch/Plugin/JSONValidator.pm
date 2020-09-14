@@ -54,7 +54,7 @@ appearing once are scalars, parameters appearing more than once have their value
 arrayref).
 
 On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
-F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
+F<response.yaml#/$defs/QueryParamsValidationError> json response schema.
 
 Population of missing data from specified defaults is performed.
 
@@ -62,7 +62,7 @@ Population of missing data from specified defaults is performed.
 
     $app->helper(validate_query_params => sub ($c, $schema_name, $data = $c->req->query_params->to_hash) {
         my $validator = $c->get_query_params_validator;
-        my $schema = $validator->get('/definitions/'.$schema_name);
+        my $schema = $validator->get('/$defs/'.$schema_name);
 
         if (not $schema) {
             Mojo::Exception->throw("unable to locate query_params schema $schema_name");
@@ -93,13 +93,13 @@ Given the name of a json schema in the request namespace, validate the provided 
 it (defaulting to the request's json payload).
 
 On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
-using the F<response.yaml#/definitions/RequestValidationError> json response schema.
+using the F<response.yaml#/$defs/RequestValidationError> json response schema.
 
 =cut
 
     $app->helper(validate_request => sub ($c, $schema_name, $data = $c->req->json) {
         my $validator = $c->get_request_validator;
-        my $schema = $validator->get('/definitions/'.$schema_name);
+        my $schema = $validator->get('/$defs/'.$schema_name);
 
         if (not $schema) {
             Mojo::Exception->throw("unable to locate request schema $schema_name");

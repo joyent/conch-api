@@ -1,7 +1,6 @@
 {
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/query_params/$schema_name' endpoints, or within conch itself, json-schema/query_params.yaml.\nNote that all parameters are parsed internally from the request URI as strings, so all type checks here use strings. When a query parameter is used more than once, its values are parsed as an arrayref. See ../modules/Conch::Plugin::JSONValidator#validate_query_params.",
-  "$schema" : "http://json-schema.org/draft-07/schema#",
-  "definitions" : {
+  "$defs" : {
     "BuildDevices" : {
       "additionalProperties" : true,
       "allOf" : [
@@ -38,16 +37,16 @@
       },
       "properties" : {
         "active_minutes" : {
-          "$ref" : "#/definitions/non_negative_integer_string"
+          "$ref" : "#/$defs/non_negative_integer_string"
         },
         "health" : {
           "oneOf" : [
             {
-              "$ref" : "common.json#/definitions/device_health"
+              "$ref" : "common.json#/$defs/device_health"
             },
             {
               "items" : {
-                "$ref" : "common.json#/definitions/device_health"
+                "$ref" : "common.json#/$defs/device_health"
               },
               "minItems" : 2,
               "type" : "array",
@@ -56,16 +55,16 @@
           ]
         },
         "ids_only" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         },
         "phase" : {
           "oneOf" : [
             {
-              "$ref" : "common.json#/definitions/device_phase"
+              "$ref" : "common.json#/$defs/device_phase"
             },
             {
               "items" : {
-                "$ref" : "common.json#/definitions/device_phase"
+                "$ref" : "common.json#/$defs/device_phase"
               },
               "minItems" : 2,
               "type" : "array",
@@ -74,7 +73,7 @@
           ]
         },
         "serials_only" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         }
       },
       "type" : "object"
@@ -86,16 +85,16 @@
       },
       "properties" : {
         "ids_only" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         },
         "phase" : {
           "oneOf" : [
             {
-              "$ref" : "common.json#/definitions/device_phase"
+              "$ref" : "common.json#/$defs/device_phase"
             },
             {
               "items" : {
-                "$ref" : "common.json#/definitions/device_phase"
+                "$ref" : "common.json#/$defs/device_phase"
               },
               "minItems" : 2,
               "type" : "array",
@@ -124,7 +123,7 @@
       "type" : "object"
     },
     "DeactivateUser" : {
-      "$ref" : "#/definitions/ChangePassword"
+      "$ref" : "#/$defs/ChangePassword"
     },
     "FindDevice" : {
       "additionalProperties" : true,
@@ -135,7 +134,7 @@
               "const" : ""
             },
             {
-              "$ref" : "common.json#/definitions/device_phase"
+              "$ref" : "common.json#/$defs/device_phase"
             }
           ]
         }
@@ -159,10 +158,10 @@
       },
       "properties" : {
         "completed" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         },
         "started" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         }
       },
       "type" : "object"
@@ -178,18 +177,18 @@
           "type" : "string"
         },
         "ipaddr" : {
-          "$ref" : "common.json#/definitions/ipaddr"
+          "$ref" : "common.json#/$defs/ipaddr"
         },
         "link" : {
           "format" : "uri",
           "type" : "string"
         },
         "mac" : {
-          "$ref" : "common.json#/definitions/macaddr"
+          "$ref" : "common.json#/$defs/macaddr"
         }
       },
       "propertyNames" : {
-        "$ref" : "common.json#/definitions/device_setting_key"
+        "$ref" : "common.json#/$defs/device_setting_key"
       },
       "type" : "object"
     },
@@ -199,11 +198,11 @@
         "status" : {
           "oneOf" : [
             {
-              "$ref" : "common.json#/definitions/validation_status"
+              "$ref" : "common.json#/$defs/validation_status"
             },
             {
               "items" : {
-                "$ref" : "common.json#/definitions/validation_status"
+                "$ref" : "common.json#/$defs/validation_status"
               },
               "minItems" : 2,
               "type" : "array",
@@ -235,7 +234,7 @@
       "description" : "used for operations where email can optionally be sent",
       "properties" : {
         "send_mail" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         }
       },
       "type" : "object"
@@ -247,7 +246,7 @@
       },
       "properties" : {
         "no_save_db" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         }
       },
       "type" : "object"
@@ -268,7 +267,7 @@
           "type" : "string"
         },
         "send_mail" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         }
       },
       "type" : "object"
@@ -297,13 +296,13 @@
       },
       "properties" : {
         "api_only" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         },
         "login_only" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         },
         "send_mail" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         }
       },
       "type" : "object"
@@ -315,7 +314,7 @@
       },
       "properties" : {
         "rack_only" : {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         }
       },
       "type" : "object"
@@ -324,13 +323,13 @@
       "additionalProperties" : true,
       "properties" : {
         "with_device_health" : {
-          "$ref" : "#/definitions/boolean_string_or_flag"
+          "$ref" : "#/$defs/boolean_string_or_flag"
         },
         "with_device_phases" : {
-          "$ref" : "#/definitions/boolean_string_or_flag"
+          "$ref" : "#/$defs/boolean_string_or_flag"
         },
         "with_rack_phases" : {
-          "$ref" : "#/definitions/boolean_string_or_flag"
+          "$ref" : "#/$defs/boolean_string_or_flag"
         }
       },
       "type" : "object"
@@ -349,14 +348,15 @@
           "const" : ""
         },
         {
-          "$ref" : "#/definitions/boolean_string"
+          "$ref" : "#/$defs/boolean_string"
         }
       ]
     },
     "non_negative_integer_string" : {
-      "description" : "see common.json#/definitions/non_negative_integer",
+      "description" : "see common.json#/$defs/non_negative_integer",
       "pattern" : "^[0-9]+$",
       "type" : "string"
     }
-  }
+  },
+  "$schema" : "http://json-schema.org/draft-07/schema#"
 }

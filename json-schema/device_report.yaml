@@ -1,6 +1,6 @@
 ---
 $schema: 'http://json-schema.org/draft-07/schema#'
-definitions:
+$defs:
   int_or_stringy_int:
     description: an integer that may be presented as a json string
     oneOf:
@@ -35,21 +35,21 @@ definitions:
               type: string
             memory-serial-number:
               oneOf:
-                - $ref: common.yaml#/definitions/non_empty_string
+                - $ref: common.yaml#/$defs/non_empty_string
                 - type: 'null'
             memory-size:
               oneOf:
-                - $ref: '#/definitions/int_or_stringy_int'
+                - $ref: '#/$defs/int_or_stringy_int'
                 - type: 'null'
       disks:
         type: object
         propertyNames:
-          $ref: common.yaml#/definitions/disk_serial_number
+          $ref: common.yaml#/$defs/disk_serial_number
         additionalProperties:
           type: object
           properties:
             slot:
-              $ref: '#/definitions/int_or_stringy_int'
+              $ref: '#/$defs/int_or_stringy_int'
             size:
               type: integer
             vendor:
@@ -65,11 +65,11 @@ definitions:
             drive_type:
               type: string
             temp:
-              $ref: '#/definitions/int_or_stringy_int'
+              $ref: '#/$defs/int_or_stringy_int'
             enclosure:
-              $ref: '#/definitions/int_or_stringy_int'
+              $ref: '#/$defs/int_or_stringy_int'
             hba:
-              $ref: '#/definitions/int_or_stringy_int'
+              $ref: '#/$defs/int_or_stringy_int'
             block_sz:
               type: integer
             # any additional fields are not currently used.
@@ -82,7 +82,7 @@ definitions:
         # TODO: this is required for servers
         type: object
         propertyNames:
-          $ref: common.yaml#/definitions/device_interface_name
+          $ref: common.yaml#/$defs/device_interface_name
         additionalProperties:
           type: object
           required:
@@ -91,7 +91,7 @@ definitions:
             - vendor
           properties:
             mac:
-              $ref: common.yaml#/definitions/macaddr
+              $ref: common.yaml#/$defs/macaddr
             product:
               type: string
             vendor:
@@ -102,15 +102,15 @@ definitions:
                 - type: 'null'
             ipaddr:
               oneOf:
-                - $ref: common.yaml#/definitions/ipaddr
+                - $ref: common.yaml#/$defs/ipaddr
                 - type: 'null'
             mtu:
               oneOf:
-                - $ref: '#/definitions/int_or_stringy_int'
+                - $ref: '#/$defs/int_or_stringy_int'
                 - type: 'null'
             peer_mac:
               oneOf:
-                - $ref: common.yaml#/definitions/macaddr
+                - $ref: common.yaml#/$defs/macaddr
                 - type: 'null'
             # peer_text, peer_switch, peer_port, all optional with no constraints
             # peer_vendor: # TODO! see Conch::Validation::SwitchPeers.
@@ -134,11 +134,11 @@ definitions:
           - serial
         properties:
           serial:
-            $ref: common.yaml#/definitions/relay_serial_number
+            $ref: common.yaml#/$defs/relay_serial_number
       serial_number:
-        $ref: common.yaml#/definitions/device_serial_number
+        $ref: common.yaml#/$defs/device_serial_number
       system_uuid:
-        $ref: common.yaml#/definitions/non_zero_uuid
+        $ref: common.yaml#/$defs/non_zero_uuid
       temp:
         type: object
         required:
@@ -146,18 +146,18 @@ definitions:
           - cpu1
         properties:
           cpu0:
-            $ref: '#/definitions/int_or_stringy_int'
+            $ref: '#/$defs/int_or_stringy_int'
           cpu1:
-            $ref: '#/definitions/int_or_stringy_int'
+            $ref: '#/$defs/int_or_stringy_int'
           exhaust:
-            $ref: '#/definitions/int_or_stringy_int'
+            $ref: '#/$defs/int_or_stringy_int'
           inlet:
-            $ref: '#/definitions/int_or_stringy_int'
+            $ref: '#/$defs/int_or_stringy_int'
       uptime_since:
         type: string
       links:
         allOf:
-          - $ref: common.yaml#/definitions/links
+          - $ref: common.yaml#/$defs/links
           - minItems: 1
 
 # vim: set sts=2 sw=2 et :

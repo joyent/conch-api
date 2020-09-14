@@ -53,7 +53,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::ValidationPlan/get_all>
 
-=item * Response: F<response.yaml#/definitions/LegacyValidationPlans>
+=item * Response: F<response.yaml#/$defs/LegacyValidationPlans>
 
 =back
 
@@ -63,7 +63,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::ValidationPlan/get>
 
-=item * Response: F<response.yaml#/definitions/LegacyValidationPlan>
+=item * Response: F<response.yaml#/$defs/LegacyValidationPlan>
 
 =back
 
@@ -73,7 +73,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::ValidationPlan/validations>
 
-=item * Response: F<response.yaml#/definitions/LegacyValidations>
+=item * Response: F<response.yaml#/$defs/LegacyValidations>
 
 =back
 

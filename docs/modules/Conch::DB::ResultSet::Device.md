@@ -82,7 +82,7 @@ Modifies the resultset to add the `build_name` column.
 
 ### location\_data
 
-Returns a resultset that provides location data ([response.json#/definitions/DeviceLocation](../json-schema/response.json#/definitions/DeviceLocation)),
+Returns a resultset that provides location data ([response.json#/$defs/DeviceLocation](../json-schema/response.json#/$defs/DeviceLocation)),
 optionally returned under a hash using the provided key name.
 
 ## LICENSING

@@ -55,14 +55,14 @@ sub get ($c) {
 =head2 _extract_schema_definition
 
 Given a L<JSON::Validator> object containing a schema definition, extract the requested portion
-out of the "definitions" section, including any named references, and add some standard
+out of the C<$defs> section, including any named references, and add some standard
 headers.
 
 TODO: this (plus addition of the header fields) could mostly be replaced with just:
 
     my $new_defs = $jv->bundle({
-        schema => $jv->get('/definitions/'.$name),
-        ref_key => 'definitions',
+        schema => $jv->get('/$defs/'.$name),
+        ref_key => '$defs',
     });
 
 ..except circular refs are not handled there, and the definition renaming leaks local path info.
@@ -70,7 +70,7 @@ TODO: this (plus addition of the header fields) could mostly be replaced with ju
 =cut
 
 sub _extract_schema_definition ($validator, $schema_name) {
-    my $top_schema = $validator->schema->get('/definitions/'.$schema_name);
+    my $top_schema = $validator->schema->get('/$defs/'.$schema_name);
     return if not $top_schema;
 
     my %refs;
@@ -81,12 +81,12 @@ sub _extract_schema_definition ($validator, $schema_name) {
         if (ref $from eq 'HASH' and my $tied = tied %$from) {
             # this is a hashref which quacks like { '$ref' => $target }
             my ($location, $path) = split /#/, $tied->fqn, 2;
-            (my $name = $path) =~ s!^/definitions/!!;
+            (my $name = $path) =~ s!^/\$defs/!!;
 
             if (not $refs{$tied->fqn}++) {
                 # TODO: use a heuristic to find a new name for the conflicting definition
                 if ($name ne $schema_name and exists $source{$name}) {
-                    die 'namespace collision: '.$tied->fqn.' but already have a /definitions/'.$name
+                    die 'namespace collision: '.$tied->fqn.' but already have a /$defs/'.$name
                         .' from '.$source{$name}->fqn;
                 }
 
@@ -95,7 +95,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
             }
 
             ++$refs{'/traversed_definitions/'.$name};
-            tie my %ref, 'JSON::Validator::Ref', $tied->schema, '#/definitions/'.$name;
+            tie my %ref, 'JSON::Validator::Ref', $tied->schema, '#/$defs/'.$name;
             return \%ref;
         }
 
@@ -118,7 +118,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
 
     # cannot return a $ref at the top level (sibling keys disallowed) - inline the $ref.
     while (my $tied = tied %$target) {
-        (my $name = $tied->fqn) =~ s!^#/definitions/!!;
+        (my $name = $tied->fqn) =~ s!^#/\$defs/!!;
         $target = $definitions->{$name};
         delete $definitions->{$name} if $refs{'/traversed_definitions/'.$name} == 1;
     }
@@ -126,7 +126,7 @@ sub _extract_schema_definition ($validator, $schema_name) {
     return {
         '$schema' => $validator->get('/$schema') || 'http://json-schema.org/draft-07/schema#',
         # no $id - we have no idea of this document's canonical location
-        keys $definitions->%* ? ( definitions => $definitions ) : (),
+        keys $definitions->%* ? ( '$defs' => $definitions ) : (),
         $target->%*,
     };
 }

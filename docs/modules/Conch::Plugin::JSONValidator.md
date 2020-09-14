@@ -45,7 +45,7 @@ appearing once are scalars, parameters appearing more than once have their value
 arrayref).
 
 On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
-[response.json#/definitions/QueryParamsValidationError](../json-schema/response.json#/definitions/QueryParamsValidationError) json response schema.
+[response.json#/$defs/QueryParamsValidationError](../json-schema/response.json#/$defs/QueryParamsValidationError) json response schema.
 
 Population of missing data from specified defaults is performed.
 
@@ -55,7 +55,7 @@ Given the name of a json schema in the request namespace, validate the provided 
 it (defaulting to the request's json payload).
 
 On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
-using the [response.json#/definitions/RequestValidationError](../json-schema/response.json#/definitions/RequestValidationError) json response schema.
+using the [response.json#/$defs/RequestValidationError](../json-schema/response.json#/$defs/RequestValidationError) json response schema.
 
 ### get\_query\_params\_validator
 

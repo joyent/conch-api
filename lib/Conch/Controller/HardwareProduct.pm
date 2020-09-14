@@ -188,7 +188,7 @@ C<specification> property to operate on. New data is written, and existing data 
 without regard to type (so long as it conforms to the schema).
 
 After the update operation, the C<specification> property must validate against
-F<common.yaml#/definitions/HardwareProductSpecification>.
+F<common.yaml#/$defs/HardwareProductSpecification>.
 
 =cut
 
@@ -233,7 +233,7 @@ Uses the URI query parameter C<path> as a json pointer to determine the path wit
 C<specification> property to operate on. All of the data at the indicated path is deleted.
 
 After the delete operation, the C<specification> property must validate against
-F<common.yaml#/definitions/HardwareProductSpecification>.
+F<common.yaml#/$defs/HardwareProductSpecification>.
 
 =cut
 

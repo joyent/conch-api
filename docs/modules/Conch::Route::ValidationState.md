@@ -17,7 +17,7 @@ All routes require authentication.
 ### `GET /validation_state/:validation_state_id`
 
 - Controller/Action: ["get" in Conch::Controller::ValidationState](../modules/Conch%3A%3AController%3A%3AValidationState#get)
-- Response: [response.json#/definitions/ValidationStateWithResults](../json-schema/response.json#/definitions/ValidationStateWithResults)
+- Response: [response.json#/$defs/ValidationStateWithResults](../json-schema/response.json#/$defs/ValidationStateWithResults)
 
 ## LICENSING
 

@@ -1,6 +1,6 @@
 ---
 $schema: http://json-schema.org/draft-07/schema#
-definitions:
+$defs:
   my_name:
     type: string
     minLength: 2
@@ -11,7 +11,7 @@ definitions:
         type: string
       city:
         # this is a local ref in a secondary file - resolution is extra tricky
-        $ref: "#/definitions/my_name"
+        $ref: "#/$defs/my_name"
   dupe_name:
     type: string
   i_am_a_ref_with_the_same_name:
@@ -20,7 +20,7 @@ definitions:
     type: object
     properties:
       gotcha:
-        $ref: test-schema.yaml#/definitions/ref3
+        $ref: test-schema.yaml#/$defs/ref3
   i_have_a_ref_with_the_same_name:
     type: string
 

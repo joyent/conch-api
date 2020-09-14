@@ -26,20 +26,20 @@ available under `/rack/:rack_id_or_long_name` as well as
 
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#create)
-- Request: [request.json#/definitions/RackCreate](../json-schema/request.json#/definitions/RackCreate)
+- Request: [request.json#/$defs/RackCreate](../json-schema/request.json#/$defs/RackCreate)
 - Response: Redirect to the created rack
 
 ### `GET /rack/:rack_id_or_name`
 
 - User requires the read-only role on the rack
 - Controller/Action: ["get" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#get)
-- Response: [response.json#/definitions/Rack](../json-schema/response.json#/definitions/Rack)
+- Response: [response.json#/$defs/Rack](../json-schema/response.json#/$defs/Rack)
 
 ### `POST /rack/:rack_id_or_name`
 
 - User requires the read/write role on the rack
 - Controller/Action: ["update" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#update)
-- Request: [request.json#/definitions/RackUpdate](../json-schema/request.json#/definitions/RackUpdate)
+- Request: [request.json#/$defs/RackUpdate](../json-schema/request.json#/$defs/RackUpdate)
 - Response: Redirect to the updated rack
 
 ### `DELETE /rack/:rack_id_or_name`
@@ -52,26 +52,26 @@ available under `/rack/:rack_id_or_long_name` as well as
 
 - User requires the read-only role on the rack
 - Controller/Action: ["get\_layouts" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#get_layouts)
-- Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
+- Response: [response.json#/$defs/RackLayouts](../json-schema/response.json#/$defs/RackLayouts)
 
 ### `POST /rack/:rack_id_or_name/layout`
 
 - User requires the read/write role on the rack
 - Controller/Action: ["overwrite\_layouts" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#overwrite_layouts)
-- Request: [request.json#/definitions/RackLayouts](../json-schema/request.json#/definitions/RackLayouts)
+- Request: [request.json#/$defs/RackLayouts](../json-schema/request.json#/$defs/RackLayouts)
 - Response: Redirect to the rack's layouts
 
 ### `GET /rack/:rack_id_or_name/assignment`
 
 - User requires the read-only role on the rack
 - Controller/Action: ["get\_assignment" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#get_assignment)
-- Response: [response.json#/definitions/RackAssignments](../json-schema/response.json#/definitions/RackAssignments)
+- Response: [response.json#/$defs/RackAssignments](../json-schema/response.json#/$defs/RackAssignments)
 
 ### `POST /rack/:rack_id_or_name/assignment`
 
 - User requires the read/write role on the rack
 - Controller/Action: ["set\_assignment" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#set_assignment)
-- Request: [request.json#/definitions/RackAssignmentUpdates](../json-schema/request.json#/definitions/RackAssignmentUpdates)
+- Request: [request.json#/$defs/RackAssignmentUpdates](../json-schema/request.json#/$defs/RackAssignmentUpdates)
 - Response: Redirect to the updated rack assignment
 
 ### `DELETE /rack/:rack_id_or_name/assignment`
@@ -80,7 +80,7 @@ This method requires a request body.
 
 - User requires the read/write role on the rack
 - Controller/Action: ["delete\_assignment" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#delete_assignment)
-- Request: [request.json#/definitions/RackAssignmentDeletes](../json-schema/request.json#/definitions/RackAssignmentDeletes)
+- Request: [request.json#/$defs/RackAssignmentDeletes](../json-schema/request.json#/$defs/RackAssignmentDeletes)
 - Response: `204 No Content`
 
 ### `POST /rack/:rack_id_or_name/phase?rack_only=<0|1>`
@@ -90,20 +90,20 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 - User requires the read/write role on the rack
 - Controller/Action: ["set\_phase" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#set_phase)
-- Request: [request.json#/definitions/RackPhase](../json-schema/request.json#/definitions/RackPhase)
+- Request: [request.json#/$defs/RackPhase](../json-schema/request.json#/$defs/RackPhase)
 - Response: Redirect to the updated rack
 
 #### `POST /rack/:rack_id_or_name/links`
 
 - User requires the read/write role on the rack
 - Controller/Action: ["add\_links" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#add_links)
-- Request: [request.json#/definitions/RackLinks](../json-schema/request.json#/definitions/RackLinks)
+- Request: [request.json#/$defs/RackLinks](../json-schema/request.json#/$defs/RackLinks)
 - Response: Redirect to the updated rack
 
 #### `DELETE /rack/:rack_id_or_name/links`
 
 - User requires the read/write role on the rack
-- Request: [request.json#/definitions/RackLinksOrNull](../json-schema/request.json#/definitions/RackLinksOrNull)
+- Request: [request.json#/$defs/RackLinksOrNull](../json-schema/request.json#/$defs/RackLinksOrNull)
 - Response: 204 NO CONTENT
 
 ### `GET /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`

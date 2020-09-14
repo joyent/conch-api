@@ -52,7 +52,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Relay/register>
 
-=item * Request: F<request.yaml#/definitions/RegisterRelay>
+=item * Request: F<request.yaml#/$defs/RegisterRelay>
 
 =item * Response: C<201 Created> or C<204 No Content>, plus Location header
 
@@ -66,7 +66,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Relay/get_all>
 
-=item * Response: F<response.yaml#/definitions/Relays>
+=item * Response: F<response.yaml#/$defs/Relays>
 
 =back
 
@@ -78,7 +78,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Relay/get>
 
-=item * Response: F<response.yaml#/definitions/Relay>
+=item * Response: F<response.yaml#/$defs/Relay>
 
 =back
 

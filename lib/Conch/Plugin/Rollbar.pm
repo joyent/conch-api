@@ -270,7 +270,7 @@ sub _create_notifier ($app, $config) {
                 my $validator = JSON::Validator->new->load_and_validate_schema(
                     'json-schema/other.yaml',
                     { schema => 'http://json-schema.org/draft-07/schema#' });
-                my $schema = $validator->get('/definitions/RollbarPayload');
+                my $schema = $validator->get('/$defs/RollbarPayload');
                 if (my @errors = $validator->validate($tx->req->json, $schema)) {
                     require Data::Dumper;
                     Carp::croak('validation error: '

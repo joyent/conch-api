@@ -10,7 +10,7 @@ use YAML::XS;
 
 foreach my $file (glob('json-schema/*.yaml')) {
     my $data = YAML::XS::LoadFile($file);
-    add_stopwords(keys $data->{definitions}->%*);
+    add_stopwords(keys $data->{'$defs'}->%*);
 }
 
 add_stopwords(<DATA>);

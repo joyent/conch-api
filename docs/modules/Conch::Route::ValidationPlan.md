@@ -19,17 +19,17 @@ All routes require authentication.
 ### `GET /validation_plan`
 
 - Controller/Action: ["get\_all" in Conch::Controller::ValidationPlan](../modules/Conch%3A%3AController%3A%3AValidationPlan#get_all)
-- Response: [response.json#/definitions/LegacyValidationPlans](../json-schema/response.json#/definitions/LegacyValidationPlans)
+- Response: [response.json#/$defs/LegacyValidationPlans](../json-schema/response.json#/$defs/LegacyValidationPlans)
 
 ### `GET /validation_plan/:legacy_validation_plan_id_or_name`
 
 - Controller/Action: ["get" in Conch::Controller::ValidationPlan](../modules/Conch%3A%3AController%3A%3AValidationPlan#get)
-- Response: [response.json#/definitions/LegacyValidationPlan](../json-schema/response.json#/definitions/LegacyValidationPlan)
+- Response: [response.json#/$defs/LegacyValidationPlan](../json-schema/response.json#/$defs/LegacyValidationPlan)
 
 ### `GET /validation_plan/:legacy_validation_plan_id_or_name/validation`
 
 - Controller/Action: ["validations" in Conch::Controller::ValidationPlan](../modules/Conch%3A%3AController%3A%3AValidationPlan#validations)
-- Response: [response.json#/definitions/LegacyValidations](../json-schema/response.json#/definitions/LegacyValidations)
+- Response: [response.json#/$defs/LegacyValidations](../json-schema/response.json#/$defs/LegacyValidations)
 
 ## LICENSING
 

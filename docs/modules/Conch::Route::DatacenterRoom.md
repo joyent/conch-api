@@ -18,13 +18,13 @@ All routes require authentication.
 
 - Requires system admin authorization
 - Controller/Action: ["get\_all" in Conch::Controller::DatacenterRoom](../modules/Conch%3A%3AController%3A%3ADatacenterRoom#get_all)
-- Response: [response.json#/definitions/DatacenterRoomsDetailed](../json-schema/response.json#/definitions/DatacenterRoomsDetailed)
+- Response: [response.json#/$defs/DatacenterRoomsDetailed](../json-schema/response.json#/$defs/DatacenterRoomsDetailed)
 
 ### `POST /room`
 
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::DatacenterRoom](../modules/Conch%3A%3AController%3A%3ADatacenterRoom#create)
-- Request: [request.json#/definitions/DatacenterRoomCreate](../json-schema/request.json#/definitions/DatacenterRoomCreate)
+- Request: [request.json#/$defs/DatacenterRoomCreate](../json-schema/request.json#/$defs/DatacenterRoomCreate)
 - Response: Redirect to the created room
 
 ### `GET /room/:datacenter_room_id_or_alias`
@@ -32,13 +32,13 @@ All routes require authentication.
 - User requires system admin authorization, or the read-only role on a rack located in
 the room
 - Controller/Action: ["get\_one" in Conch::Controller::DatacenterRoom](../modules/Conch%3A%3AController%3A%3ADatacenterRoom#get_one)
-- Response: [response.json#/definitions/DatacenterRoomDetailed](../json-schema/response.json#/definitions/DatacenterRoomDetailed)
+- Response: [response.json#/$defs/DatacenterRoomDetailed](../json-schema/response.json#/$defs/DatacenterRoomDetailed)
 
 ### `POST /room/:datacenter_room_id_or_alias`
 
 - Requires system admin authorization
 - Controller/Action: ["update" in Conch::Controller::DatacenterRoom](../modules/Conch%3A%3AController%3A%3ADatacenterRoom#update)
-- Request: [request.json#/definitions/DatacenterRoomUpdate](../json-schema/request.json#/definitions/DatacenterRoomUpdate)
+- Request: [request.json#/$defs/DatacenterRoomUpdate](../json-schema/request.json#/$defs/DatacenterRoomUpdate)
 - Response: Redirect to the updated room
 
 ### `DELETE /room/:datacenter_room_id_or_alias`
@@ -52,7 +52,7 @@ the room
 - User requires system admin authorization, or the read-only role on a rack located in
 the room (in which case data returned is restricted to those racks)
 - Controller/Action: ["racks" in Conch::Controller::DatacenterRoom](../modules/Conch%3A%3AController%3A%3ADatacenterRoom#racks)
-- Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)
+- Response: [response.json#/$defs/Racks](../json-schema/response.json#/$defs/Racks)
 
 ### `GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name`
 
