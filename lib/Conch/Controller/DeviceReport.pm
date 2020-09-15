@@ -47,6 +47,10 @@ sub process ($c) {
         return $c->status(404);
     }
 
+    $c->stash('device_id', $device->id);
+    $c->stash('hardware_product_id', $device->hardware_product_id);
+    $c->stash('validation_plan_id', $device->hardware_product->validation_plan_id);
+
     if ($device->phase eq 'decommissioned') {
         $c->log->warn('report submitted for decommissioned device '.$unserialized_report->{serial_number});
         return $c->status(409, { error => 'device is decommissioned' });
@@ -75,6 +79,7 @@ sub process ($c) {
         ->hri
         ->single;
     my ($previous_report_id, $previous_report_status) = $previous_report ? $previous_report->@{qw(id status)} : ();
+    $c->stash('previous_report_id', $previous_report_id);
 
     # Update the device and create the device report
     $c->log->debug('Updating device '.$unserialized_report->{serial_number});
@@ -113,6 +118,7 @@ sub process ($c) {
         !$previous_report_status || $previous_report_status ne 'pass' ? ( retain => 1 ) : (),
         # invalid, created use defaults.
     });
+    $c->stash('device_report_id', $device_report->id);
     $c->log->info('Created device report '.$device_report->id);
 
     # we do not update data when a device is in the production or later phase
@@ -148,6 +154,7 @@ sub process ($c) {
         return $c->status(400, { error => 'no validations ran'
             .($c->stash('exception') ? ': '.(split(/\n/, $c->stash('exception'), 2))[0] : '') });
     }
+    $c->stash('validation_state_id', $validation_state->id);
     $c->log->debug('Validations ran with result: '.$validation_state->status);
 
     # calculate the device health based on the validation results.
@@ -407,16 +414,19 @@ sub validate_report ($c) {
     my $device = $c->db_devices
         ->prefetch({ hardware_product => 'validation_plan' })
         ->find({ serial_number => $unserialized_report->{serial_number} });
+    $c->stash('device_id', $device ? $device->id : undef );
 
     my $hardware_product = ($device ? $device->hardware_product
             : $c->db_hardware_products->find({ sku => $unserialized_report->{sku} }))
         || return $c->status(409, { error => 'Could not find hardware product with sku '.$unserialized_report->{sku} });
 
+    $c->stash('hardware_product_id', $hardware_product->id);
     return $c->status(409, { error => 'hardware_product (id '.$hardware_product->id
             .') is deactivated and cannot be used' })
         if $hardware_product->deactivated;
 
     my $validation_plan = $hardware_product->validation_plan;
+    $c->stash('validation_plan_id', $validation_plan->id);
     return $c->status(409, { error => 'validation_plan (id '.$validation_plan->id.') is deactivated and cannot be used' })
         if $validation_plan->deactivated;
 
