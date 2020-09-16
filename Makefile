@@ -33,6 +33,10 @@ ghdocs: build
 		$$(find bin -type f -perm -u-x -not -name \*swp) \
 		$$(find json-schema -type f -iname \*.yaml)
 
+.PHONY: docimages
+docimages: build
+	@carton exec misc/update-schema-diagrams
+
 watch-test:
 	@find lib t | entr -r -c make test
 

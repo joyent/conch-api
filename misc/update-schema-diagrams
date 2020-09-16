@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use Path::Tiny;
+
+foreach my $file (glob('docs/_resources/*.er')) {
+  # erd -f png -i docs/_resources/full-schema.er > docs/images/full-schema.png
+  my $command = 'erd -f png -i '.$file.' > docs/images/'.(path($file)->basename =~ s/er$/png/r);
+  print $command, "\n";
+  system($command);
+}
