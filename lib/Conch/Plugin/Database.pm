@@ -165,7 +165,7 @@ use the subref's return value to signal success.
     $app->log->info($db_credentials->{dsn}.' running '.$pgsql_version);
 
     use constant POSTGRES_MINIMUM_VERSION_MAJOR => 10;
-    use constant POSTGRES_MINIMUM_VERSION_MINOR => 10;
+    use constant POSTGRES_MINIMUM_VERSION_MINOR => 14;
 
     # at present we do all testing on 10.x so that is the most preferred configuration, but we
     # are not aware of any issues on PostgreSQL 11.x.
