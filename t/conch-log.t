@@ -23,6 +23,8 @@ my $hostname = Sys::Hostname::hostname;
 open my $log_fh, '>:raw', \my $fake_log_file or die "cannot open to scalarref: $!";
 sub reset_log { $fake_log_file = ''; seek $log_fh, 0, 0; }
 
+open my $access_log_fh, '>:raw', \my $access_log_file or die "cannot open to scalarref: $!";
+
 my $api_version_re = qr/^${ Test::Conch->API_VERSION_RE }$/;
 
 {
@@ -191,7 +193,9 @@ sub add_test_routes ($t) {
 
 {
     reset_log;
-    my $t = Test::Conch->new(config => { logging => { handle => $log_fh, verbose => 0 } });
+    my $t = Test::Conch->new(config => {
+        logging => { handle => $log_fh, access_log_handle => $access_log_fh, verbose => 0 },
+    });
 
     cmp_deeply(
         $t->app->log,
@@ -323,6 +327,12 @@ sub add_test_routes ($t) {
         'our controller logged two messages in bunyan format, with the request id',
     );
 
+    cmp_deeply(
+        [ split(/\n/, $access_log_file) ],
+        [ re(qr{^127.0.0.1 - - \[\d\d/\w+/\d{4}:\d\d:\d\d:\d\d [-+]\d{4}\] "GET /_hello HTTP/1\.1" 204 -$}) ],
+        'access log has one line',
+    );
+
     $t->app->log->warn('warn to the app');
     cmp_deeply(
         decode_json((split(/\n/, $fake_log_file || '{}'))[-1]),
@@ -347,7 +357,6 @@ sub add_test_routes ($t) {
     $request_id = $t->tx->res->headers->header('Request-Id');
 
     cmp_deeply(
-        # skip over final dispatch log line for now
         [ map decode_json($_), (split(/\n/, $fake_log_file))[-4...-1] ],
         [
             map +{

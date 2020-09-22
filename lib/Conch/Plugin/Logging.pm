@@ -61,6 +61,11 @@ sub register ($self, $app, $config) {
 
     $app->log(Conch::Log->new(%log_args));
 
+    $app->plugin('AccessLog',
+        log => $log_dir ? $log_dir->child('access.log') : $log_args{access_log_handle} // \*STDERR,
+        # format => '%h %l %u %t "%r" %>s %b',  (default)
+    );
+
 =head2 log
 
 Returns the main L<Conch::Log> object for the application, used for most logging.

@@ -125,6 +125,10 @@ sub new {
             logging => {
                 max_history_size => 50,
                 verbose => 1,
+                do {
+                  open my $access_log_fh, '>:raw', '/dev/null' or die "cannot open to /dev/null: $!";
+                  access_log_handle => $access_log_fh,
+                },
                 ($args->{config}//{})->{logging} ? delete($args->{config}{logging})->%* : (),
             },
 

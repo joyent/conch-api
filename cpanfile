@@ -39,6 +39,7 @@ requires 'Mojo::JWT';
 requires 'Mojolicious::Plugin::Util::RandomString', '0.07'; # memory leak: https://rt.cpan.org/Ticket/Display.html?id=125981
 requires 'Mozilla::CA'; # not used directly, but IO::Socket::SSL sometimes demands it
 requires 'IO::Socket::SSL';
+requires 'Mojolicious::Plugin::AccessLog';
 
 requires 'Path::Tiny';
 requires 'Moo';
