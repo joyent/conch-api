@@ -423,8 +423,8 @@ sub add_test_routes ($t) {
     my $post_line = __LINE__ - 2;
 
     cmp_deeply(
-        decode_json((split(/\n/, $fake_log_file))[-1]),
-        +{
+        decode_json((split(/\n/, $fake_log_file))[-2]),
+        my $dispatch = +{
             name => 'conch-api',
             hostname => $hostname,
             pid => $$,
@@ -477,6 +477,17 @@ sub add_test_routes ($t) {
         },
         'dispatch line for an uncaught exception includes the full stack trace',
     );
+
+    delete $dispatch->@{qw(msg latency)};
+    cmp_deeply(
+        decode_json((split(/\n/, $fake_log_file))[-1]),
+        +{
+            $dispatch->%*,
+            level => 'error',
+        },
+        'an uncaught exception is also sent to the exception log',
+    );
+
 
     $t->post_ok('/login', json => { email => 'foo@example.com', password => 'PASSWORD' })
         ->status_is(401);
@@ -612,8 +623,8 @@ sub add_test_routes ($t) {
     my $post_line = __LINE__ - 2;
 
     cmp_deeply(
-        decode_json((split(/\n/, $fake_log_file))[-1]),
-        +{
+        decode_json((split(/\n/, $fake_log_file))[-2]),
+        my $dispatch = +{
             name => 'conch-api',
             hostname => $hostname,
             pid => $$,
@@ -667,6 +678,17 @@ sub add_test_routes ($t) {
         },
         'dispatch line for an uncaught exception in verbose mode includes the full stack trace',
     );
+
+    delete $dispatch->@{qw(msg latency)};
+    cmp_deeply(
+        decode_json((split(/\n/, $fake_log_file))[-1]),
+        +{
+            $dispatch->%*,
+            level => 'error',
+        },
+        'an uncaught exception is also sent to the exception log',
+    );
+
 
     $t->post_ok('/login', json => { email => 'foo@example.com', password => 'PASSWORD' })
         ->status_is(401);

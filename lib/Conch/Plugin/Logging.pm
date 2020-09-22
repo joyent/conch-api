@@ -117,6 +117,7 @@ Logs the request and its response.
 =cut
 
     my $dispatch_log = $app->get_logger('dispatch', bunyan => 1, with_trace => 0);
+    my $exception_log = $app->get_logger('exception', bunyan => 1, with_trace => 0);
 
     $app->hook(after_dispatch => sub ($c) {
         my $u_str = $c->stash('user')
@@ -178,6 +179,11 @@ Logs the request and its response.
 
         local $Conch::Log::REQUEST_ID = $c->req->request_id;
         $dispatch_log->info($data);
+
+        if ($c->stash('exception')) {
+            delete $data->@{qw(msg latency)};
+            $exception_log->error($data);
+        }
     });
 }
 
