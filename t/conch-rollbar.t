@@ -135,7 +135,7 @@ my $exception_payload = {
         # optional but conch always sends these:
         (map +($_ => ignore), qw(timestamp code_version platform fingerprint uuid context notifier)),
         language => 'perl '.$Config::Config{version},
-        request => subhashof({ map +($_ => ignore), qw(url method headers params GET query_string POST body user_ip charset) }),
+        request => subhashof({ map +($_ => ignore), qw(url method headers params GET query_string POST body remote_address charset) }),
         # person - only sent when there is an authed user
         server => subhashof({ map +($_ => ignore), qw(cpu host root branch code_version perlpath archname osname osvers) }),
         custom => {
@@ -163,7 +163,7 @@ my $message_payload = {
         # optional but conch always sends these:
         (map +($_ => ignore), qw(timestamp code_version platform fingerprint uuid context notifier)),
         language => 'perl '.$Config::Config{version},
-        request => subhashof({ map +($_ => ignore), qw(url method headers params GET query_string POST body user_ip charset) }),
+        request => subhashof({ map +($_ => ignore), qw(url method headers params GET query_string POST body remote_address charset) }),
         # person - only sent when there is an authed user
         server => subhashof({ map +($_ => ignore), qw(cpu host root branch code_version perlpath archname osname osvers) }),
         level => any(qw(critical error warning info debug)),
