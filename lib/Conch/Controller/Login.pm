@@ -51,7 +51,7 @@ sub authenticate ($c) {
     my $result = $c->_check_authentication;
     return 1 if $result;
 
-    $c->_update_session;
+    $c->_update_session if not $c->res->headers->location;
     $c->status($c->req->url eq '/logout' ? 204 : 401);
 }
 
@@ -129,7 +129,7 @@ sub _check_authentication ($c) {
             # api tokens are exempt from this check
             if ((not $session_token or $session_token->is_login)
                 and $user->force_password_change
-                and $c->req->url ne '/user/me/password'
+                and $c->req->url->path ne '/user/me/password'
             ) {
                 $c->log->warn('user '.$user->name.' ('.$user->email.') attempting to authenticate before changing insecure password');
 

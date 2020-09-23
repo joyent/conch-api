@@ -490,9 +490,8 @@ sub create ($c) {
     $input->{password} //= $c->random_string;
     $input->{is_admin} = ($input->{is_admin} ? 1 : 0);
 
-    # password will be hashed in constructor
-    # FIXME: should set force_password_change - see GH#975
-    my $user = $c->db_user_accounts->create($input);
+    # password will be hashed in Conch::DB::Result::UserAccount constructor
+    my $user = $c->db_user_accounts->create({ $input->%*, force_password_change => 1 });
     $c->log->info('created user: '.$user->name.', email: '.$user->email.', id: '.$user->id);
 
     if ($params->{send_mail} // 1) {
