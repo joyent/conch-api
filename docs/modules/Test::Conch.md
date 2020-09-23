@@ -82,7 +82,7 @@ As ["location\_is"](#location_is), but takes a regular expression.
 
 ### json\_schema\_is
 
-Adds a method 'json\_schema\_is\` to validate the JSON response of
+Validates the JSON response of
 the most recent request. If given a string, looks up the schema in
 \#/definitions in the JSON Schema spec to validate. If given a hash, uses
 the hash as the schema to validate.
