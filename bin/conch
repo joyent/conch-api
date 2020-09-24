@@ -47,6 +47,7 @@ Conch-specific commands are:
 use strict;
 use warnings;
 
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 use Dir::Self;
 use lib __DIR__ =~ s{/bin}{}r . '/lib';
 

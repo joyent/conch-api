@@ -37,15 +37,17 @@ The majority of our endpoints consume and respond with JSON documents that
 conform to a set of JSON schema. These schema can be found in the [json-schema](json-schema)
 directory in the main repository, as well as on this documentation site.
 
-Successful (HTTP 2xx code) response structures are as described for each endpoint.
+Successful (HTTP 2xx code) response structures are as described for each endpoint; potential error
+(HTTP 4xx) responses are also listed, as well as the normal errors common across all endpoints, as
+noted below:
 
-Error responses will use:
+* failure to validate query parameters: HTTP 400, [response.json#/definitions/QueryParamsValidationError](json-schema/response.json#/definitions/QueryParamsValidationError)
+* failure to validate request body payload: HTTP 400, [response.json#/definitions/RequestValidationError](json-schema/response.json#/definitions/RequestValidationError)
+* all other errors, unless specified, use the generic error structure, [response.json#/definitions/Error](json-schema/response.json#/definitions/Error)
+* failure to properly authenticate (user not found, password incorrect, missing authentication token): HTTP 401
+* user is not authorized for this endpoint: HTTP 403
 
-- failure to validate query parameters: HTTP 400, [response.json#/definitions/QueryParamsValidationError](json-schema/response.json#/definitions/QueryParamsValidationError)
-- failure to validate request body payload: HTTP 400, [response.json#/definitions/RequestValidationError](json-schema/response.json#/definitions/RequestValidationError)
-- all other errors, unless specified: HTTP 4xx, [response.json#/definitions/Error](json-schema/response.json#/definitions/Error)
-
-Available routes are:
+Available top-level routes are:
 
 * [Conch::Route](modules/Conch::Route)
   * [`/ping`](modules/Conch::Route#get-ping)
@@ -121,9 +123,9 @@ pertaining to just one build, without having access to historical build data
 or other devices in the system; or, read-only access to some parts and write
 access to other parts.
 
-* All transactions are logged, both in local files and in syslog and MongoDB
-for later analysis.  Errors are also sent up to
-[Rollbar](https://rollbar.com/joyent_buildops/conch) for immediate developer
+* All transactions are logged in local files for later analysis.
+Errors are also sent up to
+[Rollbar](https://rollbar.com/joyent_buildops/conch) to ensure immediate developer
 attention.
 
 * All endpoints have strict error checking in both request and response

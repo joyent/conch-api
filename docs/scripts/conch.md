@@ -56,6 +56,10 @@ Conch-specific commands are:
 
     create new organization data
 
+- [passwd](../modules/Conch%3A%3ACommand%3A%3Apasswd)
+
+    Change a user's password
+
 - [thin\_device\_reports](../modules/Conch%3A%3ACommand%3A%3Athin_device_reports)
 
     remove unwanted device reports

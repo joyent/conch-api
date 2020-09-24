@@ -52,7 +52,7 @@ sub authenticate ($c) {
     return 1 if $result;
 
     $c->_update_session if not $c->res->headers->location;
-    $c->status($c->req->url eq '/logout' ? 204 : 401);
+    $c->status($c->req->url->path eq '/logout' ? 204 : 401);
 }
 
 sub _check_authentication ($c) {
