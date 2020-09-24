@@ -2798,6 +2798,19 @@ DISTRIBUTIONS
       IO::Socket::IP 0.37
       Sub::Util 1.41
       perl 5.016
+  Mojolicious-Plugin-AccessLog-0.010
+    pathname: G/GR/GRAF/Mojolicious-Plugin-AccessLog-0.010.tar.gz
+    provides:
+      Mojolicious::Plugin::AccessLog 0.010
+    requirements:
+      ExtUtils::MakeMaker 0
+      File::Spec 0
+      IO::File 0
+      Mojolicious 3.28
+      Scalar::Util 0
+      Socket 0
+      Time::HiRes 0
+      perl 5.010001
   Mojolicious-Plugin-Util-RandomString-0.08
     pathname: A/AK/AKRON/Mojolicious-Plugin-Util-RandomString-0.08.tar.gz
     provides:

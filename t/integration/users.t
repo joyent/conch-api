@@ -330,7 +330,7 @@ subtest 'User' => sub {
     $t->get_ok('/user/me')
         ->status_is(401)
         ->header_is('WWW-Authenticate', 'Basic')
-        ->log_debug_is('user attempting to authenticate with session, but refuse_session_auth is set');
+        ->log_warn_is('user attempting to authenticate with session, but refuse_session_auth is set');
 
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
@@ -375,7 +375,7 @@ subtest 'User' => sub {
 
     $t->post_ok('/user/me/password?clear_tokens=none', { Authorization => 'Bearer '.$login_token[0] }, json => { password => 'øƕḩẳȋ' })
         ->status_is(204, 'changed password')
-        ->log_debug_is('updated password for user rO_USer at their request')
+        ->log_info_is('updated password for user rO_USer ('.$ro_user->email.') at their request')
         ->email_not_sent;
 
     $t->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
@@ -393,7 +393,7 @@ subtest 'User' => sub {
 
     $t->post_ok('/user/me/password', { Authorization => 'Bearer '.$login_token[0] }, json => { password => 'øƕḩẳȋ' })
         ->status_is(204, 'changed password')
-        ->log_debug_is('updated password for user rO_USer at their request; clearing login tokens')
+        ->log_info_is('updated password for user rO_USer ('.$ro_user->email.') at their request; clearing login tokens')
         ->email_not_sent;
 
     $t->get_ok('/user/me', { Authorization => 'Bearer '.$login_token[0] })
@@ -405,7 +405,7 @@ subtest 'User' => sub {
 
     $t->post_ok('/login', json => { email => $ro_user->email, password => '123' })
         ->status_is(401)
-        ->log_debug_is('password validation for '.$ro_user->email.' failed');
+        ->log_warn_is('password validation for '.$ro_user->email.' failed');
 
     {
         my $t2 = Test::Conch->new(pg => $t->pg);
@@ -441,7 +441,7 @@ subtest 'User' => sub {
     $t->post_ok('/user/me/password?clear_tokens=all', { Authorization => 'Bearer '.$t->tx->res->json->{jwt_token} },
             json => { password => 'another password' })
         ->status_is(204, 'changed password again')
-        ->log_debug_is('updated password for user rO_USer at their request; clearing all tokens')
+        ->log_info_is('updated password for user rO_USer ('.$ro_user->email.') at their request; clearing all tokens')
         ->email_not_sent;
 
     {
@@ -497,7 +497,7 @@ subtest 'User' => sub {
 
     $t->get_ok('/me', { Cookie => $cookie->to_string })
         ->status_is(401)
-        ->log_debug_is('user attempting to authenticate with session, but refuse_session_auth is set');
+        ->log_warn_is('user attempting to authenticate with session, but refuse_session_auth is set');
 
     $t->get_ok('/me')
         ->status_is(401)
@@ -945,7 +945,7 @@ subtest 'modify another user' => sub {
 
     $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => 'untrusted' })
         ->status_is(401)
-        ->log_debug_is('password validation for untrusted@conch.joyent.us failed');
+        ->log_warn_is('password validation for untrusted@conch.joyent.us failed');
 
     $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => $insecure_password, set_session => JSON::PP::true })
         ->status_is(200)
@@ -955,23 +955,23 @@ subtest 'modify another user' => sub {
 
     $t2->get_ok('/me')
         ->status_is(401)
-        ->log_debug_is('attempt to authenticate before changing insecure password')
+        ->log_warn_is('user UNTRUSTED (untrusted@conch.joyent.us) attempting to authenticate before changing insecure password')
         ->location_is('/user/me/password');
 
     $t2->reset_session; # force JWT to be used to authenticate
     $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(401)
-        ->log_debug_is('attempt to authenticate before changing insecure password')
+        ->log_warn_is('user UNTRUSTED (untrusted@conch.joyent.us) attempting to authenticate before changing insecure password')
         ->location_is('/user/me/password');
 
     $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => $insecure_password })
         ->status_is(401)
-        ->log_debug_is('password validation for untrusted@conch.joyent.us failed');
+        ->log_warn_is('password validation for untrusted@conch.joyent.us failed');
 
     $t2->post_ok('/user/me/password' => { Authorization => 'Bearer '.$jwt_token },
             json => { password => 'a more secure password' })
         ->status_is(204)
-        ->log_debug_is('updated password for user UNTRUSTED at their request; clearing login tokens');
+        ->log_info_is('updated password for user UNTRUSTED (untrusted@conch.joyent.us) at their request; clearing login tokens');
 
     my $secure_password = $_new_password;
     is($secure_password, 'a more secure password', 'provided password was saved to the db');

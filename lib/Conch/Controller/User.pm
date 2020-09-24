@@ -256,7 +256,7 @@ sub change_own_password ($c) {
         force_password_change => 0,
     });
 
-    $c->log->debug('updated password for user '.$user->name.' at their request'
+    $c->log->info('updated password for user '.$user->name.' ('.$user->email.') at their request'
         .($clear_tokens eq 'none' ? ''
             : '; clearing '.($clear_tokens eq 'login_only'?'login':$clear_tokens).' tokens'));
 
@@ -305,8 +305,8 @@ sub reset_user_password ($c) {
         $rs = $rs->login_only if $clear_tokens ne 'all';
         my $count = $rs->delete;
 
-        $c->log->warn('user '.$c->stash('user')->name.' deleted '.$count
-            .($clear_tokens eq 'all' ? ' all' : ' (primary only)')
+        $c->log->warn('user '.$c->stash('user')->name.' deleted '.($count+0)
+            .($clear_tokens eq 'all' ? ' all' : ' (login only)')
             .' user session tokens for user '.$user->name);
 
         %update = (

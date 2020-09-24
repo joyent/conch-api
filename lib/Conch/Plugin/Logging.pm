@@ -61,6 +61,11 @@ sub register ($self, $app, $config) {
 
     $app->log(Conch::Log->new(%log_args));
 
+    $app->plugin('AccessLog',
+        log => $log_dir ? $log_dir->child('access.log') : $log_args{access_log_handle} // \*STDERR,
+        # format => '%h %l %u %t "%r" %>s %b',  (default)
+    );
+
 =head2 log
 
 Returns the main L<Conch::Log> object for the application, used for most logging.
@@ -117,6 +122,7 @@ Logs the request and its response.
 =cut
 
     my $dispatch_log = $app->get_logger('dispatch', bunyan => 1, with_trace => 0);
+    my $exception_log = $app->get_logger('exception', bunyan => 1, with_trace => 0);
 
     $app->hook(after_dispatch => sub ($c) {
         my $u_str = $c->stash('user')
@@ -141,7 +147,8 @@ Logs the request and its response.
                 user        => $u_str,
                 method      => $c->req->method,
                 url         => $c->req->url,
-                remoteAddress => $c->tx->original_remote_address,
+                remoteAddress => $c->tx->remote_address,
+                $c->req->reverse_proxy ? ( proxyAddress => $c->tx->original_remote_address ) : (),
                 remotePort  => $c->tx->remote_port,
                 headers     => $req_headers,
                 query_params => $c->req->query_params->to_hash,
@@ -178,6 +185,11 @@ Logs the request and its response.
 
         local $Conch::Log::REQUEST_ID = $c->req->request_id;
         $dispatch_log->info($data);
+
+        if ($c->stash('exception')) {
+            delete $data->@{qw(msg latency)};
+            $exception_log->error($data);
+        }
     });
 }
 

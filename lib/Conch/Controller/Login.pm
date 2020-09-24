@@ -131,7 +131,7 @@ sub _check_authentication ($c) {
                 and $user->force_password_change
                 and $c->req->url ne '/user/me/password'
             ) {
-                $c->log->debug('attempt to authenticate before changing insecure password');
+                $c->log->warn('user '.$user->name.' ('.$user->email.') attempting to authenticate before changing insecure password');
 
                 # ensure session and all login JWTs expire in no more than 10 minutes
                 $c->_update_session($c->session('user_id'), time + 10 * 60);
@@ -143,7 +143,7 @@ sub _check_authentication ($c) {
             }
 
             if (not $session_token and $user->refuse_session_auth) {
-                $c->log->debug('user attempting to authenticate with session, but refuse_session_auth is set');
+                $c->log->warn('user attempting to authenticate with session, but refuse_session_auth is set');
                 return 0;
             }
 
@@ -182,7 +182,7 @@ sub login ($c) {
     }
 
     if (not $user->check_password($input->{password})) {
-        $c->log->debug('password validation for '.($input->{user}//$input->{email}).' failed');
+        $c->log->warn('password validation for '.($input->{user}//$input->{email}).' failed');
         return $c->status(401);
     }
 
