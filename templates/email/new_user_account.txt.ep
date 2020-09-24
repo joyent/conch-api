@@ -1,11 +1,14 @@
 Hello,
 
 An account has been created for you in Joyent Conch (https://<%= host %>).
-Please log into https://<%= host %> using the credentials below:
+Please log into https://<%= host %> using the temporary password below:
 
     Username: <%= $target_user->name %>
     Email:    <%= $target_user->email %>
     Password: <%= $password %>
+
+WARNING!!! You will only be able to use this password once, and
+must select a new password within 10 minutes after logging in.
 
 Thank you,
 Joyent Build Ops Team

@@ -709,7 +709,7 @@ subtest 'modify another user' => sub {
             last_login => undef,
             last_seen => undef,
             refuse_session_auth => JSON::PP::false,
-            force_password_change => JSON::PP::false,
+            force_password_change => JSON::PP::true,
             is_admin => JSON::PP::false,
             organizations => [],
             workspaces => [],
@@ -816,8 +816,25 @@ subtest 'modify another user' => sub {
 
     my $t2 = Test::Conch->new(pg => $t->pg);
     $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => '123', set_session => JSON::PP::true })
-        ->status_is(200, 'new user can log in');
+        ->status_is(200, 'new user can log in')
+        ->location_is('/user/me/password')
+        ->json_schema_is('LoginToken')
+        ->log_info_is('user UNTRUSTED (untrusted@conch.joyent.us) logging in with one-time insecure password');
     my $jwt_token = $t2->tx->res->json->{jwt_token};
+
+    $t2->get_ok('/me')
+        ->status_is(401)
+        ->log_warn_is('user UNTRUSTED (untrusted@conch.joyent.us) attempting to authenticate before changing insecure password')
+        ->location_is('/user/me/password');
+
+    $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
+        ->status_is(401)
+        ->log_warn_is('user UNTRUSTED (untrusted@conch.joyent.us) attempting to authenticate before changing insecure password')
+        ->location_is('/user/me/password');
+
+    $t2->post_ok('/user/me/password?clear_tokens=none', json => { password => 'NEW PASSWORD' })
+        ->status_is(204)
+        ->log_info_is('updated password for user UNTRUSTED (untrusted@conch.joyent.us) at their request');
 
     $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(204);
@@ -868,7 +885,7 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me', { Authorization => "Bearer $api_token" })
         ->status_is(401, 'new user cannot authenticate with the api token after api tokens are revoked');
 
-    $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => '123', set_session => JSON::PP::true })
+    $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => 'NEW PASSWORD', set_session => JSON::PP::true })
         ->status_is(200, 'new user can still log in again');
     $jwt_token = $t2->tx->res->json->{jwt_token};
 
@@ -1038,7 +1055,7 @@ subtest 'modify another user' => sub {
     ok($new_user->deactivated, 'user still exists, but is marked deactivated');
 
     $t_super->post_ok('/user?send_mail=0',
-            json => { email => 'untrusted@conch.joyent.us', name => 'UNTRUSTED', password => '123' })
+            json => { email => 'untrusted@conch.joyent.us', name => 'UNTRUSTED', password => 'NEW PASSWORD' })
         ->status_is(201)
         ->location_is('/user/'.(my $second_new_user_id = $t_super->tx->res->json->{id}));
     $t_super->json_is({
@@ -1053,12 +1070,9 @@ subtest 'modify another user' => sub {
     is($second_new_user->email, $new_user->email, '...but the email addresses are the same');
     is($second_new_user->name, $new_user->name, '...but the names are the same');
 
-
     $t2->post_ok('/logout')->status_is(204);
 
-    my $untrusted_user = $t2->generate_fixtures('user_account');
-    $t2->authenticate(email => $untrusted_user->email);
-
+    $t2->authenticate(email => $t2->generate_fixtures('user_account')->email);
     my $EMAIL = 'conch@conch.joyent.us';
     my @queries = (
         [ GET => '/user' ],
@@ -1207,7 +1221,8 @@ subtest 'user tokens (someone else\'s)' => sub {
         ->json_is([]);
 
     # password was set to something random when the user was (re)created
-    $t->app->db_user_accounts->active->find({ email => $email })->update({ password => $password });
+    $t->app->db_user_accounts->active->find({ email => $email })
+        ->update({ password => $password, force_password_change => 0 });
 
     my $t_other_user = Test::Conch->new(pg => $t->pg);
     $t_other_user->authenticate(email => $email, password => $password);
