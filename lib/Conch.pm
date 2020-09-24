@@ -212,7 +212,7 @@ in user-facing content.
 
 =cut
 
-    $self->helper(host => sub ($c) { $c->req->url->base->host });
+    $self->helper(host => sub ($c) { $c->req->url->to_abs->host });
 
     push $self->commands->namespaces->@*, 'Conch::Command';
 

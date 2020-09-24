@@ -34,7 +34,7 @@ sub routes {
                 [ hardware_product_key => [qw(name alias sku)] ], { optional => '' },
             sub ($c) {
                 $c->req->url->query->pairs;  # force normalization
-                $c->status(308, $c->req->url =~ s/(?:name|alias|sku)=//r)
+                $c->status(308, $c->req->url->path_query =~ s/(?:name|alias|sku)=//r)
             });
 
         my $with_hardware_product_id_or_other = $hardware_product->under('/:hardware_product_id_or_other')
