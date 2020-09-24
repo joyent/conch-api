@@ -52,8 +52,8 @@ foreach my $line (reverse @lines) {
 ===
 * Branch: $pull_data->{head}->{ref}
 * Revision: $hash
-* Labels: $labels
 EOF
+    say "* Labels: $labels" if $labels;
 
     my $body = join('', map "> $_\n", split "\n", ($pull_data->{body} // ''));
     say $body if $body;
