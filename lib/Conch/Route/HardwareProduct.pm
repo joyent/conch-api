@@ -30,9 +30,12 @@ sub routes {
     $hardware_product->require_system_admin->post('/')->to('#create');
 
     {
-        $hardware_product->any('/<:hardware_product_key>=<:hardware_product_value>'
-                => [ hardware_product_key => [qw(name alias sku)] ],
-            sub ($c) { $c->status(308, $c->req->url =~ s/(?:name|alias|sku)=//r) });
+        $hardware_product->any('/<:hardware_product_key>=<:hardware_product_value>/*optional',
+                [ hardware_product_key => [qw(name alias sku)] ], { optional => '' },
+            sub ($c) {
+                $c->req->url->query->pairs;  # force normalization
+                $c->status(308, $c->req->url =~ s/(?:name|alias|sku)=//r)
+            });
 
         my $with_hardware_product_id_or_other = $hardware_product->under('/:hardware_product_id_or_other')
             ->to('#find_hardware_product');

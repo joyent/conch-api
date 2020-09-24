@@ -7,6 +7,7 @@ use Test::Deep;
 use Test::Deep::JSON;
 use Test::Conch;
 use Conch::UUID 'create_uuid_str';
+use Mojo::Util 'url_escape';
 
 my $t = Test::Conch->new;
 $t->load_fixture('super_user');
@@ -213,6 +214,18 @@ $t->get_ok('/hardware_product/foo')
 $t->get_ok('/hardware_product/name=sungo2')
     ->status_is(308)
     ->location_is('/hardware_product/sungo2');
+
+$t->get_ok('/hardware_product/name=product_with_alias=foobar')
+    ->status_is(308)
+    ->location_is('/hardware_product/product_with_alias=foobar');
+
+$t->get_ok('/hardware_product/name=sungo2/specification')
+    ->status_is(308)
+    ->location_is('/hardware_product/sungo2/specification');
+
+$t->put_ok('/hardware_product/name=sungo2/specification?path=/sku=foo/DEADBEEF', json => 1)
+    ->status_is(308)
+    ->location_is('/hardware_product/sungo2/specification?path='.url_escape('/sku=foo/DEADBEEF'));
 
 $t->get_ok($_)
     ->status_is(200)
