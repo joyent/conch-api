@@ -88,15 +88,15 @@ sub register ($self, $app, $config) {
         }
 
         my $email = compose_message($c, %args);
-        my $log = $c->log;
         my $request_id = length($c->req->url) ? $c->req->request_id : undef;
+        my $tx = $c->tx;  # prevent transaction from being destroyed so rollbar can log the request
 
         Mojo::IOLoop->subprocess(
             # called in the context of the child process; returns the email object that was
             # sent for delivery
             sub ($subprocess) {
                 local $Conch::Log::REQUEST_ID = $request_id;
-                $log->info('sending email "'
+                $c->log->info('sending email "'
                     .($args{template_file} // substr(0,20,$args{template} // $args{content}).'...')
                     .'" to '.$email->header('to').' from '.$email->header('from')
                 );
@@ -108,6 +108,7 @@ sub register ($self, $app, $config) {
                 }
                 catch {
                     my $exception = $_;
+                    $c->get_logger('exception', bunyan => 1, with_trace => 0)->error($exception);
                     $c->send_exception_to_rollbar(Mojo::Exception->new($exception));
                     die $exception->$_can('message') ? $exception->message."\n" : $exception;
                 };
@@ -119,7 +120,7 @@ sub register ($self, $app, $config) {
             sub ($subprocess, $err, @args) {
                 local $Conch::Log::REQUEST_ID = $request_id;
                 if ($err) {
-                    $log->error('sending email errored: '.$err);
+                    $c->log->error('sending email errored: '.$err);
                     return;
                 }
 
@@ -129,7 +130,7 @@ sub register ($self, $app, $config) {
                 # (methods not available because the class was never composed in this process)
                 if ($result->{message}) {
                     chomp $result->{message};
-                    $log->debug('sent email: '.$result->{message});
+                    $c->log->debug('sent email: '.$result->{message});
                 }
             },
         );
