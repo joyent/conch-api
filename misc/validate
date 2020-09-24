@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 use 5.12.1;
 use warnings;
+use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Getopt::Long;
 use JSON::Validator;
