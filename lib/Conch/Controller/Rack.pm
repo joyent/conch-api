@@ -24,7 +24,7 @@ or a "long" rack name (L<Conch::DB::Result::DatacenterRoom/vendor_name>) plus
 L<Conch::DB::Result::Rack/name>); otherwise, it can also be a short rack name
 L<Conch::DB::Result::Rack/name>).
 
-If C<require_role> is provided, it is used as the minimum required role for the user to
+If C<require_role> is provided in the stash, it is used as the minimum required role for the user to
 continue; otherwise the user must be a system admin.
 
 =cut

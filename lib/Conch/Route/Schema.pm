@@ -42,7 +42,8 @@ __END__
 
 =head2 C<GET /schema/response/:schema_name>
 
-Returns the schema specified by type and name.
+Returns the JSON Schema document specified by type and name, used for validating endpoint
+requests and responses.
 
 =over 4
 

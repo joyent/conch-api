@@ -104,7 +104,7 @@ sub create ($c) {
 Chainable action that uses the C<build_id_or_name> value provided in the stash (usually via the
 request URL) to look up a build, and stashes the query to get to it in C<build_rs>.
 
-If C<require_role> is provided, it is used as the minimum required role for the user to
+If C<require_role> is provided in the stash, it is used as the minimum required role for the user to
 continue; otherwise the user must have the 'admin' role.
 
 =cut
@@ -619,9 +619,9 @@ sub remove_organization ($c) {
 
 Chainable action that stashes the query to get to all devices in C<build_devices_rs>.
 
-If C<phase_earlier_than> is provided (defaulting to C<production>), location data is omitted
-for devices in the provided phase (or later) (and build racks are not used to find such devices
-for such phases).
+If C<phase_earlier_than> is provided in the stash (defaulting to C<production>), location data is
+omitted for devices in the provided phase (or later) (and build racks are not used to find such
+devices for such phases).
 
 =cut
 

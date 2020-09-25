@@ -92,7 +92,7 @@ Chainable action that uses the C<organization_id_or_name> value provided in the 
 via the request URL) to look up an organization, and stashes the query to get to it in
 C<organization_rs>.
 
-If C<require_role> is provided, it is used as the minimum required role for the user to
+If C<require_role> is provided in the stash, it is used as the minimum required role for the user to
 continue; otherwise the user must have the 'admin' role.
 
 =cut

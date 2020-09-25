@@ -18,7 +18,8 @@ Sets up the routes for /schema.
 
 ### `GET /schema/response/:schema_name`
 
-Returns the schema specified by type and name.
+Returns the JSON Schema document specified by type and name, used for validating endpoint
+requests and responses.
 
 - Does not require authentication.
 - Controller/Action: ["get" in Conch::Controller::Schema](../modules/Conch%3A%3AController%3A%3ASchema#get)
