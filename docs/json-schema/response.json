@@ -2084,7 +2084,7 @@
               "type" : "string"
             },
             "schema" : {
-              "pattern" : "/json_schema/query_params/[^/]+$"
+              "pattern" : "/json_schema/query_params/[^/.~]+$"
             }
           },
           "required" : [
@@ -2484,7 +2484,7 @@
               "type" : "string"
             },
             "schema" : {
-              "pattern" : "/json_schema/request/[^/]+$"
+              "pattern" : "/json_schema/request/[^/.~]+$"
             }
           },
           "required" : [
@@ -2857,7 +2857,7 @@
         },
         "schema" : {
           "format" : "uri-reference",
-          "pattern" : "/json_schema/[^/]+/[^/]+$",
+          "pattern" : "/json_schema/[^/.~]+/[^/.~]+$",
           "type" : "string"
         }
       },

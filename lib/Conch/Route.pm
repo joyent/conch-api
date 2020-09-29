@@ -108,6 +108,8 @@ Returns the root node.
     # allow routes to be specified as, e.g. ->get('/<device_id:uuid>')->to(...)
     $root->add_type(uuid => Conch::UUID::UUID_FORMAT);
 
+    # one component of a JSON Pointer, e.g. for specifying JSON Schemas
+    $root->add_type(json_pointer_token => qr{[^/.~]+});
 
     # GET /ping
     $root->get('/ping', sub ($c) { $c->status(200, { status => 'ok' }) });

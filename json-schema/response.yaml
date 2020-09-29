@@ -31,7 +31,7 @@ definitions:
       schema:
         type: string
         format: uri-reference
-        pattern: '/json_schema/[^/]+/[^/]+$'
+        pattern: '/json_schema/[^/.~]+/[^/.~]+$'
       data:
         description: any supplementary details will be included here
   QueryParamsValidationError:
@@ -46,7 +46,7 @@ definitions:
             type: string
             const: query parameters did not match required format
           schema:
-            pattern: '/json_schema/query_params/[^/]+$'
+            pattern: '/json_schema/query_params/[^/.~]+$'
           data:
             description: the parsed form of the query parameters, as they were passed to the schema for validation
             type: object
@@ -73,7 +73,7 @@ definitions:
             type: string
             const: request did not match required format
           schema:
-            pattern: '/json_schema/request/[^/]+$'
+            pattern: '/json_schema/request/[^/.~]+$'
   JSONValidatorError:
     description: 'serialized JSON::Validator::Error object: a single failure from validating a document with a JSON Schema'
     type: object

@@ -32,7 +32,7 @@ sub unsecured_routes ($class, $js) {
     # GET /json_schema/query_params/:json_schema_name
     # GET /json_schema/request/:json_schema_name
     # GET /json_schema/response/:json_schema_name
-    $js->get('/:json_schema_type/:json_schema_name',
+    $js->get('/:json_schema_type/<json_schema_name:json_pointer_token>',
         [ json_schema_type => [qw(query_params request response)] ])->to('#get');
 }
 
