@@ -42,12 +42,20 @@ $t->post_ok('/build/'.$build->id.'/device', json => [ { serial_number => 'TEST',
     ->status_is(204);
 
 $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $error_report)
+    ->status_is(201)
+    ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+$t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('ValidationStateWithResults')
     ->json_is('/status', 'error');
 my $error_validation_state_id = $t->tx->res->json->{id};
 
 $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
+    ->status_is(201)
+    ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+$t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('ValidationStateWithResults')
     ->json_is('/status', 'pass');

@@ -15,7 +15,7 @@ Controller for processing and managing device reports.
 Processes the device report, turning it into the various device\_\* tables as well
 as running validations
 
-Response uses the ValidationStateWithResults json schema.
+Response contains no data but returns the resource to fetch the result in the Location header.
 
 ### \_record\_device\_configuration
 

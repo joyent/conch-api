@@ -151,8 +151,11 @@ subtest 'save reports for device' => sub {
     });
 
     $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
-        ->location_is('/device/'.$t->tx->res->json->{device_id})
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => re(Conch::UUID::UUID_FORMAT),
@@ -213,8 +216,11 @@ subtest 'save reports for device' => sub {
         ($altered_report->{interfaces}{eth1}{mac}, $altered_report->{interfaces}{eth5}{mac});
 
     $t->post_ok('/device_report', json => $altered_report)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
-        ->location_is('/device/'.$device_id)
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
@@ -231,8 +237,11 @@ subtest 'save reports for device' => sub {
 
     # submit another passing report (this makes 3)
     $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
-        ->location_is('/device/'.$device_id)
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
@@ -289,8 +298,11 @@ subtest 'save reports for device' => sub {
 
     # submit another passing report...
     $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
-        ->location_is('/device/'.$device_id)
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => $device_id,
@@ -312,8 +324,11 @@ subtest 'save reports for device' => sub {
 
     my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
     $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $error_report)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
-        ->location_is('/device/'.$device_id)
         ->json_schema_is('ValidationStateWithResults')
         ->json_is('/status', 'error');
 
@@ -342,8 +357,11 @@ subtest 'save reports for device' => sub {
 
     # return device to a good state
     $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
-        ->location_is('/device/'.$device_id)
         ->json_schema_is('ValidationStateWithResults')
         ->json_is('/status', 'pass');
 
@@ -384,8 +402,11 @@ subtest 'save reports for device' => sub {
 
         # then submit the report again and observe it moving back.
         $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, json => $report_data)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
             ->status_is(200)
-            ->location_is('/device/'.$device_id)
             ->json_schema_is('ValidationStateWithResults')
             ->json_is('/status', 'pass');
 
@@ -400,8 +421,11 @@ subtest 'save reports for device' => sub {
         $report_data->{links} = [ 'https://foo.com/1' ];
 
         $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, json => $report_data)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
             ->status_is(200)
-            ->location_is('/device/'.$device_id)
             ->json_schema_is('ValidationStateWithResults')
             ->json_is('/status', 'pass');
 
@@ -413,8 +437,11 @@ subtest 'save reports for device' => sub {
 
         push $report_data->{links}->@*, 'https://foo.com/0';
         $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, json => $report_data)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
             ->status_is(200)
-            ->location_is('/device/'.$device_id)
             ->json_schema_is('ValidationStateWithResults')
             ->json_is('/status', 'pass');
 
@@ -484,8 +511,11 @@ subtest 'submit report for production device' => sub {
     $altered_report->{system_uuid} = create_uuid_str();
 
     $t->post_ok('/device_report', json => $altered_report)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
-        ->location_is('/device/'.$t->tx->res->json->{device_id})
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => re(Conch::UUID::UUID_FORMAT),
@@ -501,8 +531,11 @@ subtest 'submit report for production device' => sub {
         ($altered_report->{interfaces}{eth1}{mac}, $altered_report->{interfaces}{eth5}{mac});
 
     $t->post_ok('/device_report', json => $altered_report)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
-        ->location_is('/device/'.$device->id)
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => $device->id,
@@ -532,8 +565,11 @@ subtest 'hardware_product is different' => sub {
     $altered_report->{product_name} = 'something else';
 
     $t->post_ok('/device_report', json => $altered_report)
+        ->status_is(201)
+        ->location_like(qr!^/validation_state/${\Conch::UUID::UUID_FORMAT}$!);
+
+    $t->get_ok($t->tx->res->headers->location)
         ->status_is(200)
-        ->location_is('/device/'.$device->id)
         ->json_schema_is('ValidationStateWithResults')
         ->json_cmp_deeply(superhashof({
             device_id => $device->id,
