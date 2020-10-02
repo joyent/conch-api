@@ -960,22 +960,11 @@
       "type" : "object"
     },
     "RackLayoutUpdate" : {
-      "$comment" : "NOTE: rack_id is deprecated: cannot change rack_id in an existing layout",
       "additionalProperties" : false,
       "minProperties" : 1,
       "properties" : {
         "hardware_product_id" : {
           "$ref" : "common.json#/definitions/uuid"
-        },
-        "rack_id" : {
-          "allOf" : [
-            {
-              "deprecated" : true
-            },
-            {
-              "$ref" : "common.json#/definitions/uuid"
-            }
-          ]
         },
         "rack_unit_start" : {
           "$ref" : "common.json#/definitions/positive_integer"
