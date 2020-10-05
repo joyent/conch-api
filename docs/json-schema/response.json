@@ -998,7 +998,6 @@
             "mac",
             "iface_name",
             "iface_vendor",
-            "iface_driver",
             "state",
             "ipaddr",
             "mtu"
@@ -1032,10 +1031,6 @@
       "properties" : {
         "device_id" : {
           "$ref" : "common.json#/definitions/uuid"
-        },
-        "iface_driver" : {
-          "deprecated" : true,
-          "type" : "string"
         },
         "iface_name" : {
           "$ref" : "common.json#/definitions/device_interface_name"

@@ -38,13 +38,6 @@ data_type: 'text'
 is_nullable: 0
 ```
 
-### iface\_driver
-
-```
-data_type: 'text'
-is_nullable: 1
-```
-
 ### deactivated
 
 ```

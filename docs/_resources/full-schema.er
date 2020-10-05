@@ -15,7 +15,7 @@
 # 1 or more      +      (marks foreign key on table declaration)
 
 
-title {label: "Conch database schema (as of v3.0.0, 2020-09-17)", size: "50"}
+title {label: "Conch database schema (as of v3.0.2, 2020-10-xx)", size: "50"}
 
 entity {bgcolor: "#eeeeee", size: "20"}
 
@@ -109,7 +109,6 @@ peer_mac
 iface_name
 iface_type
 iface_vendor
-iface_driver
 deactivated
 created
 updated
