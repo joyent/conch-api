@@ -4,7 +4,6 @@ use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 use Test::More;
 use Test::Warnings;
 use Test::Deep;
-use Test::Deep::JSON;
 use Test::Conch;
 use Conch::UUID 'create_uuid_str';
 use Mojo::Util 'url_escape';
@@ -68,17 +67,23 @@ my %hw_fields = (
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => 'not json!' } )
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/allOf/0/$ref/properties/specification', message => 'Does not match json format.' } ]);
+    ->json_cmp_deeply('/details', superbagof({ path => '/specification', message => re(qr{Expected object - got string}) }));
 
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => '{"disk_size":"not an object"}' } )
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', superbagof({ path => '/specification', message => re(qr{Expected object - got string}) }));
+
+$t->post_ok('/hardware_product', json => { %hw_fields, specification => { disk_size => 'not an object' } })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply({
         error => 'request did not match required format',
-        details => [ { path => '/disk_size', message => 'Expected object - got string.' } ],
-        schema => '/schema/request/hardware_product_specification',
+        details => superbagof({ path => '/specification/disk_size', message => re(qr{Expected object - got string}) }),
+        schema => '/schema/request/hardware_product_create',
     });
 
+$hw_fields{specification} = { disk_size => { _default => 0, AcmeCorp => 512 } };
 $t->post_ok('/hardware_product', json => \%hw_fields)
     ->status_is(303)
     ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
@@ -87,24 +92,15 @@ $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply({
+        %hw_fields,
         id => re(Conch::UUID::UUID_FORMAT),
-        name => 'sungo',
-        alias => 'sungo',
         prefix => undef,
-        hardware_vendor_id => $vendor_id,
         created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-        specification => undef,
-        sku => 'my sku',
         generation_name => undef,
         legacy_product_name => undef,
-        rack_unit_size => 2,
-        validation_plan_id => $validation_plan_id,
-        purpose => 'myself',
-        bios_firmware => '1.2.3',
         hba_firmware => undef,
         cpu_num => 0,
-        cpu_type => 'fooey',
         dimms_num => 0,
         ram_total => 0,
         nics_num => 0,
@@ -184,15 +180,20 @@ $t->post_ok('/hardware_product', json => {
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => 'not json!' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/allOf/0/$ref/properties/specification', message => 'Does not match json format.' } ]);
+    ->json_cmp_deeply('/details', superbagof({ path => '/specification', message => re(qr{Expected object - got string}) }));
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => '{"disk_size":"not an object"}' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
+    ->json_cmp_deeply('/details', superbagof({ path => '/specification', message => re(qr{Expected object - got string}) }));
+
+$t->post_ok("/hardware_product/$new_hw_id", json => { specification => { disk_size => 'not an object' } })
+    ->status_is(400)
+    ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply({
         error => 'request did not match required format',
-        details => [ { path => '/disk_size', message => 'Expected object - got string.' } ],
-        schema => '/schema/request/hardware_product_specification',
+        details => superbagof({ path => '/specification/disk_size', message => re(qr{Expected object - got string}) }),
+        schema => '/schema/request/hardware_product_update',
     });
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
@@ -269,7 +270,7 @@ subtest 'manipulate hardware_product.specification' => sub {
   $t->get_ok('/hardware_product/'.$new_hw_id)
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
-    ->json_cmp_deeply(superhashof({ specification => '{}' }));
+    ->json_cmp_deeply(superhashof({ specification => {} }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=', json => 'hello')
     ->status_is(400)
@@ -296,7 +297,7 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => json({ disk_size => { _default => 128 } }),
+      specification => { disk_size => { _default => 128 } },
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/SEAGATE_8000',
@@ -317,7 +318,7 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => json({ disk_size => { _default => 128, SEAGATE_8000 => 1 } }),
+      specification => { disk_size => { _default => 128, SEAGATE_8000 => 1 } },
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/_default', json => 64)
@@ -328,7 +329,7 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => json({ disk_size => { _default => 64, SEAGATE_8000 => 1 } })
+      specification => { disk_size => { _default => 64, SEAGATE_8000 => 1 } },
     }));
 
   # the path we want to operate on is called .../~1~device/  and encodes as .../~01~0device/...
@@ -345,11 +346,11 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => json({ disk_size => {
+      specification => { disk_size => {
         _default => 64,
         SEAGATE_8000 => 1,
         'tilde~1~device' => 2,
-      } })
+      } },
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/other_prop', json => [ 1,2,3 ])
@@ -360,10 +361,10 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => json({
+      specification => {
         disk_size => { _default => 64, SEAGATE_8000 => 1, 'tilde~1~device' => 2 },
         other_prop => [ 1, 2, 3 ],
-      }),
+      },
     }));
 
   $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification')
@@ -390,10 +391,10 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => json({
+      specification => {
         disk_size => { _default => 64, SEAGATE_8000 => 1 },
         other_prop => [ 1, 2, 3 ],
-      }),
+      },
     }));
 
   $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size')
@@ -404,7 +405,7 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => json({ other_prop => [ 1, 2, 3 ] }),
+      specification => { other_prop => [ 1, 2, 3 ] },
     }));
 
   $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=')
