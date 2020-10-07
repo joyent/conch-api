@@ -6,14 +6,14 @@
 
 ## METHODS
 
-### get\_validation\_states
+### get\_validation\_state
 
-Get the latest validation states for a device. Accepts the query parameter `status`,
-indicating the desired status(es) to search for -- one or more of: pass, fail, error.
+Get the latest validation state for a device. Accepts the query parameter `status`,
+indicating the desired status(es) to limit the search -- one or more of: pass, fail, error.
 e.g. `?status=pass`, `?status=error&status=fail`. (If no parameters are provided, all
 statuses are searched for.)
 
-Response uses the ValidationStatesWithResults json schema.
+Response uses the ValidationStateWithResults json schema.
 
 ### validate
 

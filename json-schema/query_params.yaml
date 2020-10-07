@@ -96,7 +96,7 @@ definitions:
       $ref: common.yaml#/definitions/device_setting_key
     additionalProperties:
       type: string
-  GetValidationStates:
+  GetValidationState:
     type: object
     additionalProperties: false
     properties:

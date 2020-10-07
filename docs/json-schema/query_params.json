@@ -93,7 +93,7 @@
       },
       "type" : "object"
     },
-    "GetValidationStates" : {
+    "GetValidationState" : {
       "additionalProperties" : false,
       "properties" : {
         "status" : {

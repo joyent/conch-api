@@ -12,32 +12,38 @@ Conch::Controller::DeviceValidation
 
 =head1 METHODS
 
-=head2 get_validation_states
+=head2 get_validation_state
 
-Get the latest validation states for a device. Accepts the query parameter C<status>,
-indicating the desired status(es) to search for -- one or more of: pass, fail, error.
+Get the latest validation state for a device. Accepts the query parameter C<status>,
+indicating the desired status(es) to limit the search -- one or more of: pass, fail, error.
 e.g. C<?status=pass>, C<?status=error&status=fail>. (If no parameters are provided, all
 statuses are searched for.)
 
-Response uses the ValidationStatesWithResults json schema.
+Response uses the ValidationStateWithResults json schema.
 
 =cut
 
-sub get_validation_states ($c) {
-    my $params = $c->validate_query_params('GetValidationStates');
+sub get_validation_state ($c) {
+    my $params = $c->validate_query_params('GetValidationState');
     return if not $params;
 
-    my @validation_states = $c->stash('device_rs')
-        ->search_related('validation_states',
-            $params->{status} ? { 'validation_states.status' => $params->{status} } : ())
-        ->latest_state_per_plan
-        ->prefetch({ validation_state_members => 'validation_result' })
-        ->order_by([ qw(validation_states.created validation_state_members.result_order) ])
+    my ($validation_state) = $c->db_validation_states
+        ->search({
+            device_id => $c->stash('device_id'),
+            $params->{status} ? ('validation_state.status' => $params->{status}) : ()
+        })
+        ->order_by({ -desc => 'validation_state.created' })
+        ->rows(1)
+        ->as_subselect_rs
+        ->with_results
         ->all;
 
-    $c->log->debug('Found '.scalar(@validation_states).' records');
+    if (not $validation_state) {
+        $c->log->debug('No validation states for device');
+        return $c->status(404);
+    }
 
-    $c->status(200, \@validation_states);
+    $c->status(200, $validation_state);
 }
 
 =head2 validate

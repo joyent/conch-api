@@ -242,7 +242,10 @@ sub TO_JSON ($self) {
             map {
                 my $cached_result = $_->related_resultset('validation_result')->get_cache;
                 # cache is always a listref even for a belongs_to relationship
-                $cached_result ? $cached_result->[0]->TO_JSON : ()
+                !$cached_result ? () : +{
+                    $cached_result->[0]->TO_JSON->%*,
+                    map +($_ => $cached_result->[0]->get_column($_)), qw(name version description),
+                }
             }
             $cached_members->@*
         ];
