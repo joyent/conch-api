@@ -2,7 +2,7 @@
 
 ## SOURCE
 
-[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/RackLayout.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/RackLayout.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/RackLayout.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/RackLayout.pm)
 
 ## METHODS
 

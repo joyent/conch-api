@@ -2,7 +2,7 @@
 
 ## SOURCE
 
-[https://github.com/joyent/conch/blob/master/lib/Test/Conch/Validation.pm](https://github.com/joyent/conch/blob/master/lib/Test/Conch/Validation.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Test/Conch/Validation.pm](https://github.com/joyent/conch-api/blob/master/lib/Test/Conch/Validation.pm)
 
 ## EXPORTABLE FUNCTIONS
 

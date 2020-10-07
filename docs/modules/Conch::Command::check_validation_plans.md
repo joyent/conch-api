@@ -2,7 +2,7 @@
 
 ## SOURCE
 
-[https://github.com/joyent/conch/blob/master/lib/Conch/Command/check_validation_plans.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/check_validation_plans.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/Command/check_validation_plans.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Command/check_validation_plans.pm)
 
 ## SYNOPSIS
 

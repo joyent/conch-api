@@ -24,7 +24,7 @@
    harness to write a test cases for your new validation. Verify it works as
    expected, especially if there are edge cases in the logic.
 3. Commit the validation and validation test on a branch. [Create a pull
-   request in the Conch repository](https://github.com/joyent/conch/pulls).
+   request in the Conch repository](https://github.com/joyent/conch-api/pulls).
    Request a review.
 4. Once your pull request has been reviewed, merged into master, and deployed,
    the validation is available on the system and via the API.
@@ -36,8 +36,8 @@
     3. Add a validation to a validation plan. `conch validation-plan
        VALIDATION_PLAN add-validation VALIDATION_ID`
 
-Documentation for the [Validation base class](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md)
-and [Validation test harness](https://github.com/joyent/conch/blob/master/docs/validation/TestingValidations.md)
+Documentation for the [Validation base class](https://github.com/joyent/conch-api/blob/master/docs/validation/BaseValidation.md)
+and [Validation test harness](https://github.com/joyent/conch-api/blob/master/docs/validation/TestingValidations.md)
 are useful references for writing and testing a new Conch Validation.
 
 More documentation on using the Conch Shell with validations can be found in
@@ -46,7 +46,7 @@ More documentation on using the Conch Shell with validations can be found in
 ## Setting up the Conch Repository
 
 All Conch Validations are code modules committed in the [Conch
-repository](https://github.com/joyent/conch). To add new validations, you must
+repository](https://github.com/joyent/conch-api). To add new validations, you must
 create a local clone of the repository and add new validations as files in the
 repository.
 
@@ -122,21 +122,21 @@ register as many results as desired. Validation results can be registered with
 the following methods with different effects:
 
 
-* [`$self->die('string')`](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md#die):
+* [`$self->die('string')`](https://github.com/joyent/conch-api/blob/master/docs/validation/BaseValidation.md#die):
   Stop execution of the validation and record a validation result with status
   'error'. This should be used when the validation cannot continue. For example,
   when expected values in the `$data` hash ref are not present, call
   `$self->die()` with a description of the expected value
 
-* [`$self->fail('string')`](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md#fail):
+* [`$self->fail('string')`](https://github.com/joyent/conch-api/blob/master/docs/validation/BaseValidation.md#fail):
   Record a validation result with status 'fail' and continue execution of the
   validation. This may be used if some precondition is not satisfied but the
   validation should still continue.
 
-* [`$self->register_result( expected => $a, got => $b, cmp => 'eq')`](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md#register_result):
+* [`$self->register_result( expected => $a, got => $b, cmp => 'eq')`](https://github.com/joyent/conch-api/blob/master/docs/validation/BaseValidation.md#register_result):
   this is the workhorse of validation logic. It takes an expected and 'got' value
   and compares them with the operator `cmp`. The list of available comparison
-  operators can be [found in the documentation.](https://github.com/joyent/conch/blob/master/docs/validation/BaseValidation.md#register_result)
+  operators can be [found in the documentation.](https://github.com/joyent/conch-api/blob/master/docs/validation/BaseValidation.md#register_result)
 
 
 
@@ -366,11 +366,11 @@ test_validation(
 A Conch Validation must be deployed in the production Conch instance to be
 available. After you've written and tested your validation, commit it on a
 branch and [create a pull request on the Conch Github
-repository](https://github.com/joyent/conch/pulls). Request someone from the
+repository](https://github.com/joyent/conch-api/pulls). Request someone from the
 Conch team to review and merge it.
 
 The validation will be deployed in the next [versioned
-release](https://github.com/joyent/conch/releases) after it has been merged
+release](https://github.com/joyent/conch-api/releases) after it has been merged
 into master.
 
 However, your validation won't actually be included in one of the active validation plans.

@@ -43,7 +43,7 @@ foreach my $line (reverse @lines) {
     my $hash = $1;
     my $pr = $2;
 
-    my $pull_data = get "/repos/joyent/conch/pulls/$pr";
+    my $pull_data = get "/repos/joyent/conch-api/pulls/$pr";
 
     my $labels = join(", ", map $_->{name}, $pull_data->{labels}->@*);
 
@@ -58,7 +58,7 @@ EOF
     my $body = join('', map "> $_\n", split "\n", ($pull_data->{body} // ''));
     say $body if $body;
 
-    my $review_data = get "/repos/joyent/conch/pulls/$pr/reviews";
+    my $review_data = get "/repos/joyent/conch-api/pulls/$pr/reviews";
     my $reviews = join("\n", map "* Reviewed By: [$_->{user}{login} - $_->{state}]($_->{html_url})", $review_data->@*);
 
     say <<EOF;
@@ -72,7 +72,7 @@ EOF
 
     say "Commits\n---\n";
 
-    my $commit_data = get "/repos/joyent/conch/pulls/$pr/commits";
+    my $commit_data = get "/repos/joyent/conch-api/pulls/$pr/commits";
     for my $commit ($commit_data->@*) {
         my $h = substr($commit->{sha},0,6);
         my @bits = split("\n", $commit->{commit}->{message});
@@ -91,7 +91,7 @@ say "Commits\n---\n";
 foreach my $line (reverse @lines) {
     my ($hash, $rest) = split(/ /, $line, 2);
 
-    my $commit = get "/repos/joyent/conch/commits/$hash";
+    my $commit = get "/repos/joyent/conch-api/commits/$hash";
 
     my $h = substr($commit->{sha},0,6);
     my @bits = split("\n", $commit->{commit}->{message});

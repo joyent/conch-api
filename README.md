@@ -8,7 +8,7 @@ all devices.
 
 Conch is open source, licensed under MPL2.
 
-[More documentation can be found here.](https://joyent.github.io/conch/)
+[More documentation can be found here.](https://joyent.github.io/conch-api/)
 
 This repository only encompasses the API server. Repositories for other parts of
 the Conch ecosystem can be found here (some repositories may be private which
