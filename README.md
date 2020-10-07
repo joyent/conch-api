@@ -8,13 +8,26 @@ all devices.
 
 Conch is open source, licensed under MPL2.
 
-[More documentation can be found here.](https://joyent.github.io/conch/)
+[More documentation can be found here.](https://joyent.github.io/conch-api/)
+
+This repository only encompasses the API server. Repositories for other parts of
+the Conch ecosystem can be found here (some repositories may be private which
+will require you to request access):
+
+* [kosh, the command line interface](https://github.com/joyent/kosh)
+* [web UI](https://github.com/joyent/conch-ui)
+* [build infrastructure](https://github.com/joyent/buildops-infra)
+* [conch-relay, which sends device reports](https://github.com/joyent/conch-relay)
+* [conch-relay-go, ""](https://github.com/joyent/conch-relay-go)
+* [conch-reporter, ""](https://github.com/joyent/conch-reporter)
+* [conch-livesys, which configures live systems and creates device reports](https://github.com/joyent/conch-livesys)
 
 ## Caveat Emptor
 
 The API is in a constant state of flux. Contact the development team before
 attempting to use it directly.
-The [conch shell](https://github.com/joyent/conch-shell) is our current stable interface.
+The [conch shell](https://github.com/joyent/kosh)
+and the [Web UI](https://github.com/joyent/conch-ui) are our current stable interfaces.
 
 ## Installation
 
@@ -39,7 +52,7 @@ project. All of these should be run in the top level directory.
 
 #### Needed Packages
 
-* PostgreSQL 10.10
+* PostgreSQL 10.14
 * Git
 * Perl, 5.26 or above (e.g. via [perlbrew](https://perlbrew.pl/))
 * [Carton](https://metacpan.org/dist/Carton)

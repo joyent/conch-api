@@ -19,7 +19,7 @@ Chainable action that uses the C<datacenter_room_id_or_alias> value provided in 
 (usually via the request URL) to look up a datacenter_room, and stashes the query to get to it
 in C<datacenter_room_rs>.
 
-If C<require_role> is provided, it is used as the minimum required role for the user to
+If C<require_role> is provided in the stash, it is used as the minimum required role for the user to
 continue; otherwise the user must be a system admin.
 
 =cut

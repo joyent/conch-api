@@ -2,7 +2,7 @@
 
 ## SOURCE
 
-[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/HardwareProduct.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Result/HardwareProduct.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/HardwareProduct.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/HardwareProduct.pm)
 
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 

@@ -109,7 +109,7 @@ foreach my $infile (@all_files) {
     # to:                               docs/modules/Conch::Time.md  and  docs/scripts/conch-db.md
     # containing pod links like:        L<Conch::Time>               and  L<conch-db>
     # become relative URLs like:        ../modules/Conch::Time       and  ../scripts/conch-db
-    # that turn into the absolute urls: https://joyent.github.io/conch/modules/Conch::Time
+    # that turn into the absolute urls: https://joyent.github.io/conch-api/modules/Conch::Time
     # ...and:                           http://localhost:4000/modules/Conch::Time
 
 
@@ -137,7 +137,7 @@ foreach my $infile (@all_files) {
     convert($in_fh, $out_buffer);
 
     $markdown =~ s/^(#+)/$1#/mg;
-    my $url = 'https://github.com/joyent/conch/blob/master/'.$infile;
+    my $url = 'https://github.com/joyent/conch-api/blob/master/'.$infile;
     $markdown =~ s{## NAME\n\n(.+)$}{# $1\n\n## SOURCE\n\n[$url]($url)}m;
 
     path($outfile)->spew($markdown);

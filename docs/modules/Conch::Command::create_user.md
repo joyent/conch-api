@@ -2,7 +2,7 @@
 
 ## SOURCE
 
-[https://github.com/joyent/conch/blob/master/lib/Conch/Command/create_user.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Command/create_user.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/Command/create_user.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Command/create_user.pm)
 
 ## SYNOPSIS
 

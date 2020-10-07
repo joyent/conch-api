@@ -2,7 +2,7 @@
 
 ## SOURCE
 
-[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Rack.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Rack.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/Rack.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/Rack.pm)
 
 ## METHODS
 
@@ -17,7 +17,7 @@ or a "long" rack name (["vendor\_name" in Conch::DB::Result::DatacenterRoom](../
 ["name" in Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack#name)); otherwise, it can also be a short rack name
 ["name" in Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack#name)).
 
-If `require_role` is provided, it is used as the minimum required role for the user to
+If `require_role` is provided in the stash, it is used as the minimum required role for the user to
 continue; otherwise the user must be a system admin.
 
 ### create

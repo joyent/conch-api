@@ -2,7 +2,7 @@
 
 ## SOURCE
 
-[https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/ResultsExist.pm](https://github.com/joyent/conch/blob/master/lib/Conch/DB/Helper/ResultSet/ResultsExist.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Helper/ResultSet/ResultsExist.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Helper/ResultSet/ResultsExist.pm)
 
 ## DESCRIPTION
 

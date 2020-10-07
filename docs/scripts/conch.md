@@ -2,7 +2,7 @@
 
 ## SOURCE
 
-[https://github.com/joyent/conch/blob/master/bin/conch](https://github.com/joyent/conch/blob/master/bin/conch)
+[https://github.com/joyent/conch-api/blob/master/bin/conch](https://github.com/joyent/conch-api/blob/master/bin/conch)
 
 ## DESCRIPTION
 

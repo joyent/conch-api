@@ -2,7 +2,7 @@
 
 ## SOURCE
 
-[https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Device.pm](https://github.com/joyent/conch/blob/master/lib/Conch/Controller/Device.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/Device.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/Device.pm)
 
 ## METHODS
 
@@ -12,11 +12,11 @@ Chainable action that uses the `device_id`, `device_serial_number` or
 `device_id_or_serial_number` provided in the stash (usually via the request URL) to look up a
 device, and stashes the query to get to it in `device_rs`.
 
-If `require_role` is provided, it is used as the minimum required role for the user to
+If `require_role` is provided in the stash, it is used as the minimum required role for the user to
 continue; otherwise the user must be a registered relay user or a system admin.
 
-If `phase_earlier_than` is provided, `409 Conflict` is returned if the device is in the
-provided phase (or later).
+If `phase_earlier_than` is provided in the stash, `409 Conflict` is returned if the device is in
+the provided phase (or later).
 
 ### get
 
@@ -31,7 +31,8 @@ reflected in the checksum.
 
 ### lookup\_by\_other\_attribute
 
-Looks up one or more devices by query parameter. Supports:
+Looks up one or more devices by a single query parameter (because these options are intended to
+match only one or a very few device(s)). Supports:
 
 ```
 /device?hostname=$hostname

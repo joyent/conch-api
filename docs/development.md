@@ -2,10 +2,10 @@
 
 ## Introduction
 
-The [Conch API](https://github.com/joyent/conch) is developed using Github.
+The [Conch API](https://github.com/joyent/conch-api) is developed using Github.
 
 Requests and bugs are tracked using [Github
-Issues](https://github.com/joyent/conch/issues).
+Issues](https://github.com/joyent/conch-api/issues).
 
 The `master` branch is protected and cannot be modified directly:
 
