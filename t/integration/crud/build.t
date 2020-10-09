@@ -1097,24 +1097,55 @@ $t->post_ok('/build/my first build', json => { completed => undef })
     ->location_is('/build/'.$build->{id})
     ->log_info_is('build '.$build->{id}.' (my first build) moved out of completed state');
 
-$t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
-    ->status_is(409)
-    ->json_is({ error => 'build cannot be completed when it has unhealthy devices' });
 
-$device2->update({ health => 'pass' });
-$t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
-    ->status_is(409)
-    ->json_is({ error => 'build cannot be completed when it has unhealthy devices' });
+$device1->discard_changes;
+$device2->discard_changes;
 
-$device1->update({ health => 'pass' });
-$t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
-    ->status_is(303)
-    ->location_is('/build/'.$build->{id})
-    ->log_info_is("build $build->{id} (my first build) completed; 0 users had role converted from rw to ro");
+# health = (unknown, pass)
+# phase = (integration, production)
+foreach my $device1_health (0, 1) {
+  foreach my $device2_health (0, 1) {
+    foreach my $device1_phase (0, 1) {
+      foreach my $device2_phase (0, 1) {
+        $device1->update({
+            health => ($device1_health ? 'pass' : 'unknown'),
+            phase => ($device1_phase ? 'production' : 'integration'),
+          });
+        $device2->update({
+            health => ($device2_health ? 'pass' : 'unknown'),
+            phase => ($device2_phase ? 'production' : 'integration'),
+          });
+
+        note '';
+        note 'device1 health = '.$device1->health;
+        note 'device1 phase = '.$device1->phase;
+        note 'device2 health = '.$device2->health;
+        note 'device2 phase = '.$device2->phase;
+
+        $t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) });
+
+        if (($device1_health or $device1_phase) and ($device2_health or $device2_phase)) {
+          $t->status_is(303)
+          ->location_is('/build/'.$build->{id})
+          ->log_info_is("build $build->{id} (my first build) completed; 0 users had role converted from rw to ro");
+        }
+        else {
+          $t->status_is(409)
+            ->json_is({ error => 'build cannot be completed when it has unhealthy devices' });
+        }
+
+        $t->app->db_builds->search({ id => $build->{id} })
+          ->update({ completed => undef, completed_user_id => undef })
+            if not ($device1_health and $device1_phase and $device2_health and $device2_phase);
+      }
+    }
+  }
+}
+
+$device1->update({ health => 'pass', phase => 'production' });
+$device2->update({ health => 'pass', phase => 'integration' });
 
 $build->{completed} = $now->minus_days(1)->to_string;
-
-$device1->update({ phase => 'production' });
 
 $t->get_ok('/build/my first build/device')
     ->status_is(200)
