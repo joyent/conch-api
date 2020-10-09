@@ -206,7 +206,10 @@ sub update ($c) {
 
     return $c->status(409, { error => 'build cannot be completed when it has unhealthy devices' })
         if $input->{completed} and
-            ($build->search_related('devices', { health => { '!=' => 'pass' } })->exists
+            ($build->search_related('devices', {
+                    health => { '!=' => 'pass' },
+                    phase => { '<' => \[ '?::device_phase_enum', 'production' ] },
+                })->exists
              or $build
                 ->related_resultset('racks')
                 ->related_resultset('device_locations')
