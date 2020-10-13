@@ -22,7 +22,9 @@ C<device_id_or_serial_number> provided in the stash (usually via the request URL
 device, and stashes the query to get to it in C<device_rs>.
 
 If C<require_role> is provided in the stash, it is used as the minimum required role for the user to
-continue; otherwise the user must be a registered relay user or a system admin.
+continue; otherwise the HTTP method is used to determine its value (C<HEAD> and C<GET> imply
+read-only, C<POST>, C<PUT> and C<DELETE> imply read/write);
+or the user must be a registered relay user or a system admin.
 
 If C<phase_earlier_than> is provided in the stash, C<409 Conflict> is returned if the device is in
 the provided phase (or later).

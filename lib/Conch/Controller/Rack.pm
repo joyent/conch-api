@@ -25,7 +25,8 @@ L<Conch::DB::Result::Rack/name>); otherwise, it can also be a short rack name
 L<Conch::DB::Result::Rack/name>).
 
 If C<require_role> is provided in the stash, it is used as the minimum required role for the user to
-continue; otherwise the user must be a system admin.
+continue; otherwise the HTTP method is used to determine its value (C<HEAD> and C<GET> imply
+read-only, C<POST>, C<PUT> and C<DELETE> imply read/write); or the user must be a system admin.
 
 =cut
 

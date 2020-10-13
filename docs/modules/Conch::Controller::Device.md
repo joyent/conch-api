@@ -13,7 +13,9 @@ Chainable action that uses the `device_id`, `device_serial_number` or
 device, and stashes the query to get to it in `device_rs`.
 
 If `require_role` is provided in the stash, it is used as the minimum required role for the user to
-continue; otherwise the user must be a registered relay user or a system admin.
+continue; otherwise the HTTP method is used to determine its value (`HEAD` and `GET` imply
+read-only, `POST`, `PUT` and `DELETE` imply read/write);
+or the user must be a registered relay user or a system admin.
 
 If `phase_earlier_than` is provided in the stash, `409 Conflict` is returned if the device is in
 the provided phase (or later).
