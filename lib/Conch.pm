@@ -131,7 +131,7 @@ C<< $c->render >> as a side-effect.
         $payload //= { error => 'Unimplemented' } if $code == 501;
 
         # https://tools.ietf.org/html/rfc7235#section-4.1
-        $c->res->headers->www_authenticate('Basic') if $code == 401 or $code == 403;
+        $c->res->headers->www_authenticate('Bearer') if $code == 401 or $code == 403;
 
         $c->res->code($code);
 
