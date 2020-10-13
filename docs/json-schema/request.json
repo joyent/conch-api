@@ -98,6 +98,9 @@
         "description" : {
           "$ref" : "common.json#/definitions/non_empty_string"
         },
+        "links" : {
+          "$ref" : "common.json#/definitions/links"
+        },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
@@ -141,12 +144,7 @@
             "$ref" : "common.json#/definitions/uuid"
           },
           "links" : {
-            "items" : {
-              "format" : "uri",
-              "type" : "string"
-            },
-            "type" : "array",
-            "uniqueItems" : true
+            "$ref" : "common.json#/definitions/links"
           },
           "serial_number" : {
             "$ref" : "common.json#/definitions/device_serial_number"
@@ -163,6 +161,35 @@
       "minItems" : 1,
       "type" : "array",
       "uniqueItems" : true
+    },
+    "BuildLinks" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "links" : {
+          "allOf" : [
+            {
+              "$ref" : "common.json#/definitions/links"
+            },
+            {
+              "minItems" : 1
+            }
+          ]
+        }
+      },
+      "required" : [
+        "links"
+      ],
+      "type" : "object"
+    },
+    "BuildLinksOrNull" : {
+      "oneOf" : [
+        {
+          "type" : "null"
+        },
+        {
+          "$ref" : "#/definitions/BuildLinks"
+        }
+      ]
     },
     "BuildUpdate" : {
       "additionalProperties" : false,
@@ -188,6 +215,9 @@
               "$ref" : "common.json#/definitions/non_empty_string"
             }
           ]
+        },
+        "links" : {
+          "$ref" : "common.json#/definitions/links"
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
@@ -340,13 +370,14 @@
       "additionalProperties" : false,
       "properties" : {
         "links" : {
-          "items" : {
-            "format" : "uri",
-            "type" : "string"
-          },
-          "minItems" : 1,
-          "type" : "array",
-          "uniqueItems" : true
+          "allOf" : [
+            {
+              "$ref" : "common.json#/definitions/links"
+            },
+            {
+              "minItems" : 1
+            }
+          ]
         }
       },
       "required" : [
@@ -912,6 +943,9 @@
         "datacenter_room_id" : {
           "$ref" : "common.json#/definitions/uuid"
         },
+        "links" : {
+          "$ref" : "common.json#/definitions/links"
+        },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
         },
@@ -986,6 +1020,35 @@
       "type" : "array",
       "uniqueItems" : true
     },
+    "RackLinks" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "links" : {
+          "allOf" : [
+            {
+              "$ref" : "common.json#/definitions/links"
+            },
+            {
+              "minItems" : 1
+            }
+          ]
+        }
+      },
+      "required" : [
+        "links"
+      ],
+      "type" : "object"
+    },
+    "RackLinksOrNull" : {
+      "oneOf" : [
+        {
+          "type" : "null"
+        },
+        {
+          "$ref" : "#/definitions/BuildLinks"
+        }
+      ]
+    },
     "RackPhase" : {
       "additionalProperties" : false,
       "properties" : {
@@ -1046,6 +1109,9 @@
         },
         "datacenter_room_id" : {
           "$ref" : "common.json#/definitions/uuid"
+        },
+        "links" : {
+          "$ref" : "common.json#/definitions/links"
         },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"

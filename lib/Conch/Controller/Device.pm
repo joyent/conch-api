@@ -206,7 +206,7 @@ sub lookup_by_other_attribute ($c) {
     elsif ($key eq 'link') {
         # we do this instead of '? = any(links)' in order to take
         # advantage of the built-in GIN indexing on the @> operator
-        $device_rs = $device_rs->search(\[ 'links @> array[?]', $value ]);
+        $device_rs = $device_rs->search(\[ 'device.links @> array[?]', $value ]);
     }
     elsif (any { $key eq $_ } qw(mac ipaddr)) {
         $device_rs = $device_rs->search(

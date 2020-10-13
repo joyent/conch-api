@@ -39,6 +39,8 @@ sub routes {
     # POST   /rack/:rack_id_or_name/assignment
     # DELETE /rack/:rack_id_or_name/assignment
     # POST   /rack/:rack_id_or_name/phase?rack_only=<0|1>
+    # POST   /rack/:rack_id_or_name/links
+    # DELETE /rack/:rack_id_or_name/links
     # GET    /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
     # POST   /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
     # DELETE /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
@@ -78,6 +80,12 @@ sub one_rack_routes ($class, $r) {
 
     # POST .../rack/:rack_id_or_name/phase?rack_only=<0|1>
     $one_rack->post('/phase')->to('#set_phase');
+
+    # POST .../rack/:rack_id_or_name/links
+    $one_rack->post('/links')->to('#add_links');
+
+    # DELETE .../rack/:rack_id_or_name/links
+    $one_rack->delete('/links')->to('#remove_links');
 
     # GET .../rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
     # POST .../rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
@@ -232,6 +240,32 @@ only the rack's phase, or all the rack's devices' phases as well.
 =item * Request: F<request.yaml#/definitions/RackPhase>
 
 =item * Response: Redirect to the updated rack
+
+=back
+
+=head3 C<POST /rack/:rack_id_or_name/links>
+
+=over 4
+
+=item * User requires the read/write role on the rack
+
+=item * Controller/Action: L<Conch::Controller::Rack/add_links>
+
+=item * Request: F<request.yaml#/definitions/RackLinks>
+
+=item * Response: Redirect to the updated rack
+
+=back
+
+=head3 C<DELETE /rack/:rack_id_or_name/links>
+
+=over 4
+
+=item * User requires the read/write role on the rack
+
+=item * Request: F<request.yaml#/definitions/RackLinksOrNull>
+
+=item * Response: 204 NO CONTENT
 
 =back
 

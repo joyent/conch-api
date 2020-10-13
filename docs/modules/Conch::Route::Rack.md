@@ -93,6 +93,19 @@ only the rack's phase, or all the rack's devices' phases as well.
 - Request: [request.json#/definitions/RackPhase](../json-schema/request.json#/definitions/RackPhase)
 - Response: Redirect to the updated rack
 
+#### `POST /rack/:rack_id_or_name/links`
+
+- User requires the read/write role on the rack
+- Controller/Action: ["add\_links" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#add_links)
+- Request: [request.json#/definitions/RackLinks](../json-schema/request.json#/definitions/RackLinks)
+- Response: Redirect to the updated rack
+
+#### `DELETE /rack/:rack_id_or_name/links`
+
+- User requires the read/write role on the rack
+- Request: [request.json#/definitions/RackLinksOrNull](../json-schema/request.json#/definitions/RackLinksOrNull)
+- Response: 204 NO CONTENT
+
 ### `GET /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
 
 See ["`GET /layout/:layout_id`" in Conch::Route::RackLayout](../modules/Conch%3A%3ARoute%3A%3ARackLayout#get-layoutlayout_id).

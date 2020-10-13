@@ -90,6 +90,14 @@ See ["`DELETE /rack/:rack_id_or_name/assignment`" in Conch::Route::Rack](../modu
 
 See ["POST /rack/:rack\_id\_or\_name/phase?rack\_only=01" in Conch::Route::Rack](../modules/Conch%3A%3ARoute%3A%3ARack#post-rackrack_id_or_namephaserack_only01).
 
+### `POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/links`
+
+See ["POST /rack/:rack\_id\_or\_name/links" in Conch::Route::Rack](../modules/Conch%3A%3ARoute%3A%3ARack#post-rackrack_id_or_namelinks).
+
+### `DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/links`
+
+See ["DELETE /rack/:rack\_id\_or\_name/links" in Conch::Route::Rack](../modules/Conch%3A%3ARoute%3A%3ARack#delete-rackrack_id_or_namelinks).
+
 ### `GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
 
 See ["`GET /layout/:layout_id`" in Conch::Route::RackLayout](../modules/Conch%3A%3ARoute%3A%3ARackLayout#get-layoutlayout_id).

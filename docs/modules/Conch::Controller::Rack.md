@@ -73,6 +73,15 @@ Updates the phase of this rack, and optionally all devices located in this rack.
 Use the `rack_only` query parameter to specify whether to only update the rack's phase, or all
 located devices' phases as well.
 
+### add\_links
+
+Appends the provided link(s) to the rack.
+
+### remove\_links
+
+When a payload is specified, remove specified links from the rack;
+with a null payload, removes all links.
+
 ## LICENSING
 
 Copyright Joyent, Inc.

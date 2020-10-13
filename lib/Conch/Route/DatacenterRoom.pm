@@ -56,6 +56,8 @@ sub routes {
     # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment
     # DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/assignment
     # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/phase?rack_only=<0|1>
+    # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/links>
+    # DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/links>
     # GET    /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
     # POST   /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
     # DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
@@ -188,6 +190,14 @@ See L<Conch::Route::Rack/C<DELETE /rack/:rack_id_or_name/assignment>>.
 =head2 C<< POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/phase?rack_only=<0|1> >>
 
 See L<Conch::Route::Rack/POST /rack/:rack_id_or_name/phase?rack_only=01>.
+
+=head2 C<POST /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/links>
+
+See L<Conch::Route::Rack/POST /rack/:rack_id_or_name/links>.
+
+=head2 C<DELETE /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/links>
+
+See L<Conch::Route::Rack/DELETE /rack/:rack_id_or_name/links>.
 
 =head2 C<GET /room/:datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start>
 

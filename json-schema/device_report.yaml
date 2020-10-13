@@ -157,11 +157,8 @@ definitions:
       uptime_since:
         type: string
       links:
-        type: array
-        uniqueItems: true
-        minItems: 1
-        items:
-          type: string
-          format: uri
+        allOf:
+          - $ref: common.yaml#/definitions/links
+          - minItems: 1
 
 # vim: set sts=2 sw=2 et :

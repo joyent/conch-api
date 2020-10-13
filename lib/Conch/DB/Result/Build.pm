@@ -69,6 +69,12 @@ __PACKAGE__->table("build");
   is_nullable: 1
   size: 16
 
+=head2 links
+
+  data_type: 'text[]'
+  default_value: '{}'::text[]
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -96,6 +102,12 @@ __PACKAGE__->add_columns(
   { data_type => "timestamp with time zone", is_nullable => 1 },
   "completed_user_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
+  "links",
+  {
+    data_type     => "text[]",
+    default_value => \"'{}'::text[]",
+    is_nullable   => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -228,7 +240,7 @@ __PACKAGE__->many_to_many("user_accounts", "user_build_roles", "user_account");
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/yxSdyffA8uJFiFb4mEu6A
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7XP/0kfp2bo2TMk35eNrHw
 
 __PACKAGE__->add_columns(
     '+completed_user_id' => { is_serializable => 0 },

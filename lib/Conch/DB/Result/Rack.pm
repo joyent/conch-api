@@ -92,6 +92,12 @@ __PACKAGE__->table("rack");
   is_nullable: 1
   size: 16
 
+=head2 links
+
+  data_type: 'text[]'
+  default_value: '{}'::text[]
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -144,6 +150,12 @@ __PACKAGE__->add_columns(
   },
   "build_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 1, size => 16 },
+  "links",
+  {
+    data_type     => "text[]",
+    default_value => \"'{}'::text[]",
+    is_nullable   => 0,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -286,7 +298,7 @@ __PACKAGE__->many_to_many("workspaces", "workspace_racks", "workspace");
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:QfiFGzv3AGrYHflUnsKhGA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:aqVuUXF5weUiQjSH0Zq+iQ
 
 __PACKAGE__->load_components('+Conch::DB::Helper::Row::WithPhase');
 

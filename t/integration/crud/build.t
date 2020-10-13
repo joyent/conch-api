@@ -63,7 +63,11 @@ $t->post_ok('/build', json => {
     ->json_cmp_deeply({ error => re(qr/^unrecognized user_id ${\Conch::UUID::UUID_FORMAT}, email foo\@bar.com$/) });
 
 my $admin_user = $t->generate_fixtures('user_account');
-$t->post_ok('/build', json => { name => 'my first build', admins => [ { user_id => $admin_user->id } ] })
+$t->post_ok('/build', json => {
+      name => 'my first build',
+      admins => [ { user_id => $admin_user->id } ],
+      links => ['https://foo.com/1', 'https://bar.com/2'],
+    })
     ->status_is(303)
     ->location_like(qr!^/build/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created build ${\Conch::UUID::UUID_FORMAT} \(my first build\)$/);
@@ -82,6 +86,7 @@ $t->get_ok($t->tx->res->headers->location)
             { map +($_ => $admin_user->$_), qw(id name email) },
         ],
         completed_user => undef,
+        links => ['https://foo.com/1', 'https://bar.com/2'],
     })
     ->log_debug_is('User has system admin access to build '.$t->tx->res->json->{id});
 my $build = $t->tx->res->json;
@@ -97,10 +102,11 @@ $t->get_ok('/build')
     ->json_schema_is('Builds')
     ->json_is([ $build ]);
 
-$t->post_ok('/build/my first build', json => { description => 'a description' })
+$t->post_ok('/build/my first build', json => { description => 'a description', links => ['https://baz.com/3'] })
     ->status_is(303)
     ->location_is('/build/'.$build->{id});
 $build->{description} = 'a description';
+$build->{links} = ['https://baz.com/3'];
 
 $t->get_ok('/build/my first build')
     ->status_is(200)
@@ -155,10 +161,37 @@ $t->post_ok('/build/my first build', json => { completed => undef })
 $build->{completed} = undef;
 $build->{completed_user} = undef;
 
+$t->post_ok('/build/my first build/links', json => { links => ['https://alpha.com/1'] })
+    ->status_is(303)
+    ->location_is('/build/'.$build->{id});
+$build->{links} = ['https://alpha.com/1', 'https://baz.com/3'];
+
 $t->get_ok('/build/my first build')
     ->status_is(200)
     ->json_schema_is('Build')
     ->json_is($build);
+
+$t->delete_ok('/build/my first build/links', json => { links => [ 'https://does-not-exist.com' ] })
+    ->status_is(204);
+
+$t->delete_ok('/build/my first build/links', json => { links => ['https://alpha.com/1'] })
+    ->status_is(204);
+$build->{links} = ['https://baz.com/3'];
+
+$t->get_ok('/build/my first build')
+    ->status_is(200)
+    ->json_schema_is('Build')
+    ->json_is($build);
+
+$t->delete_ok('/build/my first build/links')
+    ->status_is(204);
+$build->{links} = [];
+
+$t->get_ok('/build/my first build')
+    ->status_is(200)
+    ->json_schema_is('Build')
+    ->json_is($build);
+
 
 $t->post_ok('/build', json => { name => 'my first build', admins => [ { email => $admin_user->email } ] })
     ->status_is(409)
@@ -199,6 +232,7 @@ $t->get_ok('/build')
                 { map +($_ => $admin_user->$_), qw(id name email) },
             ],
             completed_user => undef,
+            links => [],
         },
     ]);
 my $build2 = $t->tx->res->json->[1];
