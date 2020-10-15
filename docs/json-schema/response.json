@@ -73,6 +73,9 @@
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
         },
+        "links" : {
+          "$ref" : "common.json#/definitions/links"
+        },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
         },
@@ -107,7 +110,8 @@
         "started",
         "completed",
         "admins",
-        "completed_user"
+        "completed_user",
+        "links"
       ],
       "type" : "object"
     },
@@ -551,12 +555,7 @@
           "description" : "the contents of the device report. Given its age we cannot provide a schema."
         },
         "links" : {
-          "items" : {
-            "format" : "uri",
-            "type" : "string"
-          },
-          "type" : "array",
-          "uniqueItems" : true
+          "$ref" : "common.json#/definitions/links"
         },
         "location" : {
           "$comment" : "location is included only when device 'phase' is earlier than 'production'",
@@ -805,12 +804,7 @@
           ]
         },
         "links" : {
-          "items" : {
-            "format" : "uri",
-            "type" : "string"
-          },
-          "type" : "array",
-          "uniqueItems" : true
+          "$ref" : "common.json#/definitions/links"
         },
         "phase" : {
           "$ref" : "common.json#/definitions/device_phase"
@@ -2147,6 +2141,9 @@
         "id" : {
           "$ref" : "common.json#/definitions/uuid"
         },
+        "links" : {
+          "$ref" : "common.json#/definitions/links"
+        },
         "name" : {
           "$ref" : "common.json#/definitions/mojo_relaxed_placeholder"
         },
@@ -2188,7 +2185,8 @@
         "created",
         "updated",
         "build_id",
-        "build_name"
+        "build_name",
+        "links"
       ],
       "type" : "object"
     },

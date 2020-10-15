@@ -546,6 +546,58 @@ sub set_phase ($c) {
     $c->status(303, '/rack/'.$c->stash('rack_id'));
 }
 
+=head2 add_links
+
+Appends the provided link(s) to the rack.
+
+=cut
+
+sub add_links ($c) {
+  my $input = $c->validate_request('RackLinks');
+  return if not $input;
+
+  # only perform the update if not all links are already present
+  $c->stash('rack_rs')
+    ->search(\[ 'not(links @> ?)', [{},$input->{links}] ])
+    ->update({
+        links => \[ 'array_cat_distinct(links,?)', [{},$input->{links}] ],
+        updated => \'now()',
+    });
+
+  my $rack_id = $c->stash('rack_id') // $c->stash('rack_rs')->get_column('id')->single;
+  $c->status(303, '/rack/'.$rack_id);
+}
+
+=head2 remove_links
+
+When a payload is specified, remove specified links from the rack;
+with a null payload, removes all links.
+
+=cut
+
+sub remove_links ($c) {
+  my $input = $c->validate_request('RackLinksOrNull');
+  return if $c->res->code;
+
+  if ($input) {
+    $c->stash('rack_rs')
+      # we do this instead of '? = any(links)' in order to take
+      # advantage of the built-in GIN indexing on the @> operator
+      ->search(\[ 'links @> ?', [{},$input->{links}] ])
+      ->update({
+        links => \[ 'array_subtract(links,?)', [{},$input->{links}] ],
+        updated => \'now()',
+      });
+  }
+  else {
+    $c->stash('rack_rs')
+      ->search({ links => { '!=' => '{}' } })
+      ->update({ links => '{}', updated => \'now()' });
+  }
+
+  $c->status(204);
+}
+
 1;
 __END__
 

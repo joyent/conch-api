@@ -36,8 +36,18 @@ Response uses the Build json schema.
 
 ### update
 
-Modifies a build attribute: one or more of name, description, started, completed.
+Modifies a build attribute: one or more of name, description, started, completed, links.
 Requires the 'admin' role on the build.
+
+### add\_links
+
+Appends the provided link(s) to the build.
+Requires the 'admin' role on the build.
+
+### remove\_links
+
+When a payload is specified, remove specified links from the build;
+with a null payload, removes all links.
 
 ### get\_users
 

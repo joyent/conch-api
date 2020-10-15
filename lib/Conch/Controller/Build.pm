@@ -177,7 +177,7 @@ sub get ($c) {
 
 =head2 update
 
-Modifies a build attribute: one or more of name, description, started, completed.
+Modifies a build attribute: one or more of name, description, started, completed, links.
 Requires the 'admin' role on the build.
 
 =cut
@@ -238,6 +238,53 @@ sub update ($c) {
     $build->update if $build->is_changed;
 
     $c->status(303, '/build/'.$build->id);
+}
+
+=head2 add_links
+
+Appends the provided link(s) to the build.
+Requires the 'admin' role on the build.
+
+=cut
+
+sub add_links ($c) {
+  my $input = $c->validate_request('BuildLinks');
+  return if not $input;
+
+  # only perform the update if not all links are already present
+  $c->stash('build_rs')
+    ->search(\[ 'not(links @> ?)', [{},$input->{links}] ])
+    ->update({ links => \[ 'array_cat_distinct(links,?)', [{},$input->{links}] ] });
+
+  my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
+  $c->status(303, '/build/'.$build_id);
+}
+
+=head2 remove_links
+
+When a payload is specified, remove specified links from the build;
+with a null payload, removes all links.
+
+=cut
+
+sub remove_links ($c) {
+  my $input = $c->validate_request('BuildLinksOrNull');
+  return if $c->res->code;
+
+  if ($input) {
+    $c->stash('build_rs')
+      # we do this instead of '? = any(links)' in order to take
+      # advantage of the built-in GIN indexing on the @> operator
+      ->search(\[ 'links @> ?', [{},$input->{links}] ])
+      ->update({ links => \[ 'array_subtract(links,?)', [{},$input->{links}] ] });
+  }
+  else {
+    $c->stash('build_rs')
+      ->search({ links => { '!=' => '{}' } })
+      ->update({ links => '{}' });
+  }
+
+  $c->status(204);
 }
 
 =head2 get_users

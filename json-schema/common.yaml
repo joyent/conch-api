@@ -97,6 +97,12 @@ definitions:
       - type: string
         format: email
       - $ref: '#/definitions/mojo_relaxed_placeholder'
+  links:
+    type: array
+    uniqueItems: true
+    items:
+      type: string
+      format: uri
   HardwareProductSpecification:
     description: this is the structure of the hardware_product.specification database column
     type: object

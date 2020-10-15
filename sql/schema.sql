@@ -180,6 +180,7 @@ CREATE TABLE public.build (
     started timestamp with time zone,
     completed timestamp with time zone,
     completed_user_id uuid,
+    links text[] DEFAULT '{}'::text[] NOT NULL,
     CONSTRAINT build_completed_iff_started_check CHECK (((completed IS NULL) OR (started IS NOT NULL))),
     CONSTRAINT build_completed_xnor_completed_user_id_check CHECK ((((completed IS NULL) AND (completed_user_id IS NULL)) OR ((completed IS NOT NULL) AND (completed_user_id IS NOT NULL))))
 );
@@ -493,7 +494,8 @@ CREATE TABLE public.rack (
     serial_number text,
     asset_tag text,
     phase public.device_phase_enum DEFAULT 'integration'::public.device_phase_enum NOT NULL,
-    build_id uuid
+    build_id uuid,
+    links text[] DEFAULT '{}'::text[] NOT NULL
 );
 
 
@@ -1170,6 +1172,13 @@ ALTER TABLE ONLY public.workspace_rack
 
 
 --
+-- Name: build_links_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX build_links_idx ON public.build USING gin (links);
+
+
+--
 -- Name: datacenter_room_alias_key; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1363,6 +1372,13 @@ CREATE INDEX rack_layout_hardware_product_id_idx ON public.rack_layout USING btr
 --
 
 CREATE INDEX rack_layout_rack_id_idx ON public.rack_layout USING btree (rack_id);
+
+
+--
+-- Name: rack_links_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX rack_links_idx ON public.rack USING gin (links);
 
 
 --

@@ -120,6 +120,7 @@ $t->post_ok('/rack', json => {
         rack_role_id => $rack->rack_role_id,
         serial_number => 'abc',
         build_id => $build->id,
+        links => ['https://foo.com/1', 'https://bar.com/2'],
     })
     ->status_is(303)
     ->location_like(qr!^/rack/${\Conch::UUID::UUID_FORMAT}$!);
@@ -141,6 +142,7 @@ $t->get_ok($t->tx->res->headers->location)
         created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         (map +('build_'.$_ => $build->$_), qw(id name)),
+        links => ['https://foo.com/1', 'https://bar.com/2'],
     });
 my $new_rack = $t->tx->res->json;
 
@@ -200,10 +202,19 @@ $t->post_ok("/rack/$new_rack->{id}", json => {
         name => 'rack',
         serial_number => 'abc',
         asset_tag => 'deadbeef',
+        links => ['https://baz.com/3'],
     })
     ->status_is(303)
     ->location_is('/rack/'.$new_rack->{id});
 $new_rack->@{qw(name serial_number asset_tag)} = qw(rack abc deadbeef);
+$new_rack->{full_rack_name} = $room->vendor_name.':rack';
+$new_rack->{links} = ['https://baz.com/3'];
+$new_rack->{updated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+
+$t->get_ok("/rack/$new_rack->{id}")
+    ->status_is(200)
+    ->json_schema_is('Rack')
+    ->json_cmp_deeply($new_rack);
 
 $t->post_ok($_, json => { rack_role_id => $small_rack_role->id })
     ->status_is($_ eq '/rack/'.$new_rack->{id} ? 303 : 204)
@@ -411,6 +422,47 @@ subtest 'rack phases' => sub {
         ),
         'all assigned devices are moved to the production phase',
     );
+};
+
+subtest 'rack links' => sub {
+  $t->post_ok('/rack/'.$rack->id.'/links', json => {
+      links => ['https://bar.com/2', 'https://alpha.com/1'] })
+    ->status_is(303)
+    ->location_is('/rack/'.$rack->id);
+
+  $t->get_ok('/rack/'.$rack->id)
+    ->status_is(200)
+    ->json_schema_is('Rack')
+    ->json_cmp_deeply(superhashof({
+      id => $rack->id,
+      links => ['https://alpha.com/1', 'https://bar.com/2'],
+    }));
+
+  $t->delete_ok('/rack/'.$rack->id.'/links', json => { links => [ 'https://does-not-exist.com' ] })
+    ->status_is(204);
+
+  $t->delete_ok('/rack/'.$rack->id.'/links', json => { links => ['https://alpha.com/1'] })
+    ->status_is(204);
+
+  $t->get_ok('/rack/'.$rack->id)
+    ->status_is(200)
+    ->json_schema_is('Rack')
+    ->json_cmp_deeply(superhashof({
+      id => $rack->id,
+      links => ['https://bar.com/2'],
+    }));
+
+  $t->delete_ok('/rack/'.$rack->id.'/links')
+    ->status_is(204);
+  $rack->{links} = [];
+
+  $t->get_ok('/rack/'.$rack->id)
+    ->status_is(200)
+    ->json_schema_is('Rack')
+    ->json_cmp_deeply(superhashof({
+      id => $rack->id,
+      links => [],
+    }));
 };
 
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [

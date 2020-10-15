@@ -51,6 +51,19 @@ Supports the following optional query parameters:
 - Request: [request.json#/definitions/BuildUpdate](../json-schema/request.json#/definitions/BuildUpdate)
 - Response: Redirect to the build
 
+#### `POST /build/:build_id_or_name/links`
+
+- Requires system admin authorization or the admin role on the build
+- Controller/Action: ["add\_links" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_links)
+- Request: [request.json#/definitions/BuildLinks](../json-schema/request.json#/definitions/BuildLinks)
+- Response: Redirect to the updated build
+
+#### `DELETE /build/:build_id_or_name/links`
+
+- Requires system admin authorization or the admin role on the build
+- Request: [request.json#/definitions/BuildLinksOrNull](../json-schema/request.json#/definitions/BuildLinksOrNull)
+- Response: 204 NO CONTENT
+
 ### `GET /build/:build_id_or_name/user`
 
 - Requires system admin authorization or the admin role on the build

@@ -119,6 +119,14 @@
         }
       ]
     },
+    "links" : {
+      "items" : {
+        "format" : "uri",
+        "type" : "string"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "macaddr" : {
       "pattern" : "^[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}$",
       "type" : "string"

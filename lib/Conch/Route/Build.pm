@@ -46,6 +46,12 @@ sub routes {
         # POST /build/:build_id_or_name
         $with_build_admin->post('/')->to('#update');
 
+        # POST /build/:build_id_or_name/links
+        $with_build_admin->post('/links')->to('#add_links');
+
+        # DELETE /build/:build_id_or_name/links
+        $with_build_admin->delete('/links')->to('#remove_links');
+
         # GET /build/:build_id_or_name/user
         $with_build_admin->get('/user')->to('#get_users');
 
@@ -183,6 +189,32 @@ Supports the following optional query parameters:
 =item * Request: F<request.yaml#/definitions/BuildUpdate>
 
 =item * Response: Redirect to the build
+
+=back
+
+=head3 C<POST /build/:build_id_or_name/links>
+
+=over 4
+
+=item * Requires system admin authorization or the admin role on the build
+
+=item * Controller/Action: L<Conch::Controller::Build/add_links>
+
+=item * Request: F<request.yaml#/definitions/BuildLinks>
+
+=item * Response: Redirect to the updated build
+
+=back
+
+=head3 C<DELETE /build/:build_id_or_name/links>
+
+=over 4
+
+=item * Requires system admin authorization or the admin role on the build
+
+=item * Request: F<request.yaml#/definitions/BuildLinksOrNull>
+
+=item * Response: 204 NO CONTENT
 
 =back
 

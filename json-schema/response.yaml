@@ -167,11 +167,7 @@ definitions:
       phase:
         $ref: common.yaml#/definitions/device_phase
       links:
-        type: array
-        uniqueItems: true
-        items:
-          type: string
-          format: uri
+        $ref: common.yaml#/definitions/links
       build_id:
         oneOf:
           - type: 'null'
@@ -402,11 +398,7 @@ definitions:
       phase:
         $ref: common.yaml#/definitions/device_phase
       links:
-        type: array
-        uniqueItems: true
-        items:
-          type: string
-          format: uri
+        $ref: common.yaml#/definitions/links
       build_id:
         oneOf:
           - type: 'null'
@@ -1373,6 +1365,7 @@ definitions:
       - updated
       - build_id
       - build_name
+      - links
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -1413,6 +1406,8 @@ definitions:
         oneOf:
           - type: 'null'
           - $ref: common.yaml#/definitions/mojo_standard_placeholder
+      links:
+        $ref: common.yaml#/definitions/links
   RackRole:
     type: object
     additionalProperties: false
@@ -1992,6 +1987,7 @@ definitions:
       - completed
       - admins
       - completed_user
+      - links
     properties:
       id:
         $ref: common.yaml#/definitions/uuid
@@ -2024,6 +2020,8 @@ definitions:
         oneOf:
           - type: 'null'
           - $ref: '#/definitions/UserTerse'
+      links:
+        $ref: common.yaml#/definitions/links
       device_health:
         type: object
         minProperties: 4
