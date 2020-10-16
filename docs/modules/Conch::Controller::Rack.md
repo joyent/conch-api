@@ -18,7 +18,8 @@ or a "long" rack name (["vendor\_name" in Conch::DB::Result::DatacenterRoom](../
 ["name" in Conch::DB::Result::Rack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARack#name)).
 
 If `require_role` is provided in the stash, it is used as the minimum required role for the user to
-continue; otherwise the user must be a system admin.
+continue; otherwise the HTTP method is used to determine its value (`HEAD` and `GET` imply
+read-only, `POST`, `PUT` and `DELETE` imply read/write); or the user must be a system admin.
 
 ### create
 

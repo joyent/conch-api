@@ -68,7 +68,7 @@ existing `specification` field and this request:
   "x": { "y": [ 1, 2, 3 ] }
 }
 
-POST /hardware_product/:hardware_product_id_or_other/specification?path=/foo/bar/baz  { "hello":1 }
+PUT /hardware_product/:hardware_product_id_or_other/specification?path=/foo/bar/baz  { "hello":1 }
 ```
 
 Results in this data in `specification`, changing the data type at node `/foo/bar`:

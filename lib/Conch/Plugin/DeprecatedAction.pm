@@ -37,8 +37,11 @@ sub register ($self, $app, $config) {
 
             # do this after the response has been sent
             $c->on(finish => sub ($c) {
-                $c->send_message_to_rollbar('info', $deprecated,
-                    { context => ($c->stash('controller')//'').'#'.($c->stash('action')//'') });
+                $c->send_message_to_rollbar(
+                    'info',
+                    'endpoint '.$c->req->url->path.' is deprecated and will be removed in api '.$deprecated,
+                    { context => ($c->stash('controller')//'').'#'.($c->stash('action')//'') },
+                );
             })
             if $c->feature('rollbar') and $c->feature('report_deprecated_actions');
         }

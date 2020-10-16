@@ -108,6 +108,10 @@ sub register ($self, $app, $config) {
                 }
                 catch {
                     my $exception = $_;
+
+                    # ensure that transaction isn't destroyed before this process finishes
+                    my $_tx = $tx;
+
                     $c->get_logger('exception', bunyan => 1, with_trace => 0)->error($exception);
                     $c->send_exception_to_rollbar(Mojo::Exception->new($exception));
                     die $exception->$_can('message') ? $exception->message."\n" : $exception;
