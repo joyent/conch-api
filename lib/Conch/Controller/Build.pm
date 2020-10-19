@@ -788,6 +788,9 @@ sub create_and_add_devices ($c) {
     my $input = $c->validate_request('BuildCreateDevices');
     return if not $input;
 
+    return $c->status(409, { error => 'cannot add devices to a completed build' })
+        if $c->stash('build_rs')->search({ completed => { '!=' => undef } })->exists;
+
     foreach my $entry ($input->@*) {
         if (my $serial = $entry->{serial_number} and not $entry->{id}) {
             my $id = $c->db_devices->search({ serial_number => $serial })->get_column('id')->single;
@@ -882,8 +885,10 @@ sub add_device ($c) {
 
     return $c->status(204) if $device->build_id and $device->build_id eq $build_id;
 
+    return $c->status(409, { error => 'cannot add a device to a completed build' })
+        if $c->stash('build_rs')->search({ completed => { '!=' => undef } })->exists;
+
     # TODO: check other constraints..
-    # - what if the build is completed?
     # - what about device.phase or rack.phase?
 
     $c->log->debug('adding device '.$device->id.' ('.$device->serial_number
@@ -953,8 +958,10 @@ sub add_rack ($c) {
 
     return $c->status(204) if $rack->build_id and $rack->build_id eq $build_id;
 
+    return $c->status(409, { error => 'cannot add a rack to a completed build' })
+        if $c->stash('build_rs')->search({ completed => { '!=' => undef } })->exists;
+
     # TODO: check other constraints..
-    # - what if the build is completed?
     # - what about device.phase or rack.phase?
     # - build_id can also change via POST /rack/:id (so copy the checks there or
     # remove that functionality)

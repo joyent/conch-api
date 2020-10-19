@@ -109,6 +109,9 @@ sub create ($c) {
     return $c->status(409, { error => 'Build does not exist' })
         if not $c->db_builds->search({ id => $input->{build_id} })->exists;
 
+    return $c->status(409, { error => 'cannot add a rack to a completed build' })
+        if $c->db_builds->search({ id => $input->{build_id} })->search({ completed => { '!=' => undef } })->exists;
+
     return $c->status(409, { error => 'The room already contains a rack named '.$input->{name} })
         if $c->db_racks->search({ datacenter_room_id => $input->{datacenter_room_id}, name => $input->{name} })->exists;
 
@@ -270,6 +273,10 @@ sub update ($c) {
     return $c->status(409, { error => 'Build does not exist' })
         if $input->{build_id} and not $c->db_builds->search({ id => $input->{build_id} })->exists;
 
+    return $c->status(409, { error => 'cannot add a rack to a completed build' })
+        if $input->{build_id} and (not $rack->build_id or $input->{build_id} ne $rack->build_id)
+            and $c->db_builds->search({ id => $input->{build_id} })->search({ completed => { '!=' => undef } })->exists;
+
     # prohibit shrinking rack_size if there are layouts that extend beyond it
     if (exists $input->{rack_role_id} and $input->{rack_role_id} ne $rack->rack_role_id) {
         my $rack_role = $c->db_rack_roles->find($input->{rack_role_id});
@@ -357,6 +364,9 @@ hardware doesn't match what the layout specifies.
 sub set_assignment ($c) {
     my $input = $c->validate_request('RackAssignmentUpdates');
     return if not $input;
+
+    return $c->status(409, { error => 'cannot add devices to a rack in a completed build' })
+        if $c->stash('rack_rs')->related_resultset('build')->search({ completed => { '!=' => undef } })->exists;
 
     # in order to determine if we have duplicate devices, we need to look up all ids for device
     # serial numbers...

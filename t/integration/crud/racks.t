@@ -7,12 +7,20 @@ use Test::Conch;
 use List::Util 'first';
 
 my $t = Test::Conch->new;
-$t->load_fixture('super_user');
+my $super_user = $t->load_fixture('super_user');
 
 $t->authenticate;
 
 $t->load_fixture_set('workspace_room_rack_layout', 0);
 my $build = $t->generate_fixtures('build');
+
+my $completed_build = $t->generate_fixtures('build');
+$completed_build->update({ started => \'now()', completed => \'now()', completed_user_id => $super_user->id });
+my $completed_rack = first { $_->isa('Conch::DB::Result::Rack') } $t->generate_fixtures('rack', { build_id => $completed_build->id });
+$completed_rack->create_related('rack_layouts', {
+    hardware_product_id => $t->app->db_hardware_products->rows(1)->get_column('id')->single,
+    rack_unit_start => 3,
+});
 
 my $fake_id = create_uuid_str();
 
@@ -109,6 +117,16 @@ $t->post_ok('/rack', json => {
     ->json_schema_is('Error')
     ->json_is({ error => 'Build does not exist' });
 
+$t->post_ok('/rack', json => {
+        name => 'r4ck',
+        datacenter_room_id => $rack->datacenter_room_id,
+        rack_role_id => $rack->rack_role_id,
+        build_id => $completed_build->id,
+    })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'cannot add a rack to a completed build' });
+
 $t->post_ok('/rack', json => { map +($_ => $rack->$_), qw(name datacenter_room_id rack_role_id build_id) })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -177,6 +195,11 @@ $t->post_ok('/rack/'.$rack->id, json => { build_id => create_uuid_str() })
     ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'Build does not exist' });
+
+$t->post_ok('/rack/'.$rack->id, json => { build_id => $completed_build->id })
+    ->status_is(409)
+    ->json_schema_is('Error')
+    ->json_is({ error => 'cannot add a rack to a completed build' });
 
 my $duplicate_rack = first { $_->isa('Conch::DB::Result::Rack') } $t->generate_fixtures('rack');
 $duplicate_rack->update({ name => $rack->name });
@@ -340,6 +363,17 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
     ->json_is({ error => 'missing layout for rack_unit_start 2' });
 
 my ($bar) = $t->generate_fixtures(device => { hardware_product_id => $hardware_product_storage->id });
+
+$t->post_ok('/rack/'.$completed_rack->id.'/assignment', json => [
+        {
+            device_id => $bar->id, # existing device
+            device_serial_number => 'BAR',
+            device_asset_tag => 'hello',
+            rack_unit_start => 3,
+        },
+    ])
+    ->status_is(409)
+    ->json_is({ error => 'cannot add devices to a rack in a completed build' });
 
 $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
         {
