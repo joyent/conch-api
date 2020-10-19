@@ -17,12 +17,15 @@ Conch::Controller::Build
 If the user is a system admin, retrieve a list of all builds in the database; otherwise,
 limits the list to those build of which the user is a member.
 
+Using optional query parameters, can include counts for device health, device phase and rack phase;
+defaults to returning uncompleted builds only.
+
 Response uses the Builds json schema.
 
 =cut
 
 sub get_all ($c) {
-    my $params = $c->validate_query_params('WithDeviceRackData');
+    my $params = $c->validate_query_params('GetBuilds');
     return if not $params;
 
     my $rs = $c->db_builds
@@ -37,6 +40,10 @@ sub get_all ($c) {
             if !exists $params->{$param} ? 0
                : length $params->{$param} ? $params->{$param} : 1;
     }
+
+    $rs = $rs->search({ completed => undef })
+        if not (!exists $params->{include_completed} ? 0
+           : length $params->{include_completed} ? $params->{include_completed} : 1);
 
     return $c->status(200, [ $rs->all ]) if $c->is_system_admin;
 

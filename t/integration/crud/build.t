@@ -150,6 +150,17 @@ $t->get_ok('/build/my first build')
     ->json_schema_is('Build')
     ->json_is($build);
 
+$t->get_ok('/build')
+    ->status_is(200)
+    ->json_schema_is('Builds')
+    ->json_is([]);
+
+$t->get_ok('/build?include_completed'.$_)
+    ->status_is(200)
+    ->json_schema_is('Builds')
+    ->json_is([ $build ])
+      foreach ('', '=1');
+
 $t->post_ok('/build/my first build', json => { completed => $now })
     ->status_is(409)
     ->json_is({ error => 'build was already completed' });
@@ -809,7 +820,7 @@ $t->get_ok('/build/our second build/device?active_minutes=5')
     ->json_schema_is('Devices')
     ->json_is($devices);
 
-$t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases')
+$t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases&include_completed')
     ->status_is(200)
     ->json_schema_is('Builds')
     ->json_is([

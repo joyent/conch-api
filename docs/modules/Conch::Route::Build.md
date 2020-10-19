@@ -21,6 +21,8 @@ Supports the following optional query parameters:
 - `with_device_health` - includes correlated counts of devices having each health value
 - `with_device_phases` - includes correlated counts of devices having each phase value
 - `with_rack_phases` - includes correlated counts of racks having each phase value
+- `include_completed` - also include completed builds (by default, returns uncompleted builds
+only)
 
 - Controller/Action: ["get\_all" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_all)
 - Response: [response.json#/definitions/Builds](../json-schema/response.json#/definitions/Builds)
