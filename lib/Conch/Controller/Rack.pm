@@ -100,21 +100,17 @@ sub create ($c) {
     my $input = $c->validate_request('RackCreate');
     return if not $input;
 
-    if (not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
-        return $c->status(409, { error => 'Room does not exist' });
-    }
+    return $c->status(409, { error => 'Room does not exist' })
+        if not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists;
 
-    if (not $c->db_rack_roles->search({ id => $input->{rack_role_id} })->exists) {
-        return $c->status(409, { error => 'Rack role does not exist' });
-    }
+    return $c->status(409, { error => 'Rack role does not exist' })
+        if not $c->db_rack_roles->search({ id => $input->{rack_role_id} })->exists;
 
-    if (not $c->db_builds->search({ id => $input->{build_id} })->exists) {
-        return $c->status(409, { error => 'Build does not exist' });
-    }
+    return $c->status(409, { error => 'Build does not exist' })
+        if not $c->db_builds->search({ id => $input->{build_id} })->exists;
 
-    if ($c->db_racks->search({ datacenter_room_id => $input->{datacenter_room_id}, name => $input->{name} })->exists) {
-        return $c->status(409, { error => 'The room already contains a rack named '.$input->{name} });
-    }
+    return $c->status(409, { error => 'The room already contains a rack named '.$input->{name} })
+        if $c->db_racks->search({ datacenter_room_id => $input->{datacenter_room_id}, name => $input->{name} })->exists;
 
     my $rack = $c->db_racks->create($input);
     $c->log->debug('Created rack '.$rack->id);
@@ -259,13 +255,11 @@ sub update ($c) {
     my $rack = $rack_rs->single;
 
     if ($input->{datacenter_room_id} and $input->{datacenter_room_id} ne $rack->datacenter_room_id) {
-        if (not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists) {
-            return $c->status(409, { error => 'Room does not exist' });
-        }
+        return $c->status(409, { error => 'Room does not exist' })
+            if not $c->db_datacenter_rooms->search({ id => $input->{datacenter_room_id} })->exists;
 
-        if ($c->db_racks->search({ datacenter_room_id => $input->{datacenter_room_id}, name => $input->{name} // $rack->name })->exists) {
-            return $c->status(409, { error => 'New room already contains a rack named '.($input->{name} // $rack->name) });
-        }
+        return $c->status(409, { error => 'New room already contains a rack named '.($input->{name} // $rack->name) })
+            if $c->db_racks->search({ datacenter_room_id => $input->{datacenter_room_id}, name => $input->{name} // $rack->name })->exists;
     }
     elsif ($input->{name} and $input->{name} ne $rack->name) {
         if ($c->db_racks->search({ datacenter_room_id => $rack->datacenter_room_id, name => $input->{name} })->exists) {
@@ -273,16 +267,14 @@ sub update ($c) {
         }
     }
 
-    if ($input->{build_id} and not $c->db_builds->search({ id => $input->{build_id} })->exists) {
-        return $c->status(409, { error => 'Build does not exist' });
-    }
+    return $c->status(409, { error => 'Build does not exist' })
+        if $input->{build_id} and not $c->db_builds->search({ id => $input->{build_id} })->exists;
 
     # prohibit shrinking rack_size if there are layouts that extend beyond it
     if (exists $input->{rack_role_id} and $input->{rack_role_id} ne $rack->rack_role_id) {
         my $rack_role = $c->db_rack_roles->find($input->{rack_role_id});
-        if (not $rack_role) {
-            return $c->status(409, { error => 'Rack role does not exist' });
-        }
+        return $c->status(409, { error => 'Rack role does not exist' })
+            if not $rack_role;
 
         my @assigned_rack_units = $rack_rs->assigned_rack_units;
 
