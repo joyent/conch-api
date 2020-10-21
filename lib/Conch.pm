@@ -98,7 +98,9 @@ sub startup {
     });
 
     $self->hook(after_render => sub ($c, @args) {
-        warn 'called $c->render twice' if $c->stash->{_rendered}++;
+        warn 'called $c->render twice',
+           ($c->stash('exception') ? ': got exception "'.$c->stash('exception')->message.'"' : '')
+        if $c->stash->{_rendered}++;
     });
 
     $self->hook(after_dispatch => sub ($c) {
