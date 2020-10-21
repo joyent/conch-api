@@ -813,6 +813,10 @@ sub create_and_add_devices ($c) {
             $c->log->debug('User lacks the required role (rw) for one or more devices');
             return $c->status(403);
         }
+
+        return $c->status(409, { error => 'cannot add devices to a build when in production (or later) phase' })
+            if $device_rs->search({ 'device.phase' => { '>=' => \[ '?::device_phase_enum', 'production' ] } })->exists;
+
         %devices = map +($_->id => $_), $device_rs->all;
     }
 
@@ -892,11 +896,11 @@ sub add_device ($c) {
 
     return $c->status(204) if $device->build_id and $device->build_id eq $build_id;
 
+    return $c->status(409, { error => 'cannot add a device to a build when in production (or later) phase' })
+        if $device->phase_cmp('production') >= 0;
+
     return $c->status(409, { error => 'cannot add a device to a completed build' })
         if $c->stash('build_rs')->search({ completed => { '!=' => undef } })->exists;
-
-    # TODO: check other constraints..
-    # - what about device.phase or rack.phase?
 
     $c->log->debug('adding device '.$device->id.' ('.$device->serial_number
         .') to build '.$c->stash('build_id_or_name'));
@@ -965,13 +969,11 @@ sub add_rack ($c) {
 
     return $c->status(204) if $rack->build_id and $rack->build_id eq $build_id;
 
+    return $c->status(409, { error => 'cannot add a rack to a build when in production (or later) phase' })
+        if $rack->phase_cmp('production') >= 0;
+
     return $c->status(409, { error => 'cannot add a rack to a completed build' })
         if $c->stash('build_rs')->search({ completed => { '!=' => undef } })->exists;
-
-    # TODO: check other constraints..
-    # - what about device.phase or rack.phase?
-    # - build_id can also change via POST /rack/:id (so copy the checks there or
-    # remove that functionality)
 
     $c->log->debug('adding rack '.$rack->id.' to build '.$c->stash('build_id_or_name'));
     $rack->update({ build_id => $build_id, updated => \'now()' });

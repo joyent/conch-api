@@ -743,15 +743,21 @@ $t2->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO
     ->status_is(403)
     ->log_debug_is('User lacks the required role (rw) for build our second build');
 
-my $other_device = $t->app->db_devices->create({
+my $another_device = $t->app->db_devices->create({
     serial_number => 'another_device',
     hardware_product_id => $hardware_product->id,
     health => 'unknown',
+    phase => 'production',
 });
 
 $t_build_admin->post_ok('/build/our second build/device', json => [ { serial_number => 'another_device', sku => $hardware_product->sku } ])
     ->status_is(403)
     ->log_debug_is('User lacks the required role (rw) for one or more devices');
+
+# note: switched to superuser here
+$t->post_ok('/build/our second build/device', json => [ { serial_number => 'another_device', sku => $hardware_product->sku } ])
+    ->status_is(409)
+    ->json_is({ error => 'cannot add devices to a build when in production (or later) phase' });
 
 $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => $hardware_product->sku } ])
     ->status_is(204)
@@ -920,7 +926,7 @@ $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO'
 
 $t->post_ok('/build/our second build/device', json => [ {
             id => $devices->[0]{id},
-            serial_number => $other_device->serial_number,
+            serial_number => $another_device->serial_number,
             sku => $hardware_product->sku,
         }, ])
     ->status_is(400)
@@ -966,6 +972,13 @@ $t2->post_ok('/build/my first build/rack/'.$rack1->id)
 $t_build_admin->post_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(403)
     ->log_debug_is('User lacks the required role (rw) for rack '.$rack1->id);
+
+my $another_rack = first { $_->isa('Conch::DB::Result::Rack') } $t->generate_fixtures('rack', { phase => 'production' });
+
+# note: switched to superuser here
+$t->post_ok('/build/my first build/rack/'.$another_rack->id)
+    ->status_is(409)
+    ->json_is({ error => 'cannot add a rack to a build when in production (or later) phase' });
 
 $t->post_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(409)
@@ -1053,6 +1066,11 @@ $t2->post_ok('/build/my first build/device/'.$device2->id)
 $t_build_admin->post_ok('/build/my first build/device/'.$device2->id)
     ->status_is(403)
     ->log_debug_is('User lacks the required role (rw) for device '.$device2->id);
+
+# note: switched to superuser here
+$t->post_ok('/build/my first build/device/'.$another_device->id)
+    ->status_is(409)
+    ->json_is({ error => 'cannot add a device to a build when in production (or later) phase' });
 
 $t->app->db_builds->search({ id => $build->{id} })->update({ completed => \'now()', completed_user_id => $super_user->id });
 
@@ -1383,11 +1401,7 @@ $t->post_ok('/build/our second build/device', json => [ {
         } ])
     ->status_is(204);
 
-$t->post_ok('/build/our second build/device', json => [ {
-            id => $device1->id,
-            sku => $hardware_product->sku,
-        } ])
-    ->status_is(204);
+$device1->update({ build_id => $build2->{id} });
 
 $t->delete_ok('/build/my first build/device/'.$device1->id)
     ->status_is(404)

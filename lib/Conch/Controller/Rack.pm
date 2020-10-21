@@ -277,6 +277,10 @@ sub update ($c) {
         if $input->{build_id} and (not $rack->build_id or $input->{build_id} ne $rack->build_id)
             and $c->db_builds->search({ id => $input->{build_id} })->search({ completed => { '!=' => undef } })->exists;
 
+    return $c->status(409, { error => 'cannot add a rack to a build when in production (or later) phase' })
+        if $input->{build_id} and (not $rack->build_id or $input->{build_id} ne $rack->build_id)
+            and $rack->phase_cmp('production') >= 0;
+
     # prohibit shrinking rack_size if there are layouts that extend beyond it
     if (exists $input->{rack_role_id} and $input->{rack_role_id} ne $rack->rack_role_id) {
         my $rack_role = $c->db_rack_roles->find($input->{rack_role_id});
@@ -368,6 +372,9 @@ sub set_assignment ($c) {
     return $c->status(409, { error => 'cannot add devices to a rack in a completed build' })
         if $c->stash('rack_rs')->related_resultset('build')->search({ completed => { '!=' => undef } })->exists;
 
+    return $c->status(409, { error => 'cannot add devices to a rack in production (or later) phase' })
+        if $c->stash('rack_rs')->search({ phase => { '>=' => \[ '?::device_phase_enum', 'production' ] } })->exists;
+
     # in order to determine if we have duplicate devices, we need to look up all ids for device
     # serial numbers...
     foreach my $entry ($input->@*) {
@@ -417,6 +424,11 @@ sub set_assignment ($c) {
 
             # find device by id that we looked up before...
             if ($entry->{device_id} and my $device = $devices{$entry->{device_id}}) {
+                if ($device->phase_cmp('production') >= 0) {
+                    $c->status(409, { error => 'cannot relocate devices when in production (or later) phase' });
+                    die 'rollback';
+                }
+
                 $device->serial_number($entry->{device_serial_number}) if $entry->{device_serial_number};
                 $device->asset_tag($entry->{device_asset_tag}) if exists $entry->{device_asset_tag};
                 $device->update({ updated => \'now()' }) if $device->is_changed;
@@ -433,7 +445,7 @@ sub set_assignment ($c) {
             }
             elsif ($entry->{device_id}) {
                 $c->log->warn('Could not find device '.$entry->{device_id});
-                $c->res->code(404);
+                $c->status(404);
                 die 'rollback';
             }
             else {
@@ -459,7 +471,10 @@ sub set_assignment ($c) {
 
         return 1;
     })
-    or return $c->status($c->res->code // 400);
+    or do {
+        $c->status(400) if not $c->res->code;
+        return;
+    };
 
     $c->log->debug('Updated device assignments for rack '.$c->stash('rack_id'));
     $c->status(303, '/rack/'.$c->stash('rack_id').'/assignment');
