@@ -75,7 +75,7 @@ sub startup {
                 $c->send_message_to_rollbar(
                     'info',
                     'response payload contains many elements: candidate for paging?',
-                    { elements => scalar $args->{json}->@*, endpoint => $endpoint, url => $c->url_for },
+                    { elements => scalar $args->{json}->@*, endpoint => $endpoint, url => $c->req->url },
                     [ 'response payload size is large', $endpoint ],
                 );
             });
@@ -90,7 +90,7 @@ sub startup {
                 $c->send_message_to_rollbar(
                     'info',
                     'response payload size is large: candidate for paging or refactoring?',
-                    { bytes => $body_size, endpoint => $endpoint, url => $c->url_for },
+                    { bytes => $body_size, endpoint => $endpoint, url => $c->req->url },
                     [ 'response payload size is large', $endpoint ],
                 );
             }
