@@ -130,6 +130,9 @@ Supports the following optional query parameters:
 
 =item * C<with_rack_phases> - includes correlated counts of racks having each phase value
 
+=item * C<include_completed> - also include completed builds (by default, returns uncompleted builds
+only)
+
 =back
 
 =over 4

@@ -11,6 +11,9 @@
 If the user is a system admin, retrieve a list of all builds in the database; otherwise,
 limits the list to those build of which the user is a member.
 
+Using optional query parameters, can include counts for device health, device phase and rack phase;
+defaults to returning uncompleted builds only.
+
 Response uses the Builds json schema.
 
 ### create

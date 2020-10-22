@@ -150,6 +150,17 @@ $t->get_ok('/build/my first build')
     ->json_schema_is('Build')
     ->json_is($build);
 
+$t->get_ok('/build')
+    ->status_is(200)
+    ->json_schema_is('Builds')
+    ->json_is([]);
+
+$t->get_ok('/build?include_completed'.$_)
+    ->status_is(200)
+    ->json_schema_is('Builds')
+    ->json_is([ $build ])
+      foreach ('', '=1');
+
 $t->post_ok('/build/my first build', json => { completed => $now })
     ->status_is(409)
     ->json_is({ error => 'build was already completed' });
@@ -708,6 +719,14 @@ $t->post_ok('/build/our second build/device', json => [ { sku => 'ugh' } ])
             { path => '/0/serial_number', message => re(qr/missing property/i) },
         ]);
 
+$t->app->db_builds->search({ id => $build2->{id} })->update({ completed => \'now()', completed_user_id => $super_user->id });
+
+$t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => 'nope' } ])
+    ->status_is(409)
+    ->json_is({ error => 'cannot add devices to a completed build' });
+
+$t->app->db_builds->search({ id => $build2->{id} })->update({ completed => undef, completed_user_id => undef });
+
 $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => 'nope' } ])
     ->status_is(404)
     ->json_is({ error => 'no hardware_product corresponding to sku nope' })
@@ -724,15 +743,21 @@ $t2->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO
     ->status_is(403)
     ->log_debug_is('User lacks the required role (rw) for build our second build');
 
-my $other_device = $t->app->db_devices->create({
+my $another_device = $t->app->db_devices->create({
     serial_number => 'another_device',
     hardware_product_id => $hardware_product->id,
     health => 'unknown',
+    phase => 'production',
 });
 
 $t_build_admin->post_ok('/build/our second build/device', json => [ { serial_number => 'another_device', sku => $hardware_product->sku } ])
     ->status_is(403)
     ->log_debug_is('User lacks the required role (rw) for one or more devices');
+
+# note: switched to superuser here
+$t->post_ok('/build/our second build/device', json => [ { serial_number => 'another_device', sku => $hardware_product->sku } ])
+    ->status_is(409)
+    ->json_is({ error => 'cannot add devices to a build when in production (or later) phase' });
 
 $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => $hardware_product->sku } ])
     ->status_is(204)
@@ -801,7 +826,7 @@ $t->get_ok('/build/our second build/device?active_minutes=5')
     ->json_schema_is('Devices')
     ->json_is($devices);
 
-$t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases')
+$t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases&include_completed')
     ->status_is(200)
     ->json_schema_is('Builds')
     ->json_is([
@@ -901,7 +926,7 @@ $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO'
 
 $t->post_ok('/build/our second build/device', json => [ {
             id => $devices->[0]{id},
-            serial_number => $other_device->serial_number,
+            serial_number => $another_device->serial_number,
             sku => $hardware_product->sku,
         }, ])
     ->status_is(400)
@@ -947,6 +972,19 @@ $t2->post_ok('/build/my first build/rack/'.$rack1->id)
 $t_build_admin->post_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(403)
     ->log_debug_is('User lacks the required role (rw) for rack '.$rack1->id);
+
+my $another_rack = first { $_->isa('Conch::DB::Result::Rack') } $t->generate_fixtures('rack', { phase => 'production' });
+
+# note: switched to superuser here
+$t->post_ok('/build/my first build/rack/'.$another_rack->id)
+    ->status_is(409)
+    ->json_is({ error => 'cannot add a rack to a build when in production (or later) phase' });
+
+$t->post_ok('/build/my first build/rack/'.$rack1->id)
+    ->status_is(409)
+    ->json_is({ error => 'cannot add a rack to a completed build' });
+
+$t->app->db_builds->search({ id => $build->{id} })->update({ completed => undef, completed_user_id => undef });
 
 $t->post_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(204)
@@ -1028,6 +1066,24 @@ $t2->post_ok('/build/my first build/device/'.$device2->id)
 $t_build_admin->post_ok('/build/my first build/device/'.$device2->id)
     ->status_is(403)
     ->log_debug_is('User lacks the required role (rw) for device '.$device2->id);
+
+# note: switched to superuser here
+$t->post_ok('/build/my first build/device/'.$another_device->id)
+    ->status_is(409)
+    ->json_is({ error => 'cannot add a device to a build when in production (or later) phase' });
+
+$t->app->db_builds->search({ id => $build->{id} })->update({ completed => \'now()', completed_user_id => $super_user->id });
+
+$t->post_ok('/build/my first build/device/'.$device2->id)
+    ->status_is(409)
+    ->json_is({ error => 'cannot add a device to a completed build' });
+
+$t->post_ok('/build/my first build', json => { completed => undef })
+    ->status_is(303)
+    ->location_is('/build/'.$build->{id})
+    ->log_info_is('build '.$build->{id}.' (my first build) moved out of completed state');
+$build->{completed} = undef;
+$build->{completed_user} = undef;
 
 $t->post_ok('/build/my first build/device/'.$device2->id)
     ->status_is(204)
@@ -1126,11 +1182,6 @@ $t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases')
         },
     ]);
 
-$t->post_ok('/build/my first build', json => { completed => undef })
-    ->status_is(303)
-    ->location_is('/build/'.$build->{id})
-    ->log_info_is('build '.$build->{id}.' (my first build) moved out of completed state');
-
 
 $device1->discard_changes;
 $device2->discard_changes;
@@ -1179,7 +1230,9 @@ foreach my $device1_health (0, 1) {
 $device1->update({ health => 'pass', phase => 'production' });
 $device2->update({ health => 'pass', phase => 'integration' });
 
-$build->{completed} = $now->minus_days(1)->to_string;
+$t->app->db_builds->search({ id => $build->{id} })->update({ completed => undef, completed_user_id => undef });
+$build->{completed} = undef;
+$build->{completed_user} = undef;
 
 $t->get_ok('/build/my first build/device')
     ->status_is(200)
@@ -1348,11 +1401,7 @@ $t->post_ok('/build/our second build/device', json => [ {
         } ])
     ->status_is(204);
 
-$t->post_ok('/build/our second build/device', json => [ {
-            id => $device1->id,
-            sku => $hardware_product->sku,
-        } ])
-    ->status_is(204);
+$device1->update({ build_id => $build2->{id} });
 
 $t->delete_ok('/build/my first build/device/'.$device1->id)
     ->status_is(404)

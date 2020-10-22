@@ -147,9 +147,16 @@ definitions:
     properties:
       active_minutes:
         $ref: common.yaml#/definitions/non_negative_integer
+  GetBuilds:
+    allOf:
+      - $ref: '#/definitions/WithDeviceRackData'
+      - type: object
+        properties:
+          include_completed:
+            $ref: '#/definitions/boolean_integer_or_flag'
   WithDeviceRackData:
     type: object
-    additionalProperties: false
+    additionalProperties: true  # overlays with other schemas
     properties:
       with_device_health:
         $ref: '#/definitions/boolean_integer_or_flag'

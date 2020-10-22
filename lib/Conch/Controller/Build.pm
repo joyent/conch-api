@@ -17,12 +17,15 @@ Conch::Controller::Build
 If the user is a system admin, retrieve a list of all builds in the database; otherwise,
 limits the list to those build of which the user is a member.
 
+Using optional query parameters, can include counts for device health, device phase and rack phase;
+defaults to returning uncompleted builds only.
+
 Response uses the Builds json schema.
 
 =cut
 
 sub get_all ($c) {
-    my $params = $c->validate_query_params('WithDeviceRackData');
+    my $params = $c->validate_query_params('GetBuilds');
     return if not $params;
 
     my $rs = $c->db_builds
@@ -37,6 +40,10 @@ sub get_all ($c) {
             if !exists $params->{$param} ? 0
                : length $params->{$param} ? $params->{$param} : 1;
     }
+
+    $rs = $rs->search({ completed => undef })
+        if not (!exists $params->{include_completed} ? 0
+           : length $params->{include_completed} ? $params->{include_completed} : 1);
 
     return $c->status(200, [ $rs->all ]) if $c->is_system_admin;
 
@@ -788,6 +795,9 @@ sub create_and_add_devices ($c) {
     my $input = $c->validate_request('BuildCreateDevices');
     return if not $input;
 
+    return $c->status(409, { error => 'cannot add devices to a completed build' })
+        if $c->stash('build_rs')->search({ completed => { '!=' => undef } })->exists;
+
     foreach my $entry ($input->@*) {
         if (my $serial = $entry->{serial_number} and not $entry->{id}) {
             my $id = $c->db_devices->search({ serial_number => $serial })->get_column('id')->single;
@@ -803,6 +813,10 @@ sub create_and_add_devices ($c) {
             $c->log->debug('User lacks the required role (rw) for one or more devices');
             return $c->status(403);
         }
+
+        return $c->status(409, { error => 'cannot add devices to a build when in production (or later) phase' })
+            if $device_rs->search({ 'device.phase' => { '>=' => \[ '?::device_phase_enum', 'production' ] } })->exists;
+
         %devices = map +($_->id => $_), $device_rs->all;
     }
 
@@ -882,9 +896,11 @@ sub add_device ($c) {
 
     return $c->status(204) if $device->build_id and $device->build_id eq $build_id;
 
-    # TODO: check other constraints..
-    # - what if the build is completed?
-    # - what about device.phase or rack.phase?
+    return $c->status(409, { error => 'cannot add a device to a build when in production (or later) phase' })
+        if $device->phase_cmp('production') >= 0;
+
+    return $c->status(409, { error => 'cannot add a device to a completed build' })
+        if $c->stash('build_rs')->search({ completed => { '!=' => undef } })->exists;
 
     $c->log->debug('adding device '.$device->id.' ('.$device->serial_number
         .') to build '.$c->stash('build_id_or_name'));
@@ -953,11 +969,11 @@ sub add_rack ($c) {
 
     return $c->status(204) if $rack->build_id and $rack->build_id eq $build_id;
 
-    # TODO: check other constraints..
-    # - what if the build is completed?
-    # - what about device.phase or rack.phase?
-    # - build_id can also change via POST /rack/:id (so copy the checks there or
-    # remove that functionality)
+    return $c->status(409, { error => 'cannot add a rack to a build when in production (or later) phase' })
+        if $rack->phase_cmp('production') >= 0;
+
+    return $c->status(409, { error => 'cannot add a rack to a completed build' })
+        if $c->stash('build_rs')->search({ completed => { '!=' => undef } })->exists;
 
     $c->log->debug('adding rack '.$rack->id.' to build '.$c->stash('build_id_or_name'));
     $rack->update({ build_id => $build_id, updated => \'now()' });
