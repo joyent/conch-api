@@ -188,6 +188,7 @@ if (@ARGV and $ARGV[0] eq 'apply-dump-migration') {
 
     my @args = (
         '--schema-only',
+        (map '--exclude-table=legacy_'.$_, qw(workspace_rack user_workspace_role workspace)),
         '--file', 'sql/schema.sql',
         '--username', $pgsql->dbowner,
         '--host', $pgsql->host,

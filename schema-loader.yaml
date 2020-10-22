@@ -31,3 +31,6 @@ loader_options:
   overwrite_modifications: 1
 
   omit_timestamp: 1
+
+  # exclude these tables
+  exclude: !!perl/regexp ^legacy_

@@ -21,8 +21,6 @@ my $JOYENT = 'Joyent Conch (https://127.0.0.1)';
 my $t = Test::Conch->new;
 my $super_user = $t->load_fixture('super_user');
 my $ro_user = $t->load_fixture('ro_user');
-my $global_ws = $t->load_fixture('global_workspace');
-my $child_ws = $global_ws->create_related('workspaces', { name => 'child_ws', user_workspace_roles => [{ role => 'ro', user_id => $ro_user->id }] });
 my $organization = $t->load_fixture('ro_user_organization')->organization;
 
 my ($build1, $build2) = map $t->generate_fixtures('build'), 0..1;
@@ -219,11 +217,7 @@ subtest 'User' => sub {
                     (map +($_ => $organization->$_), qw(id name description)),
                     role => 'admin',
                 } ],
-                workspaces => [ {
-                    (map +($_ => $child_ws->$_), qw(id name description)),
-                    parent_workspace_id => undef,   # user does not have the role to see GLOBAL
-                    role => 'ro',
-                } ],
+                workspaces => [],
                 builds => [
                     { (map +($_ => $build1->$_), qw(id name description)), role => 'rw', role_via_organization_id => $organization->id },
                     { (map +($_ => $build2->$_), qw(id name description)), role => 'ro', role_via_organization_id => $organization->id },
@@ -232,8 +226,6 @@ subtest 'User' => sub {
             ->log_debug_is('attempting to authenticate with Authorization: Bearer header...');
         ;
         $user_detailed = $t2->tx->res->json;
-        # the superuser always sees parent workspace ids
-        $user_detailed->{workspaces}[0]{parent_workspace_id} = $child_ws->parent_workspace_id;
     }
 
     $t->get_ok('/user')
@@ -340,7 +332,7 @@ subtest 'User' => sub {
             ->json_cmp_deeply({
                 $user_detailed->%*,
                 refuse_session_auth => bool(1),
-                workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
+                workspaces => [],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -354,7 +346,7 @@ subtest 'User' => sub {
             ->json_cmp_deeply({
                 $user_detailed->%*,
                 refuse_session_auth => bool(1),
-                workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
+                workspaces => [],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -383,7 +375,7 @@ subtest 'User' => sub {
         ->json_schema_is('UserDetailed')
         ->json_cmp_deeply({
             $user_detailed->%*,
-            workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
+            workspaces => [],
             last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         });
@@ -428,7 +420,7 @@ subtest 'User' => sub {
             ->json_cmp_deeply({
                 $user_detailed->%*,
                 refuse_session_auth => bool(1),
-                workspaces => [ map +{ $_->%*, parent_workspace_id => undef }, $user_detailed->{workspaces}->@* ],
+                workspaces => [],
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -1018,11 +1010,11 @@ subtest 'modify another user' => sub {
         ->status_is(404)
         ->log_debug_is('Could not find user foobar@joyent.conch.us');
 
-    $new_user->create_related('user_workspace_roles', { workspace_id => $child_ws->id, role => 'rw' });
+    $new_user->create_related('user_build_roles', { build_id => $build1->id, role => 'rw' });
 
     $t_super->delete_ok("/user/$new_user_id")
         ->status_is(204)
-        ->log_warn_is('user '.$super_user->name.' deactivating user UNTRUSTED, direct member of workspaces: child_ws (rw)');
+        ->log_warn_is('user '.$super_user->name.' deactivating user UNTRUSTED, member of builds: '.$build1->name.' (rw)');
 
     $t_super->get_ok("/user/$new_user_id")
         ->status_is(410);

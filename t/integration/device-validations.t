@@ -10,7 +10,7 @@ use Mojo::JSON 'from_json';
 
 my $t = Test::Conch->new;
 
-my $ro_user = $t->load_fixture('ro_user_global_workspace')->user_account;
+my $ro_user = $t->load_fixture('ro_user');
 $t->authenticate(email => $ro_user->email);
 
 my $validation = $t->load_validation('Conch::Validation::DeviceProductName');

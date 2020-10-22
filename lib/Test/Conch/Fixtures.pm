@@ -86,45 +86,6 @@ my %canned_definitions = (
         },
     },
 
-    # also created by migration 0012.
-    global_workspace => {
-        new => 'workspace',
-        using => {
-            name => 'GLOBAL',
-            description => 'Global workspace. Ancestor of all workspaces.',
-        },
-    },
-
-    admin_user_global_workspace => {
-        new => 'user_workspace_role',
-        using => {
-            role => 'admin',
-            # cannot do this until I fix https://github.com/Ovid/dbix-class-easyfixture/issues/15
-            # user_id => { admin_user => 'id' },
-            # workspace_id => { global_workspace => 'id' },
-        },
-        requires => {
-            admin_user => { our => 'user_id', their => 'id' },
-            global_workspace => { our => 'workspace_id', their => 'id' },
-        },
-    },
-    ro_user_global_workspace => {
-        new => 'user_workspace_role',
-        using => { role => 'ro' },
-        requires => {
-            ro_user => { our => 'user_id', their => 'id' },
-            global_workspace => { our => 'workspace_id', their => 'id' },
-        },
-    },
-    rw_user_global_workspace => {
-        new => 'user_workspace_role',
-        using => { role => 'rw' },
-        requires => {
-            rw_user => { our => 'user_id', their => 'id' },
-            global_workspace => { our => 'workspace_id', their => 'id' },
-        },
-    },
-
     ro_user_organization => {
         new => 'user_organization_role',
         using => { role => 'admin' },
@@ -262,8 +223,8 @@ Available sets:
 
 =over 4
 
-=item * workspace_room_rack_layout
-a new workspace under GLOBAL, with a datacenter_room,
+=item * universe_room_rack_layout
+a datacenter_room,
 rack, and a layout suitable for various hardware. Takes a single integer for uniqueness.
 
 =back
@@ -273,25 +234,12 @@ rack, and a layout suitable for various hardware. Takes a single integer for uni
 sub generate_set ($self, $set_name, @args) {
     my %definitions;
 
-    if ($set_name eq 'workspace_room_rack_layout') {
+    if ($set_name eq 'universe_room_rack_layout') {
         my $num = shift(@args) // die 'need a unique integer';
         # XXX TODO: rewrite this using $self->generate_definitions(
         #   ...
         # );
         %definitions = (
-            "sub_workspace_$num" => {
-                new => 'workspace',
-                using => { name => "sub_ws_$num" },
-                requires => { global_workspace => { our => 'parent_workspace_id', their => 'id' } },
-            },
-            "ro_user_sub_workspace_${num}_ro" => {
-                new => 'user_workspace_role',
-                using => { role => 'ro' },
-                requires => {
-                    ro_user => { our => 'user_id', their => 'id' },
-                    "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
-                },
-            },
             "build_$num" => {
                 new => 'build',
                 using => {
@@ -334,14 +282,6 @@ sub generate_set ($self, $set_name, @args) {
                     rack_size => 42,
                 },
             },
-            "workspace_rack_${num}a" => {
-                new => 'workspace_rack',
-                using => {},
-                requires => {
-                    "rack_${num}a" => { our => 'rack_id', their => 'id' },
-                    "sub_workspace_$num" => { our => 'workspace_id', their => 'id' },
-                },
-            },
             "rack_${num}a" => {
                 new => 'rack',
                 using => { name => "rack.${num}a" },
@@ -349,9 +289,6 @@ sub generate_set ($self, $set_name, @args) {
                     "datacenter_room_${num}a" => { our => 'datacenter_room_id', their => 'id' },
                     rack_role_42u => { our => 'rack_role_id', their => 'id' },
                     "build_$num" => { our => 'build_id', their => 'id' },
-                    # declare dependency for the all_racks_in_global_workspace trigger to run
-                    # This is a hack: should be able to specify requirements without copying values.
-                    global_workspace => { our => 'asset_tag', their => 'name' },
                 },
             },
             "rack_${num}a_layout_1_2" => {
@@ -384,7 +321,7 @@ sub generate_set ($self, $set_name, @args) {
                     hardware_product_storage => { our => 'hardware_product_id', their => 'id' },
                 },
             },
-            "__additional_deps_workspace_room_rack_layout_${num}a" => [
+            "__additional_deps_universe_room_rack_layout_${num}a" => [
                 'hardware_product_compute',
                 'hardware_product_storage',
             ],
@@ -556,9 +493,6 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 requires => {
                     "datacenter_room_$num" => { our => 'datacenter_room_id', their => 'id' },
                     "rack_role_$num" => { our => 'rack_role_id', their => 'id' },
-                    # declare dependency for the all_racks_in_global_workspace trigger to run
-                    # This is a hack: should be able to specify requirements without copying values.
-                    global_workspace => { our => 'asset_tag', their => 'name' },
                 },
             },
         },
@@ -655,17 +589,6 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                     name => "user_$num",
                     email => "user_${num}\@conch.joyent.us",
                     password => Authen::Passphrase::AcceptAll->new,
-                    ($specification // {})->%*,
-                },
-            },
-        };
-    }
-    elsif ($fixture_type eq 'workspace') {
-        return +{
-            "workspace_$num" => {
-                new => 'workspace',
-                using => {
-                    name => "workspace_$num",
                     ($specification // {})->%*,
                 },
             },

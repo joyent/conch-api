@@ -350,21 +350,21 @@ $t->get_ok('/schema/request/Login')
         },
     });
 
-$t->get_ok('/schema/query_params/workspace_relays')
+$t->get_ok('/schema/query_params/ResetUserPassword')
     ->status_is(200)
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:query_params.WorkspaceRelays.schema.json',
-        deprecated => bool(1),
-        title => 'WorkspaceRelays',
+        '$id' => 'urn:query_params.ResetUserPassword.schema.json',
+        title => 'ResetUserPassword',
         definitions => {
-            non_negative_integer => { type => 'integer', minimum => 0 },
+            boolean_integer_default_true => { type => 'integer', minimum => 0, maximum => 1, default => 1 },
         },
         type => 'object',
         additionalProperties => bool(0),
         properties => {
-            active_minutes => { '$ref' => '#/definitions/non_negative_integer' },
+            clear_tokens => { type => 'string', enum => [ qw(none login_only all) ], default => 'login_only' },
+            send_mail => { '$ref' => '#/definitions/boolean_integer_default_true' },
         },
     });
 

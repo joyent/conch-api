@@ -14,7 +14,7 @@ $t->get_ok('/rack_role')
     ->json_schema_is('RackRoles')
     ->json_is([]);
 
-$t->load_fixture_set('workspace_room_rack_layout', 0);
+$t->load_fixture_set('universe_room_rack_layout', 0);
 my $role = $t->load_fixture('rack_role_42u');
 
 $t->get_ok('/rack_role')
