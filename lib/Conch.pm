@@ -75,7 +75,7 @@ sub startup {
                 $c->send_message_to_rollbar(
                     'info',
                     'response payload contains many elements: candidate for paging?',
-                    { elements => scalar $args->{json}->@*, endpoint => $endpoint, url => $c->url_for },
+                    { elements => scalar $args->{json}->@*, endpoint => $endpoint, url => $c->req->url },
                     [ 'response payload size is large', $endpoint ],
                 );
             });
@@ -90,7 +90,7 @@ sub startup {
                 $c->send_message_to_rollbar(
                     'info',
                     'response payload size is large: candidate for paging or refactoring?',
-                    { bytes => $body_size, endpoint => $endpoint, url => $c->url_for },
+                    { bytes => $body_size, endpoint => $endpoint, url => $c->req->url },
                     [ 'response payload size is large', $endpoint ],
                 );
             }
@@ -98,7 +98,9 @@ sub startup {
     });
 
     $self->hook(after_render => sub ($c, @args) {
-        warn 'called $c->render twice' if $c->stash->{_rendered}++;
+        warn 'called $c->render twice',
+           ($c->stash('exception') ? ': got exception "'.$c->stash('exception')->message.'"' : '')
+        if $c->stash->{_rendered}++;
     });
 
     $self->hook(after_dispatch => sub ($c) {
@@ -210,7 +212,7 @@ in user-facing content.
 
 =cut
 
-    $self->helper(host => sub ($c) { $c->req->url->base->host });
+    $self->helper(host => sub ($c) { $c->req->url->to_abs->host });
 
     push $self->commands->namespaces->@*, 'Conch::Command';
 

@@ -5,7 +5,7 @@ use warnings;
 use experimental 'signatures';
 
 use Path::Tiny;
-use List::Util qw(maxstr uniqnum);
+use List::Util 1.55 qw(maxstr uniqint);
 use Mojo::Log;
 use Conch::ValidationSystem;
 
@@ -157,7 +157,7 @@ sub initialize_db ($schema, $create_role_and_db = 0) {
 
     $schema->resultset('migration')->populate([
         map +{ id => $_ },
-            uniqnum map m{^sql/migrations/(\d+)-}g, glob('sql/migrations/*.sql')
+            uniqint map m{^sql/migrations/(\d+)-}g, glob('sql/migrations/*.sql')
     ]);
 }
 

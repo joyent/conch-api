@@ -809,7 +809,7 @@ subtest 'modify another user' => sub {
     my $t2 = Test::Conch->new(pg => $t->pg);
     $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => '123', set_session => JSON::PP::true })
         ->status_is(200, 'new user can log in')
-        ->location_is('/user/me/password')
+        ->location_is('/user/me/password?clear_tokens=none')
         ->json_schema_is('LoginToken')
         ->log_info_is('user UNTRUSTED (untrusted@conch.joyent.us) logging in with one-time insecure password');
     my $jwt_token = $t2->tx->res->json->{jwt_token};
@@ -817,12 +817,12 @@ subtest 'modify another user' => sub {
     $t2->get_ok('/me')
         ->status_is(401)
         ->log_warn_is('user UNTRUSTED (untrusted@conch.joyent.us) attempting to authenticate before changing insecure password')
-        ->location_is('/user/me/password');
+        ->location_is('/user/me/password?clear_tokens=none');
 
     $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(401)
         ->log_warn_is('user UNTRUSTED (untrusted@conch.joyent.us) attempting to authenticate before changing insecure password')
-        ->location_is('/user/me/password');
+        ->location_is('/user/me/password?clear_tokens=none');
 
     $t2->post_ok('/user/me/password?clear_tokens=none', json => { password => 'NEW PASSWORD' })
         ->status_is(204)
@@ -959,19 +959,19 @@ subtest 'modify another user' => sub {
     $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => $insecure_password, set_session => JSON::PP::true })
         ->status_is(200)
         ->log_info_is('user UNTRUSTED (untrusted@conch.joyent.us) logging in with one-time insecure password')
-        ->location_is('/user/me/password');
+        ->location_is('/user/me/password?clear_tokens=none');
     $jwt_token = $t2->tx->res->json->{jwt_token};
 
     $t2->get_ok('/me')
         ->status_is(401)
         ->log_warn_is('user UNTRUSTED (untrusted@conch.joyent.us) attempting to authenticate before changing insecure password')
-        ->location_is('/user/me/password');
+        ->location_is('/user/me/password?clear_tokens=none');
 
     $t2->reset_session; # force JWT to be used to authenticate
     $t2->get_ok('/me', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(401)
         ->log_warn_is('user UNTRUSTED (untrusted@conch.joyent.us) attempting to authenticate before changing insecure password')
-        ->location_is('/user/me/password');
+        ->location_is('/user/me/password?clear_tokens=none');
 
     $t2->post_ok('/login', json => { email => 'untrusted@conch.joyent.us', password => $insecure_password })
         ->status_is(401)

@@ -396,7 +396,7 @@ sub update ($c) {
     $user->set_columns($input);
     my %dirty_columns = $user->get_dirty_columns;
 
-    return $c->status(204) if not keys %dirty_columns;
+    return $c->status(204) if not %dirty_columns;
 
     return $c->status(403) if $dirty_columns{is_admin} and not $is_system_admin;
 

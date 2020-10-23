@@ -102,7 +102,7 @@ message is sent to Rollbar.
         delete $data->@{qw(level msg)};
         $c->send_message_to_rollbar('error', 'api error', $data);
     })
-    if keys $config->{rollbar}{error_match_header}->%*;
+    if $config->{rollbar}{error_match_header}->%*;
 
 
 =head1 HELPERS

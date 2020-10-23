@@ -159,7 +159,7 @@ sub update ($c) {
     $input->{specification} = to_json($input->{specification}) if defined $input->{specification};
 
     $c->txn_wrapper(sub ($c) {
-        $hardware_product->update({ $input->%*, updated => \'now()' }) if keys $input->%*;
+        $hardware_product->update({ $input->%*, updated => \'now()' }) if $input->%*;
         $c->log->debug('Updated hardware product '.$hardware_product->id);
         return 1;
     })
