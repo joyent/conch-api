@@ -1,4 +1,4 @@
-title {label: "Conch database schema (as of v3.0.2, 2020-10-xx): role management", size: "40"}
+title {label: "Conch database schema (as of v3.0.3, 2020-10-22): role management", size: "40"}
 
 entity {bgcolor: "#ececfc", size: "20"}
 
@@ -30,6 +30,7 @@ created
 started
 completed
 +completed_user_id
+links
 
 [user_build_role] {bgcolor: "#d0e0d0"}
 *+user_id

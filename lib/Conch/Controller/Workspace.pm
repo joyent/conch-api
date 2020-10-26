@@ -224,7 +224,7 @@ sub _user_has_workspace_auth ($c, $workspace_id, $role_name) {
     return $c->db_workspaces
         ->and_workspaces_above($workspace_id)
         ->user_has_role($c->stash('user_id'), $role_name);
-};
+}
 
 1;
 __END__

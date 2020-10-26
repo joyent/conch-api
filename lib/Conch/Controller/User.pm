@@ -488,7 +488,7 @@ sub create ($c) {
     }
 
     $input->{password} //= $c->random_string;
-    $input->{is_admin} = ($input->{is_admin} ? 1 : 0);
+    $input->{is_admin} = $input->{is_admin} ? 1 : 0;
 
     # password will be hashed in Conch::DB::Result::UserAccount constructor
     my $user = $c->db_user_accounts->create({ $input->%*, force_password_change => 1 });

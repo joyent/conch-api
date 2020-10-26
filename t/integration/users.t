@@ -1320,7 +1320,7 @@ subtest 'user tokens (someone else\'s)' => sub {
         [ $t->app->db_user_accounts->active->search({ email => $email })
                 ->related_resultset('user_session_tokens')
                 ->api_only
-                ->columns(['name'])
+                ->columns('name')
                 ->as_epoch('expires')
                 ->hri ],
         [

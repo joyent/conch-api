@@ -498,7 +498,6 @@ $t->delete_ok('/user/'.$admin_user->id)
         user => { map +($_ => $admin_user->$_), qw(id email name created deactivated) },
     });
 
-# wtf is this?
 $t->delete_ok('/build/my first build/user/foo@bar.com')
     ->status_is(404)
     ->log_debug_is('Could not find user foo@bar.com');

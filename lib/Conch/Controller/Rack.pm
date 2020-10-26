@@ -41,14 +41,15 @@ sub find_rack ($c) {
     # /rack/:longname -- ok
     # /rack/:shortname -- not ok
     if (is_uuid($identifier)) {
-        $rack_rs = ($c->stash('datacenter_room_rs')
+        $rack_rs = $c->stash('datacenter_room_rs')
             ? $c->stash('datacenter_room_rs')->related_resultset('racks')
-            : $c->db_racks);
+            : $c->db_racks;
         $rack_rs = $rack_rs->search({ $rack_rs->current_source_alias.'.id' => $identifier });
     }
     elsif (my ($room_vendor_name, $rack_name) = ($identifier =~ /(.+):([^:]+)$/)) {
         # search up by long rack name
-        my $room_rs = ($c->stash('datacenter_room_rs') ? $c->stash('datacenter_room_rs') : $c->db_datacenter_rooms)->search({ 'datacenter_room.vendor_name' => $room_vendor_name });
+        my $room_rs = ($c->stash('datacenter_room_rs') // $c->db_datacenter_rooms)
+            ->search({ 'datacenter_room.vendor_name' => $room_vendor_name });
         $rack_rs = $room_rs->search_related('racks', { 'racks.name' => $rack_name });
     }
     else {

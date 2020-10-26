@@ -1,4 +1,4 @@
-title {label: "Conch database schema (as of v3.0.2, 2020-10-xx): device data", size: "40"}
+title {label: "Conch database schema (as of v3.0.3, 2020-10-22): device data", size: "40"}
 
 entity {bgcolor: "#ececfc", size: "20"}
 

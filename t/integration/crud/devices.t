@@ -7,6 +7,7 @@ use Path::Tiny;
 use Test::Deep;
 use Test::Conch;
 use Mojo::JSON 'from_json';
+use Conch::UUID;
 
 my $t = Test::Conch->new;
 $t->load_fixture_set('universe_room_rack_layout', 0);

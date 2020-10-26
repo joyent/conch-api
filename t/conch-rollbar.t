@@ -14,6 +14,7 @@ use Mojo::Promise;
 use PadWalker 'closed_over';
 use Path::Tiny;
 use Mojo::JSON 'decode_json';
+use Conch::UUID;
 
 open my $log_fh, '>:raw', \my $fake_log_file or die "cannot open to scalarref: $!";
 sub reset_log { $fake_log_file = ''; seek $log_fh, 0, 0; }
@@ -81,7 +82,6 @@ package Conch::Controller::YoMomma {
 }
 
 package RollbarSimulator {
-    use Conch::UUID 'create_uuid_str';
     use Mojo::Base 'Mojolicious', -signatures;
     sub startup ($self) {
         $self->routes->post('/api/1/item', sub ($c) {

@@ -9,6 +9,7 @@ sub category { 'test' }
 
 use Test::Deep;
 use Test::Fatal;
+use Conch::UUID;
 
 sub validate ($self, $data) {
     # dispatch to subroutine if provided one
