@@ -12,7 +12,9 @@ Conch::Controller::JSONSchema
 
 =head2 get
 
-Get the json-schema in JSON format.
+Get a query parameters, request, response, common or device_report JSON Schema (from
+F<query_params.yaml>, F<request.yaml>, F<response.yaml>, F<common.yaml>, or F<device_report.yaml>,
+respectively). Bundles all the referenced definitions together in the returned body response.
 
 =cut
 
@@ -26,11 +28,16 @@ sub get ($c) {
     my $type = $c->stash('json_schema_type');
     my $name = $c->stash('json_schema_name');
 
-    my $validator = $type eq 'response' ? $c->get_response_validator
-        : $type eq 'request' ? $c->get_request_validator
-        : $type eq 'query_params' ? $c->get_query_params_validator
-        : undef;
-    return $c->status(400, { error => 'Cannot find validator' }) if not $validator;
+    my $validator = $type eq 'query_params' || $type eq 'request' || $type eq 'response'
+        ? $c->${\('get_'.$type.'_validator')}
+        : do {  # ugh. this is going away soon.
+            my $jv = JSON::Validator->new;
+            $jv->formats->{uri} = \&Conch::Plugin::JSONValidator::_check_uri;
+            $jv->load_and_validate_schema(
+                'json-schema/'.$type.'.yaml',
+                { schema => 'http://json-schema.org/draft-07/schema#' });
+            $jv;
+        };
 
     my $schema = _extract_schema_definition($validator, $name);
     if (not $schema) {

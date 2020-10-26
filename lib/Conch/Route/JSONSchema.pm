@@ -32,8 +32,10 @@ sub unsecured_routes ($class, $js) {
     # GET /json_schema/query_params/:json_schema_name
     # GET /json_schema/request/:json_schema_name
     # GET /json_schema/response/:json_schema_name
+    # GET /json_schema/common/:json_schema_name
+    # GET /json_schema/device_report/:json_schema_name
     $js->get('/:json_schema_type/<json_schema_name:json_pointer_token>',
-        [ json_schema_type => [qw(query_params request response)] ])->to('#get');
+        [ json_schema_type => [qw(query_params request response common device_report)] ])->to('#get');
 }
 
 1;
@@ -48,6 +50,10 @@ __END__
 =head2 C<GET /json_schema/request/:json_schema_name>
 
 =head2 C<GET /json_schema/response/:json_schema_name>
+
+=head2 C<GET /json_schema/common/:json_schema_name>
+
+=head2 C<GET /json_schema/device_report/:json_schema_name>
 
 Returns the JSON Schema document specified by type and name, used for validating endpoint
 requests and responses.

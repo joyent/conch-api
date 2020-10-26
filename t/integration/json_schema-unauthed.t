@@ -410,6 +410,41 @@ $t->get_ok('/json_schema/request/DeviceReport')
     ->json_schema_is($json_spec_schema)
     ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
 
+$t->get_ok('/json_schema/common/non_zero_uuid')
+    ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
+    ->json_schema_is($json_spec_schema)
+    ->json_cmp_deeply({
+        '$id' => $base_uri.'json_schema/common/non_zero_uuid',
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        allOf => [
+            { '$ref' => '#/definitions/uuid' },
+            { not => { const => '00000000-0000-0000-0000-000000000000' } },
+        ],
+        definitions => {
+            uuid => {
+                type => 'string', pattern => ignore,
+            },
+        },
+    });
+
+$t->get_ok('/json_schema/device_report/DeviceReport_v3_0_0')
+    ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
+    ->json_schema_is($json_spec_schema)
+    ->json_cmp_deeply({
+        '$id' => $base_uri.'json_schema/device_report/DeviceReport_v3_0_0',
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        description => ignore,
+        type => 'object',
+        required => ignore,
+        properties => superhashof({}),
+        definitions => {
+            map +($_ => superhashof({})),
+                qw(non_empty_string int_or_stringy_int disk_serial_number device_interface_name macaddr ipaddr relay_serial_number device_serial_number non_zero_uuid links uuid mojo_standard_placeholder mojo_relaxed_placeholder),
+        },
+    });
+
 my $schema = $t->tx->res->json;
 
 # ensure that one of the schemas can validate some data

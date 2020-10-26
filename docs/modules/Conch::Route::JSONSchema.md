@@ -18,6 +18,10 @@ Sets up the routes for /json\_schema that do not require authentication.
 
 ### `GET /json_schema/response/:json_schema_name`
 
+### `GET /json_schema/common/:json_schema_name`
+
+### `GET /json_schema/device_report/:json_schema_name`
+
 Returns the JSON Schema document specified by type and name, used for validating endpoint
 requests and responses.
 
