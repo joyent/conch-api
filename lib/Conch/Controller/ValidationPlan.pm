@@ -23,7 +23,7 @@ Response uses the LegacyValidationPlans json schema.
 =cut
 
 sub get_all ($c) {
-    my @validation_plans = $c->db_validation_plans->active->order_by('name')->all;
+    my @validation_plans = $c->db_legacy_validation_plans->active->order_by('name')->all;
     $c->log->debug('Found '.scalar(@validation_plans).' validation plans');
     $c->status(200, \@validation_plans);
 }
@@ -39,7 +39,7 @@ C<legacy_validation_plan>.
 sub find_validation_plan($c) {
     my $identifier = $c->stash('legacy_validation_plan_id_or_name');
 
-    my $validation_plan = $c->db_validation_plans->active->search({
+    my $validation_plan = $c->db_legacy_validation_plans->active->search({
         (is_uuid($identifier) ? 'id' : 'name') => $identifier,
     })->single;
 
@@ -75,9 +75,9 @@ Response uses the LegacyValidations json schema.
 
 sub get_validations ($c) {
     my @validations = $c->stash('legacy_validation_plan')
-        ->related_resultset('validation_plan_members')
-        ->related_resultset('validation')
-        ->order_by([ 'validation.name', 'validation.version' ])
+        ->related_resultset('legacy_validation_plan_members')
+        ->related_resultset('legacy_validation')
+        ->order_by([ 'legacy_validation.name', 'legacy_validation.version' ])
         ->all;
 
     $c->log->debug('Found '.scalar(@validations).' validations for validation plan '.$c->stash('legacy_validation_plan')->id);

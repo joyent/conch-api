@@ -110,7 +110,7 @@ data_type: 'integer'
 is_nullable: 0
 ```
 
-### validation\_plan\_id
+### legacy\_validation\_plan\_id
 
 ```
 data_type: 'uuid'
@@ -331,17 +331,17 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::HardwareVendor](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareVendor)
 
+### legacy\_validation\_plan
+
+Type: belongs\_to
+
+Related object: [Conch::DB::Result::LegacyValidationPlan](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ALegacyValidationPlan)
+
 ### rack\_layouts
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::RackLayout](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARackLayout)
-
-### validation\_plan
-
-Type: belongs\_to
-
-Related object: [Conch::DB::Result::ValidationPlan](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationPlan)
 
 ### validation\_states
 

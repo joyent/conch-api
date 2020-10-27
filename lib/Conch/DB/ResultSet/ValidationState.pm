@@ -26,8 +26,8 @@ sub with_results ($self) {
     $self
         ->prefetch({ legacy_validation_state_members => 'legacy_validation_result' })
         ->order_by('legacy_validation_state_members.result_order')
-        ->search(undef, { join => { legacy_validation_state_members => { legacy_validation_result => 'validation' } } })
-        ->add_columns({ (map +('legacy_validation_state_members.legacy_validation_result.'.$_ => 'validation.'.$_), qw(name version description)) });
+        ->search(undef, { join => { legacy_validation_state_members => { legacy_validation_result => 'legacy_validation' } } })
+        ->add_columns({ (map +('legacy_validation_state_members.legacy_validation_result.'.$_ => 'legacy_validation.'.$_), qw(name version description)) });
 }
 
 1;

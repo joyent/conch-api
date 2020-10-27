@@ -19,7 +19,7 @@ is_nullable: 0
 size: 16
 ```
 
-### validation\_id
+### legacy\_validation\_id
 
 ```
 data_type: 'uuid'
@@ -91,7 +91,7 @@ size: 16
 ### `l_validation_result_all_columns_key`
 
 - ["device\_id"](#device_id)
-- ["validation\_id"](#validation_id)
+- ["legacy\_validation\_id"](#legacy_validation_id)
 - ["message"](#message)
 - ["hint"](#hint)
 - ["status"](#status)
@@ -106,17 +106,17 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
 
+### legacy\_validation
+
+Type: belongs\_to
+
+Related object: [Conch::DB::Result::LegacyValidation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ALegacyValidation)
+
 ### legacy\_validation\_state\_members
 
 Type: has\_many
 
 Related object: [Conch::DB::Result::LegacyValidationStateMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ALegacyValidationStateMember)
-
-### validation
-
-Type: belongs\_to
-
-Related object: [Conch::DB::Result::Validation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidation)
 
 ### validation\_states
 

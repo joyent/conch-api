@@ -66,10 +66,10 @@ my $device = $t->generate_fixtures('device', {
 });
 
 # create a validation plan with all current validations in it
-Conch::ValidationSystem->new(log => $t->app->log, schema => $t->app->schema)->load_validations;
-my @validations = $t->app->db_validations->all;
+Conch::LegacyValidationSystem->new(log => $t->app->log, schema => $t->app->schema)->load_validations;
+my @validations = $t->app->db_legacy_validations->all;
 my ($full_validation_plan) = $t->load_validation_plans([{
-    id          => $hardware_product->validation_plan_id,
+    id          => $hardware_product->legacy_validation_plan_id,
     name        => 'our validation plan',
     description => 'Test Plan',
     validations => [ map $_->module, @validations ],
@@ -89,11 +89,11 @@ subtest 'run report without an existing device and without making updates' => su
     });
 
     $t->txn_local('validation_plan must not be deactivated', sub {
-        $hardware_product->validation_plan->update({ deactivated => \'now()' });
+        $hardware_product->legacy_validation_plan->update({ deactivated => \'now()' });
 
         $t->post_ok('/device_report?no_save_db=1', json => $report_data)
             ->status_is(409)
-            ->json_is({ error => 'validation_plan (id '.$hardware_product->validation_plan_id.') is deactivated and cannot be used' });
+            ->json_is({ error => 'legacy_validation_plan (id '.$hardware_product->legacy_validation_plan_id.') is deactivated and cannot be used' });
     });
 
     $t->post_ok('/device_report?no_save_db=1', json => $report_data)
@@ -125,7 +125,7 @@ subtest 'save reports for device' => sub {
     # for these tests, we need to use a plan containing a validation we know will pass.
     # we remove all the existing validations from the plan and replace it with just one.
     $t->load_validation_plans([{
-        id          => $hardware_product->validation_plan_id,
+        id          => $hardware_product->legacy_validation_plan_id,
         description => 'Test Plan',
         validations => [ 'Conch::Validation::DeviceProductName' ],
     }]);
@@ -203,11 +203,11 @@ subtest 'save reports for device' => sub {
     is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
 
     $t->txn_local('validation_plan must not be deactivated', sub {
-        $hardware_product->validation_plan->update({ deactivated => \'now()' });
+        $hardware_product->legacy_validation_plan->update({ deactivated => \'now()' });
 
         $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
             ->status_is(409)
-            ->json_is({ error => 'validation_plan (id '.$hardware_product->validation_plan_id.') is deactivated and cannot be used' });
+            ->json_is({ error => 'legacy_validation_plan (id '.$hardware_product->legacy_validation_plan_id.') is deactivated and cannot be used' });
     });
 
     # submit another passing report, this time swapping around some iface_names...
@@ -557,7 +557,7 @@ subtest 'hardware_product is different' => sub {
         $t->generate_fixtures('hardware_product', {
             sku => 'my_new_sku',
             generation_name => 'something',
-            validation_plan_id => $full_validation_plan->id,
+            legacy_validation_plan_id => $full_validation_plan->id,
         });
 
     my $altered_report = from_json($report);

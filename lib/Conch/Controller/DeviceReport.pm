@@ -38,7 +38,7 @@ sub process ($c) {
     }
 
     my $device = $c->db_devices
-        ->prefetch({ hardware_product => 'validation_plan' })
+        ->prefetch({ hardware_product => 'legacy_validation_plan' })
         ->find({ serial_number => $unserialized_report->{serial_number} });
     if (not $device) {
         $c->log->warn('Could not find device '.$unserialized_report->{serial_number});
@@ -47,7 +47,7 @@ sub process ($c) {
 
     $c->stash('device_id', $device->id);
     $c->stash('hardware_product_id', $device->hardware_product_id);
-    $c->stash('validation_plan_id', $device->hardware_product->validation_plan_id);
+    $c->stash('legacy_validation_plan_id', $device->hardware_product->legacy_validation_plan_id);
 
     if ($device->phase eq 'decommissioned') {
         $c->log->warn('report submitted for decommissioned device '.$unserialized_report->{serial_number});
@@ -61,11 +61,11 @@ sub process ($c) {
             .') is deactivated and cannot be used' });
     }
 
-    if ($device->hardware_product->validation_plan->deactivated) {
+    if ($device->hardware_product->legacy_validation_plan->deactivated) {
         $device->health('error');
         $device->update({ updated => \'now()' }) if $device->is_changed;
-        return $c->status(409, { error => 'validation_plan (id '
-            .$device->hardware_product->validation_plan_id.') is deactivated and cannot be used' });
+        return $c->status(409, { error => 'legacy_validation_plan (id '
+            .$device->hardware_product->legacy_validation_plan_id.') is deactivated and cannot be used' });
     }
 
     # capture information about the last report before we store the new one
@@ -132,10 +132,10 @@ sub process ($c) {
     }
 
     # Time for validations https://www.ctvscifi.ca/wp-content/uploads/2017/05/giphy-1.gif
-    my $validation_plan = $device->hardware_product->validation_plan;
+    my $validation_plan = $device->hardware_product->legacy_validation_plan;
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
 
-    my $validation_state = Conch::ValidationSystem->new(
+    my $validation_state = Conch::LegacyValidationSystem->new(
         schema => $c->schema,
         log => $c->get_logger('validation'),
     )->run_validation_plan(
@@ -402,7 +402,7 @@ sub validate_report ($c) {
     my $unserialized_report = $c->stash('request_data');
 
     my $device = $c->db_devices
-        ->prefetch({ hardware_product => 'validation_plan' })
+        ->prefetch({ hardware_product => 'legacy_validation_plan' })
         ->find({ serial_number => $unserialized_report->{serial_number} });
     $c->stash('device_id', $device ? $device->id : undef );
 
@@ -415,9 +415,9 @@ sub validate_report ($c) {
             .') is deactivated and cannot be used' })
         if $hardware_product->deactivated;
 
-    my $validation_plan = $hardware_product->validation_plan;
-    $c->stash('validation_plan_id', $validation_plan->id);
-    return $c->status(409, { error => 'validation_plan (id '.$validation_plan->id.') is deactivated and cannot be used' })
+    my $validation_plan = $hardware_product->legacy_validation_plan;
+    $c->stash('legacy_validation_plan_id', $validation_plan->id);
+    return $c->status(409, { error => 'legacy_validation_plan (id '.$validation_plan->id.') is deactivated and cannot be used' })
         if $validation_plan->deactivated;
 
     $c->log->debug('Running validation plan '.$validation_plan->id.': '.$validation_plan->name.'"');
@@ -449,7 +449,7 @@ sub validate_report ($c) {
         # we do not call _record_device_configuration, because no validations
         # should be using that information, instead choosing to respect the report data.
 
-        ($status, @validation_results) = Conch::ValidationSystem->new(
+        ($status, @validation_results) = Conch::LegacyValidationSystem->new(
             schema => $c->ro_schema,
             log => $c->get_logger('validation'),
         )->run_validation_plan(

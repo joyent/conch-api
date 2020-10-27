@@ -57,13 +57,13 @@ Response uses the LegacyValidationResults json schema.
 
 sub validate ($c) {
     my $validation_id = $c->stash('validation_id');
-    my $validation = $c->db_ro_validations->active->find($validation_id);
+    my $validation = $c->db_ro_legacy_validations->active->find($validation_id);
     if (not $validation) {
         $c->log->debug('Could not find validation '.$validation_id);
         return $c->status(404);
     }
 
-    my @validation_results = Conch::ValidationSystem->new(
+    my @validation_results = Conch::LegacyValidationSystem->new(
         schema => $c->ro_schema,
         log => $c->get_logger('validation'),
     )->run_validation(
@@ -90,13 +90,13 @@ Response uses the LegacyValidationResults json schema.
 
 sub run_validation_plan ($c) {
     my $validation_plan_id = $c->stash('validation_plan_id');
-    my $validation_plan = $c->db_ro_validation_plans->active->find($validation_plan_id);
+    my $validation_plan = $c->db_ro_legacy_validation_plans->active->find($validation_plan_id);
     if (not $validation_plan) {
         $c->log->debug('Could not find validation plan '.$validation_plan_id);
         return $c->status(404);
     }
 
-    my ($status, @validation_results) = Conch::ValidationSystem->new(
+    my ($status, @validation_results) = Conch::LegacyValidationSystem->new(
         schema => $c->ro_schema,
         log => $c->get_logger('validation'),
     )->run_validation_plan(

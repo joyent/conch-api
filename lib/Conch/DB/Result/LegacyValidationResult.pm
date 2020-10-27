@@ -35,7 +35,7 @@ __PACKAGE__->table("legacy_validation_result");
   is_nullable: 0
   size: 16
 
-=head2 validation_id
+=head2 legacy_validation_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -92,7 +92,7 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "validation_id",
+  "legacy_validation_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "message",
   { data_type => "text", is_nullable => 0 },
@@ -142,7 +142,7 @@ __PACKAGE__->set_primary_key("id");
 
 =item * L</device_id>
 
-=item * L</validation_id>
+=item * L</legacy_validation_id>
 
 =item * L</message>
 
@@ -162,7 +162,7 @@ __PACKAGE__->add_unique_constraint(
   "l_validation_result_all_columns_key",
   [
     "device_id",
-    "validation_id",
+    "legacy_validation_id",
     "message",
     "hint",
     "status",
@@ -188,6 +188,21 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 legacy_validation
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::LegacyValidation>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "legacy_validation",
+  "Conch::DB::Result::LegacyValidation",
+  { id => "legacy_validation_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 legacy_validation_state_members
 
 Type: has_many
@@ -201,21 +216,6 @@ __PACKAGE__->has_many(
   "Conch::DB::Result::LegacyValidationStateMember",
   { "foreign.legacy_validation_result_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 validation
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::Validation>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "validation",
-  "Conch::DB::Result::Validation",
-  { id => "validation_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 validation_states
@@ -234,7 +234,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AyIuSfVRtnQeLmgJYEileQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BsraASOyP/LHl1fEl1jT6A
 
 __PACKAGE__->add_columns(
     '+created' => { is_serializable => 0 },
@@ -253,7 +253,8 @@ Include information about the validation corresponding to the result, if availab
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
-    if (my $validation = ($self->related_resultset('validation')->get_cache // [])->[0]) {
+    $data->{validation_id} = delete $data->{legacy_validation_id};
+    if (my $validation = ($self->related_resultset('legacy_validation')->get_cache // [])->[0]) {
         $data->{$_} = $validation->$_ foreach qw(name version description);
     }
 

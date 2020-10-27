@@ -32,7 +32,7 @@ name
 alias
 prefix
 +hardware_vendor_id
-+validation_plan_id
++legacy_validation_plan_id
 created
 updated
 deactivated
@@ -67,7 +67,7 @@ sata_ssd_size
 sata_ssd_slots
 usb_num
 
-[validation]
+[legacy_validation]
 *id
 name
 version
@@ -77,21 +77,21 @@ created
 updated
 deactivated
 
-[validation_plan]
+[legacy_validation_plan]
 *id
 name
 description
 created
 deactivated
 
-[validation_plan_member] {bgcolor: "#d0e0d0"}
-*+validation_id
-*+validation_plan_id
+[legacy_validation_plan_member] {bgcolor: "#d0e0d0"}
+*+legacy_validation_id
+*+legacy_validation_plan_id
 
 [legacy_validation_result]
 *id
 +device_id
-+validation_id
++legacy_validation_id
 message
 hint
 status {label: "error, fail, pass"}
@@ -124,11 +124,11 @@ deactivated
 
 device *--1 hardware_product
 device_report *--1 device
-hardware_product *--1 validation_plan
-validation_plan_member *--1 validation
-validation_plan_member *--1 validation_plan
+hardware_product *--1 legacy_validation_plan
+legacy_validation_plan_member *--1 legacy_validation
+legacy_validation_plan_member *--1 legacy_validation_plan
 legacy_validation_result *--1 device
-legacy_validation_result *--1 validation
+legacy_validation_result *--1 legacy_validation
 validation_state *--1 device
 validation_state *--1 device_report
 validation_state *--1 hardware_product

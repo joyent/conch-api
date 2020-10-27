@@ -1,12 +1,12 @@
 use utf8;
-package Conch::DB::Result::Validation;
+package Conch::DB::Result::LegacyValidationPlan;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::DB::Result::Validation
+Conch::DB::Result::LegacyValidationPlan
 
 =cut
 
@@ -20,11 +20,11 @@ use warnings;
 
 use base 'Conch::DB::Result';
 
-=head1 TABLE: C<validation>
+=head1 TABLE: C<legacy_validation_plan>
 
 =cut
 
-__PACKAGE__->table("validation");
+__PACKAGE__->table("legacy_validation_plan");
 
 =head1 ACCESSORS
 
@@ -40,29 +40,12 @@ __PACKAGE__->table("validation");
   data_type: 'text'
   is_nullable: 0
 
-=head2 version
-
-  data_type: 'integer'
-  is_nullable: 0
-
 =head2 description
 
   data_type: 'text'
   is_nullable: 0
 
-=head2 module
-
-  data_type: 'text'
-  is_nullable: 0
-
 =head2 created
-
-  data_type: 'timestamp with time zone'
-  default_value: current_timestamp
-  is_nullable: 0
-  original: {default_value => \"now()"}
-
-=head2 updated
 
   data_type: 'timestamp with time zone'
   default_value: current_timestamp
@@ -86,20 +69,9 @@ __PACKAGE__->add_columns(
   },
   "name",
   { data_type => "text", is_nullable => 0 },
-  "version",
-  { data_type => "integer", is_nullable => 0 },
   "description",
   { data_type => "text", is_nullable => 0 },
-  "module",
-  { data_type => "text", is_nullable => 0 },
   "created",
-  {
-    data_type     => "timestamp with time zone",
-    default_value => \"current_timestamp",
-    is_nullable   => 0,
-    original      => { default_value => \"now()" },
-  },
-  "updated",
   {
     data_type     => "timestamp with time zone",
     default_value => \"current_timestamp",
@@ -122,74 +94,58 @@ __PACKAGE__->add_columns(
 
 __PACKAGE__->set_primary_key("id");
 
-=head1 UNIQUE CONSTRAINTS
-
-=head2 C<validation_name_version_key>
-
-=over 4
-
-=item * L</name>
-
-=item * L</version>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint("validation_name_version_key", ["name", "version"]);
-
 =head1 RELATIONS
 
-=head2 legacy_validation_results
+=head2 hardware_products
 
 Type: has_many
 
-Related object: L<Conch::DB::Result::LegacyValidationResult>
+Related object: L<Conch::DB::Result::HardwareProduct>
 
 =cut
 
 __PACKAGE__->has_many(
-  "legacy_validation_results",
-  "Conch::DB::Result::LegacyValidationResult",
-  { "foreign.validation_id" => "self.id" },
+  "hardware_products",
+  "Conch::DB::Result::HardwareProduct",
+  { "foreign.legacy_validation_plan_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 validation_plan_members
+=head2 legacy_validation_plan_members
 
 Type: has_many
 
-Related object: L<Conch::DB::Result::ValidationPlanMember>
+Related object: L<Conch::DB::Result::LegacyValidationPlanMember>
 
 =cut
 
 __PACKAGE__->has_many(
-  "validation_plan_members",
-  "Conch::DB::Result::ValidationPlanMember",
-  { "foreign.validation_id" => "self.id" },
+  "legacy_validation_plan_members",
+  "Conch::DB::Result::LegacyValidationPlanMember",
+  { "foreign.legacy_validation_plan_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 validation_plans
+=head2 legacy_validations
 
 Type: many_to_many
 
-Composing rels: L</validation_plan_members> -> validation_plan
+Composing rels: L</legacy_validation_plan_members> -> legacy_validation
 
 =cut
 
 __PACKAGE__->many_to_many(
-  "validation_plans",
-  "validation_plan_members",
-  "validation_plan",
+  "legacy_validations",
+  "legacy_validation_plan_members",
+  "legacy_validation",
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Q5zVfluTnWFosxWSX3fZ8w
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:IqhW95dBggKAwjne3trxXg
 
 __PACKAGE__->add_columns(
-    '+module' => { is_serializable => 0 },
+    '+deactivated' => { is_serializable => 0 },
 );
 
 1;

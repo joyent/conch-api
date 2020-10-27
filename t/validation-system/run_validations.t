@@ -7,7 +7,7 @@ use Test::Conch;
 use Test::Deep;
 use Test::Fatal;
 use Mojo::JSON 'to_json';
-use Conch::ValidationSystem;
+use Conch::LegacyValidationSystem;
 
 use lib 't/lib';
 
@@ -34,7 +34,7 @@ my $device_report = $t->app->db_device_reports->create({
 });
 
 subtest 'run_validation_plan, missing arguments' => sub {
-    my $validation_system = Conch::ValidationSystem->new(
+    my $validation_system = Conch::LegacyValidationSystem->new(
         log => $t->app->log,
         schema => $t->app->ro_schema,
     );
@@ -66,7 +66,7 @@ subtest 'run_validation_plan, missing arguments' => sub {
 };
 
 subtest 'run_validation_plan, without saving state' => sub {
-    my $validation_system = Conch::ValidationSystem->new(
+    my $validation_system = Conch::LegacyValidationSystem->new(
         log => $t->app->log,
         schema => $t->app->ro_schema,
     );
@@ -85,7 +85,7 @@ subtest 'run_validation_plan, without saving state' => sub {
         all(
             array_each(
                 methods(
-                    [ isa => 'Conch::DB::Result::ValidationResult' ] => bool(1),
+                    [ isa => 'Conch::DB::Result::LegacyValidationResult' ] => bool(1),
                     in_storage => bool(0),
                     id => undef,
                     device_id => $device->id,
@@ -93,9 +93,9 @@ subtest 'run_validation_plan, without saving state' => sub {
                 ),
             ),
             bag(
-                methods(category => 'IDENTITY', validation_id => $validation_product->id),
-                methods(category => 'IDENTITY', validation_id => $validation_product->id),
-                methods(category => 'BIOS', validation_id => $validation_bios->id),
+                methods(category => 'IDENTITY', legacy_validation_id => $validation_product->id),
+                methods(category => 'IDENTITY', legacy_validation_id => $validation_product->id),
+                methods(category => 'BIOS', legacy_validation_id => $validation_bios->id),
             ),
         ),
         'validation results are correct',
@@ -103,7 +103,7 @@ subtest 'run_validation_plan, without saving state' => sub {
 };
 
 subtest 'run_validation_plan, with saving state' => sub {
-    my $validation_system = Conch::ValidationSystem->new(
+    my $validation_system = Conch::LegacyValidationSystem->new(
         log => $t->app->log,
         schema => $t->app->rw_schema,
     );
@@ -126,19 +126,19 @@ subtest 'run_validation_plan, with saving state' => sub {
                 device_report_id => $device_report->id,
             ),
             listmethods(
-                validation_results => all(
+                legacy_validation_results => all(
                     array_each(
                         methods(
-                            [ isa => 'Conch::DB::Result::ValidationResult' ] => bool(1),
+                            [ isa => 'Conch::DB::Result::LegacyValidationResult' ] => bool(1),
                             in_storage => bool(1),
                             device_id => $device->id,
                             status => 'pass',
                         ),
                     ),
                     bag(
-                        methods(category => 'IDENTITY', validation_id => $validation_product->id),
-                        methods(category => 'IDENTITY', validation_id => $validation_product->id),
-                        methods(category => 'BIOS', validation_id => $validation_bios->id),
+                        methods(category => 'IDENTITY', legacy_validation_id => $validation_product->id),
+                        methods(category => 'IDENTITY', legacy_validation_id => $validation_product->id),
+                        methods(category => 'BIOS', legacy_validation_id => $validation_bios->id),
                     ),
                 ),
             ),
@@ -148,7 +148,7 @@ subtest 'run_validation_plan, with saving state' => sub {
 };
 
 subtest run_validation => sub {
-    my $validation_system = Conch::ValidationSystem->new(
+    my $validation_system = Conch::LegacyValidationSystem->new(
         log => $t->app->log,
         schema => $t->app->ro_schema,
     );
@@ -165,11 +165,11 @@ subtest run_validation => sub {
         all(
             array_each(
                 methods(
-                    [ isa => 'Conch::DB::Result::ValidationResult' ] => bool(1),
+                    [ isa => 'Conch::DB::Result::LegacyValidationResult' ] => bool(1),
                     in_storage => bool(0),
                     id => undef,
                     device_id => $device->id,
-                    validation_id => $validation_multi->id,
+                    legacy_validation_id => $validation_multi->id,
                 ),
             ),
             [

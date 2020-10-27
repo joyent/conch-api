@@ -16,7 +16,7 @@ package Conch;
 use Mojo::Base 'Mojolicious', -signatures;
 
 use Conch::Route;
-use Conch::ValidationSystem;
+use Conch::LegacyValidationSystem;
 use List::Util 'any';
 use Digest::SHA ();
 
@@ -222,7 +222,7 @@ in user-facing content.
     push $self->commands->namespaces->@*, 'Conch::Command';
 
     if (not $ARGV[0] and not $self->feature('no_db')) {
-        my ($good_plans, $bad_plans) = Conch::ValidationSystem->new(
+        my ($good_plans, $bad_plans) = Conch::LegacyValidationSystem->new(
             log => $self->get_logger('validation'),
             schema => $self->ro_schema,
         )->check_validation_plans;

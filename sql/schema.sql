@@ -385,7 +385,7 @@ CREATE TABLE public.hardware_product (
     generation_name text,
     legacy_product_name text,
     rack_unit_size integer NOT NULL,
-    validation_plan_id uuid NOT NULL,
+    legacy_validation_plan_id uuid NOT NULL,
     purpose text NOT NULL,
     bios_firmware text NOT NULL,
     hba_firmware text,
@@ -453,12 +453,58 @@ CREATE TABLE public.json_schema (
 ALTER TABLE public.json_schema OWNER TO conch;
 
 --
+-- Name: legacy_validation; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.legacy_validation (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    name text NOT NULL,
+    version integer NOT NULL,
+    description text NOT NULL,
+    module text NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    updated timestamp with time zone DEFAULT now() NOT NULL,
+    deactivated timestamp with time zone,
+    CONSTRAINT l_validation_version_check CHECK ((version > 0))
+);
+
+
+ALTER TABLE public.legacy_validation OWNER TO conch;
+
+--
+-- Name: legacy_validation_plan; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.legacy_validation_plan (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    name text NOT NULL,
+    description text NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    deactivated timestamp with time zone
+);
+
+
+ALTER TABLE public.legacy_validation_plan OWNER TO conch;
+
+--
+-- Name: legacy_validation_plan_member; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.legacy_validation_plan_member (
+    legacy_validation_id uuid NOT NULL,
+    legacy_validation_plan_id uuid NOT NULL
+);
+
+
+ALTER TABLE public.legacy_validation_plan_member OWNER TO conch;
+
+--
 -- Name: legacy_validation_result; Type: TABLE; Schema: public; Owner: conch
 --
 
 CREATE TABLE public.legacy_validation_result (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    validation_id uuid NOT NULL,
+    legacy_validation_id uuid NOT NULL,
     message text NOT NULL,
     hint text,
     status public.validation_status_enum NOT NULL,
@@ -683,52 +729,6 @@ CREATE TABLE public.user_setting (
 ALTER TABLE public.user_setting OWNER TO conch;
 
 --
--- Name: validation; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.validation (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name text NOT NULL,
-    version integer NOT NULL,
-    description text NOT NULL,
-    module text NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    updated timestamp with time zone DEFAULT now() NOT NULL,
-    deactivated timestamp with time zone,
-    CONSTRAINT validation_version_check CHECK ((version > 0))
-);
-
-
-ALTER TABLE public.validation OWNER TO conch;
-
---
--- Name: validation_plan; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.validation_plan (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name text NOT NULL,
-    description text NOT NULL,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    deactivated timestamp with time zone
-);
-
-
-ALTER TABLE public.validation_plan OWNER TO conch;
-
---
--- Name: validation_plan_member; Type: TABLE; Schema: public; Owner: conch
---
-
-CREATE TABLE public.validation_plan_member (
-    validation_id uuid NOT NULL,
-    validation_plan_id uuid NOT NULL
-);
-
-
-ALTER TABLE public.validation_plan_member OWNER TO conch;
-
---
 -- Name: validation_state; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -921,11 +921,43 @@ ALTER TABLE ONLY public.json_schema
 
 
 --
+-- Name: legacy_validation l_validation_name_version_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.legacy_validation
+    ADD CONSTRAINT l_validation_name_version_key UNIQUE (name, version);
+
+
+--
+-- Name: legacy_validation l_validation_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.legacy_validation
+    ADD CONSTRAINT l_validation_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: legacy_validation_plan_member l_validation_plan_member_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.legacy_validation_plan_member
+    ADD CONSTRAINT l_validation_plan_member_pkey PRIMARY KEY (legacy_validation_id, legacy_validation_plan_id);
+
+
+--
+-- Name: legacy_validation_plan l_validation_plan_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.legacy_validation_plan
+    ADD CONSTRAINT l_validation_plan_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: legacy_validation_result l_validation_result_all_columns_key; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
 ALTER TABLE ONLY public.legacy_validation_result
-    ADD CONSTRAINT l_validation_result_all_columns_key UNIQUE (device_id, validation_id, message, hint, status, category, component);
+    ADD CONSTRAINT l_validation_result_all_columns_key UNIQUE (device_id, legacy_validation_id, message, hint, status, category, component);
 
 
 --
@@ -1086,38 +1118,6 @@ ALTER TABLE ONLY public.user_session_token
 
 ALTER TABLE ONLY public.user_setting
     ADD CONSTRAINT user_setting_pkey PRIMARY KEY (id);
-
-
---
--- Name: validation validation_name_version_key; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.validation
-    ADD CONSTRAINT validation_name_version_key UNIQUE (name, version);
-
-
---
--- Name: validation validation_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.validation
-    ADD CONSTRAINT validation_pkey PRIMARY KEY (id);
-
-
---
--- Name: validation_plan_member validation_plan_member_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.validation_plan_member
-    ADD CONSTRAINT validation_plan_member_pkey PRIMARY KEY (validation_id, validation_plan_id);
-
-
---
--- Name: validation_plan validation_plan_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.validation_plan
-    ADD CONSTRAINT validation_plan_pkey PRIMARY KEY (id);
 
 
 --
@@ -1304,10 +1304,31 @@ CREATE INDEX json_schema_type_name_idx ON public.json_schema USING btree (type, 
 
 
 --
+-- Name: l_validation_module_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX l_validation_module_idx ON public.legacy_validation USING btree (module) WHERE (deactivated IS NULL);
+
+
+--
+-- Name: l_validation_plan_member_legacy_validation_plan_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX l_validation_plan_member_legacy_validation_plan_id_idx ON public.legacy_validation_plan_member USING btree (legacy_validation_plan_id);
+
+
+--
+-- Name: l_validation_plan_name_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE UNIQUE INDEX l_validation_plan_name_idx ON public.legacy_validation_plan USING btree (name) WHERE (deactivated IS NULL);
+
+
+--
 -- Name: l_validation_result_validation_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
-CREATE INDEX l_validation_result_validation_id_idx ON public.legacy_validation_result USING btree (validation_id);
+CREATE INDEX l_validation_result_validation_id_idx ON public.legacy_validation_result USING btree (legacy_validation_id);
 
 
 --
@@ -1444,27 +1465,6 @@ CREATE UNIQUE INDEX user_setting_user_id_name_idx ON public.user_setting USING b
 
 
 --
--- Name: validation_module_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE UNIQUE INDEX validation_module_idx ON public.validation USING btree (module) WHERE (deactivated IS NULL);
-
-
---
--- Name: validation_plan_member_validation_plan_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_plan_member_validation_plan_id_idx ON public.validation_plan_member USING btree (validation_plan_id);
-
-
---
--- Name: validation_plan_name_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE UNIQUE INDEX validation_plan_name_idx ON public.validation_plan USING btree (name) WHERE (deactivated IS NULL);
-
-
---
 -- Name: validation_state_created_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1597,11 +1597,11 @@ ALTER TABLE ONLY public.device_setting
 
 
 --
--- Name: hardware_product hardware_product_validation_plan_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+-- Name: hardware_product hardware_product_legacy_validation_plan_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
 ALTER TABLE ONLY public.hardware_product
-    ADD CONSTRAINT hardware_product_validation_plan_id_fkey FOREIGN KEY (validation_plan_id) REFERENCES public.validation_plan(id);
+    ADD CONSTRAINT hardware_product_legacy_validation_plan_id_fkey FOREIGN KEY (legacy_validation_plan_id) REFERENCES public.legacy_validation_plan(id);
 
 
 --
@@ -1621,6 +1621,22 @@ ALTER TABLE ONLY public.json_schema
 
 
 --
+-- Name: legacy_validation_plan_member l_validation_plan_member_legacy_validation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.legacy_validation_plan_member
+    ADD CONSTRAINT l_validation_plan_member_legacy_validation_id_fkey FOREIGN KEY (legacy_validation_id) REFERENCES public.legacy_validation(id);
+
+
+--
+-- Name: legacy_validation_plan_member l_validation_plan_member_legacy_validation_plan_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.legacy_validation_plan_member
+    ADD CONSTRAINT l_validation_plan_member_legacy_validation_plan_id_fkey FOREIGN KEY (legacy_validation_plan_id) REFERENCES public.legacy_validation_plan(id);
+
+
+--
 -- Name: legacy_validation_result l_validation_result_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1633,7 +1649,7 @@ ALTER TABLE ONLY public.legacy_validation_result
 --
 
 ALTER TABLE ONLY public.legacy_validation_result
-    ADD CONSTRAINT l_validation_result_validation_id_fkey FOREIGN KEY (validation_id) REFERENCES public.validation(id);
+    ADD CONSTRAINT l_validation_result_validation_id_fkey FOREIGN KEY (legacy_validation_id) REFERENCES public.legacy_validation(id);
 
 
 --
@@ -1773,22 +1789,6 @@ ALTER TABLE ONLY public.user_setting
 
 
 --
--- Name: validation_plan_member validation_plan_member_validation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.validation_plan_member
-    ADD CONSTRAINT validation_plan_member_validation_id_fkey FOREIGN KEY (validation_id) REFERENCES public.validation(id);
-
-
---
--- Name: validation_plan_member validation_plan_member_validation_plan_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.validation_plan_member
-    ADD CONSTRAINT validation_plan_member_validation_plan_id_fkey FOREIGN KEY (validation_plan_id) REFERENCES public.validation_plan(id);
-
-
---
 -- Name: validation_state validation_state_device_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1911,6 +1911,27 @@ GRANT SELECT ON TABLE public.json_schema TO conch_read_only;
 
 
 --
+-- Name: TABLE legacy_validation; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.legacy_validation TO conch_read_only;
+
+
+--
+-- Name: TABLE legacy_validation_plan; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.legacy_validation_plan TO conch_read_only;
+
+
+--
+-- Name: TABLE legacy_validation_plan_member; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.legacy_validation_plan_member TO conch_read_only;
+
+
+--
 -- Name: TABLE legacy_validation_result; Type: ACL; Schema: public; Owner: conch
 --
 
@@ -2006,27 +2027,6 @@ GRANT SELECT ON TABLE public.user_session_token TO conch_read_only;
 --
 
 GRANT SELECT ON TABLE public.user_setting TO conch_read_only;
-
-
---
--- Name: TABLE validation; Type: ACL; Schema: public; Owner: conch
---
-
-GRANT SELECT ON TABLE public.validation TO conch_read_only;
-
-
---
--- Name: TABLE validation_plan; Type: ACL; Schema: public; Owner: conch
---
-
-GRANT SELECT ON TABLE public.validation_plan TO conch_read_only;
-
-
---
--- Name: TABLE validation_plan_member; Type: ACL; Schema: public; Owner: conch
---
-
-GRANT SELECT ON TABLE public.validation_plan_member TO conch_read_only;
 
 
 --

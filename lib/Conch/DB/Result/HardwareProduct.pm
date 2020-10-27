@@ -102,7 +102,7 @@ __PACKAGE__->table("hardware_product");
   data_type: 'integer'
   is_nullable: 0
 
-=head2 validation_plan_id
+=head2 legacy_validation_plan_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -295,7 +295,7 @@ __PACKAGE__->add_columns(
   { data_type => "text", is_nullable => 1 },
   "rack_unit_size",
   { data_type => "integer", is_nullable => 0 },
-  "validation_plan_id",
+  "legacy_validation_plan_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "purpose",
   { data_type => "text", is_nullable => 0 },
@@ -395,6 +395,21 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 legacy_validation_plan
+
+Type: belongs_to
+
+Related object: L<Conch::DB::Result::LegacyValidationPlan>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "legacy_validation_plan",
+  "Conch::DB::Result::LegacyValidationPlan",
+  { id => "legacy_validation_plan_id" },
+  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
+);
+
 =head2 rack_layouts
 
 Type: has_many
@@ -408,21 +423,6 @@ __PACKAGE__->has_many(
   "Conch::DB::Result::RackLayout",
   { "foreign.hardware_product_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 validation_plan
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::ValidationPlan>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "validation_plan",
-  "Conch::DB::Result::ValidationPlan",
-  { id => "validation_plan_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 =head2 validation_states
@@ -442,7 +442,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jh81nspu+x8IBhfHU063jQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4OF0mdKKix09O1cevda2Bg
 
 use experimental 'signatures';
 use Mojo::JSON 'from_json';
@@ -461,6 +461,7 @@ Decode the json-encoded specification field for rendering in responses.
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
+    $data->{validation_plan_id} = delete $data->{legacy_validation_plan_id};
     $data->{specification} = from_json($data->{specification}) if defined $data->{specification};
     return $data;
 }

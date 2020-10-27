@@ -16,10 +16,10 @@ $t->authenticate(email => $ro_user->email);
 
 my $validation = $t->load_validation('Conch::Validation::DeviceProductName');
 my $validation_id = $validation->id;
-my $test_validation_plan = $t->app->db_validation_plans->create({
+my $test_validation_plan = $t->app->db_legacy_validation_plans->create({
     name => 'my_test_plan',
     description => 'another test plan',
-    validation_plan_members => [ { validation => $validation } ],
+    legacy_validation_plan_members => [ { legacy_validation => $validation } ],
 });
 
 my $good_report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
@@ -28,7 +28,7 @@ my $good_report_data = from_json($good_report);
 
 my $hardware_product = $t->load_fixture('hardware_product_compute');
 my ($server_validation_plan) = $t->load_validation_plans([{
-    id => $hardware_product->validation_plan_id,
+    id => $hardware_product->legacy_validation_plan_id,
     description => 'Test Plan',
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
@@ -112,7 +112,7 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
             result_order => 0,
             legacy_validation_result => {
                 device_id => $device->id,
-                validation_id => $validation->id,
+                legacy_validation_id => $validation->id,
                 message => 'faked failure',
                 hint => 'boo',
                 status => 'fail',
@@ -123,7 +123,7 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
             result_order => 1,
             legacy_validation_result => {
                 device_id => $device->id,
-                validation_id => $validation->id,
+                legacy_validation_id => $validation->id,
                 message => 'faked success',
                 hint => 'nope',
                 status => 'pass',
@@ -145,7 +145,7 @@ push @fail_validation_state_id, $t->app->db_validation_states->create({
         legacy_validation_result => {
             created => '2001-01-01',
             device_id => $device->id,
-            validation_id => $validation->id,
+            legacy_validation_id => $validation->id,
             message => 'earlier failure',
             hint => 'boo',
             status => 'fail',

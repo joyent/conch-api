@@ -7,7 +7,7 @@ use experimental 'signatures';
 use Path::Tiny;
 use List::Util 1.55 qw(maxstr uniqint);
 use Mojo::Log;
-use Conch::ValidationSystem;
+use Conch::LegacyValidationSystem;
 
 =pod
 
@@ -190,7 +190,7 @@ Sets up the static validation plans currently in use by Conch.
 
 sub create_validation_plans ($schema, $log = Mojo::Log->new) {
     # create validation records from modules on disk
-    Conch::ValidationSystem->new(
+    Conch::LegacyValidationSystem->new(
         schema => $schema,
         log => $log,
     )->load_validations;

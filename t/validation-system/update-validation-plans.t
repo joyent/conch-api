@@ -2,7 +2,7 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Warnings;
 use Test::Deep;
-use Conch::ValidationSystem;
+use Conch::LegacyValidationSystem;
 use Test::Conch;
 use Path::Tiny;
 use Test::Fatal;
@@ -10,8 +10,8 @@ use Test::Fatal;
 my $t = Test::Conch->new;
 my $schema = $t->app->schema;
 
-my $validation_system = Conch::ValidationSystem->new(log => $t->app->log, schema => $schema);
-my $validation_rs = $schema->resultset('validation');
+my $validation_system = Conch::LegacyValidationSystem->new(log => $t->app->log, schema => $schema);
+my $validation_rs = $schema->resultset('legacy_validation');
 
 # ether still likes to play a round or two if the course is nice
 my @validation_modules = map { s{^lib/}{}; s{/}{::}g; s/\.pm$//r }
@@ -19,12 +19,12 @@ my @validation_modules = map { s{^lib/}{}; s{/}{::}g; s/\.pm$//r }
     path('lib/Conch/Validation')->visit(sub { $_[1]->{$_[0]} = 1 }, { recurse => 1 });
 
 $validation_system->load_validations;
-my $validation_plan = $schema->resultset('validation_plan')->create({
+my $validation_plan = $schema->resultset('legacy_validation_plan')->create({
     name => 'my_humble_plan',
     description => 'sample plan containing a few validations that will be changed',
-    validation_plan_members => [
-        { validation => { name => 'product_name', version => 2 } },
-        { validation => { name => 'firmware_current', version => 1 } },
+    legacy_validation_plan_members => [
+        { legacy_validation => { name => 'product_name', version => 2 } },
+        { legacy_validation => { name => 'firmware_current', version => 1 } },
     ],
 });
 
@@ -47,20 +47,20 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
     $t->reset_log;
 
     # make sure we have the current state of the plan and members
-    $validation_plan->discard_changes({ prefetch => { validation_plan_members => 'validation' } });
+    $validation_plan->discard_changes({ prefetch => { legacy_validation_plan_members => 'legacy_validation' } });
     $validation_system->update_validation_plans;
 
     is($validation_plan->deactivated, undef, 'original validation_plan is still active');
 
-    my $new_validation_plan = $schema->resultset('validation_plan')->find(
+    my $new_validation_plan = $schema->resultset('legacy_validation_plan')->find(
         { name => 'my_humble_plan' },
-        { prefetch => { validation_plan_members => 'validation' } },
+        { prefetch => { legacy_validation_plan_members => 'legacy_validation' } },
     );
 
     is($new_validation_plan->id, $validation_plan->id, 'the "new" plan is still the original plan');
 
     cmp_deeply(
-        [ $validation_plan->validations ],
+        [ $validation_plan->legacy_validations ],
         [
             methods(
                 module => 'Conch::Validation::DeviceProductName',
@@ -77,7 +77,7 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
     );
 
     cmp_deeply(
-        [ $new_validation_plan->validations ],
+        [ $new_validation_plan->legacy_validations ],
         [
             methods(
                 module => 'Conch::Validation::FirmwareCurrent',
@@ -103,9 +103,9 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
 };
 
 subtest 'a deactivated validation lives in the plan along with its newer version' => sub {
-    my $new_validation_plan = $schema->resultset('validation_plan')->find(
+    my $new_validation_plan = $schema->resultset('legacy_validation_plan')->find(
         { name => 'my_humble_plan', deactivated => undef },
-        { prefetch => { validation_plan_members => 'validation' } },
+        { prefetch => { legacy_validation_plan_members => 'legacy_validation' } },
     );
 
     no warnings 'once', 'redefine';
@@ -121,7 +121,7 @@ subtest 'a deactivated validation lives in the plan along with its newer version
         'created validation row for Conch::Validation::DeviceProductName',
     ]);
 
-    $new_validation_plan->add_to_validations({
+    $new_validation_plan->add_to_legacy_validations({
         name => Conch::Validation::DeviceProductName->name,
         version => 4,
         description => Conch::Validation::DeviceProductName->description,
@@ -129,12 +129,12 @@ subtest 'a deactivated validation lives in the plan along with its newer version
     });
 
     $validation_system->update_validation_plans;
-    $new_validation_plan->discard_changes({ prefetch => { validation_plan_members => 'validation' } });
+    $new_validation_plan->discard_changes({ prefetch => { legacy_validation_plan_members => 'legacy_validation' } });
 
     is($new_validation_plan->deactivated, undef, 'the validation_plan is still active');
 
     cmp_deeply(
-        [ $new_validation_plan->validations ],
+        [ $new_validation_plan->legacy_validations ],
         [
             methods(
                 module => 'Conch::Validation::FirmwareCurrent',
@@ -156,9 +156,9 @@ subtest 'a deactivated validation lives in the plan along with its newer version
 subtest 'a validation module was deleted entirely' => sub {
     $t->reset_log;
 
-    my $new_validation_plan = $schema->resultset('validation_plan')->find(
+    my $new_validation_plan = $schema->resultset('legacy_validation_plan')->find(
         { name => 'my_humble_plan', deactivated => undef },
-        { prefetch => { validation_plan_members => 'validation' } },
+        { prefetch => { legacy_validation_plan_members => 'legacy_validation' } },
     );
 
     my $old_validation = $validation_rs->create({
@@ -167,9 +167,9 @@ subtest 'a validation module was deleted entirely' => sub {
         description => 'this validation used to be great but now it is not',
         module => 'Conch::Validation::OldAndCrufty',
     });
-    $new_validation_plan->add_to_validations($old_validation);
+    $new_validation_plan->add_to_legacy_validations($old_validation);
     $validation_system->update_validation_plans;
-    $new_validation_plan->discard_changes({ prefetch => { validation_plan_members => 'validation' } });
+    $new_validation_plan->discard_changes({ prefetch => { legacy_validation_plan_members => 'legacy_validation' } });
     $old_validation->discard_changes;
 
     is($new_validation_plan->deactivated, undef, 'the validation_plan is still active');
@@ -184,11 +184,11 @@ subtest 'a validation module was deleted entirely' => sub {
         'the old validation that was in the plan has been deactivated',
     );
 
-    is($new_validation_plan->validation_plan_members, 2,
+    is($new_validation_plan->legacy_validation_plan_members, 2,
         'the validation plan is back down to 2 active validations');
 
     cmp_deeply(
-        [ $new_validation_plan->validations ],
+        [ $new_validation_plan->legacy_validations ],
         [
             methods(
                 module => 'Conch::Validation::FirmwareCurrent',
