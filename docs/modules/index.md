@@ -127,6 +127,8 @@
 * [Conch::Route::Relay](../modules/Conch::Route::Relay)
 * [Conch::Route::User](../modules/Conch::Route::User)
 * [Conch::Route::Validation](../modules/Conch::Route::Validation)
+* [Conch::Route::ValidationPlan](../modules/Conch::Route::ValidationPlan)
+* [Conch::Route::ValidationState](../modules/Conch::Route::ValidationState)
 * [Conch::Route::Workspace](../modules/Conch::Route::Workspace)
 * [Conch::Time](../modules/Conch::Time)
 * [Conch::UUID](../modules/Conch::UUID)

@@ -124,9 +124,17 @@ See ["unsecured\_routes" in Conch::Route::JSONSchema](../modules/Conch%3A%3ARout
 
 See ["routes" in Conch::Route::User](../modules/Conch%3A%3ARoute%3A%3AUser#routes)
 
-### `* /validation`, `* /validation_plan`, `* /validation_state`
+### `* /validation`
 
 See ["routes" in Conch::Route::Validation](../modules/Conch%3A%3ARoute%3A%3AValidation#routes)
+
+### `* /validation_plan`
+
+See ["routes" in Conch::Route::ValidationPlan](../modules/Conch%3A%3ARoute%3A%3AValidationPlan#routes)
+
+### `* /validation_state`
+
+See ["routes" in Conch::Route::ValidationState](../modules/Conch%3A%3ARoute%3A%3AValidationState#routes)
 
 ### `* /workspace`
 

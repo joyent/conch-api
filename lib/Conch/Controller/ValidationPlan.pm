@@ -8,7 +8,7 @@ use Conch::UUID 'is_uuid';
 
 =head1 NAME
 
-Conch::Controller::Validation
+Conch::Controller::ValidationPlan
 
 Controller for managing Validation Plans
 

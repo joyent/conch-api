@@ -1,4 +1,4 @@
-# Conch::Controller::Validation
+# Conch::Controller::ValidationPlan
 
 ## SOURCE
 
