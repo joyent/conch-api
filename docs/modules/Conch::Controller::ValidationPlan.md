@@ -30,7 +30,7 @@ Response uses the ValidationPlan json schema.
 
 List all Validations associated with the Validation Plan, both active and deactivated.
 
-Response uses the Validations json schema.
+Response uses the LegacyValidations json schema.
 
 ## LICENSING
 

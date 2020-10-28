@@ -1824,6 +1824,59 @@
       ],
       "type" : "object"
     },
+    "LegacyValidation" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "deactivated" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "format" : "date-time",
+              "type" : "string"
+            }
+          ]
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "version" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "version",
+        "description",
+        "created",
+        "updated",
+        "deactivated"
+      ],
+      "type" : "object"
+    },
+    "LegacyValidations" : {
+      "items" : {
+        "$ref" : "#/definitions/LegacyValidation"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "LoginToken" : {
       "additionalProperties" : false,
       "properties" : {
@@ -2847,52 +2900,6 @@
       "type" : "array",
       "uniqueItems" : true
     },
-    "Validation" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "created" : {
-          "format" : "date-time",
-          "type" : "string"
-        },
-        "deactivated" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
-          ]
-        },
-        "description" : {
-          "type" : "string"
-        },
-        "id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "name" : {
-          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-        },
-        "updated" : {
-          "format" : "date-time",
-          "type" : "string"
-        },
-        "version" : {
-          "$ref" : "common.json#/definitions/positive_integer"
-        }
-      },
-      "required" : [
-        "id",
-        "name",
-        "version",
-        "description",
-        "created",
-        "updated",
-        "deactivated"
-      ],
-      "type" : "object"
-    },
     "ValidationError" : {
       "additionalProperties" : false,
       "description" : "base structure for all query_param, request, response validation error responses",
@@ -3074,13 +3081,6 @@
         "device_report_id"
       ],
       "type" : "object"
-    },
-    "Validations" : {
-      "items" : {
-        "$ref" : "#/definitions/Validation"
-      },
-      "type" : "array",
-      "uniqueItems" : true
     },
     "Version" : {
       "additionalProperties" : false,

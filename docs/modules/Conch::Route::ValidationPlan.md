@@ -27,7 +27,7 @@ All routes require authentication.
 ### `GET /validation_plan/:validation_plan_id_or_name/validation`
 
 - Controller/Action: ["validations" in Conch::Controller::ValidationPlan](../modules/Conch%3A%3AController%3A%3AValidationPlan#validations)
-- Response: [response.json#/definitions/Validations](../json-schema/response.json#/definitions/Validations)
+- Response: [response.json#/definitions/LegacyValidations](../json-schema/response.json#/definitions/LegacyValidations)
 
 ## LICENSING
 

@@ -929,12 +929,12 @@ definitions:
                 - $ref: common.yaml#/definitions/device_health
             additionalProperties:
               $ref: common.yaml#/definitions/positive_integer
-  Validations:
+  LegacyValidations:
     type: array
     uniqueItems: true
     items:
-      $ref: '#/definitions/Validation'
-  Validation:
+      $ref: '#/definitions/LegacyValidation'
+  LegacyValidation:
     type: object
     additionalProperties: false
     required:

@@ -71,7 +71,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::ValidationPlan/validations>
 
-=item * Response: F<response.yaml#/definitions/Validations>
+=item * Response: F<response.yaml#/definitions/LegacyValidations>
 
 =back
 
