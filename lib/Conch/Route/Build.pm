@@ -124,14 +124,9 @@ Supports the following optional query parameters:
 
 =over 4
 
-=item * C<with_device_health> - includes correlated counts of devices having each health value
+=item * C<< started=<0|1> >> only return unstarted, or started, builds respectively
 
-=item * C<with_device_phases> - includes correlated counts of devices having each phase value
-
-=item * C<with_rack_phases> - includes correlated counts of racks having each phase value
-
-=item * C<include_completed> - also include completed builds (by default, returns uncompleted builds
-only)
+=item * C<< completed=<0|1> >> only return incomplete, or complete, builds respectively
 
 =back
 

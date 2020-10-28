@@ -68,19 +68,29 @@
       "$ref" : "#/definitions/ChangePassword"
     },
     "GetBuilds" : {
-      "allOf" : [
-        {
-          "$ref" : "#/definitions/WithDeviceRackData"
+      "not" : {
+        "completed" : {
+          "const" : 1
         },
-        {
-          "properties" : {
-            "include_completed" : {
-              "$ref" : "#/definitions/boolean_integer_or_flag"
-            }
-          },
-          "type" : "object"
+        "properties" : {
+          "started" : {
+            "const" : 0
+          }
+        },
+        "required" : [
+          "started",
+          "completed"
+        ]
+      },
+      "properties" : {
+        "completed" : {
+          "$ref" : "#/definitions/boolean_integer"
+        },
+        "started" : {
+          "$ref" : "#/definitions/boolean_integer"
         }
-      ]
+      },
+      "type" : "object"
     },
     "GetDeviceByAttribute" : {
       "additionalProperties" : {

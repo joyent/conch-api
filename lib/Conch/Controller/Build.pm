@@ -18,7 +18,7 @@ If the user is a system admin, retrieve a list of all builds in the database; ot
 limits the list to those build of which the user is a member.
 
 Using optional query parameters, can include counts for device health, device phase and rack phase;
-defaults to returning uncompleted builds only.
+as well as selecting inclusion of unstarted/started, or incomplete/completed builds.
 
 Response uses the Builds json schema.
 
@@ -28,22 +28,12 @@ sub get_all ($c) {
     my $params = $c->validate_query_params('GetBuilds');
     return if not $params;
 
-    my $rs = $c->db_builds
-        ->search({ 'user_build_roles.role' => 'admin' })
-        ->prefetch([ { user_build_roles => 'user_account' }, 'completed_user' ])
-        ->order_by([qw(build.name user_account.name)]);
+    my $rs = $c->db_builds->order_by('build.name');
 
-    foreach my $type (qw(device_health device_phase rack_phase)) {
-        my $method = 'with_'.$type.'_counts';
-        my $param = 'with_'.$type.($type =~ /phase$/ ? 's' : '');
-        $rs = $rs->$method
-            if !exists $params->{$param} ? 0
-               : length $params->{$param} ? $params->{$param} : 1;
-    }
-
-    $rs = $rs->search({ completed => undef })
-        if not (!exists $params->{include_completed} ? 0
-           : length $params->{include_completed} ? $params->{include_completed} : 1);
+    $rs = $rs->search({ started => ($params->{started} ? { '!=' => undef } : undef) })
+        if exists $params->{started};
+    $rs = $rs->search({ completed => ($params->{completed} ? { '!=' => undef } : undef) })
+        if exists $params->{completed};
 
     return $c->status(200, [ $rs->all ]) if $c->is_system_admin;
 

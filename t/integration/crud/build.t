@@ -97,10 +97,18 @@ $t->get_ok('/build/my first build')
     ->json_is($build)
     ->log_debug_is('User has system admin access to build my first build');
 
-$t->get_ok('/build')
+$t->get_ok('/build'.$_)
     ->status_is(200)
     ->json_schema_is('Builds')
-    ->json_is([ $build ]);
+    ->json_is([ { $build->%{qw(id name description created started completed links)} } ])
+      foreach ('', '?started=0', '?completed=0');
+
+$t->get_ok('/build'.$_)
+    ->status_is(200)
+    ->json_schema_is('Builds')
+    ->json_cmp_deeply([])
+      foreach ('?started=1', '?completed=1');
+
 
 $t->post_ok('/build/my first build', json => { description => 'a description', links => ['https://baz.com/3'] })
     ->status_is(303)
@@ -150,16 +158,18 @@ $t->get_ok('/build/my first build')
     ->json_schema_is('Build')
     ->json_is($build);
 
-$t->get_ok('/build')
+$t->get_ok('/build'.$_)
     ->status_is(200)
     ->json_schema_is('Builds')
-    ->json_is([]);
+    ->json_is([ { $build->%{qw(id name description created started completed links)} } ])
+      foreach ('', '?started=1', '?completed=1', '?started=1&completed=1');
 
-$t->get_ok('/build?include_completed'.$_)
+$t->get_ok('/build'.$_)
     ->status_is(200)
     ->json_schema_is('Builds')
-    ->json_is([ $build ])
-      foreach ('', '=1');
+    ->json_cmp_deeply([])
+      foreach ('?started=0', '?completed=0');
+
 
 $t->post_ok('/build/my first build', json => { completed => $now })
     ->status_is(409)
@@ -227,26 +237,30 @@ $t->post_ok('/build', json => {
     ->location_like(qr!^/build/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created build ${\Conch::UUID::UUID_FORMAT} \(our second build\)$/);
 
+$t->get_ok($t->tx->res->headers->location)
+    ->status_is(200)
+    ->json_schema_is('Build')
+    ->json_cmp_deeply({
+        id => re(Conch::UUID::UUID_FORMAT),
+        name => 'our second build',
+        description => 'funky',
+        created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        started =>  => '2019-01-01T00:00:00.000Z',
+        completed => undef,
+        admins => [
+            { map +($_ => $admin_user->$_), qw(id name email) },
+        ],
+        completed_user => undef,
+        links => [],
+    });
+my $build2 = $t->tx->res->json;
+
 $t->get_ok('/build')
     ->status_is(200)
     ->json_schema_is('Builds')
     ->json_cmp_deeply([
-        $build,
-        {
-            id => re(Conch::UUID::UUID_FORMAT),
-            name => 'our second build',
-            description => 'funky',
-            created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            started => '2019-01-01T00:00:00.000Z',
-            completed => undef,
-            admins => [
-                { map +($_ => $admin_user->$_), qw(id name email) },
-            ],
-            completed_user => undef,
-            links => [],
-        },
+        map +{ $_->%{qw(id name description created started completed links)} }, $build, $build2,
     ]);
-my $build2 = $t->tx->res->json->[1];
 
 $t->post_ok('/build/our second build', json => { name => 'my first build' })
     ->status_is(409)
@@ -325,7 +339,7 @@ $t->get_ok('/build/my first build/user')
 $t2->get_ok('/build')
     ->status_is(200)
     ->json_schema_is('Builds')
-    ->json_is([ $build ]);
+    ->json_is([ { $build->%{qw(id name description created started completed links)} } ]);
 
 $t2->get_ok('/build/my first build')
     ->status_is(200)
@@ -825,57 +839,32 @@ $t->get_ok('/build/our second build/device?active_minutes=5')
     ->json_schema_is('Devices')
     ->json_is($devices);
 
-$t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases&include_completed')
+$t->get_ok('/build/my first build?with_device_health&with_device_phases&with_rack_phases')
     ->status_is(200)
-    ->json_schema_is('Builds')
-    ->json_is([
-        {
-            $build->%*,
-            device_health => {
-                error => 0,
-                fail => 0,
-                unknown => 0,
-                pass => 0,
-            },
-            device_phases => {
-                integration => 0,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
-            rack_phases => {
-                integration => 0,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
-        },
-        {
-            $build2->%*,
-            device_health => {
-                error => 0,
-                fail => 0,
-                unknown => 1,
-                pass => 0,
-            },
-            device_phases => {
-                integration => 1,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
-            rack_phases => {
-                integration => 0,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
-        },
-    ]);
+    ->json_schema_is('Build')
+    ->json_is({
+          $build->%*,
+          device_health => {
+              error => 0,
+              fail => 0,
+              unknown => 0,
+              pass => 0,
+          },
+          device_phases => {
+              integration => 0,
+              installation => 0,
+              production => 0,
+              diagnostics => 0,
+              decommissioned => 0,
+          },
+          rack_phases => {
+              integration => 0,
+              installation => 0,
+              production => 0,
+              diagnostics => 0,
+              decommissioned => 0,
+          },
+      });
 
 $t->get_ok('/build/our second build?with_device_health&with_device_phases&with_rack_phases')
     ->status_is(200)
@@ -1129,58 +1118,59 @@ $t->get_ok('/build/our second build/rack')
         superhashof({ id => $rack2->id }),
     ]);
 
-$t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases')
+$t->get_ok('/build/my first build?with_device_health&with_device_phases&with_rack_phases')
     ->status_is(200)
-    ->json_schema_is('Builds')
-    ->json_is([
-        {
-            $build->%*,
-            device_health => {
-                error => 0,
-                fail => 0,
-                unknown => 1,
-                pass => 0,
-            },
-            device_phases => {
-                integration => 1,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
-            rack_phases => {
-                integration => 1,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
-        },
-        {
-            $build2->%*,
-            device_health => {
-                error => 0,
-                fail => 0,
-                unknown => 1,
-                pass => 0,
-            },
-            device_phases => {
-                integration => 1,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
-            rack_phases => {
-                integration => 1,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
-        },
-    ]);
+    ->json_schema_is('Build')
+    ->json_is({
+          $build->%*,
+          device_health => {
+              error => 0,
+              fail => 0,
+              unknown => 1,
+              pass => 0,
+          },
+          device_phases => {
+              integration => 1,
+              installation => 0,
+              production => 0,
+              diagnostics => 0,
+              decommissioned => 0,
+          },
+          rack_phases => {
+              integration => 1,
+              installation => 0,
+              production => 0,
+              diagnostics => 0,
+              decommissioned => 0,
+          },
+      });
 
+$t->get_ok('/build/our second build?with_device_health&with_device_phases&with_rack_phases')
+    ->status_is(200)
+    ->json_schema_is('Build')
+    ->json_is({
+        $build2->%*,
+        device_health => {
+            error => 0,
+            fail => 0,
+            unknown => 1,
+            pass => 0,
+        },
+        device_phases => {
+            integration => 1,
+            installation => 0,
+            production => 0,
+            diagnostics => 0,
+            decommissioned => 0,
+        },
+        rack_phases => {
+            integration => 1,
+            installation => 0,
+            production => 0,
+            diagnostics => 0,
+            decommissioned => 0,
+        },
+    });
 
 $device1->discard_changes;
 $device2->discard_changes;
@@ -1260,57 +1250,59 @@ $t->get_ok('/build/my first build/device?phase_earlier_than=')
         }),
     ]);
 
-$t->get_ok('/build?with_device_health&with_device_phases&with_rack_phases')
+$t->get_ok('/build/my first build?with_device_health&with_device_phases&with_rack_phases')
     ->status_is(200)
-    ->json_schema_is('Builds')
-    ->json_is([
-        {
-            $build->%*,
-            device_health => {
-                error => 0,
-                fail => 0,
-                unknown => 0,
-                pass => 1,
-            },
-            device_phases => {
-                integration => 1,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
-            rack_phases => {
-                integration => 1,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
+    ->json_schema_is('Build')
+    ->json_is({
+          $build->%*,
+          device_health => {
+              error => 0,
+              fail => 0,
+              unknown => 0,
+              pass => 1,
+          },
+          device_phases => {
+              integration => 1,
+              installation => 0,
+              production => 0,
+              diagnostics => 0,
+              decommissioned => 0,
+          },
+          rack_phases => {
+              integration => 1,
+              installation => 0,
+              production => 0,
+              diagnostics => 0,
+              decommissioned => 0,
+          },
+      });
+
+$t->get_ok('/build/our second build?with_device_health&with_device_phases&with_rack_phases')
+    ->status_is(200)
+    ->json_schema_is('Build')
+    ->json_is({
+        $build2->%*,
+        device_health => {
+            error => 0,
+            fail => 0,
+            unknown => 1,
+            pass => 0,
         },
-        {
-            $build2->%*,
-            device_health => {
-                error => 0,
-                fail => 0,
-                unknown => 1,
-                pass => 0,
-            },
-            device_phases => {
-                integration => 1,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
-            rack_phases => {
-                integration => 1,
-                installation => 0,
-                production => 0,
-                diagnostics => 0,
-                decommissioned => 0,
-            },
+        device_phases => {
+            integration => 1,
+            installation => 0,
+            production => 0,
+            diagnostics => 0,
+            decommissioned => 0,
         },
-    ]);
+        rack_phases => {
+            integration => 1,
+            installation => 0,
+            production => 0,
+            diagnostics => 0,
+            decommissioned => 0,
+        },
+    });
 
 $device1->update({ phase => 'integration' });
 
