@@ -294,7 +294,10 @@ definitions:
       rack_unit_size:
         $ref: common.yaml#/definitions/positive_integer
       validation_plan_id:
-        $ref: common.yaml#/definitions/uuid
+        $comment: this property will become nullable in v3.3 and removed in v4.0
+        deprecated: true
+        allOf:
+          - $ref: common.yaml#/definitions/uuid
       purpose:
         type: string
       bios_firmware:

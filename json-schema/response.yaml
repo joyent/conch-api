@@ -816,7 +816,10 @@ definitions:
         type: string
         format: date-time
       validation_plan_id:
-        $ref: common.yaml#/definitions/uuid
+        $comment: this property will become nullable in v3.3 and removed in v4.0
+        deprecated: true
+        allOf:
+          - $ref: common.yaml#/definitions/uuid
       bios_firmware:
         type: string
       cpu_num:
