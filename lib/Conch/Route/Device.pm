@@ -94,9 +94,11 @@ sub routes {
         }
 
         # POST /device/:device_id_or_serial_number/validation/:validation_id
-        $with_device_ro->post('/validation/<validation_id:uuid>')->to('device_validation#validate');
+        $with_device_ro->post('/validation/<validation_id:uuid>')
+            ->to('device_validation#validate', deprecated => 'v4.0');
         # POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id
-        $with_device_ro->post('/validation_plan/<validation_plan_id:uuid>')->to('device_validation#run_validation_plan');
+        $with_device_ro->post('/validation_plan/<validation_plan_id:uuid>')
+            ->to('device_validation#run_validation_plan', deprecated => 'v4.0');
         # GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...
         $with_device->get('/validation_state')->to('device_validation#get_validation_state');
 
@@ -423,6 +425,8 @@ otherwise.
 
 Does not store validation results.
 
+This endpoint is B<deprecated> and will be removed in Conch API v4.0.
+
 =over 4
 
 =item * User requires the read-only role
@@ -438,6 +442,8 @@ Does not store validation results.
 =head2 C<POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id>
 
 Does not store validation results.
+
+This endpoint is B<deprecated> and will be removed in Conch API v4.0.
 
 =over 4
 

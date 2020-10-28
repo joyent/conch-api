@@ -172,6 +172,8 @@ otherwise.
 
 Does not store validation results.
 
+This endpoint is **deprecated** and will be removed in Conch API v4.0.
+
 - User requires the read-only role
 - Controller/Action: ["validate" in Conch::Controller::DeviceValidation](../modules/Conch%3A%3AController%3A%3ADeviceValidation#validate)
 - Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
@@ -180,6 +182,8 @@ Does not store validation results.
 ### `POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id`
 
 Does not store validation results.
+
+This endpoint is **deprecated** and will be removed in Conch API v4.0.
 
 - User requires the read-only role
 - Controller/Action: ["run\_validation\_plan" in Conch::Controller::DeviceValidation](../modules/Conch%3A%3AController%3A%3ADeviceValidation#run_validation_plan)
