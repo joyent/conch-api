@@ -2575,7 +2575,13 @@
           "$ref" : "common.json#/definitions/validation_status"
         },
         "validation_plan_id" : {
-          "$ref" : "common.json#/definitions/uuid"
+          "$comment" : "this property will be removed in v3.1",
+          "allOf" : [
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ],
+          "deprecated" : true
         }
       },
       "required" : [
@@ -3073,7 +3079,13 @@
           "$ref" : "common.json#/definitions/validation_status"
         },
         "validation_plan_id" : {
-          "$ref" : "common.json#/definitions/uuid"
+          "$comment" : "this property will be removed in v3.1",
+          "allOf" : [
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ],
+          "deprecated" : true
         }
       },
       "required" : [

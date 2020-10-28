@@ -1062,7 +1062,10 @@ definitions:
       status:
         $ref: common.yaml#/definitions/validation_status
       validation_plan_id:
-        $ref: common.yaml#/definitions/uuid
+        $comment: this property will be removed in v3.1
+        deprecated: true
+        allOf:
+          - $ref: common.yaml#/definitions/uuid
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       device_report_id:
@@ -1081,7 +1084,10 @@ definitions:
       device_serial_number:
         $ref: common.yaml#/definitions/device_serial_number
       validation_plan_id:
-        $ref: common.yaml#/definitions/uuid
+        $comment: this property will be removed in v3.1
+        deprecated: true
+        allOf:
+          - $ref: common.yaml#/definitions/uuid
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       sku:
