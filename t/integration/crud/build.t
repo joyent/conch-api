@@ -812,6 +812,16 @@ $t->get_ok('/build/our second build/device?health=unknown'.$_)
     ->json_is($devices)
         foreach ('', '&ids_only=0&serials_only=0');
 
+$t->get_ok('/build/our second build/device?phase=integration')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is($devices);
+
+$t->get_ok('/build/our second build/device?phase=installation')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
+
 $t->get_ok('/build/our second build/device?ids_only=1&serials_only=1')
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')

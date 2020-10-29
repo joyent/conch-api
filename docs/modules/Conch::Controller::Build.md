@@ -126,6 +126,8 @@ not ORed):
 ```
 health=<value>      only devices with health matching the provided value
     (can be used more than once to search for ANY of the specified health values)
+phase=<value>       only devices with phase matching the provided value
+    (can be used more than once to search for ANY of the specified phase values)
 active_minutes=X    only devices last seen (via a report relay) within X minutes
 ids_only=1          only return device ids, not full data
 serials_only=1      only return device serial numbers, not full data

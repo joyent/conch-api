@@ -4,21 +4,34 @@
   "definitions" : {
     "BuildDevices" : {
       "additionalProperties" : false,
-      "not" : {
-        "properties" : {
-          "ids_only" : {
-            "const" : 1
-          },
-          "serials_only" : {
-            "const" : 1
+      "allOf" : [
+        {
+          "not" : {
+            "properties" : {
+              "ids_only" : {
+                "const" : 1
+              },
+              "serials_only" : {
+                "const" : 1
+              }
+            },
+            "required" : [
+              "ids_only",
+              "serials_only"
+            ],
+            "type" : "object"
           }
         },
-        "required" : [
-          "ids_only",
-          "serials_only"
-        ],
-        "type" : "object"
-      },
+        {
+          "not" : {
+            "required" : [
+              "phase_earlier_than",
+              "phase"
+            ],
+            "type" : "object"
+          }
+        }
+      ],
       "properties" : {
         "active_minutes" : {
           "$ref" : "common.json#/definitions/non_negative_integer"
@@ -40,6 +53,21 @@
         },
         "ids_only" : {
           "$ref" : "#/definitions/boolean_integer_default_false"
+        },
+        "phase" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/device_phase"
+            },
+            {
+              "items" : {
+                "$ref" : "common.json#/definitions/device_phase"
+              },
+              "minItems" : 2,
+              "type" : "array",
+              "uniqueItems" : true
+            }
+          ]
         },
         "phase_earlier_than" : {
           "oneOf" : [

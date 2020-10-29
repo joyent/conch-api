@@ -119,6 +119,8 @@ Accepts the following optional query parameters:
 
 - `health=:value` show only devices with the health matching the provided value
 (can be used more than once)
+- `phase=:value` show only devices with the phase matching the provided value
+(can be used more than once)
 - `active_minutes=:X` show only devices which have reported within the last X minutes
 - `ids_only=1` only return device IDs, not full device details
 

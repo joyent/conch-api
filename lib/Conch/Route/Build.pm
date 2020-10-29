@@ -313,6 +313,9 @@ Accepts the following optional query parameters:
 =item * C<health=:value> show only devices with the health matching the provided value
 (can be used more than once)
 
+=item * C<phase=:value> show only devices with the phase matching the provided value
+(can be used more than once)
+
 =item * C<active_minutes=:X> show only devices which have reported within the last X minutes
 
 =item * C<ids_only=1> only return device IDs, not full device details
