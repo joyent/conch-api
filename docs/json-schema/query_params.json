@@ -85,6 +85,30 @@
       },
       "type" : "object"
     },
+    "BuildRacks" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "ids_only" : {
+          "$ref" : "#/definitions/boolean_integer_default_false"
+        },
+        "phase" : {
+          "oneOf" : [
+            {
+              "$ref" : "common.json#/definitions/device_phase"
+            },
+            {
+              "items" : {
+                "$ref" : "common.json#/definitions/device_phase"
+              },
+              "minItems" : 2,
+              "type" : "array",
+              "uniqueItems" : true
+            }
+          ]
+        }
+      },
+      "type" : "object"
+    },
     "ChangePassword" : {
       "additionalProperties" : false,
       "properties" : {

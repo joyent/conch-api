@@ -1431,6 +1431,11 @@ definitions:
           - $ref: common.yaml#/definitions/mojo_standard_placeholder
       links:
         $ref: common.yaml#/definitions/links
+  RackIds:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: common.yaml#/definitions/uuid
   RackRole:
     type: object
     additionalProperties: false

@@ -933,18 +933,30 @@ sub remove_device ($c) {
 Get the racks in this build.
 Requires the 'read-only' role on the build.
 
-Response uses the Racks json schema.
+Supports these query parameters to constrain results (which are ANDed together for the search,
+not ORed):
+
+    phase=<value>       only racks with phase matching the provided value
+        (can be used more than once to search for ANY of the specified phase values)
+    ids_only=1          only return rack ids, not full data
+
+Response uses the Racks json schema, or RackIds iff C<ids_only=1>.
 
 =cut
 
 sub get_racks ($c) {
-    my $rs = $c->stash('build_rs')
-        ->related_resultset('racks')
-        ->add_columns({ build_name => 'build.name' })
-        ->with_full_rack_name
-        ->with_datacenter_room_alias
-        ->with_rack_role_name
-        ->order_by('racks.name');
+    my $params = $c->validate_query_params('BuildRacks');
+    return if not $params;
+
+    my $rs = $c->stash('build_rs')->related_resultset('racks');
+    $rs = $rs->search({ 'racks.phase' => $params->{phase} }) if $params->{phase};
+
+    $rs = $params->{ids_only} ? $rs->get_column('id')
+        : $rs->add_columns({ build_name => 'build.name' })
+              ->with_full_rack_name
+              ->with_datacenter_room_alias
+              ->with_rack_role_name
+              ->order_by('racks.name');
 
     $c->status(200, [ $rs->all ]);
 }

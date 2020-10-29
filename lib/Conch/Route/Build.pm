@@ -387,13 +387,24 @@ read-write role on the device (via a workspace or build; see L<Conch::Route::Dev
 
 =head2 C<GET /build/:build_id_or_name/rack>
 
+Accepts the following optional query parameters:
+
+=over 4
+
+=item * C<phase=:value> show only racks with the phase matching the provided value
+(can be used more than once)
+
+=item * C<ids_only=1> only return rack IDs, not full rack details
+
+=back
+
 =over 4
 
 =item * Requires system admin authorization or the read-only role on the build
 
 =item * Controller/Action: L<Conch::Controller::Build/get_racks>
 
-=item * Response: F<response.yaml#/definitions/Racks>
+=item * Response: one of F<response.yaml#/definitions/Racks> or F<response.yaml#/definitions/RackIds>
 
 =back
 

@@ -165,7 +165,16 @@ Requires the 'read/write' role on the build.
 Get the racks in this build.
 Requires the 'read-only' role on the build.
 
-Response uses the Racks json schema.
+Supports these query parameters to constrain results (which are ANDed together for the search,
+not ORed):
+
+```
+phase=<value>       only racks with phase matching the provided value
+    (can be used more than once to search for ANY of the specified phase values)
+ids_only=1          only return rack ids, not full data
+```
+
+Response uses the Racks json schema, or RackIds iff `ids_only=1`.
 
 ### add\_rack
 

@@ -2486,6 +2486,13 @@
       "type" : "array",
       "uniqueItems" : true
     },
+    "RackIds" : {
+      "items" : {
+        "$ref" : "common.json#/definitions/uuid"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "RackLayout" : {
       "additionalProperties" : false,
       "properties" : {

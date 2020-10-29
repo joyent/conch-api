@@ -215,6 +215,20 @@ definitions:
       - not:
           type: object
           required: [ phase_earlier_than, phase ]
+  BuildRacks:
+    type: object
+    additionalProperties: false
+    properties:
+      phase:
+        oneOf:
+          - $ref: common.yaml#/definitions/device_phase
+          - type: array
+            uniqueItems: true
+            minItems: 2
+            items:
+              $ref: common.yaml#/definitions/device_phase
+      ids_only:
+        $ref: '#/definitions/boolean_integer_default_false'
   ProcessDeviceReport:
     type: object
     additionalProperties: false

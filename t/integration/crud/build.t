@@ -997,12 +997,23 @@ $t->post_ok($_)
         '/build/my first build/rack/'.$rack1->id,
         '/build/my first build/rack/'.$room1->vendor_name.':'.$rack1->name;
 
-$t->get_ok('/build/my first build/rack')
+$t->get_ok('/build/my first build/rack'.$_)
     ->status_is(200)
     ->json_schema_is('Racks')
     ->json_cmp_deeply([
         superhashof({ id => $rack1->id }),
-    ]);
+    ])
+    foreach '', '?phase=integration';
+
+$t->get_ok('/build/my first build/rack?phase=installation')
+    ->status_is(200)
+    ->json_schema_is('Racks')
+    ->json_cmp_deeply([]);
+
+$t->get_ok('/build/my first build/rack?ids_only=1')
+    ->status_is(200)
+    ->json_schema_is('RackIds')
+    ->json_cmp_deeply([ $rack1->id ]);
 
 $t->get_ok('/build/my first build/device')
     ->status_is(200)
