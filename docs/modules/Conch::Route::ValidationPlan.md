@@ -10,6 +10,8 @@
 
 Sets up the routes for /validation\_plan.
 
+All routes are **deprecated** and will be removed in Conch API v4.0.
+
 ## ROUTE ENDPOINTS
 
 All routes require authentication.
@@ -17,14 +19,14 @@ All routes require authentication.
 ### `GET /validation_plan`
 
 - Controller/Action: ["get\_all" in Conch::Controller::ValidationPlan](../modules/Conch%3A%3AController%3A%3AValidationPlan#get_all)
-- Response: [response.json#/definitions/ValidationPlans](../json-schema/response.json#/definitions/ValidationPlans)
+- Response: [response.json#/definitions/LegacyValidationPlans](../json-schema/response.json#/definitions/LegacyValidationPlans)
 
-### `GET /validation_plan/:validation_plan_id_or_name`
+### `GET /validation_plan/:legacy_validation_plan_id_or_name`
 
 - Controller/Action: ["get" in Conch::Controller::ValidationPlan](../modules/Conch%3A%3AController%3A%3AValidationPlan#get)
-- Response: [response.json#/definitions/ValidationPlan](../json-schema/response.json#/definitions/ValidationPlan)
+- Response: [response.json#/definitions/LegacyValidationPlan](../json-schema/response.json#/definitions/LegacyValidationPlan)
 
-### `GET /validation_plan/:validation_plan_id_or_name/validation`
+### `GET /validation_plan/:legacy_validation_plan_id_or_name/validation`
 
 - Controller/Action: ["validations" in Conch::Controller::ValidationPlan](../modules/Conch%3A%3AController%3A%3AValidationPlan#validations)
 - Response: [response.json#/definitions/LegacyValidations](../json-schema/response.json#/definitions/LegacyValidations)

@@ -933,11 +933,15 @@ definitions:
             additionalProperties:
               $ref: common.yaml#/definitions/positive_integer
   LegacyValidations:
+    $comment: this definition will be removed in v4.0
+    deprecated: true
     type: array
     uniqueItems: true
     items:
       $ref: '#/definitions/LegacyValidation'
   LegacyValidation:
+    $comment: this definition will be removed in v4.0
+    deprecated: true
     type: object
     additionalProperties: false
     required:
@@ -968,12 +972,16 @@ definitions:
           - type: 'null'
           - type: string
             format: date-time
-  ValidationPlans:
+  LegacyValidationPlans:
+    $comment: this definition will be removed in v4.0
+    deprecated: true
     type: array
     uniqueItems: true
     items:
-      $ref: '#/definitions/ValidationPlan'
-  ValidationPlan:
+      $ref: '#/definitions/LegacyValidationPlan'
+  LegacyValidationPlan:
+    $comment: this definition will be removed in v4.0
+    deprecated: true
     type: object
     additionalProperties: false
     required:

@@ -1831,7 +1831,9 @@
       "type" : "object"
     },
     "LegacyValidation" : {
+      "$comment" : "this definition will be removed in v4.0",
       "additionalProperties" : false,
+      "deprecated" : true,
       "properties" : {
         "created" : {
           "format" : "date-time",
@@ -1876,7 +1878,45 @@
       ],
       "type" : "object"
     },
+    "LegacyValidationPlan" : {
+      "$comment" : "this definition will be removed in v4.0",
+      "additionalProperties" : false,
+      "deprecated" : true,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "description",
+        "created"
+      ],
+      "type" : "object"
+    },
+    "LegacyValidationPlans" : {
+      "$comment" : "this definition will be removed in v4.0",
+      "deprecated" : true,
+      "items" : {
+        "$ref" : "#/definitions/LegacyValidationPlan"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "LegacyValidations" : {
+      "$comment" : "this definition will be removed in v4.0",
+      "deprecated" : true,
       "items" : {
         "$ref" : "#/definitions/LegacyValidation"
       },
@@ -2943,38 +2983,6 @@
         "schema"
       ],
       "type" : "object"
-    },
-    "ValidationPlan" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "created" : {
-          "format" : "date-time",
-          "type" : "string"
-        },
-        "description" : {
-          "type" : "string"
-        },
-        "id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "name" : {
-          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-        }
-      },
-      "required" : [
-        "id",
-        "name",
-        "description",
-        "created"
-      ],
-      "type" : "object"
-    },
-    "ValidationPlans" : {
-      "items" : {
-        "$ref" : "#/definitions/ValidationPlan"
-      },
-      "type" : "array",
-      "uniqueItems" : true
     },
     "ValidationResult" : {
       "additionalProperties" : false,

@@ -26,7 +26,7 @@ my @validations = $t->tx->res->json->@*;
 
 $t->get_ok('/validation_plan')
     ->status_is(200)
-    ->json_schema_is('ValidationPlans')
+    ->json_schema_is('LegacyValidationPlans')
     ->json_cmp_deeply([
         {
             id => re(Conch::UUID::UUID_FORMAT),
@@ -41,12 +41,12 @@ my @validation_plans = $t->tx->res->json->@*;
 
 $t->get_ok('/validation_plan/'.$validation_plans[0]->{id})
     ->status_is(200)
-    ->json_schema_is('ValidationPlan')
+    ->json_schema_is('LegacyValidationPlan')
     ->json_is($validation_plans[0]);
 
 $t->get_ok('/validation_plan/Conch v1 Legacy Plan: Server')
     ->status_is(200)
-    ->json_schema_is('ValidationPlan')
+    ->json_schema_is('LegacyValidationPlan')
     ->json_is($validation_plans[0]);
 
 $t->get_ok('/validation_plan/'.$validation_plans[0]->{id}.'/validation')

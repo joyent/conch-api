@@ -14,24 +14,26 @@ Conch::Route::ValidationPlan
 
 Sets up the routes for /validation_plan.
 
+All routes are B<deprecated> and will be removed in Conch API v4.0.
+
 =cut
 
 sub routes {
     my $class = shift;
     my $vp = shift; # secured, under /validation_plan
 
-    $vp->to({ controller => 'validation_plan' });
+    $vp->to(controller => 'validation_plan', deprecated => 'v4.0');
 
     # GET /validation_plan
     $vp->get('/')->to('#get_all');
 
     {
-        my $with_plan = $vp->under('/:validation_plan_id_or_name')->to('#find_validation_plan');
+        my $with_plan = $vp->under('/:legacy_validation_plan_id_or_name')->to('#find_validation_plan');
 
-        # GET /validation_plan/:validation_plan_id_or_name
+        # GET /validation_plan/:legacy_validation_plan_id_or_name
         $with_plan->get('/')->to('#get');
 
-        # GET /validation_plan/:validation_plan_id_or_name/validation
+        # GET /validation_plan/:legacy_validation_plan_id_or_name/validation
         $with_plan->get('/validation')->to('#get_validations');
     }
 }
@@ -51,21 +53,21 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::ValidationPlan/get_all>
 
-=item * Response: F<response.yaml#/definitions/ValidationPlans>
+=item * Response: F<response.yaml#/definitions/LegacyValidationPlans>
 
 =back
 
-=head2 C<GET /validation_plan/:validation_plan_id_or_name>
+=head2 C<GET /validation_plan/:legacy_validation_plan_id_or_name>
 
 =over 4
 
 =item * Controller/Action: L<Conch::Controller::ValidationPlan/get>
 
-=item * Response: F<response.yaml#/definitions/ValidationPlan>
+=item * Response: F<response.yaml#/definitions/LegacyValidationPlan>
 
 =back
 
-=head2 C<GET /validation_plan/:validation_plan_id_or_name/validation>
+=head2 C<GET /validation_plan/:legacy_validation_plan_id_or_name/validation>
 
 =over 4
 
