@@ -188,7 +188,7 @@ C<< $c->render >> as a side-effect.
         length => 30
     });
 
-    $self->plugin('Conch::Plugin::JsonValidator', $self->config);
+    $self->plugin('Conch::Plugin::JSONValidator', $self->config);
     $self->plugin('Conch::Plugin::AuthHelpers', $self->config);
     $self->plugin('Conch::Plugin::Mail', $self->config);
 

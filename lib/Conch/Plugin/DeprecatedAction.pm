@@ -33,13 +33,14 @@ C<report_deprecated_actions> feature is enabled.
 sub register ($self, $app, $config) {
     $app->hook(after_dispatch => sub ($c) {
         if (my $deprecated = $c->stash('deprecated')) {
-            $c->res->headers->add('X-Deprecated', 'this endpoint is deprecated and will be removed in api '.$deprecated);
+            my $substr = $c->res->code == 308 ? 'was deprecated and' : 'is deprecated and will be';
+            $c->res->headers->add('X-Deprecated', 'this endpoint '.$substr.' removed in api '.$deprecated);
 
             # do this after the response has been sent
             $c->on(finish => sub ($c) {
                 $c->send_message_to_rollbar(
                     'info',
-                    'endpoint '.$c->req->url->path.' is deprecated and will be removed in api '.$deprecated,
+                    'endpoint '.$c->req->url->path.' '.$substr.' removed in api '.$deprecated,
                     { context => ($c->stash('controller')//'').'#'.($c->stash('action')//'') },
                 );
             })

@@ -1,20 +1,20 @@
-package Conch::Controller::Schema;
+package Conch::Controller::JSONSchema;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
-
-use Mojo::Util 'camelize';
 
 =pod
 
 =head1 NAME
 
-Conch::Controller::Schema
+Conch::Controller::JSONSchema
 
 =head1 METHODS
 
 =head2 get
 
-Get the json-schema in JSON format.
+Get a query parameters, request, response, common or device_report JSON Schema (from
+F<query_params.yaml>, F<request.yaml>, F<response.yaml>, F<common.yaml>, or F<device_report.yaml>,
+respectively). Bundles all the referenced definitions together in the returned body response.
 
 =cut
 
@@ -25,14 +25,19 @@ sub get ($c) {
     # to see what files they came from.
     return $c->status(304) if $c->is_fresh(last_modified => $c->startup_time->epoch);
 
-    my $type = $c->stash('schema_type');
-    my $name = camelize $c->stash('name');
+    my $type = $c->stash('json_schema_type');
+    my $name = $c->stash('json_schema_name');
 
-    my $validator = $type eq 'response' ? $c->get_response_validator
-        : $type eq 'request' ? $c->get_request_validator
-        : $type eq 'query_params' ? $c->get_query_params_validator
-        : undef;
-    return $c->status(400, { error => 'Cannot find validator' }) if not $validator;
+    my $validator = $type eq 'query_params' || $type eq 'request' || $type eq 'response'
+        ? $c->${\('get_'.$type.'_validator')}
+        : do {  # ugh. this is going away soon.
+            my $jv = JSON::Validator->new;
+            $jv->formats->{uri} = \&Conch::Plugin::JSONValidator::_check_uri;
+            $jv->load_and_validate_schema(
+                'json-schema/'.$type.'.yaml',
+                { schema => 'http://json-schema.org/draft-07/schema#' });
+            $jv;
+        };
 
     my $schema = _extract_schema_definition($validator, $name);
     if (not $schema) {
@@ -40,9 +45,10 @@ sub get ($c) {
         return $c->status(404);
     }
 
-    # ensure $id is unique
-    $schema->{'$id'} =~ s/^urn:\K/$type./;
+    # the canonical location of this document -- which should be the same URL used to get here
+    $schema->{'$id'} = $c->url_for('/json_schema/'.$type.'/'.$name)->to_abs;
 
+    $c->res->headers->content_type('application/schema+json');
     return $c->status(200, $schema);
 }
 
@@ -55,7 +61,7 @@ headers.
 TODO: this (plus addition of the header fields) could mostly be replaced with just:
 
     my $new_defs = $jv->bundle({
-        schema => $jv->get('/definitions/'.$title),
+        schema => $jv->get('/definitions/'.$name),
         ref_key => 'definitions',
     });
 
@@ -118,9 +124,8 @@ sub _extract_schema_definition ($validator, $schema_name) {
     }
 
     return {
-        title => $schema_name,
         '$schema' => $validator->get('/$schema') || 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:'.$schema_name.'.schema.json',
+        # no $id - we have no idea of this document's canonical location
         keys $definitions->%* ? ( definitions => $definitions ) : (),
         $target->%*,
     };

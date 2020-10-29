@@ -16,7 +16,7 @@ Set up the full route structure
 
 ## SHORTCUTS
 
-These are available on the root router. See ["Shortcuts" in Mojolicious::Guides::Routing](https://metacpan.org/pod/Mojolicious%3A%3AGuides%3A%3ARouting#shortcuts).
+These are available on all routes. See ["Shortcuts" in Mojolicious::Guides::Routing](https://metacpan.org/pod/Mojolicious%3A%3AGuides%3A%3ARouting#shortcuts).
 
 ### require\_system\_admin
 
@@ -26,6 +26,10 @@ Chainable route that aborts with HTTP 403 if the user is not a system admin.
 
 Chainable route that looks up the user by `user_id` or `email` in the JSON payload,
 aborting with HTTP 410 or HTTP 404 if not found.
+
+### root
+
+Returns the root node.
 
 ## ROUTE ENDPOINTS
 
@@ -112,9 +116,9 @@ See ["routes" in Conch::Route::Organization](../modules/Conch%3A%3ARoute%3A%3AOr
 
 See ["routes" in Conch::Route::Relay](../modules/Conch%3A%3ARoute%3A%3ARelay#routes)
 
-### `* /schema`
+### `* /json_schema`
 
-See ["routes" in Conch::Route::Schema](../modules/Conch%3A%3ARoute%3A%3ASchema#routes)
+See ["unsecured\_routes" in Conch::Route::JSONSchema](../modules/Conch%3A%3ARoute%3A%3AJSONSchema#unsecured_routes)
 
 ### `* /user`
 

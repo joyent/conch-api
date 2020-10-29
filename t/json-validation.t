@@ -27,7 +27,7 @@ subtest 'failed query params validation' => sub {
         ->json_cmp_deeply({
             error => 'query parameters did not match required format',
             details => [ { path => '/clear_tokens', message => re(qr/Not in enum list/) } ],
-            schema => '/schema/query_params/change_password',
+            schema => '/json_schema/query_params/ChangePassword',
             data => { clear_tokens => 'whargarbl' },
         })
         ->log_warn_like(qr{^FAILED query_params validation for schema ChangePassword: /clear_tokens: Not in enum list});
@@ -40,7 +40,7 @@ subtest 'failed request validation' => sub {
         ->json_cmp_deeply({
             error => 'request did not match required format',
             details => [ { path => '/password', message => re(qr/missing property/i) } ],
-            schema => '/schema/request/login',
+            schema => '/json_schema/request/Login',
         })
         ->log_warn_like(qr{^FAILED request payload validation for schema Login: /password: Missing property});
 };
@@ -92,6 +92,55 @@ subtest 'device report validation' => sub {
         ) ],
         'bad disk entries are rejected',
     );
+};
+
+subtest '*Error response schemas' => sub {
+    my $validator = $t->validator;
+    my $definitions = $t->validator->get(['definitions']);
+
+    $validator->schema({
+        anyOf => [
+            {
+                type => 'object',
+                required => [ 'type', 'required', 'properties' ],
+                properties => {
+                    type => { const => 'object' },
+                    required => { contains => { const => 'error' } },
+                    properties => { # the literal key /properties
+                        type => 'object',
+                        required => [ 'error' ],
+                        properties => {
+                            error => {  # the literal key /properties/error
+                                type => 'object',
+                                required => [ 'type' ],
+                                properties => {
+                                    type => { const => 'string' },  # /properties/error/type
+                                },
+                            },
+                        },
+                    },
+                }
+            },
+            {
+                type => 'object',
+                propertyNames => { const => 'allOf' },
+                properties => {
+                    allOf => {  # /allOf/*
+                        type => 'array',
+                        # this works because $refs have been expanded in the data already
+                        items => { '$ref' => '#/anyOf/0' },   # the original base schema
+                    },
+                },
+            }
+        ],
+    });
+
+    foreach my $schema_name (sort grep /Error$/, keys $definitions->%*) {
+        next if $schema_name eq 'JSONValidatorError';
+        my @errors = $validator->validate($definitions->{$schema_name});
+        cmp_deeply(\@errors, [], 'schema '.$schema_name.' is a superset of the Error schema')
+            or diag 'got errors: ', explain([ map $_->to_string, @errors ]);
+    }
 };
 
 done_testing;

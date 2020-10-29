@@ -2,6 +2,7 @@
 $schema: 'http://json-schema.org/draft-07/schema#'
 definitions:
   Error:
+    description: this is the superset of all error schemas
     type: object
     additionalProperties: false
     required:
@@ -9,21 +10,8 @@ definitions:
     properties:
       error:
         type: string
-  JsonValidationError:
-    description: JSON::Validator::Error object
-    type: object
-    additionalProperties: false
-    required:
-      - path
-      - message
-    properties:
-      path:
-        type: string
-        format: json-pointer
-      message:
-        type: string
   ValidationError:
-    description: base structure for all validation error responses
+    description: base structure for all query_param, request, response validation error responses
     type: object
     additionalProperties: false
     required:
@@ -39,11 +27,11 @@ definitions:
         uniqueItems: true
         minItems: 1
         items:
-          $ref: '#/definitions/JsonValidationError'
+          $ref: '#/definitions/JSONValidatorError'
       schema:
         type: string
         format: uri-reference
-        pattern: '/schema/[^/]+/[^/]+$'
+        pattern: '/json_schema/[^/.~]+/[^/.~]+$'
       data:
         description: any supplementary details will be included here
   QueryParamsValidationError:
@@ -52,11 +40,13 @@ definitions:
       - type: object
         required:
           - data
+          - error
         properties:
           error:
+            type: string
             const: query parameters did not match required format
           schema:
-            pattern: '/schema/query_params/[^/]+$'
+            pattern: '/json_schema/query_params/[^/.~]+$'
           data:
             description: the parsed form of the query parameters, as they were passed to the schema for validation
             type: object
@@ -76,11 +66,27 @@ definitions:
     allOf:
       - $ref: '#/definitions/ValidationError'
       - type: object
+        required:
+          - error
         properties:
           error:
+            type: string
             const: request did not match required format
           schema:
-            pattern: '/schema/request/[^/]+$'
+            pattern: '/json_schema/request/[^/.~]+$'
+  JSONValidatorError:
+    description: 'serialized JSON::Validator::Error object: a single failure from validating a document with a JSON Schema'
+    type: object
+    additionalProperties: false
+    required:
+      - path
+      - message
+    properties:
+      path:
+        type: string
+        format: json-pointer
+      message:
+        type: string
   Ping:
     type: object
     additionalProperties: false

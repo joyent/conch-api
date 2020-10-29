@@ -6,7 +6,7 @@ use feature 'state';
 use feature 'current_sub';
 
 use Conch::UUID;
-use Conch::Route::Schema;
+use Conch::Route::JSONSchema;
 use Conch::Route::Workspace;
 use Conch::Route::Device;
 use Conch::Route::DeviceReport;
@@ -49,7 +49,7 @@ sub all_routes (
 
 =head1 SHORTCUTS
 
-These are available on the root router. See L<Mojolicious::Guides::Routing/Shortcuts>.
+These are available on all routes. See L<Mojolicious::Guides::Routing/Shortcuts>.
 
 =head2 require_system_admin
 
@@ -92,9 +92,24 @@ aborting with HTTP 410 or HTTP 404 if not found.
         ->under('/')->to('user#find_user');
     });
 
+=head2 root
+
+Returns the root node.
+
+=cut
+
+    $root->add_shortcut(root => sub ($r) {
+        my $root = $r;
+        $root = $root->parent while $root->parent;
+        $root;
+    });
+
+
     # allow routes to be specified as, e.g. ->get('/<device_id:uuid>')->to(...)
     $root->add_type(uuid => Conch::UUID::UUID_FORMAT);
 
+    # one component of a JSON Pointer, e.g. for specifying JSON Schemas
+    $root->add_type(json_pointer_token => qr{[^/.~]+});
 
     # GET /ping
     $root->get('/ping', sub ($c) { $c->status(200, { status => 'ok' }) });
@@ -108,7 +123,8 @@ aborting with HTTP 410 or HTTP 404 if not found.
     # POST /login
     $root->post('/login')->to('login#login');
 
-    Conch::Route::Schema->routes($root->any('/schema'));
+    # * /json_schema/...
+    Conch::Route::JSONSchema->unsecured_routes($root->any('/json_schema'));
 
     # GET /workspace/:workspace/device-totals
     $root->get('/workspace/:workspace/device-totals')->to('workspace_device#device_totals', deprecated => 'v3.1');
@@ -302,9 +318,9 @@ See L<Conch::Route::Organization/routes>
 
 See L<Conch::Route::Relay/routes>
 
-=head2 C<* /schema>
+=head2 C<* /json_schema>
 
-See L<Conch::Route::Schema/routes>
+See L<Conch::Route::JSONSchema/unsecured_routes>
 
 =head2 C<* /user>
 

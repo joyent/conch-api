@@ -9,7 +9,7 @@ use Mojo::JSON 'decode_json';
 use Mojo::File 'path';
 use Test::Deep;
 use Test::Fatal;
-use Conch::Controller::Schema;
+use Conch::Controller::JSONSchema;
 
 my $_validator = JSON::Validator->new;
 $_validator->schema('http://json-schema.org/draft-07/schema#');
@@ -21,7 +21,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_have_nested_refs',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_have_nested_refs.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     ref1 => {
@@ -53,7 +52,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_have_a_recursive_ref',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_have_a_recursive_ref.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     i_have_a_recursive_ref => {
@@ -88,7 +86,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_have_a_ref_to_another_file',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_have_a_ref_to_another_file.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     my_name => {
@@ -133,7 +130,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_am_a_ref',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_am_a_ref.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     ref2 => {
@@ -154,7 +150,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_am_a_ref_level_1',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_am_a_ref_level_1.schema.json',
                 # begin i_am_a_ref definition - which is actually (eventually) ref3
                 type => 'integer',
             },
@@ -165,7 +160,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_have_refs_with_the_same_name',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_have_refs_with_the_same_name.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     i_am_a_ref_with_the_same_name => {
@@ -187,7 +181,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_am_a_ref_with_the_same_name',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_am_a_ref_with_the_same_name.schema.json',
                 # begin i_am_a_ref_with_the_same_name definition - pulled from secondary file
                 type => 'string',
             },
@@ -206,7 +199,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_have_a_ref_with_the_same_name',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_have_a_ref_with_the_same_name.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     i_have_a_ref_with_the_same_name => { type => 'string' },
@@ -229,7 +221,6 @@ subtest 'extraction with $refs' => sub {
             {
                 title => 'i_am_a_ref_to_another_file',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
-                '$id' => 'urn:i_am_a_ref_to_another_file.schema.json',
                 # begin all referenced definitions
                 definitions => {
                     ref3 => { type => 'integer' },
@@ -251,21 +242,21 @@ subtest 'extraction with $refs' => sub {
     subtest $_->[1] => sub {
         my ($expected_output, $test_name) = $_->@*;
 
-        my $title = $expected_output->{title};
+        my $name = delete $expected_output->{title};
         my $got;
         my $exception = exception {
-            $got = Conch::Controller::Schema::_extract_schema_definition($jv, $title);
+            $got = Conch::Controller::JSONSchema::_extract_schema_definition($jv, $name);
         };
 
         if (my $message = $expected_output->{exception}) {
-            like($exception, $message, 'died trying to extract schema for '.$title)
+            like($exception, $message, 'died trying to extract schema for '.$name)
                 or note('lived, and got: ', explain($got));
             return;
         }
 
-        is($exception, undef, 'no exceptions extracting schema for '.$title)
+        is($exception, undef, 'no exceptions extracting schema for '.$name)
             or return;
-        cmp_deeply($got, $expected_output, 'extracted schema for '.$title);
+        cmp_deeply($got, $expected_output, 'extracted schema for '.$name);
 
         my @errors = $_validator->validate($got);
         ok(!@errors, 'no validation errors in the generated schema');
@@ -284,54 +275,81 @@ subtest 'extraction with $refs' => sub {
 
 my $t = Test::Conch->new(pg => undef);
 my $json_spec_schema = $_validator->schema->data;
+my $base_uri = $t->ua->server->url; # used as the base uri for all requests
+
+$t->get_ok('/schema/request/foo')
+    ->status_is(308)
+    ->location_is('/json_schema/request/Foo')
+    ->header_is('X-Deprecated', 'this endpoint was deprecated and removed in api v3.1');
 
 $t->get_ok('/schema/REQUEST/hello')
     ->status_is(404)
     ->json_is({ error => 'Route Not Found' })
     ->log_warn_is('no endpoint found for: GET /schema/REQUEST/hello');
 
-$t->get_ok('/schema/request/hello')
+$t->get_ok('/json_schema/REQUEST/hello')
+    ->status_is(404)
+    ->json_is({ error => 'Route Not Found' })
+    ->log_warn_is('no endpoint found for: GET /json_schema/REQUEST/hello');
+
+$t->get_ok('/json_schema/request/Hello')
     ->status_is(404)
     ->log_warn_is('Could not find request schema Hello');
 
-$t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2040 00:00:00 GMT' })
-    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
-    ->status_is(304);
+$t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2040 00:00:00 GMT' })
+    ->status_is(304)
+    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'));
 
-$t->get_ok('/schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006 00:00:00 GMT' })
-    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
+$t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan 2006 00:00:00 GMT' })
     ->status_is(200)
+    ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:response.Ping.schema.json',
-        title => 'Ping',
+        '$id' => $base_uri.'json_schema/response/Ping',
         type => 'object',
         additionalProperties => bool(0),
         required => ['status'],
         properties => { status => { const => 'ok' } },
     });
 
-$t->get_ok('/schema/response/LoginToken')
+$t->get_ok('/schema/response/login_token')
+    ->status_is(308)
+    ->header_is('X-Deprecated', 'this endpoint was deprecated and removed in api v3.1')
+    ->location_is('/json_schema/response/LoginToken');
+
+$t->get_ok('/json_schema/response/login_token')
+    ->status_is(404);
+
+$t->ua->max_redirects(10);
+$t->get_ok('/schema/response/login_token')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
-    ->json_cmp_deeply({
+    ->json_cmp_deeply(my $response_login_token = {
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:response.LoginToken.schema.json',
-        title => 'LoginToken',
+        '$id' => $base_uri.'json_schema/response/LoginToken',
         type => 'object',
         additionalProperties => bool(0),
         required => ['jwt_token'],
         properties => { jwt_token => { type => 'string', pattern => '[^.]+\.[^.]+\.[^.]+' } },
     });
+$t->ua->max_redirects(0);
 
-$t->get_ok('/schema/request/Login')
+$t->get_ok('/json_schema/response/LoginToken')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
+    ->json_schema_is($json_spec_schema)
+    ->json_cmp_deeply($response_login_token);
+
+$t->get_ok('/json_schema/request/Login')
+    ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:request.Login.schema.json',
-        title => 'Login',
+        '$id' => $base_uri.'json_schema/request/Login',
         type => 'object',
         additionalProperties => bool(0),
         required => [ 'password' ],
@@ -350,13 +368,13 @@ $t->get_ok('/schema/request/Login')
         },
     });
 
-$t->get_ok('/schema/query_params/ResetUserPassword')
+$t->get_ok('/json_schema/query_params/ResetUserPassword')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply({
         '$schema' => 'http://json-schema.org/draft-07/schema#',
-        '$id' => 'urn:query_params.ResetUserPassword.schema.json',
-        title => 'ResetUserPassword',
+        '$id' => $base_uri.'json_schema/query_params/ResetUserPassword',
         definitions => {
             boolean_integer_default_true => { type => 'integer', minimum => 0, maximum => 1, default => 1 },
         },
@@ -368,10 +386,12 @@ $t->get_ok('/schema/query_params/ResetUserPassword')
         },
     });
 
-$t->get_ok('/schema/request/HardwareProductCreate')
+$t->get_ok('/json_schema/request/HardwareProductCreate')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_cmp_deeply('', superhashof({
+        '$id' => $base_uri.'json_schema/request/HardwareProductCreate',
         definitions => {
             map +($_ => superhashof({})), qw(
                 uuid
@@ -384,35 +404,56 @@ $t->get_ok('/schema/request/HardwareProductCreate')
         },
     }), 'nested definitions are found and included');
 
-$t->get_ok('/schema/request/device_report')
+$t->get_ok('/json_schema/request/DeviceReport')
     ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is($json_spec_schema)
     ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
+
+$t->get_ok('/json_schema/common/non_zero_uuid')
+    ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
+    ->json_schema_is($json_spec_schema)
+    ->json_cmp_deeply({
+        '$id' => $base_uri.'json_schema/common/non_zero_uuid',
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        allOf => [
+            { '$ref' => '#/definitions/uuid' },
+            { not => { const => '00000000-0000-0000-0000-000000000000' } },
+        ],
+        definitions => {
+            uuid => {
+                type => 'string', pattern => ignore,
+            },
+        },
+    });
+
+$t->get_ok('/json_schema/device_report/DeviceReport_v3_0_0')
+    ->status_is(200)
+    ->header_is('Content-Type', 'application/schema+json')
+    ->json_schema_is($json_spec_schema)
+    ->json_cmp_deeply({
+        '$id' => $base_uri.'json_schema/device_report/DeviceReport_v3_0_0',
+        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        description => ignore,
+        type => 'object',
+        required => ignore,
+        properties => superhashof({}),
+        definitions => {
+            map +($_ => superhashof({})),
+                qw(non_empty_string int_or_stringy_int disk_serial_number device_interface_name macaddr ipaddr relay_serial_number device_serial_number non_zero_uuid links uuid mojo_standard_placeholder mojo_relaxed_placeholder),
+        },
+    });
+
+my $schema = $t->tx->res->json;
 
 # ensure that one of the schemas can validate some data
 {
     my $report = decode_json(path('t/integration/resource/passing-device-report.json')->slurp);
-    my $schema = $t->get_ok('/schema/request/device_report')->tx->res->json;
-
     # FIXME: JSON::Validator should be picking this up out of the schema on its own.
     my $jv = JSON::Validator->new;
     $jv->load_and_validate_schema($schema, { schema => $schema->{'$schema'} });
     is($jv->version, 7, 'schema declares JSON Schema version 7');
-    my @errors = $jv->validate($report);
-    is(scalar @errors, 0, 'no errors');
-}
-
-$t->get_ok('/schema/request/device_report')
-    ->status_is(200)
-    ->json_schema_is($json_spec_schema)
-    ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
-
-# ensure that one of the schemas can validate some data
-{
-    my $report = decode_json(path('t/integration/resource/passing-device-report.json')->slurp);
-    my $schema = $t->get_ok('/schema/request/device_report')->tx->res->json;
-    my $jv = JSON::Validator->new;
-    $jv->load_and_validate_schema($schema);
     my @errors = $jv->validate($report);
     is(scalar @errors, 0, 'no errors');
 }

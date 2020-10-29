@@ -1,14 +1,16 @@
-# Conch::Controller::Schema
+# Conch::Controller::JSONSchema
 
 ## SOURCE
 
-[https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/Schema.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/Schema.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/JSONSchema.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/Controller/JSONSchema.pm)
 
 ## METHODS
 
 ### get
 
-Get the json-schema in JSON format.
+Get a query parameters, request, response, common or device\_report JSON Schema (from
+[query_params.json](../json-schema/query_params.json), [request.json](../json-schema/request.json), [response.json](../json-schema/response.json), [common.json](../json-schema/common.json), or [device_report.json](../json-schema/device_report.json),
+respectively). Bundles all the referenced definitions together in the returned body response.
 
 ### \_extract\_schema\_definition
 
@@ -20,7 +22,7 @@ TODO: this (plus addition of the header fields) could mostly be replaced with ju
 
 ```perl
 my $new_defs = $jv->bundle({
-    schema => $jv->get('/definitions/'.$title),
+    schema => $jv->get('/definitions/'.$name),
     ref_key => 'definitions',
 });
 ```

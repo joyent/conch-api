@@ -1,20 +1,19 @@
-package Conch::Plugin::JsonValidator;
+package Conch::Plugin::JSONValidator;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 use feature 'unicode_strings', 'fc';
 use JSON::Validator;
-use Mojo::Util 'decamelize';
 
 =pod
 
 =head1 NAME
 
-Conch::Plugin::JsonValidator
+Conch::Plugin::JSONValidator
 
 =head1 SYNOPSIS
 
-    $app->plugin('Conch::Plugin::JsonValidator');
+    $app->plugin('Conch::Plugin::JSONValidator');
 
     [ ... in a controller ]
 
@@ -74,7 +73,7 @@ F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
                 error => 'query parameters did not match required format',
                 data => $data,
                 details => \@errors,
-                schema => $c->url_for('/schema/query_params/'.decamelize($schema_name)),
+                schema => $c->url_for('/json_schema/query_params/'.$schema_name),
             });
         }
 
@@ -106,7 +105,7 @@ using the F<response.yaml#/definitions/RequestValidationError> json response sch
             return $c->status(400, {
                 error => 'request did not match required format',
                 details => \@errors,
-                schema => $c->url_for('/schema/request/'.decamelize($schema_name)),
+                schema => $c->url_for('/json_schema/request/'.$schema_name),
             });
         }
 
