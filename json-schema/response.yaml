@@ -1051,7 +1051,6 @@ definitions:
       - device_id
       - results
       - status
-      - validation_plan_id
       - hardware_product_id
       - device_report_id
     properties:
@@ -1069,11 +1068,6 @@ definitions:
           $ref: '#/definitions/LegacyValidationResult'
       status:
         $ref: common.yaml#/definitions/validation_status
-      validation_plan_id:
-        $comment: this property will be removed in v3.1
-        deprecated: true
-        allOf:
-          - $ref: common.yaml#/definitions/uuid
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       device_report_id:
@@ -1083,7 +1077,6 @@ definitions:
     additionalProperties: false
     required:
       - device_serial_number
-      - validation_plan_id
       - hardware_product_id
       - sku
       - status
@@ -1091,11 +1084,6 @@ definitions:
     properties:
       device_serial_number:
         $ref: common.yaml#/definitions/device_serial_number
-      validation_plan_id:
-        $comment: this property will be removed in v3.1
-        deprecated: true
-        allOf:
-          - $ref: common.yaml#/definitions/uuid
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       sku:

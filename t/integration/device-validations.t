@@ -104,7 +104,6 @@ $t->get_ok('/device/TEST/validation_state?status=fail')
 # valdiation that got recorded for this device via the report earlier.
 my (@fail_validation_state_id) = $t->app->db_validation_states->create({
     device_id => $device->id,
-    validation_plan_id => $test_validation_plan->id,
     device_report_id => $device_reports[1]->id,
     hardware_product_id => $device->hardware_product_id,
     status => 'fail',
@@ -137,7 +136,6 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
 # record another, older, failing test using the same plan.
 push @fail_validation_state_id, $t->app->db_validation_states->create({
     device_id => $device->id,
-    validation_plan_id => $test_validation_plan->id,
     device_report_id => $device_reports[1]->id,
     hardware_product_id => $device->hardware_product_id,
     status => 'fail',
@@ -162,7 +160,6 @@ $t->get_ok('/device/TEST/validation_state')
     ->json_cmp_deeply(
         {
             id => $fail_validation_state_id[0],
-            validation_plan_id => $test_validation_plan->id,
             hardware_product_id => $device->hardware_product_id,
             device_id => $device->id,
             device_report_id => $device_reports[1]->id,
@@ -217,7 +214,6 @@ $t->get_ok('/device/TEST/validation_state?status=error')
     ->json_cmp_deeply(
         {
             id => $error_validation_state_id,
-            validation_plan_id => $server_validation_plan->id,
             device_id => $device->id,
             device_report_id => $device_reports[0]->id,
             hardware_product_id => $device->hardware_product_id,

@@ -492,7 +492,6 @@ subtest 'located device' => sub {
 
         $t->app->db_validation_states->create({
             device_id => $located_device_id,
-            validation_plan_id => $hardware_product->validation_plan_id,
             hardware_product_id => $hardware_product->id,
             status => 'fail',
             # no validation_results -- old results may be purged, so 0 results is still valid

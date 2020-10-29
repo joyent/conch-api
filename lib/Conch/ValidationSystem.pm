@@ -359,7 +359,6 @@ sub run_validation_plan ($self, %options) {
     return $self->schema->resultset('validation_state')->create({
         device_id => $device->id,
         device_report_id => $device_report->id,
-        validation_plan_id => $validation_plan->id,
         hardware_product_id => $device->hardware_product_id,
         status => $status,
         # provided column data is used to determine if these result(s) already exist in the db,

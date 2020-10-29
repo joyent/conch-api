@@ -126,21 +126,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 validation_states
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::ValidationState>
-
-=cut
-
-__PACKAGE__->has_many(
-  "validation_states",
-  "Conch::DB::Result::ValidationState",
-  { "foreign.validation_plan_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
 =head2 validations
 
 Type: many_to_many
@@ -153,7 +138,7 @@ __PACKAGE__->many_to_many("validations", "validation_plan_members", "validation"
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:8Va+mP/1Ujni4L+AHcEtfA
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:LMw0PEn9G8wVNF8rR0jNRw
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

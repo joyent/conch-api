@@ -714,7 +714,6 @@ ALTER TABLE public.validation_result OWNER TO conch;
 
 CREATE TABLE public.validation_state (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    validation_plan_id uuid NOT NULL,
     created timestamp with time zone DEFAULT now() NOT NULL,
     status public.validation_status_enum NOT NULL,
     device_report_id uuid NOT NULL,
@@ -1523,13 +1522,6 @@ CREATE INDEX validation_state_member_validation_result_id_idx ON public.validati
 
 
 --
--- Name: validation_state_validation_plan_id_idx; Type: INDEX; Schema: public; Owner: conch
---
-
-CREATE INDEX validation_state_validation_plan_id_idx ON public.validation_state USING btree (validation_plan_id);
-
-
---
 -- Name: workspace_parent_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1876,14 +1868,6 @@ ALTER TABLE ONLY public.validation_state_member
 
 ALTER TABLE ONLY public.validation_state_member
     ADD CONSTRAINT validation_state_member_validation_state_id_fkey FOREIGN KEY (validation_state_id) REFERENCES public.validation_state(id) ON DELETE CASCADE;
-
-
---
--- Name: validation_state validation_state_validation_plan_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
---
-
-ALTER TABLE ONLY public.validation_state
-    ADD CONSTRAINT validation_state_validation_plan_id_fkey FOREIGN KEY (validation_plan_id) REFERENCES public.validation_plan(id);
 
 
 --
