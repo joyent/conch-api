@@ -2056,7 +2056,40 @@ definitions:
     type: array
     uniqueItems: true
     items:
-      $ref: '#/definitions/Build'
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - description
+        - created
+        - started
+        - completed
+        - links
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        name:
+          $ref: common.yaml#/definitions/mojo_standard_placeholder
+        description:
+          oneOf:
+            - type: 'null'
+            - type: string
+        created:
+          type: string
+          format: date-time
+        started:
+          oneOf:
+            - type: 'null'
+            - type: string
+              format: date-time
+        completed:
+          oneOf:
+            - type: 'null'
+            - type: string
+              format: date-time
+        links:
+          $ref: common.yaml#/definitions/links
   BuildUsers:
     type: array
     uniqueItems: true

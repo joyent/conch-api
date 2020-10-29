@@ -198,7 +198,64 @@
     },
     "Builds" : {
       "items" : {
-        "$ref" : "#/definitions/Build"
+        "additionalProperties" : false,
+        "properties" : {
+          "completed" : {
+            "oneOf" : [
+              {
+                "type" : "null"
+              },
+              {
+                "format" : "date-time",
+                "type" : "string"
+              }
+            ]
+          },
+          "created" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "description" : {
+            "oneOf" : [
+              {
+                "type" : "null"
+              },
+              {
+                "type" : "string"
+              }
+            ]
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "links" : {
+            "$ref" : "common.json#/definitions/links"
+          },
+          "name" : {
+            "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+          },
+          "started" : {
+            "oneOf" : [
+              {
+                "type" : "null"
+              },
+              {
+                "format" : "date-time",
+                "type" : "string"
+              }
+            ]
+          }
+        },
+        "required" : [
+          "id",
+          "name",
+          "description",
+          "created",
+          "started",
+          "completed",
+          "links"
+        ],
+        "type" : "object"
       },
       "type" : "array",
       "uniqueItems" : true

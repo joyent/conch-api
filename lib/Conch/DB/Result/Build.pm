@@ -259,18 +259,19 @@ Include information about the build's admins and user who marked the build compl
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
-    $data->{admins} = [
+    if (my $ubr = $self->related_resultset('user_build_roles')->get_cache) {
+      $data->{admins} = [
         map {
-            my ($user) = $_->related_resultset('user_account')->get_cache->@*;
-            +{ map +($_ => $user->$_), qw(id name email) };
+          my ($user) = $_->related_resultset('user_account')->get_cache->@*;
+          +{ map +($_ => $user->$_), qw(id name email) };
         }
-        $self->related_resultset('user_build_roles')->get_cache->@*
-    ];
+        $ubr->@*
+      ];
+    }
 
-    my ($completed_user) = $data->{completed} && $self->related_resultset('completed_user')->get_cache->@*;
-    $data->{completed_user} =
-        $completed_user ? +{ map +($_ => $completed_user->$_), qw(id name email) }
-      : undef;
+    if (my $completed_users = $self->related_resultset('completed_user')->get_cache) {
+      $data->{completed_user} = $data->{completed} ? +{ map +($_ => $completed_users->[0]->$_), qw(id name email) } : undef;
+    }
 
     if ($self->has_column_loaded('device_health')) {
         my @enum = $self->related_resultset('devices')->result_source->column_info('health')->{extra}{list}->@*;

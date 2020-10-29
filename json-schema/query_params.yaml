@@ -148,12 +148,21 @@ definitions:
       active_minutes:
         $ref: common.yaml#/definitions/non_negative_integer
   GetBuilds:
-    allOf:
-      - $ref: '#/definitions/WithDeviceRackData'
-      - type: object
-        properties:
-          include_completed:
-            $ref: '#/definitions/boolean_integer_or_flag'
+    type: object
+    properties:
+      started:
+        $ref: '#/definitions/boolean_integer'
+      completed:
+        $ref: '#/definitions/boolean_integer'
+    not:
+      required:
+        - started
+        - completed
+      properties:
+        started:
+          const: 0
+      completed:
+          const: 1
   WithDeviceRackData:
     type: object
     additionalProperties: true  # overlays with other schemas
