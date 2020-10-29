@@ -161,7 +161,7 @@ definitions:
       properties:
         started:
           const: 0
-      completed:
+        completed:
           const: 1
   WithDeviceRackData:
     type: object

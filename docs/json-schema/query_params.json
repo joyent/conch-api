@@ -69,10 +69,10 @@
     },
     "GetBuilds" : {
       "not" : {
-        "completed" : {
-          "const" : 1
-        },
         "properties" : {
+          "completed" : {
+            "const" : 1
+          },
           "started" : {
             "const" : 0
           }
