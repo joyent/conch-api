@@ -23,7 +23,7 @@ Validate the device against the specified validation.
 
 This is useful for testing and evaluating experimental validations against a given device.
 
-Response uses the ValidationResults json schema.
+Response uses the LegacyValidationResults json schema.
 
 ### run\_validation\_plan
 
@@ -34,7 +34,7 @@ Validate the device against the specified Validation Plan.
 This is useful for testing and evaluating Validation Plans against a given
 device.
 
-Response uses the ValidationResults json schema.
+Response uses the LegacyValidationResults json schema.
 
 ## LICENSING
 

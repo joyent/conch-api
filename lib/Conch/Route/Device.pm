@@ -435,7 +435,7 @@ This endpoint is B<deprecated> and will be removed in Conch API v4.0.
 
 =item * Request: F<request.yaml#/definitions/DeviceReport>
 
-=item * Response: F<response.yaml#/definitions/ValidationResults>
+=item * Response: F<response.yaml#/definitions/LegacyValidationResults>
 
 =back
 
@@ -453,7 +453,7 @@ This endpoint is B<deprecated> and will be removed in Conch API v4.0.
 
 =item * Request: F<request.yaml#/definitions/DeviceReport>
 
-=item * Response: F<response.yaml#/definitions/ValidationResults>
+=item * Response: F<response.yaml#/definitions/LegacyValidationResults>
 
 =back
 

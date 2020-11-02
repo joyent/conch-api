@@ -1914,6 +1914,79 @@
       "type" : "array",
       "uniqueItems" : true
     },
+    "LegacyValidationResult" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "category" : {
+          "type" : "string"
+        },
+        "component" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "type" : "string"
+            }
+          ]
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "hint" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "type" : "string"
+            }
+          ]
+        },
+        "id" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ]
+        },
+        "message" : {
+          "type" : "string"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "status" : {
+          "$ref" : "common.json#/definitions/validation_status"
+        },
+        "validation_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "version" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "id",
+        "category",
+        "component",
+        "hint",
+        "message",
+        "status",
+        "validation_id"
+      ],
+      "type" : "object"
+    },
+    "LegacyValidationResults" : {
+      "items" : {
+        "$ref" : "#/definitions/LegacyValidationResult"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "LegacyValidations" : {
       "$comment" : "this definition will be removed in v4.0",
       "deprecated" : true,
@@ -2606,7 +2679,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "results" : {
-          "$ref" : "#/definitions/ValidationResults"
+          "$ref" : "#/definitions/LegacyValidationResults"
         },
         "sku" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
@@ -2984,79 +3057,6 @@
       ],
       "type" : "object"
     },
-    "ValidationResult" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "category" : {
-          "type" : "string"
-        },
-        "component" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "type" : "string"
-            }
-          ]
-        },
-        "description" : {
-          "type" : "string"
-        },
-        "hint" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "type" : "string"
-            }
-          ]
-        },
-        "id" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "$ref" : "common.json#/definitions/uuid"
-            }
-          ]
-        },
-        "message" : {
-          "type" : "string"
-        },
-        "name" : {
-          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-        },
-        "status" : {
-          "$ref" : "common.json#/definitions/validation_status"
-        },
-        "validation_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "version" : {
-          "$ref" : "common.json#/definitions/positive_integer"
-        }
-      },
-      "required" : [
-        "id",
-        "category",
-        "component",
-        "hint",
-        "message",
-        "status",
-        "validation_id"
-      ],
-      "type" : "object"
-    },
-    "ValidationResults" : {
-      "items" : {
-        "$ref" : "#/definitions/ValidationResult"
-      },
-      "type" : "array",
-      "uniqueItems" : true
-    },
     "ValidationStateWithResults" : {
       "additionalProperties" : false,
       "properties" : {
@@ -3078,7 +3078,7 @@
         },
         "results" : {
           "items" : {
-            "$ref" : "#/definitions/ValidationResult"
+            "$ref" : "#/definitions/LegacyValidationResult"
           },
           "type" : "array",
           "uniqueItems" : true

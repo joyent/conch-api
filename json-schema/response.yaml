@@ -999,7 +999,7 @@ definitions:
       created:
         type: string
         format: date-time
-  ValidationResult:
+  LegacyValidationResult:
     type: object
     additionalProperties: false
     required:
@@ -1037,11 +1037,11 @@ definitions:
         $ref: common.yaml#/definitions/positive_integer
       description:
         type: string
-  ValidationResults:
+  LegacyValidationResults:
     type: array
     uniqueItems: true
     items:
-      $ref: '#/definitions/ValidationResult'
+      $ref: '#/definitions/LegacyValidationResult'
   ValidationStateWithResults:
     type: object
     additionalProperties: false
@@ -1066,7 +1066,7 @@ definitions:
         type: array
         uniqueItems: true
         items:
-          $ref: '#/definitions/ValidationResult'
+          $ref: '#/definitions/LegacyValidationResult'
       status:
         $ref: common.yaml#/definitions/validation_status
       validation_plan_id:
@@ -1103,7 +1103,7 @@ definitions:
       status:
         $ref: common.yaml#/definitions/validation_status
       results:
-        $ref: '#/definitions/ValidationResults'
+        $ref: '#/definitions/LegacyValidationResults'
   WorkspaceRelays:
     deprecated: true
     type: array
