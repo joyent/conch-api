@@ -1481,6 +1481,13 @@ CREATE INDEX validation_state_created_idx ON public.validation_state USING btree
 
 
 --
+-- Name: validation_state_device_id_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX validation_state_device_id_idx ON public.validation_state USING btree (device_id);
+
+
+--
 -- Name: validation_state_device_report_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
