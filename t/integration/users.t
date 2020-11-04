@@ -258,10 +258,10 @@ subtest 'User' => sub {
 
     $t_super->get_ok('/user')
         ->status_is(200)
-        ->json_schema_is('UsersDetailed')
+        ->json_schema_is('Users')
         ->json_cmp_deeply([
             (map +{
-                $_->%*,
+                $_->%{qw(id name email created refuse_session_auth force_password_change is_admin)},
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             }, $super_user_data, $user_detailed),
@@ -712,14 +712,14 @@ subtest 'modify another user' => sub {
 
     $t_super->get_ok('/user')
         ->status_is(200)
-        ->json_schema_is('UsersDetailed')
+        ->json_schema_is('Users')
         ->json_cmp_deeply([
-            (map +{
-                $_->%*,
-                last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-                last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            }, $super_user_data, $user_detailed),
-            $new_user_data,
+          (map +{
+            $_->%{qw(id name email created refuse_session_auth force_password_change is_admin)},
+            last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+          }, $super_user_data, $user_detailed),
+          { $new_user_data->%{qw(id name email created last_login last_seen refuse_session_auth force_password_change is_admin)} },
         ]);
 
     $t_super->post_ok('/user?send_mail=0',

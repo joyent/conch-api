@@ -1674,11 +1674,44 @@ definitions:
               $ref: common.yaml#/definitions/role
             role_via_organization_id:
               $ref: common.yaml#/definitions/uuid
-  UsersDetailed:
+  Users:
     type: array
     uniqueItems: true
     items:
-       $ref: '#/definitions/UserDetailed'
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+        - email
+        - created
+        - last_login
+        - last_seen
+        - refuse_session_auth
+        - force_password_change
+        - is_admin
+      properties:
+        id:
+          $ref: common.yaml#/definitions/uuid
+        name:
+          type: string
+        email:
+          $ref: common.yaml#/definitions/email_address
+        created:
+          type: string
+          format: date-time
+        last_login:
+          type: [ 'null', string ]
+          format: date-time
+        last_seen:
+          type: [ 'null', string ]
+          format: date-time
+        refuse_session_auth:
+          type: boolean
+        force_password_change:
+          type: boolean
+        is_admin:
+          type: boolean
   UserSettings:
     type: object
     propertyNames:
