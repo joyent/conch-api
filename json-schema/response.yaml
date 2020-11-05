@@ -269,9 +269,7 @@ $defs:
               format: date-time
       latest_report:
         $comment: the contents of the device report. Given its age we cannot provide a schema.
-        anyOf:
-          - type: [ 'null', object ]
-          - $ref: device_report.yaml#/$defs/DeviceReport_v3_0_0
+        type: [ 'null', object ]
     if:
       properties:
         phase:
