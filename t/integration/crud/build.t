@@ -86,6 +86,7 @@ $t->get_ok($t->tx->res->headers->location)
             { map +($_ => $admin_user->$_), qw(id name email) },
         ],
         completed_user => undef,
+        completed_status => undef,
         links => ['https://foo.com/1', 'https://bar.com/2'],
     })
     ->log_debug_is('User has system admin access to build '.$t->tx->res->json->{id});
@@ -100,7 +101,7 @@ $t->get_ok('/build/my first build')
 $t->get_ok('/build'.$_)
     ->status_is(200)
     ->json_schema_is('Builds')
-    ->json_is([ { $build->%{qw(id name description created started completed links)} } ])
+    ->json_is([ { $build->%{qw(id name description created started completed completed_status links)} } ])
       foreach ('', '?started=0', '?completed=0');
 
 $t->get_ok('/build'.$_)
@@ -149,9 +150,11 @@ $t->post_ok('/build/my first build', json => { completed => $now->plus_days(1) }
 $t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
     ->status_is(303)
     ->location_is('/build/'.$build->{id})
-    ->log_info_is("build $build->{id} (my first build) completed; 0 users had role converted from rw to ro");
+    ->log_info_is("build $build->{id} (my first build) completed as success (0 unhealthy devices); 0 users had role converted from rw to ro");
+
 $build->{completed} = $now->minus_days(1)->to_string;
 $build->{completed_user} = { map +($_ => $super_user->$_), qw(id name email) };
+$build->{completed_status} = 'success';
 
 $t->get_ok('/build/my first build')
     ->status_is(200)
@@ -161,7 +164,7 @@ $t->get_ok('/build/my first build')
 $t->get_ok('/build'.$_)
     ->status_is(200)
     ->json_schema_is('Builds')
-    ->json_is([ { $build->%{qw(id name description created started completed links)} } ])
+    ->json_is([ { $build->%{qw(id name description created started completed completed_status links)} } ])
       foreach ('', '?started=1', '?completed=1', '?started=1&completed=1');
 
 $t->get_ok('/build'.$_)
@@ -179,8 +182,7 @@ $t->post_ok('/build/my first build', json => { completed => undef })
     ->status_is(303)
     ->location_is('/build/'.$build->{id})
     ->log_info_is('build '.$build->{id}.' (my first build) moved out of completed state');
-$build->{completed} = undef;
-$build->{completed_user} = undef;
+$build->@{qw(completed completed_user completed_status)} = (undef)x3;
 
 $t->post_ok('/build/my first build/links', json => { links => ['https://alpha.com/1'] })
     ->status_is(303)
@@ -247,6 +249,7 @@ $t->get_ok($t->tx->res->headers->location)
         created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
         started =>  => '2019-01-01T00:00:00.000Z',
         completed => undef,
+        completed_status => undef,
         admins => [
             { map +($_ => $admin_user->$_), qw(id name email) },
         ],
@@ -259,7 +262,7 @@ $t->get_ok('/build')
     ->status_is(200)
     ->json_schema_is('Builds')
     ->json_cmp_deeply([
-        map +{ $_->%{qw(id name description created started completed links)} }, $build, $build2,
+        map +{ $_->%{qw(id name description created started completed completed_status links)} }, $build, $build2,
     ]);
 
 $t->post_ok('/build/our second build', json => { name => 'my first build' })
@@ -339,7 +342,7 @@ $t->get_ok('/build/my first build/user')
 $t2->get_ok('/build')
     ->status_is(200)
     ->json_schema_is('Builds')
-    ->json_is([ { $build->%{qw(id name description created started completed links)} } ]);
+    ->json_is([ { $build->%{qw(id name description created started completed completed_status links)} } ]);
 
 $t2->get_ok('/build/my first build')
     ->status_is(200)
@@ -415,9 +418,10 @@ $t2->delete_ok('/build/my first build/user/'.$new_user->email)
 $t->post_ok('/build/my first build', json => { completed => $now->minus_hours(2) })
     ->status_is(303)
     ->location_is('/build/'.$build->{id})
-    ->log_info_is("build $build->{id} (my first build) completed; 1 users had role converted from rw to ro");
+    ->log_info_is("build $build->{id} (my first build) completed as success (0 unhealthy devices); 1 users had role converted from rw to ro");
 $build->{completed} = $now->minus_hours(2)->to_string;
 $build->{completed_user} = { map +($_ => $super_user->$_), qw(id name email) };
+$build->{completed_status} = 'success';
 
 $t->get_ok('/build/my first build')
     ->status_is(200)
@@ -732,13 +736,13 @@ $t->post_ok('/build/our second build/device', json => [ { sku => 'ugh' } ])
             { path => '/0/serial_number', message => re(qr/missing property/i) },
         ]);
 
-$t->app->db_builds->search({ id => $build2->{id} })->update({ completed => \'now()', completed_user_id => $super_user->id });
+$t->app->db_builds->search({ id => $build2->{id} })->update({ completed => \'now()', completed_user_id => $super_user->id, completed_status => 'failure' });
 
 $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => 'nope' } ])
     ->status_is(409)
     ->json_is({ error => 'cannot add devices to a completed build' });
 
-$t->app->db_builds->search({ id => $build2->{id} })->update({ completed => undef, completed_user_id => undef });
+$t->app->db_builds->search({ id => $build2->{id} })->update({ completed => undef, completed_user_id => undef, completed_status => undef });
 
 $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO', sku => 'nope' } ])
     ->status_is(404)
@@ -983,7 +987,7 @@ $t->post_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(409)
     ->json_is({ error => 'cannot add a rack to a completed build' });
 
-$t->app->db_builds->search({ id => $build->{id} })->update({ completed => undef, completed_user_id => undef });
+$t->app->db_builds->search({ id => $build->{id} })->update({ completed => undef, completed_user_id => undef, completed_status => undef });
 
 $t->post_ok('/build/my first build/rack/'.$rack1->id)
     ->status_is(204)
@@ -1082,7 +1086,7 @@ $t->post_ok('/build/my first build/device/'.$another_device->id)
     ->status_is(409)
     ->json_is({ error => 'cannot add a device to a build when in production (or later) phase' });
 
-$t->app->db_builds->search({ id => $build->{id} })->update({ completed => \'now()', completed_user_id => $super_user->id });
+$t->app->db_builds->search({ id => $build->{id} })->update({ completed => \'now()', completed_user_id => $super_user->id, completed_status => 'failure' });
 
 $t->post_ok('/build/my first build/device/'.$device2->id)
     ->status_is(409)
@@ -1092,8 +1096,7 @@ $t->post_ok('/build/my first build', json => { completed => undef })
     ->status_is(303)
     ->location_is('/build/'.$build->{id})
     ->log_info_is('build '.$build->{id}.' (my first build) moved out of completed state');
-$build->{completed} = undef;
-$build->{completed_user} = undef;
+$build->@{qw(completed completed_user completed_status)} = (undef)x3;
 
 $t->post_ok('/build/my first build/device/'.$device2->id)
     ->status_is(204)
@@ -1218,21 +1221,28 @@ foreach my $device1_health (0, 1) {
         note 'device2 health = '.$device2->health;
         note 'device2 phase = '.$device2->phase;
 
-        $t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) });
+        my $unhealthy_count = 0+ (!$device1_health && !$device1_phase) + (!$device2_health && !$device2_phase);
 
-        if (($device1_health or $device1_phase) and ($device2_health or $device2_phase)) {
-          $t->status_is(303)
+        $t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
+          ->status_is(303)
           ->location_is('/build/'.$build->{id})
-          ->log_info_is("build $build->{id} (my first build) completed; 0 users had role converted from rw to ro");
-        }
-        else {
-          $t->status_is(409)
-            ->json_is({ error => 'build cannot be completed when it has unhealthy devices' });
-        }
+          ->log_info_is("build $build->{id} (my first build) completed as "
+            .($unhealthy_count ? 'failure' : 'success')
+            ." ($unhealthy_count unhealthy devices); 0 users had role converted from rw to ro");
+
+        cmp_deeply(
+          $t->app->db_builds->search({ id => $build->{id} })
+            ->columns([qw(completed_user_id completed_status)])->as_epoch('completed')->hri->single,
+          superhashof({
+            completed => re(qr/^\d+\.\d+$/),
+            completed_user_id => $super_user->id,
+            completed_status => ($unhealthy_count ? 'failure' : 'success'),
+          }),
+          'build marked completed',
+        );
 
         $t->app->db_builds->search({ id => $build->{id} })
-          ->update({ completed => undef, completed_user_id => undef })
-            if not ($device1_health and $device1_phase and $device2_health and $device2_phase);
+          ->update({ completed => undef, completed_status => undef, completed_user_id => undef });
       }
     }
   }
@@ -1242,8 +1252,7 @@ $device1->update({ health => 'pass', phase => 'production' });
 $device2->update({ health => 'pass', phase => 'integration' });
 
 $t->app->db_builds->search({ id => $build->{id} })->update({ completed => undef, completed_user_id => undef });
-$build->{completed} = undef;
-$build->{completed_user} = undef;
+$build->@{qw(completed completed_user completed_status)} = (undef)x3;
 
 $t->get_ok('/build/my first build/device')
     ->status_is(200)

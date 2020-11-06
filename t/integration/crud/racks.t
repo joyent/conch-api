@@ -15,7 +15,7 @@ $t->load_fixture_set('universe_room_rack_layout', 0);
 my $build = $t->generate_fixtures('build');
 
 my $completed_build = $t->generate_fixtures('build');
-$completed_build->update({ started => \'now()', completed => \'now()', completed_user_id => $super_user->id });
+$completed_build->update({ started => \'now()', completed => \'now()', completed_user_id => $super_user->id, completed_status => 'success' });
 my $completed_rack = first { $_->isa('Conch::DB::Result::Rack') } $t->generate_fixtures('rack', { build_id => $completed_build->id });
 $completed_rack->create_related('rack_layouts', {
     hardware_product_id => $t->app->db_hardware_products->rows(1)->get_column('id')->single,

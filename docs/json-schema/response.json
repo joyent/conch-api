@@ -10,6 +10,12 @@
             "format" : "date-time",
             "type" : "string"
           },
+          "completed_status" : {
+            "enum" : [
+              "failure",
+              "success"
+            ]
+          },
           "completed_user" : {
             "$ref" : "#/definitions/UserTerse"
           }
@@ -32,6 +38,7 @@
           "uniqueItems" : true
         },
         "completed" : true,
+        "completed_status" : true,
         "completed_user" : true,
         "created" : {
           "format" : "date-time",
@@ -109,11 +116,15 @@
         "started",
         "completed",
         "completed_user",
+        "completed_status",
         "admins",
         "links"
       ],
       "then" : {
         "properties" : {
+          "completed_status" : {
+            "type" : "null"
+          },
           "completed_user" : {
             "type" : "null"
           }
@@ -205,18 +216,30 @@
     "Builds" : {
       "items" : {
         "additionalProperties" : false,
+        "else" : {
+          "properties" : {
+            "completed" : {
+              "format" : "date-time",
+              "type" : "string"
+            },
+            "completed_status" : {
+              "enum" : [
+                "failure",
+                "success"
+              ]
+            }
+          }
+        },
+        "if" : {
+          "properties" : {
+            "completed" : {
+              "type" : "null"
+            }
+          }
+        },
         "properties" : {
-          "completed" : {
-            "oneOf" : [
-              {
-                "type" : "null"
-              },
-              {
-                "format" : "date-time",
-                "type" : "string"
-              }
-            ]
-          },
+          "completed" : true,
+          "completed_status" : true,
           "created" : {
             "format" : "date-time",
             "type" : "string"
@@ -259,8 +282,16 @@
           "created",
           "started",
           "completed",
+          "completed_status",
           "links"
         ],
+        "then" : {
+          "properties" : {
+            "completed_status" : {
+              "type" : "null"
+            }
+          }
+        },
         "type" : "object"
       },
       "type" : "array",

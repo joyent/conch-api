@@ -201,35 +201,39 @@ sub update ($c) {
     return $c->status(409, { error => 'build cannot be completed in the future' })
         if $build->completed and $build->completed > Conch::Time->now;
 
-    return $c->status(409, { error => 'build cannot be completed when it has unhealthy devices' })
-        if $input->{completed} and
-            ($build->search_related('devices', {
+    $c->log->info('build '.$build->id.' ('.$build->name.') started')
+        if $build->started and not $old_columns{started};
+
+    if (not $build->completed and $old_columns{completed}) {
+        $build->completed_status(undef);
+        $build->completed_user_id(undef);
+        $c->log->info('build '.$build->id.' ('.$build->name
+            .') moved out of completed state');
+    }
+    elsif ($build->completed and not $old_columns{completed}) {
+        # determine completed_status based on device health
+        my $unhealthy_devices =
+            $build->search_related('devices', {
                     health => { '!=' => 'pass' },
                     phase => { '<' => \[ '?::device_phase_enum', 'production' ] },
-                })->exists
-             or $build
+                })->count
+             + $build
                 ->related_resultset('racks')
                 ->related_resultset('device_locations')
                 ->search_related('device', {
                     'device.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] },
                     health => { '!=' => 'pass' }
                 })
-                ->exists);
+                ->count;
 
-    $c->log->info('build '.$build->id.' ('.$build->name.') started')
-        if $build->started and not $old_columns{started};
-
-    if (not $build->completed and $old_columns{completed}) {
-        $build->completed_user_id(undef);
-        $c->log->info('build '.$build->id.' ('.$build->name
-            .') moved out of completed state');
-    }
-    elsif ($build->completed and not $old_columns{completed}) {
+        $build->completed_status($unhealthy_devices ? 'failure' : 'success');
         $build->completed_user_id($c->stash('user')->id);
+
         my $users_updated = $build->search_related('user_build_roles', { role => 'rw' })
             ->update({ role => 'ro' });
         $c->log->info('build '.$build->id.' ('.$build->name
-            .') completed; '.(0+$users_updated).' users had role converted from rw to ro');
+          .') completed as '.$build->completed_status.' ('.$unhealthy_devices.' unhealthy devices); '
+          .(0+$users_updated).' users had role converted from rw to ro');
     }
 
     $build->update if $build->is_changed;

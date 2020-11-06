@@ -15,7 +15,7 @@
 # 1 or more      +      (marks foreign key on table declaration)
 
 
-title {label: "Conch database schema (as of v3.0.3, 2020-10-22)", size: "50"}
+title {label: "Conch database schema (as of v3.0.6, 2020-11-xx)", size: "50"}
 
 entity {bgcolor: "#eeeeee", size: "20"}
 
@@ -34,6 +34,7 @@ started
 completed
 +completed_user_id
 links
+completed_status
 
 [datacenter] {bgcolor: "#fcecec"}
 *id

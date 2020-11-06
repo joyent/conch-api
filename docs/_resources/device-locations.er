@@ -1,4 +1,4 @@
-title {label: "Conch API database schema (as of v3.0.3, 2020-10-22): device locations", size: "40"}
+title {label: "Conch API database schema (as of v3.0.6, 2020-11-xx): device locations", size: "40"}
 
 entity {bgcolor: "#ececfc", size: "20"}
 
@@ -11,6 +11,7 @@ started
 completed
 +completed_user_id
 links
+completed_status
 
 [datacenter]
 *id
