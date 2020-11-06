@@ -4,6 +4,24 @@
   "definitions" : {
     "Build" : {
       "additionalProperties" : false,
+      "else" : {
+        "properties" : {
+          "completed" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "completed_user" : {
+            "$ref" : "#/definitions/UserTerse"
+          }
+        }
+      },
+      "if" : {
+        "properties" : {
+          "completed" : {
+            "type" : "null"
+          }
+        }
+      },
       "properties" : {
         "admins" : {
           "items" : {
@@ -13,27 +31,8 @@
           "type" : "array",
           "uniqueItems" : true
         },
-        "completed" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
-          ]
-        },
-        "completed_user" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "$ref" : "#/definitions/UserTerse"
-            }
-          ]
-        },
+        "completed" : true,
+        "completed_user" : true,
         "created" : {
           "format" : "date-time",
           "type" : "string"
@@ -109,10 +108,17 @@
         "created",
         "started",
         "completed",
-        "admins",
         "completed_user",
+        "admins",
         "links"
       ],
+      "then" : {
+        "properties" : {
+          "completed_user" : {
+            "type" : "null"
+          }
+        }
+      },
       "type" : "object"
     },
     "BuildOrganizations" : {
