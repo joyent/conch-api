@@ -71,7 +71,7 @@ subtest 'test validating a device' => sub {
     $t->post_ok("/device/TEST/validation/$validation_id",
             { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
-        ->json_schema_is('ValidationResults')
+        ->json_schema_is('LegacyValidationResults')
         ->json_cmp_deeply(array_each(superhashof({
             id => undef,
         })));
@@ -86,7 +86,7 @@ subtest 'test validating a device' => sub {
     $t->post_ok('/device/TEST/validation_plan/'.$test_validation_plan->id,
             { 'Content-Type' => 'application/json' }, $good_report)
         ->status_is(200)
-        ->json_schema_is('ValidationResults')
+        ->json_schema_is('LegacyValidationResults')
         ->json_is($validation_results);
 };
 

@@ -1678,7 +1678,13 @@
           "type" : "integer"
         },
         "validation_plan_id" : {
-          "$ref" : "common.json#/definitions/uuid"
+          "$comment" : "this property will become nullable in v3.3 and removed in v4.0",
+          "allOf" : [
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ],
+          "deprecated" : true
         }
       },
       "required" : [
@@ -1823,6 +1829,172 @@
         "message"
       ],
       "type" : "object"
+    },
+    "LegacyValidation" : {
+      "$comment" : "this definition will be removed in v4.0",
+      "additionalProperties" : false,
+      "deprecated" : true,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "deactivated" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "format" : "date-time",
+              "type" : "string"
+            }
+          ]
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "updated" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "version" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "version",
+        "description",
+        "created",
+        "updated",
+        "deactivated"
+      ],
+      "type" : "object"
+    },
+    "LegacyValidationPlan" : {
+      "$comment" : "this definition will be removed in v4.0",
+      "additionalProperties" : false,
+      "deprecated" : true,
+      "properties" : {
+        "created" : {
+          "format" : "date-time",
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        }
+      },
+      "required" : [
+        "id",
+        "name",
+        "description",
+        "created"
+      ],
+      "type" : "object"
+    },
+    "LegacyValidationPlans" : {
+      "$comment" : "this definition will be removed in v4.0",
+      "deprecated" : true,
+      "items" : {
+        "$ref" : "#/definitions/LegacyValidationPlan"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "LegacyValidationResult" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "category" : {
+          "type" : "string"
+        },
+        "component" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "type" : "string"
+            }
+          ]
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "hint" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "type" : "string"
+            }
+          ]
+        },
+        "id" : {
+          "oneOf" : [
+            {
+              "type" : "null"
+            },
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ]
+        },
+        "message" : {
+          "type" : "string"
+        },
+        "name" : {
+          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
+        },
+        "status" : {
+          "$ref" : "common.json#/definitions/validation_status"
+        },
+        "validation_id" : {
+          "$ref" : "common.json#/definitions/uuid"
+        },
+        "version" : {
+          "$ref" : "common.json#/definitions/positive_integer"
+        }
+      },
+      "required" : [
+        "id",
+        "category",
+        "component",
+        "hint",
+        "message",
+        "status",
+        "validation_id"
+      ],
+      "type" : "object"
+    },
+    "LegacyValidationResults" : {
+      "items" : {
+        "$ref" : "#/definitions/LegacyValidationResult"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
+    "LegacyValidations" : {
+      "$comment" : "this definition will be removed in v4.0",
+      "deprecated" : true,
+      "items" : {
+        "$ref" : "#/definitions/LegacyValidation"
+      },
+      "type" : "array",
+      "uniqueItems" : true
     },
     "LoginToken" : {
       "additionalProperties" : false,
@@ -2507,7 +2679,7 @@
           "$ref" : "common.json#/definitions/uuid"
         },
         "results" : {
-          "$ref" : "#/definitions/ValidationResults"
+          "$ref" : "#/definitions/LegacyValidationResults"
         },
         "sku" : {
           "$ref" : "common.json#/definitions/mojo_standard_placeholder"
@@ -2516,7 +2688,13 @@
           "$ref" : "common.json#/definitions/validation_status"
         },
         "validation_plan_id" : {
-          "$ref" : "common.json#/definitions/uuid"
+          "$comment" : "this property will be removed in v3.1",
+          "allOf" : [
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ],
+          "deprecated" : true
         }
       },
       "required" : [
@@ -2847,52 +3025,6 @@
       "type" : "array",
       "uniqueItems" : true
     },
-    "Validation" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "created" : {
-          "format" : "date-time",
-          "type" : "string"
-        },
-        "deactivated" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
-          ]
-        },
-        "description" : {
-          "type" : "string"
-        },
-        "id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "name" : {
-          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-        },
-        "updated" : {
-          "format" : "date-time",
-          "type" : "string"
-        },
-        "version" : {
-          "$ref" : "common.json#/definitions/positive_integer"
-        }
-      },
-      "required" : [
-        "id",
-        "name",
-        "version",
-        "description",
-        "created",
-        "updated",
-        "deactivated"
-      ],
-      "type" : "object"
-    },
     "ValidationError" : {
       "additionalProperties" : false,
       "description" : "base structure for all query_param, request, response validation error responses",
@@ -2925,111 +3057,6 @@
       ],
       "type" : "object"
     },
-    "ValidationPlan" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "created" : {
-          "format" : "date-time",
-          "type" : "string"
-        },
-        "description" : {
-          "type" : "string"
-        },
-        "id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "name" : {
-          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-        }
-      },
-      "required" : [
-        "id",
-        "name",
-        "description",
-        "created"
-      ],
-      "type" : "object"
-    },
-    "ValidationPlans" : {
-      "items" : {
-        "$ref" : "#/definitions/ValidationPlan"
-      },
-      "type" : "array",
-      "uniqueItems" : true
-    },
-    "ValidationResult" : {
-      "additionalProperties" : false,
-      "properties" : {
-        "category" : {
-          "type" : "string"
-        },
-        "component" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "type" : "string"
-            }
-          ]
-        },
-        "description" : {
-          "type" : "string"
-        },
-        "hint" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "type" : "string"
-            }
-          ]
-        },
-        "id" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "$ref" : "common.json#/definitions/uuid"
-            }
-          ]
-        },
-        "message" : {
-          "type" : "string"
-        },
-        "name" : {
-          "$ref" : "common.json#/definitions/mojo_standard_placeholder"
-        },
-        "status" : {
-          "$ref" : "common.json#/definitions/validation_status"
-        },
-        "validation_id" : {
-          "$ref" : "common.json#/definitions/uuid"
-        },
-        "version" : {
-          "$ref" : "common.json#/definitions/positive_integer"
-        }
-      },
-      "required" : [
-        "id",
-        "category",
-        "component",
-        "hint",
-        "message",
-        "status",
-        "validation_id"
-      ],
-      "type" : "object"
-    },
-    "ValidationResults" : {
-      "items" : {
-        "$ref" : "#/definitions/ValidationResult"
-      },
-      "type" : "array",
-      "uniqueItems" : true
-    },
     "ValidationStateWithResults" : {
       "additionalProperties" : false,
       "properties" : {
@@ -3051,7 +3078,7 @@
         },
         "results" : {
           "items" : {
-            "$ref" : "#/definitions/ValidationResult"
+            "$ref" : "#/definitions/LegacyValidationResult"
           },
           "type" : "array",
           "uniqueItems" : true
@@ -3060,7 +3087,13 @@
           "$ref" : "common.json#/definitions/validation_status"
         },
         "validation_plan_id" : {
-          "$ref" : "common.json#/definitions/uuid"
+          "$comment" : "this property will be removed in v3.1",
+          "allOf" : [
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ],
+          "deprecated" : true
         }
       },
       "required" : [
@@ -3074,13 +3107,6 @@
         "device_report_id"
       ],
       "type" : "object"
-    },
-    "Validations" : {
-      "items" : {
-        "$ref" : "#/definitions/Validation"
-      },
-      "type" : "array",
-      "uniqueItems" : true
     },
     "Version" : {
       "additionalProperties" : false,

@@ -52,7 +52,7 @@ B<DOES NOT STORE VALIDATION RESULTS>.
 
 This is useful for testing and evaluating experimental validations against a given device.
 
-Response uses the ValidationResults json schema.
+Response uses the LegacyValidationResults json schema.
 
 =cut
 
@@ -91,7 +91,7 @@ B<DOES NOT STORE VALIDATION RESULTS>.
 This is useful for testing and evaluating Validation Plans against a given
 device.
 
-Response uses the ValidationResults json schema.
+Response uses the LegacyValidationResults json schema.
 
 =cut
 

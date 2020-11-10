@@ -8,7 +8,7 @@ use Conch::UUID 'is_uuid';
 
 =head1 NAME
 
-Conch::Controller::Validation
+Conch::Controller::ValidationPlan
 
 Controller for managing Validation Plans
 
@@ -18,7 +18,7 @@ Controller for managing Validation Plans
 
 List all available Validation Plans.
 
-Response uses the ValidationPlans json schema.
+Response uses the LegacyValidationPlans json schema.
 
 =cut
 
@@ -30,14 +30,14 @@ sub get_all ($c) {
 
 =head2 find_validation_plan
 
-Chainable action that uses the C<validation_plan_id_or_name> provided in the stash
+Chainable action that uses the C<legacy_validation_plan_id_or_name> provided in the stash
 (usually via the request URL) to look up a validation_plan, and stashes the result in
-C<validation_plan>.
+C<legacy_validation_plan>.
 
 =cut
 
 sub find_validation_plan($c) {
-    my $identifier = $c->stash('validation_plan_id_or_name');
+    my $identifier = $c->stash('legacy_validation_plan_id_or_name');
 
     my $validation_plan = $c->db_validation_plans->active->search({
         (is_uuid($identifier) ? 'id' : 'name') => $identifier,
@@ -49,7 +49,7 @@ sub find_validation_plan($c) {
     }
 
     $c->log->debug('Found validation plan '.$validation_plan->id);
-    $c->stash('validation_plan', $validation_plan);
+    $c->stash('legacy_validation_plan', $validation_plan);
     return 1;
 }
 
@@ -57,30 +57,30 @@ sub find_validation_plan($c) {
 
 Get the (active) Validation Plan specified by uuid or name.
 
-Response uses the ValidationPlan json schema.
+Response uses the LegacyValidationPlan json schema.
 
 =cut
 
 sub get ($c) {
-    return $c->status(200, $c->stash('validation_plan'));
+    return $c->status(200, $c->stash('legacy_validation_plan'));
 }
 
 =head2 get_validations
 
 List all Validations associated with the Validation Plan, both active and deactivated.
 
-Response uses the Validations json schema.
+Response uses the LegacyValidations json schema.
 
 =cut
 
 sub get_validations ($c) {
-    my @validations = $c->stash('validation_plan')
+    my @validations = $c->stash('legacy_validation_plan')
         ->related_resultset('validation_plan_members')
         ->related_resultset('validation')
         ->order_by([ 'validation.name', 'validation.version' ])
         ->all;
 
-    $c->log->debug('Found '.scalar(@validations).' validations for validation plan '.$c->stash('validation_plan')->id);
+    $c->log->debug('Found '.scalar(@validations).' validations for validation plan '.$c->stash('legacy_validation_plan')->id);
 
     $c->status(200, \@validations);
 }

@@ -688,7 +688,13 @@
           "type" : "integer"
         },
         "validation_plan_id" : {
-          "$ref" : "common.json#/definitions/uuid"
+          "$comment" : "this property will become nullable in v3.3 and removed in v4.0",
+          "allOf" : [
+            {
+              "$ref" : "common.json#/definitions/uuid"
+            }
+          ],
+          "deprecated" : true
         }
       },
       "type" : "object"

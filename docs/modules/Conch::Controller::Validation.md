@@ -12,11 +12,11 @@ Controller for managing Validations, **NOT** executing them.
 
 List all Validations.
 
-Response uses the Validations json schema (including deactivated ones).
+Response uses the LegacyValidations json schema (including deactivated ones).
 
 ### find\_validation
 
-Chainable action that uses the `validation_id_or_name` value provided in the stash (usually
+Chainable action that uses the `legacy_validation_id_or_name` value provided in the stash (usually
 via the request URL) to look up a validation, and stashes the query to get to it in
 `validation_rs`.
 
@@ -24,7 +24,7 @@ via the request URL) to look up a validation, and stashes the query to get to it
 
 Get the Validation specified by uuid or name.
 
-Response uses the Validation json schema.
+Response uses the LegacyValidation json schema.
 
 ## LICENSING
 

@@ -101,7 +101,11 @@ Available top-level routes are:
 
 * [Conch::Route::Validation](modules/Conch::Route::Validation)
   * `/validation`
+
+* [Conch::Route::ValidationPlan](modules/Conch::Route::ValidationPlan)
   * `/validation_plan`
+
+* [Conch::Route::ValidationState](modules/Conch::Route::ValidationState)
   * `/validation_state`
 
 * [Conch::Route::Workspace](modules/Conch::Route::Workspace)

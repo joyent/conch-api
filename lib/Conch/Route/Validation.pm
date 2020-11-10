@@ -12,52 +12,26 @@ Conch::Route::Validation
 
 =head2 routes
 
-Sets up the routes for /validation, /validation_plan and /validation_state.
+Sets up the routes for /validation.
+
+All routes are B<deprecated> and will be removed in Conch API v3.1.
 
 =cut
 
 sub routes {
     my $class = shift;
-    my $r = shift;  # secured, under /
+    my $v = shift;  # secured, under /validation
 
-    # all these /validation routes go to the Validation controller
-    my $v = $r->any('/validation');
-    $v->to({ controller => 'validation' });
+    $v->to(controller => 'validation', deprecated => 'v3.1');
 
     # GET /validation
     $v->get('/')->to('#get_all');
 
     {
-        my $with_validation = $v->under('/:validation_id_or_name')->to('#find_validation');
+        my $with_validation = $v->under('/:legacy_validation_id_or_name')->to('#find_validation');
 
-        # GET /validation/:validation_id_or_name
+        # GET /validation/:legacy_validation_id_or_name
         $with_validation->get('/')->to('#get');
-    }
-
-
-    # all these /validation_plan routes go to the ValidationPlan controller
-    my $vp = $r->any('/validation_plan');
-    $vp->to({ controller => 'validation_plan' });
-
-    # GET /validation_plan
-    $vp->get('/')->to('#get_all');
-
-    {
-        my $with_plan = $vp->under('/:validation_plan_id_or_name')->to('#find_validation_plan');
-
-        # GET /validation_plan/:validation_plan_id_or_name
-        $with_plan->get('/')->to('#get');
-
-        # GET /validation_plan/:validation_plan_id_or_name/validation
-        $with_plan->get('/validation')->to('#get_validations');
-    }
-
-    {
-        my $vs = $r->any('/validation_state');
-        $vs->to({ controller => 'validation_state' });
-
-        # GET /validation_state/:validation_state_id
-        $vs->get('/<validation_state_id:uuid>')->to('#get');
     }
 }
 
@@ -76,57 +50,17 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Validation/get_all>
 
-=item * Response: F<response.yaml#/definitions/Validations>
+=item * Response: F<response.yaml#/definitions/LegacyValidations>
 
 =back
 
-=head2 C<GET /validation/:validation_id_or_name>
+=head2 C<GET /validation/:legacy_validation_id_or_name>
 
 =over 4
 
 =item * Controller/Action: L<Conch::Controller::Validation/get>
 
-=item * Response: F<response.yaml#/definitions/Validation>
-
-=back
-
-=head2 C<GET /validation_plan>
-
-=over 4
-
-=item * Controller/Action: L<Conch::Controller::ValidationPlan/get_all>
-
-=item * Response: F<response.yaml#/definitions/ValidationPlans>
-
-=back
-
-=head2 C<GET /validation_plan/:validation_plan_id_or_name>
-
-=over 4
-
-=item * Controller/Action: L<Conch::Controller::ValidationPlan/get>
-
-=item * Response: F<response.yaml#/definitions/ValidationPlan>
-
-=back
-
-=head2 C<GET /validation_plan/:validation_plan_id_or_name/validation>
-
-=over 4
-
-=item * Controller/Action: L<Conch::Controller::ValidationPlan/validations>
-
-=item * Response: F<response.yaml#/definitions/Validations>
-
-=back
-
-=head2 C<GET /validation_state/:validation_state_id>
-
-=over 4
-
-=item * Controller/Action: L<Conch::Controller::ValidationState/get>
-
-=item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
+=item * Response: F<response.yaml#/definitions/LegacyValidation>
 
 =back
 

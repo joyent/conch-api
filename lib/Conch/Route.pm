@@ -22,6 +22,8 @@ use Conch::Route::RackLayout;
 use Conch::Route::HardwareVendor;
 use Conch::Route::Organization;
 use Conch::Route::Build;
+use Conch::Route::ValidationPlan;
+use Conch::Route::ValidationState;
 
 =pod
 
@@ -148,7 +150,7 @@ Returns the root node.
     Conch::Route::Relay->routes($secured->any('/relay'));
     Conch::Route::User->routes($secured->any('/user'));
     Conch::Route::HardwareProduct->routes($secured->any('/hardware_product'));
-    Conch::Route::Validation->routes($secured);
+    Conch::Route::Validation->routes($secured->any('/validation'));
     Conch::Route::Datacenter->routes($secured->any('/dc'));
     Conch::Route::DatacenterRoom->routes($secured->any('/room'));
     Conch::Route::RackRole->routes($secured->any('/rack_role'));
@@ -157,6 +159,8 @@ Returns the root node.
     Conch::Route::HardwareVendor->routes($secured->any('/hardware_vendor'));
     Conch::Route::Organization->routes($secured->any('/organization'));
     Conch::Route::Build->routes($secured->any('/build'));
+    Conch::Route::ValidationPlan->routes($secured->any('/validation_plan'));
+    Conch::Route::ValidationState->routes($secured->any('/validation_state'));
 
     # find all the top level path components: these are the only paths that we will send rollbar alerts for
     state sub find_paths ($route) {
@@ -326,9 +330,17 @@ See L<Conch::Route::JSONSchema/unsecured_routes>
 
 See L<Conch::Route::User/routes>
 
-=head2 C<* /validation>, C<* /validation_plan>, C<* /validation_state>
+=head2 C<* /validation>
 
 See L<Conch::Route::Validation/routes>
+
+=head2 C<* /validation_plan>
+
+See L<Conch::Route::ValidationPlan/routes>
+
+=head2 C<* /validation_state>
+
+See L<Conch::Route::ValidationState/routes>
 
 =head2 C<* /workspace>
 

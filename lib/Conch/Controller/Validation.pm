@@ -18,7 +18,7 @@ Controller for managing Validations, B<NOT> executing them.
 
 List all Validations.
 
-Response uses the Validations json schema (including deactivated ones).
+Response uses the LegacyValidations json schema (including deactivated ones).
 
 =cut
 
@@ -29,14 +29,14 @@ sub get_all ($c) {
 
 =head2 find_validation
 
-Chainable action that uses the C<validation_id_or_name> value provided in the stash (usually
+Chainable action that uses the C<legacy_validation_id_or_name> value provided in the stash (usually
 via the request URL) to look up a validation, and stashes the query to get to it in
 C<validation_rs>.
 
 =cut
 
 sub find_validation($c) {
-    my $identifier = $c->stash('validation_id_or_name');
+    my $identifier = $c->stash('legacy_validation_id_or_name');
 
     my $validation_rs = $c->db_validations->search({
         (is_uuid($identifier) ? 'id' : 'name') => $identifier,
@@ -55,7 +55,7 @@ sub find_validation($c) {
 
 Get the Validation specified by uuid or name.
 
-Response uses the Validation json schema.
+Response uses the LegacyValidation json schema.
 
 =cut
 

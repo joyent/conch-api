@@ -816,7 +816,10 @@ definitions:
         type: string
         format: date-time
       validation_plan_id:
-        $ref: common.yaml#/definitions/uuid
+        $comment: this property will become nullable in v3.3 and removed in v4.0
+        deprecated: true
+        allOf:
+          - $ref: common.yaml#/definitions/uuid
       bios_firmware:
         type: string
       cpu_num:
@@ -929,12 +932,16 @@ definitions:
                 - $ref: common.yaml#/definitions/device_health
             additionalProperties:
               $ref: common.yaml#/definitions/positive_integer
-  Validations:
+  LegacyValidations:
+    $comment: this definition will be removed in v4.0
+    deprecated: true
     type: array
     uniqueItems: true
     items:
-      $ref: '#/definitions/Validation'
-  Validation:
+      $ref: '#/definitions/LegacyValidation'
+  LegacyValidation:
+    $comment: this definition will be removed in v4.0
+    deprecated: true
     type: object
     additionalProperties: false
     required:
@@ -965,12 +972,16 @@ definitions:
           - type: 'null'
           - type: string
             format: date-time
-  ValidationPlans:
+  LegacyValidationPlans:
+    $comment: this definition will be removed in v4.0
+    deprecated: true
     type: array
     uniqueItems: true
     items:
-      $ref: '#/definitions/ValidationPlan'
-  ValidationPlan:
+      $ref: '#/definitions/LegacyValidationPlan'
+  LegacyValidationPlan:
+    $comment: this definition will be removed in v4.0
+    deprecated: true
     type: object
     additionalProperties: false
     required:
@@ -988,7 +999,7 @@ definitions:
       created:
         type: string
         format: date-time
-  ValidationResult:
+  LegacyValidationResult:
     type: object
     additionalProperties: false
     required:
@@ -1026,11 +1037,11 @@ definitions:
         $ref: common.yaml#/definitions/positive_integer
       description:
         type: string
-  ValidationResults:
+  LegacyValidationResults:
     type: array
     uniqueItems: true
     items:
-      $ref: '#/definitions/ValidationResult'
+      $ref: '#/definitions/LegacyValidationResult'
   ValidationStateWithResults:
     type: object
     additionalProperties: false
@@ -1055,11 +1066,14 @@ definitions:
         type: array
         uniqueItems: true
         items:
-          $ref: '#/definitions/ValidationResult'
+          $ref: '#/definitions/LegacyValidationResult'
       status:
         $ref: common.yaml#/definitions/validation_status
       validation_plan_id:
-        $ref: common.yaml#/definitions/uuid
+        $comment: this property will be removed in v3.1
+        deprecated: true
+        allOf:
+          - $ref: common.yaml#/definitions/uuid
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       device_report_id:
@@ -1078,7 +1092,10 @@ definitions:
       device_serial_number:
         $ref: common.yaml#/definitions/device_serial_number
       validation_plan_id:
-        $ref: common.yaml#/definitions/uuid
+        $comment: this property will be removed in v3.1
+        deprecated: true
+        allOf:
+          - $ref: common.yaml#/definitions/uuid
       hardware_product_id:
         $ref: common.yaml#/definitions/uuid
       sku:
@@ -1086,7 +1103,7 @@ definitions:
       status:
         $ref: common.yaml#/definitions/validation_status
       results:
-        $ref: '#/definitions/ValidationResults'
+        $ref: '#/definitions/LegacyValidationResults'
   WorkspaceRelays:
     deprecated: true
     type: array
