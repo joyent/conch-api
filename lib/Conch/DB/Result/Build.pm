@@ -75,6 +75,12 @@ __PACKAGE__->table("build");
   default_value: '{}'::text[]
   is_nullable: 0
 
+=head2 completed_status
+
+  data_type: 'enum'
+  extra: {custom_type_name => "completed_status_enum",list => ["failure","success"]}
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -107,6 +113,15 @@ __PACKAGE__->add_columns(
     data_type     => "text[]",
     default_value => \"'{}'::text[]",
     is_nullable   => 0,
+  },
+  "completed_status",
+  {
+    data_type => "enum",
+    extra => {
+      custom_type_name => "completed_status_enum",
+      list => ["failure", "success"],
+    },
+    is_nullable => 1,
   },
 );
 
@@ -240,7 +255,7 @@ __PACKAGE__->many_to_many("user_accounts", "user_build_roles", "user_account");
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:7XP/0kfp2bo2TMk35eNrHw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:qg82UBnIKnUZM2VMcxCNOQ
 
 __PACKAGE__->add_columns(
     '+completed_user_id' => { is_serializable => 0 },

@@ -98,7 +98,7 @@ definitions:
       type: string
   GetValidationState:
     type: object
-    additionalProperties: false
+    additionalProperties: true  # may be used at the same time as other schemas
     properties:
       status:
         oneOf:
@@ -173,14 +173,18 @@ definitions:
         $ref: '#/definitions/boolean_integer_or_flag'
       with_rack_phases:
         $ref: '#/definitions/boolean_integer_or_flag'
-  BuildDevices:
+  FindDevice:
     type: object
-    additionalProperties: false
+    additionalProperties: true  # may be used at the same time as other schemas
     properties:
       phase_earlier_than:
         oneOf:
           - const: ''
           - $ref: common.yaml#/definitions/device_phase
+  BuildDevices:
+    type: object
+    additionalProperties: true  # may be used at the same time as other schemas
+    properties:
       health:
         oneOf:
           - $ref: common.yaml#/definitions/device_health

@@ -73,6 +73,14 @@ default_value: '{}'::text[]
 is_nullable: 0
 ```
 
+### completed\_status
+
+```
+data_type: 'enum'
+extra: {custom_type_name => "completed_status_enum",list => ["failure","success"]}
+is_nullable: 1
+```
+
 ## PRIMARY KEY
 
 - ["id"](#id)

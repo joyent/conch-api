@@ -32,6 +32,9 @@ the provided phase (or later).
 =cut
 
 sub find_device ($c) {
+    my $params = $c->validate_query_params('FindDevice');
+    return if not $params;
+
     my $rs = $c->db_devices;
     my $identifier;
     if ($identifier = $c->stash('device_id')) {
@@ -108,8 +111,7 @@ sub find_device ($c) {
     $c->stash('device_id', $device_id);
     $c->stash('device_rs', $c->db_devices->search_rs({ 'device.id' => $device_id }));
 
-    if (my $bad_phase = $c->req->query_params->param('phase_earlier_than')
-            // $c->stash('phase_earlier_than')) {
+    if (my $bad_phase = $params->{phase_earlier_than} // $c->stash('phase_earlier_than')) {
         my $phase = $c->stash('device_rs')->get_column('phase')->single;
         if (Conch::DB::Result::Device->phase_cmp($phase, $bad_phase) >= 0) {
             $c->res->headers->location($c->url_for('/device/'.$device_id.'/links'));

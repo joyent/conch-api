@@ -2046,8 +2046,9 @@ definitions:
       - created
       - started
       - completed
-      - admins
       - completed_user
+      - completed_status
+      - admins
       - links
     properties:
       id:
@@ -2066,21 +2067,12 @@ definitions:
           - type: 'null'
           - type: string
             format: date-time
-      completed:
-        oneOf:
-          - type: 'null'
-          - type: string
-            format: date-time
       admins:
         type: array
         uniqueItems: true
         minItems: 1
         items:
           $ref: '#/definitions/UserTerse'
-      completed_user:
-        oneOf:
-          - type: 'null'
-          - $ref: '#/definitions/UserTerse'
       links:
         $ref: common.yaml#/definitions/links
       device_health:
@@ -2107,6 +2099,28 @@ definitions:
           $ref: common.yaml#/definitions/device_phase
         additionalProperties:
           $ref: common.yaml#/definitions/non_negative_integer
+      completed: true
+      completed_user: true
+      completed_status: true
+    if:
+      properties:
+        completed:
+          type: 'null'
+    then:
+      properties:
+        completed_user:
+          type: 'null'
+        completed_status:
+          type: 'null'
+    else:
+      properties:
+        completed:
+          type: string
+          format: date-time
+        completed_user:
+          $ref: '#/definitions/UserTerse'
+        completed_status:
+          enum: [ 'failure', 'success' ]
   Builds:
     type: array
     uniqueItems: true
@@ -2120,6 +2134,7 @@ definitions:
         - created
         - started
         - completed
+        - completed_status
         - links
       properties:
         id:
@@ -2138,13 +2153,25 @@ definitions:
             - type: 'null'
             - type: string
               format: date-time
-        completed:
-          oneOf:
-            - type: 'null'
-            - type: string
-              format: date-time
         links:
           $ref: common.yaml#/definitions/links
+        completed: true
+        completed_status: true
+      if:
+        properties:
+          completed:
+            type: 'null'
+      then:
+        properties:
+          completed_status:
+            type: 'null'
+      else:
+        properties:
+          completed:
+            type: string
+            format: date-time
+          completed_status:
+            enum: [ 'failure', 'success' ]
   BuildUsers:
     type: array
     uniqueItems: true

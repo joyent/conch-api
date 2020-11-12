@@ -45,6 +45,18 @@ COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 
 
 --
+-- Name: completed_status_enum; Type: TYPE; Schema: public; Owner: conch
+--
+
+CREATE TYPE public.completed_status_enum AS ENUM (
+    'failure',
+    'success'
+);
+
+
+ALTER TYPE public.completed_status_enum OWNER TO conch;
+
+--
 -- Name: device_health_enum; Type: TYPE; Schema: public; Owner: conch
 --
 
@@ -161,7 +173,9 @@ CREATE TABLE public.build (
     completed timestamp with time zone,
     completed_user_id uuid,
     links text[] DEFAULT '{}'::text[] NOT NULL,
+    completed_status public.completed_status_enum,
     CONSTRAINT build_completed_iff_started_check CHECK (((completed IS NULL) OR (started IS NOT NULL))),
+    CONSTRAINT build_completed_xnor_completed_status_check CHECK ((((completed IS NULL) AND (completed_status IS NULL)) OR ((completed IS NOT NULL) AND (completed_status IS NOT NULL)))),
     CONSTRAINT build_completed_xnor_completed_user_id_check CHECK ((((completed IS NULL) AND (completed_user_id IS NULL)) OR ((completed IS NOT NULL) AND (completed_user_id IS NOT NULL))))
 );
 

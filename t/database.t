@@ -278,6 +278,7 @@ subtest 'database constraints' => sub {
                 started => undef,
                 completed => \'now()',
                 completed_user_id => $user->id,
+                completed_status => 'failure',
             });
         },
         qr/violates check constraint "build_completed_iff_started_check"/,
@@ -291,6 +292,7 @@ subtest 'database constraints' => sub {
                 started => \'now()',
                 completed => undef,
                 completed_user_id => $user->id,
+                completed_status => undef,
             });
         },
         qr/violates check constraint "build_completed_xnor_completed_user_id_check"/,
@@ -304,6 +306,7 @@ subtest 'database constraints' => sub {
                 started => \'now()',
                 completed => \'now()',
                 completed_user_id => undef,
+                completed_status => 'failure',
             });
         },
         qr/violates check constraint "build_completed_xnor_completed_user_id_check"/,

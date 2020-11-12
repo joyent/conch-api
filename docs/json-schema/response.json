@@ -4,6 +4,30 @@
   "definitions" : {
     "Build" : {
       "additionalProperties" : false,
+      "else" : {
+        "properties" : {
+          "completed" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "completed_status" : {
+            "enum" : [
+              "failure",
+              "success"
+            ]
+          },
+          "completed_user" : {
+            "$ref" : "#/definitions/UserTerse"
+          }
+        }
+      },
+      "if" : {
+        "properties" : {
+          "completed" : {
+            "type" : "null"
+          }
+        }
+      },
       "properties" : {
         "admins" : {
           "items" : {
@@ -13,27 +37,9 @@
           "type" : "array",
           "uniqueItems" : true
         },
-        "completed" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "format" : "date-time",
-              "type" : "string"
-            }
-          ]
-        },
-        "completed_user" : {
-          "oneOf" : [
-            {
-              "type" : "null"
-            },
-            {
-              "$ref" : "#/definitions/UserTerse"
-            }
-          ]
-        },
+        "completed" : true,
+        "completed_status" : true,
+        "completed_user" : true,
         "created" : {
           "format" : "date-time",
           "type" : "string"
@@ -109,10 +115,21 @@
         "created",
         "started",
         "completed",
-        "admins",
         "completed_user",
+        "completed_status",
+        "admins",
         "links"
       ],
+      "then" : {
+        "properties" : {
+          "completed_status" : {
+            "type" : "null"
+          },
+          "completed_user" : {
+            "type" : "null"
+          }
+        }
+      },
       "type" : "object"
     },
     "BuildOrganizations" : {
@@ -199,18 +216,30 @@
     "Builds" : {
       "items" : {
         "additionalProperties" : false,
+        "else" : {
+          "properties" : {
+            "completed" : {
+              "format" : "date-time",
+              "type" : "string"
+            },
+            "completed_status" : {
+              "enum" : [
+                "failure",
+                "success"
+              ]
+            }
+          }
+        },
+        "if" : {
+          "properties" : {
+            "completed" : {
+              "type" : "null"
+            }
+          }
+        },
         "properties" : {
-          "completed" : {
-            "oneOf" : [
-              {
-                "type" : "null"
-              },
-              {
-                "format" : "date-time",
-                "type" : "string"
-              }
-            ]
-          },
+          "completed" : true,
+          "completed_status" : true,
           "created" : {
             "format" : "date-time",
             "type" : "string"
@@ -253,8 +282,16 @@
           "created",
           "started",
           "completed",
+          "completed_status",
           "links"
         ],
+        "then" : {
+          "properties" : {
+            "completed_status" : {
+              "type" : "null"
+            }
+          }
+        },
         "type" : "object"
       },
       "type" : "array",
