@@ -171,7 +171,7 @@ Optionally accepts the following query parameters:
 
 - Requires system admin authorization
 - Controller/Action: ["get\_all" in Conch::Controller::User](../modules/Conch%3A%3AController%3A%3AUser#get_all)
-- Response: [response.json#/definitions/UsersDetailed](../json-schema/response.json#/definitions/UsersDetailed)
+- Response: [response.json#/definitions/Users](../json-schema/response.json#/definitions/Users)
 
 ### `POST /user?send_mail=<1|0>`
 

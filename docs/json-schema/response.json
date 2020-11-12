@@ -2486,6 +2486,13 @@
       "type" : "array",
       "uniqueItems" : true
     },
+    "RackIds" : {
+      "items" : {
+        "$ref" : "common.json#/definitions/uuid"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "RackLayout" : {
       "additionalProperties" : false,
       "properties" : {
@@ -3018,9 +3025,59 @@
       "type" : "array",
       "uniqueItems" : true
     },
-    "UsersDetailed" : {
+    "Users" : {
       "items" : {
-        "$ref" : "#/definitions/UserDetailed"
+        "additionalProperties" : false,
+        "properties" : {
+          "created" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "email" : {
+            "$ref" : "common.json#/definitions/email_address"
+          },
+          "force_password_change" : {
+            "type" : "boolean"
+          },
+          "id" : {
+            "$ref" : "common.json#/definitions/uuid"
+          },
+          "is_admin" : {
+            "type" : "boolean"
+          },
+          "last_login" : {
+            "format" : "date-time",
+            "type" : [
+              "null",
+              "string"
+            ]
+          },
+          "last_seen" : {
+            "format" : "date-time",
+            "type" : [
+              "null",
+              "string"
+            ]
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "refuse_session_auth" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [
+          "id",
+          "name",
+          "email",
+          "created",
+          "last_login",
+          "last_seen",
+          "refuse_session_auth",
+          "force_password_change",
+          "is_admin"
+        ],
+        "type" : "object"
       },
       "type" : "array",
       "uniqueItems" : true

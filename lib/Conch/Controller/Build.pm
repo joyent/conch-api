@@ -677,7 +677,8 @@ sub find_devices ($c) {
     return if not $params;
 
     # production devices do not consider location, interface data to be canonical
-    my $bad_phase = $params->{phase_earlier_than} // 'production';
+    my $bad_phase = exists $params->{phase} ? undef
+        : $params->{phase_earlier_than} // 'production';
 
     my $build_id = $c->stash('build_id') // { '=' => $c->stash('build_rs')->get_column('id')->as_query };
 
@@ -712,6 +713,8 @@ not ORed):
 
     health=<value>      only devices with health matching the provided value
         (can be used more than once to search for ANY of the specified health values)
+    phase=<value>       only devices with phase matching the provided value
+        (can be used more than once to search for ANY of the specified phase values)
     active_minutes=X    only devices last seen (via a report relay) within X minutes
     ids_only=1          only return device ids, not full data
     serials_only=1      only return device serial numbers, not full data
@@ -728,6 +731,7 @@ sub get_devices ($c) {
     my $rs = $c->stash('build_devices_rs');
 
     $rs = $rs->search({ health => $params->{health} }) if $params->{health};
+    $rs = $rs->search({ 'device.phase' => $params->{phase} }) if $params->{phase};
 
     $rs = $rs->search({ last_seen => { '>' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } })
         if $params->{active_minutes};
@@ -929,18 +933,30 @@ sub remove_device ($c) {
 Get the racks in this build.
 Requires the 'read-only' role on the build.
 
-Response uses the Racks json schema.
+Supports these query parameters to constrain results (which are ANDed together for the search,
+not ORed):
+
+    phase=<value>       only racks with phase matching the provided value
+        (can be used more than once to search for ANY of the specified phase values)
+    ids_only=1          only return rack ids, not full data
+
+Response uses the Racks json schema, or RackIds iff C<ids_only=1>.
 
 =cut
 
 sub get_racks ($c) {
-    my $rs = $c->stash('build_rs')
-        ->related_resultset('racks')
-        ->add_columns({ build_name => 'build.name' })
-        ->with_full_rack_name
-        ->with_datacenter_room_alias
-        ->with_rack_role_name
-        ->order_by('racks.name');
+    my $params = $c->validate_query_params('BuildRacks');
+    return if not $params;
+
+    my $rs = $c->stash('build_rs')->related_resultset('racks');
+    $rs = $rs->search({ 'racks.phase' => $params->{phase} }) if $params->{phase};
+
+    $rs = $params->{ids_only} ? $rs->get_column('id')
+        : $rs->add_columns({ build_name => 'build.name' })
+              ->with_full_rack_name
+              ->with_datacenter_room_alias
+              ->with_rack_role_name
+              ->order_by('racks.name');
 
     $c->status(200, [ $rs->all ]);
 }

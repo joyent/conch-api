@@ -427,7 +427,7 @@ Optionally accepts the following query parameters:
 
 =item * Controller/Action: L<Conch::Controller::User/get_all>
 
-=item * Response: F<response.yaml#/definitions/UsersDetailed>
+=item * Response: F<response.yaml#/definitions/Users>
 
 =back
 

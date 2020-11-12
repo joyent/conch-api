@@ -258,10 +258,10 @@ subtest 'User' => sub {
 
     $t_super->get_ok('/user')
         ->status_is(200)
-        ->json_schema_is('UsersDetailed')
+        ->json_schema_is('Users')
         ->json_cmp_deeply([
             (map +{
-                $_->%*,
+                $_->%{qw(id name email created refuse_session_auth force_password_change is_admin)},
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             }, $super_user_data, $user_detailed),
@@ -608,6 +608,11 @@ subtest 'JWT authentication' => sub {
             },
         ]);
 
+    $t_super->post_ok('/user/'.$ro_user->email.'/revoke?login_only=0&api_only=0')
+        ->status_is(204)
+        ->log_debug_is('revoking all tokens for user rO_USer, forcing them to /login again')
+        ->email_not_sent;
+
     $t->get_ok('/me', { Authorization => "Bearer $new_jwt_token" })
         ->status_is(401, 'Cannot use token after user revocation')
         ->log_debug_is('auth failed: JWT for user_id '.$ro_user->id.' could not be found');
@@ -625,6 +630,7 @@ subtest 'JWT authentication' => sub {
         ->status_is(204)
         ->log_debug_is('revoking all tokens for user rO_USer, forcing them to /login again')
         ->email_not_sent;
+
     $t->get_ok('/me', { Authorization => "Bearer $jwt_token_2" })
         ->status_is(401, 'Cannot use after self revocation');
 
@@ -712,14 +718,14 @@ subtest 'modify another user' => sub {
 
     $t_super->get_ok('/user')
         ->status_is(200)
-        ->json_schema_is('UsersDetailed')
+        ->json_schema_is('Users')
         ->json_cmp_deeply([
-            (map +{
-                $_->%*,
-                last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-                last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
-            }, $super_user_data, $user_detailed),
-            $new_user_data,
+          (map +{
+            $_->%{qw(id name email created refuse_session_auth force_password_change is_admin)},
+            last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+            last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+          }, $super_user_data, $user_detailed),
+          { $new_user_data->%{qw(id name email created last_login last_seen refuse_session_auth force_password_change is_admin)} },
         ]);
 
     $t_super->post_ok('/user?send_mail=0',

@@ -806,10 +806,21 @@ $t->get_ok('/build/our second build/device?health=fail')
     ->json_schema_is('Devices')
     ->json_is([]);
 
-$t->get_ok('/build/our second build/device?health=unknown')
+$t->get_ok('/build/our second build/device?health=unknown'.$_)
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is($devices)
+        foreach ('', '&ids_only=0&serials_only=0');
+
+$t->get_ok('/build/our second build/device?phase=integration')
     ->status_is(200)
     ->json_schema_is('Devices')
     ->json_is($devices);
+
+$t->get_ok('/build/our second build/device?phase=installation')
+    ->status_is(200)
+    ->json_schema_is('Devices')
+    ->json_is([]);
 
 $t->get_ok('/build/our second build/device?ids_only=1&serials_only=1')
     ->status_is(400)
@@ -986,12 +997,23 @@ $t->post_ok($_)
         '/build/my first build/rack/'.$rack1->id,
         '/build/my first build/rack/'.$room1->vendor_name.':'.$rack1->name;
 
-$t->get_ok('/build/my first build/rack')
+$t->get_ok('/build/my first build/rack'.$_)
     ->status_is(200)
     ->json_schema_is('Racks')
     ->json_cmp_deeply([
         superhashof({ id => $rack1->id }),
-    ]);
+    ])
+    foreach '', '?phase=integration';
+
+$t->get_ok('/build/my first build/rack?phase=installation')
+    ->status_is(200)
+    ->json_schema_is('Racks')
+    ->json_cmp_deeply([]);
+
+$t->get_ok('/build/my first build/rack?ids_only=1')
+    ->status_is(200)
+    ->json_schema_is('RackIds')
+    ->json_cmp_deeply([ $rack1->id ]);
 
 $t->get_ok('/build/my first build/device')
     ->status_is(200)

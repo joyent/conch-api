@@ -119,6 +119,8 @@ Accepts the following optional query parameters:
 
 - `health=:value` show only devices with the health matching the provided value
 (can be used more than once)
+- `phase=:value` show only devices with the phase matching the provided value
+(can be used more than once)
 - `active_minutes=:X` show only devices which have reported within the last X minutes
 - `ids_only=1` only return device IDs, not full device details
 
@@ -156,9 +158,15 @@ read-write role on the device (via a workspace or build; see ["routes" in Conch:
 
 ### `GET /build/:build_id_or_name/rack`
 
+Accepts the following optional query parameters:
+
+- `phase=:value` show only racks with the phase matching the provided value
+(can be used more than once)
+- `ids_only=1` only return rack IDs, not full rack details
+
 - Requires system admin authorization or the read-only role on the build
 - Controller/Action: ["get\_racks" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#get_racks)
-- Response: [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks)
+- Response: one of [response.json#/definitions/Racks](../json-schema/response.json#/definitions/Racks) or [response.json#/definitions/RackIds](../json-schema/response.json#/definitions/RackIds)
 
 ### `POST /build/:build_id_or_name/rack/:rack_id_or_name`
 

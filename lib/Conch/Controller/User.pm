@@ -435,22 +435,15 @@ sub update ($c) {
 
 =head2 get_all
 
-List all active users and their workspaces, builds and organizations. System admin only.
-Response uses the UsersDetailed json schema.
+List all active users. System admin only.
+Response uses the Users json schema.
 
 =cut
 
 sub get_all ($c) {
     my $user_rs = $c->db_user_accounts
         ->active
-        ->prefetch({
-                user_workspace_roles => 'workspace',
-                user_organization_roles => { organization => {
-                        organization_build_roles => 'build',
-                    } },
-                user_build_roles => 'build',
-            })
-        ->order_by([ map $_.'.name', qw(user_account workspace organization build) ]);
+        ->order_by('name');
 
     return $c->status(200, [ $user_rs->all ]);
 }
