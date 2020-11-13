@@ -86,7 +86,7 @@ sub run ($self, @opts) {
     }
 
     say "\n$device_count devices processed.";
-    say $device_reports_deleted.' device_reports deleted.' if $device_reports_deleted;
+    say $device_reports_deleted.' device_reports '.($self->dry_run ? 'would be ' : '').'deleted.' if $device_reports_deleted;
     say $validation_results_deleted.' validation_results deleted.' if $validation_results_deleted;
 
     say 'at finish, we have this many records:';
@@ -98,10 +98,14 @@ sub _print_stats ($self) {
     say 'validation_state:        ', $self->app->db_ro_validation_states->count;
     say 'validation_state_member: ', $self->app->db_ro_validation_state_members->count;
     say 'validation_result:       ', $self->app->db_ro_validation_results->count;
+    say '';
 }
 
 sub _process_device ($self, $device) {
-    my $report_count = 0;
+    my $report_count = $self->app->db_device_reports
+        ->search({ 'device_report.device_id' => $device->id })
+        ->count;
+
     print 'device id ', $device->id, ': ';
 
     my $query = <<'SQL';
@@ -131,7 +135,7 @@ SQL
         ->search({ 'device_report.id' => { -in => \[ $query, $device->id ] } });
 
     my $device_reports_deleted;
-    my $validation_results_deleted;
+    my $validation_results_deleted = 0;
 
     print "\n";
 
@@ -150,7 +154,7 @@ SQL
             ' out of ', $report_count, ' examined';
 
         # now delete all newly-orphaned validation_result rows for this device
-        $validation_results_deleted = $device->delete_related('validation_results',
+        $validation_results_deleted += $device->delete_related('validation_results',
             { 'validation_state_members.validation_state_id' => undef },
             { join => 'validation_state_members' },
         );
