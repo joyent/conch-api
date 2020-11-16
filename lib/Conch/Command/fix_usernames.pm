@@ -28,7 +28,7 @@ sub run ($self, @opts) {
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $usage->text
-        'clean_roles %o',
+        'fix_usernames %o',
         [ 'dry-run|n',      'dry-run (no changes are made)' ],
         [],
         [ 'help',           'print usage message and exit', { shortcircuit => 1 } ],
