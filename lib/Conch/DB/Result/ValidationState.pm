@@ -35,13 +35,6 @@ __PACKAGE__->table("validation_state");
   is_nullable: 0
   size: 16
 
-=head2 validation_plan_id
-
-  data_type: 'uuid'
-  is_foreign_key: 1
-  is_nullable: 0
-  size: 16
-
 =head2 created
 
   data_type: 'timestamp with time zone'
@@ -86,8 +79,6 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "validation_plan_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
   "created",
   {
     data_type     => "timestamp with time zone",
@@ -171,21 +162,6 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 validation_plan
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::ValidationPlan>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "validation_plan",
-  "Conch::DB::Result::ValidationPlan",
-  { id => "validation_plan_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
 =head2 validation_state_members
 
 Type: has_many
@@ -217,7 +193,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:I4WF2oVdb3eXDAwlpmud0w
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pep0iRoZHez2p2JTgmW8Qw
 
 __PACKAGE__->add_columns(
     '+created' => { retrieve_on_insert => 1 },

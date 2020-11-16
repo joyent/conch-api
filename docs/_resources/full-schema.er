@@ -15,7 +15,7 @@
 # 1 or more      +      (marks foreign key on table declaration)
 
 
-title {label: "Conch database schema (as of v3.0.6, 2020-11-xx)", size: "50"}
+title {label: "Conch database schema (as of v3.0.7, 2020-11-xx)", size: "50"}
 
 entity {bgcolor: "#eeeeee", size: "20"}
 
@@ -325,7 +325,6 @@ created
 
 [validation_state] {bgcolor: "#fbfbdb"}
 *id
-+validation_plan_id
 +device_report_id
 +device_id
 created
@@ -393,7 +392,6 @@ validation_state *--1 device_report
 validation_state *--1 hardware_product
 validation_state_member +--1 validation_result
 validation_state_member *--1 validation_state
-validation_state *--1 validation_plan
 workspace 1--* workspace {label: "parent of", size: "14"}
 workspace_rack +--1 rack
 workspace_rack *--1 workspace

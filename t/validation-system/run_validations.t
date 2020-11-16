@@ -121,7 +121,6 @@ subtest 'run_validation_plan, with saving state' => sub {
             methods(
                 [ isa => 'Conch::DB::Result::ValidationState' ] => bool(1),
                 in_storage => bool(1),
-                validation_plan_id => $validation_plan->id,
                 hardware_product_id => $device->hardware_product_id,
                 status => 'pass',
                 device_report_id => $device_report->id,

@@ -67,12 +67,6 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::ValidationPlanMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationPlanMember)
 
-### validation\_states
-
-Type: has\_many
-
-Related object: [Conch::DB::Result::ValidationState](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationState)
-
 ### validations
 
 Type: many\_to\_many

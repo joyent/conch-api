@@ -99,9 +99,6 @@ Available top-level routes are:
 * [Conch::Route::User](modules/Conch::Route::User)
   * `/user`
 
-* [Conch::Route::Validation](modules/Conch::Route::Validation)
-  * `/validation`
-
 * [Conch::Route::ValidationPlan](modules/Conch::Route::ValidationPlan)
   * `/validation_plan`
 

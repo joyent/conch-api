@@ -2730,20 +2730,10 @@
         },
         "status" : {
           "$ref" : "common.json#/definitions/validation_status"
-        },
-        "validation_plan_id" : {
-          "$comment" : "this property will be removed in v3.1",
-          "allOf" : [
-            {
-              "$ref" : "common.json#/definitions/uuid"
-            }
-          ],
-          "deprecated" : true
         }
       },
       "required" : [
         "device_serial_number",
-        "validation_plan_id",
         "hardware_product_id",
         "sku",
         "status",
@@ -3179,15 +3169,6 @@
         },
         "status" : {
           "$ref" : "common.json#/definitions/validation_status"
-        },
-        "validation_plan_id" : {
-          "$comment" : "this property will be removed in v3.1",
-          "allOf" : [
-            {
-              "$ref" : "common.json#/definitions/uuid"
-            }
-          ],
-          "deprecated" : true
         }
       },
       "required" : [
@@ -3196,7 +3177,6 @@
         "device_id",
         "results",
         "status",
-        "validation_plan_id",
         "hardware_product_id",
         "device_report_id"
       ],

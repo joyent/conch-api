@@ -13,7 +13,6 @@ use Conch::Route::DeviceReport;
 use Conch::Route::Relay;
 use Conch::Route::User;
 use Conch::Route::HardwareProduct;
-use Conch::Route::Validation;
 use Conch::Route::Datacenter;
 use Conch::Route::DatacenterRoom;
 use Conch::Route::RackRole;
@@ -150,7 +149,6 @@ Returns the root node.
     Conch::Route::Relay->routes($secured->any('/relay'));
     Conch::Route::User->routes($secured->any('/user'));
     Conch::Route::HardwareProduct->routes($secured->any('/hardware_product'));
-    Conch::Route::Validation->routes($secured->any('/validation'));
     Conch::Route::Datacenter->routes($secured->any('/dc'));
     Conch::Route::DatacenterRoom->routes($secured->any('/room'));
     Conch::Route::RackRole->routes($secured->any('/rack_role'));
@@ -172,7 +170,8 @@ Returns the root node.
         return map __SUB__->($_), $route->children->@*;
     }
 
-    my @top_level_paths = uniqstr map find_paths($_), $root->children->@*;
+    my @top_level_paths = (uniqstr (map find_paths($_), $root->children->@*),
+        qw(validation));
 
     $root->any('/*all', sub ($c) {
         $c->log->warn('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
@@ -329,10 +328,6 @@ See L<Conch::Route::JSONSchema/unsecured_routes>
 =head2 C<* /user>
 
 See L<Conch::Route::User/routes>
-
-=head2 C<* /validation>
-
-See L<Conch::Route::Validation/routes>
 
 =head2 C<* /validation_plan>
 

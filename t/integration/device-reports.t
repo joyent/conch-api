@@ -101,7 +101,6 @@ subtest 'run report without an existing device and without making updates' => su
         ->json_schema_is('ReportValidationResults')
         ->json_cmp_deeply({
             device_serial_number => 'different_device',
-            validation_plan_id => $full_validation_plan->id,
             hardware_product_id => $hardware_product->id,
             sku => $hardware_product->sku,
             status => any(qw(error fail pass)), # likely some validations will hate this report.

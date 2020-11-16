@@ -1,4 +1,4 @@
-title {label: "Conch database schema (as of v3.0.6, 2020-11-xx): validations", size: "40"}
+title {label: "Conch database schema (as of v3.0.7, 2020-11-xx): validations", size: "40"}
 
 entity {bgcolor: "#ececfc", size: "20"}
 
@@ -101,7 +101,6 @@ created
 
 [validation_state]
 *id
-+validation_plan_id
 +device_report_id
 +device_id
 created
@@ -126,4 +125,3 @@ validation_state *--1 device_report
 validation_state *--1 hardware_product
 validation_state_member +--1 validation_result
 validation_state_member *--1 validation_state
-validation_state *--1 validation_plan

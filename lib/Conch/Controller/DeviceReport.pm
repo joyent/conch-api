@@ -475,7 +475,6 @@ sub validate_report ($c) {
 
     $c->status(200, {
         device_serial_number => $unserialized_report->{serial_number},
-        validation_plan_id => $validation_plan->id,
         hardware_product_id => $hardware_product->id,
         sku => $hardware_product->sku,
         status => $status,
