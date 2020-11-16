@@ -349,7 +349,7 @@ Accepts the following optional query parameters:
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build and the
-read-write role on existing device(s) (via a workspace or build; see
+read-only role on the device (via a build or a relay registration, see
 L<Conch::Route::Device/routes>)
 
 =item * Controller/Action: L<Conch::Controller::Build/create_and_add_devices>
@@ -365,7 +365,7 @@ L<Conch::Route::Device/routes>)
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build and the
-read-write role on the device (via a workspace or build; see L<Conch::Route::Device/routes>)
+read-write role on the device (via a build; see L<Conch::Route::Device/routes>)
 
 =item * Controller/Action: L<Conch::Controller::Build/add_device>
 
@@ -400,7 +400,8 @@ Accepts the following optional query parameters:
 
 =over 4
 
-=item * Requires system admin authorization or the read-only role on the build
+=item * Requires system admin authorization, or the read/write role on the build and the
+read-only role on a build that contains the rack
 
 =item * Controller/Action: L<Conch::Controller::Build/get_racks>
 
@@ -413,7 +414,7 @@ Accepts the following optional query parameters:
 =over 4
 
 =item * Requires system admin authorization, or the read/write role on the build and the
-read-write role on a workspace or build that contains the rack
+read-write role on a build that contains the rack
 
 =item * Controller/Action: L<Conch::Controller::Build/add_rack>
 

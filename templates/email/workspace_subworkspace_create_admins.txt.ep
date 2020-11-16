@@ -1,7 +1,0 @@
-Hello,
-
-<%= $user->name %> (<%= $user->email %>) has created the "<%= $workspace %>" child workspace
-beneath the "<%= $parent_workspace %>" workspace at Joyent Conch (https://<%= host %>).
-
-Thank you,
-Joyent Build Ops Team

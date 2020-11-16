@@ -271,34 +271,9 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 workspace_racks
-
-Type: has_many
-
-Related object: L<Conch::DB::Result::WorkspaceRack>
-
-=cut
-
-__PACKAGE__->has_many(
-  "workspace_racks",
-  "Conch::DB::Result::WorkspaceRack",
-  { "foreign.rack_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 workspaces
-
-Type: many_to_many
-
-Composing rels: L</workspace_racks> -> workspace
-
-=cut
-
-__PACKAGE__->many_to_many("workspaces", "workspace_racks", "workspace");
-
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:aqVuUXF5weUiQjSH0Zq+iQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:w+hSP94pWgQJ3o+7UaRvxg
 
 __PACKAGE__->load_components('+Conch::DB::Helper::Row::WithPhase');
 

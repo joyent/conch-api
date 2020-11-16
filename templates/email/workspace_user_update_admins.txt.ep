@@ -1,8 +1,0 @@
-Hello,
-
-<%= $user->name %> (<%= $user->email %>) has modified a user's access to the
-"<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>).
-<%= $target_user->name %> (<%= $target_user->email %>) now has the "<%= $role %>" role.
-
-Thank you,
-Joyent Build Ops Team

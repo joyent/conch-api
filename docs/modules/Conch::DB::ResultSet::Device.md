@@ -13,11 +13,10 @@ Interface to queries involving devices.
 ### with\_user\_role
 
 Constrains the resultset to those where the provided user\_id has (at least) the specified role
-in at least one workspace or build associated with the specified device(s) (also taking into
-consideration the rack location of the device(s) if its phase is early enough), including
-parent workspaces.
+in at least one build associated with the specified device(s) (also taking into
+consideration the rack location of the device(s) if its phase is early enough).
 
-This is a nested query which searches all workspaces and builds in the database, so only use
+This is a nested query which searches all builds in the database, so only use
 this query when its impact is outweighed by the impact of filtering a large resultset of
 devices in the database. (That is, usually you should start with a single device and then
 apply `$device_rs->user_has_role($user_id, $role)` to it.)
@@ -25,7 +24,8 @@ apply `$device_rs->user_has_role($user_id, $role)` to it.)
 ### user\_has\_role
 
 Checks that the provided user\_id has (at least) the specified role in at least one
-workspace or build associated with the specified device(s) (including parent workspaces).
+build associated with the specified device(s), also taking into consideration the rack location of
+the device(s) if its phase is early enough.
 
 Returns a boolean.
 

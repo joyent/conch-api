@@ -1,6 +1,0 @@
-Hello,
-
-Your access to the "<%= $workspace %>" workspace at Joyent Conch (https://<%= host %>) has been adjusted to "<%= $role %>".
-
-Thank you,
-Joyent Build Ops Team

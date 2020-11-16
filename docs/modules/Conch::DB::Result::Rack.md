@@ -145,18 +145,6 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::RackRole](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ARackRole)
 
-### workspace\_racks
-
-Type: has\_many
-
-Related object: [Conch::DB::Result::WorkspaceRack](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AWorkspaceRack)
-
-### workspaces
-
-Type: many\_to\_many
-
-Composing rels: ["workspace\_racks"](#workspace_racks) -> workspace
-
 ## METHODS
 
 ### TO\_JSON

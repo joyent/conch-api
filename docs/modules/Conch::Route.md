@@ -35,8 +35,7 @@ Returns the root node.
 
 Unless otherwise specified, all routes require authentication.
 
-Full access is granted to system admin users, regardless of workspace, build or other role
-entries.
+Full access is granted to system admin users, regardless of build or other role entries.
 
 Successful (HTTP 2xx code) response structures are as described for each endpoint.
 
@@ -67,16 +66,6 @@ Error responses will use:
 - Controller/Action: ["logout" in Conch::Controller::Login](../modules/Conch%3A%3AController%3A%3ALogin#logout)
 - Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
 - Response: `204 No Content`
-
-### `GET /workspace/:workspace/device-totals`
-
-### `GET /workspace/:workspace/device-totals.circ`
-
-All `/workspace` routes are deprecated and will be removed in Conch API v3.1.
-
-- Does not require authentication.
-- Response: [response.json#/definitions/DeviceTotals](../json-schema/response.json#/definitions/DeviceTotals)
-- Response (Circonus): [response.json#/definitions/DeviceTotalsCirconus](../json-schema/response.json#/definitions/DeviceTotalsCirconus)
 
 ### `POST /refresh_token`
 
@@ -131,12 +120,6 @@ See ["routes" in Conch::Route::ValidationPlan](../modules/Conch%3A%3ARoute%3A%3A
 ### `* /validation_state`
 
 See ["routes" in Conch::Route::ValidationState](../modules/Conch%3A%3ARoute%3A%3AValidationState#routes)
-
-### `* /workspace`
-
-See ["routes" in Conch::Route::Workspace](../modules/Conch%3A%3ARoute%3A%3AWorkspace#routes).
-
-All `/workspace` routes are deprecated and will be removed in Conch API v3.1.
 
 ## LICENSING
 
