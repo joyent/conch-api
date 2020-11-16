@@ -29,7 +29,7 @@ sub run ($self, @opts) {
     my ($opt, $usage) = describe_options(
         # the descriptions aren't actually used anymore (mojo uses the synopsis instead)... but
         # the 'usage' text block can be accessed with $usage->text
-        'clean_roles %o',
+        'force_password_change %o',
         [ 'dry-run|n',      'dry-run (no changes are made)' ],
         [ 'email=s@',       'email address of user to be modified (can be used more than once)' ],
         [],

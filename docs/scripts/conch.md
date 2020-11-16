@@ -44,10 +44,6 @@ Conch-specific commands are:
 
     force a user (or by default, all users) to change their password
 
-- [new\_organizations](../modules/Conch%3A%3ACommand%3A%3Anew_organizations)
-
-    create new organization data
-
 - [passwd](../modules/Conch%3A%3ACommand%3A%3Apasswd)
 
     Change a user's password

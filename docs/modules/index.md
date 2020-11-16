@@ -8,7 +8,6 @@
 * [Conch::Command::create_user](../modules/Conch::Command::create_user)
 * [Conch::Command::fix_usernames](../modules/Conch::Command::fix_usernames)
 * [Conch::Command::force_password_change](../modules/Conch::Command::force_password_change)
-* [Conch::Command::new_organizations](../modules/Conch::Command::new_organizations)
 * [Conch::Command::passwd](../modules/Conch::Command::passwd)
 * [Conch::Command::thin_device_reports](../modules/Conch::Command::thin_device_reports)
 * [Conch::Command::update_validation_plans](../modules/Conch::Command::update_validation_plans)
