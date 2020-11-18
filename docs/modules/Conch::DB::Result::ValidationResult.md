@@ -124,6 +124,10 @@ Type: many\_to\_many
 
 Composing rels: ["validation\_state\_members"](#validation_state_members) -> validation\_state
 
+### TO\_JSON
+
+Include information about the validation corresponding to the result, if available.
+
 ## LICENSING
 
 Copyright Joyent, Inc.

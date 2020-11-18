@@ -910,6 +910,9 @@ definitions:
       - message
       - status
       - validation_id
+      - name
+      - version
+      - description
     properties:
       id:
         oneOf:
