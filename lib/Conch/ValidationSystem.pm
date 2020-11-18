@@ -326,13 +326,16 @@ sub run_validation_plan ($self, %options) {
 
         $validator->run($data);
 
-        push @validation_results, map
-            $validation_result_rs->new_result({
+        push @validation_results, map {
+            my $result = $validation_result_rs->new_result({
                 validation_id       => $validation->id,
                 device_id           => $device->id,
                 $_->%{qw(message hint status category component)},
-            }),
-            $validator->validation_results;
+            });
+            $result->related_resultset('validation')->set_cache([ $validation ]);
+            $result;
+        }
+        $validator->validation_results;
 
         $self->log->debug('validation '.$validation->name.' returned no results for device id '.$device->id)
             if not $validator->validation_results;
@@ -398,13 +401,16 @@ sub run_validation ($self, %options) {
     $validator->run($data);
 
     my $validation_result_rs = $self->schema->resultset('validation_result');
-    my @validation_results = map
-        $validation_result_rs->new_result({
+    my @validation_results = map {
+        my $result = $validation_result_rs->new_result({
             validation_id       => $validation->id,
             device_id           => $device->id,
             $_->%{qw(message hint status category component)},
-        }),
-        $validator->validation_results;
+        });
+        $result->related_resultset('validation')->set_cache([ $validation ]);
+        $result;
+    }
+    $validator->validation_results;
 
     return @validation_results;
 }

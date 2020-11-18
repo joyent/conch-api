@@ -113,6 +113,7 @@ subtest 'run report without an existing device and without making updates' => su
                 hint => ignore,
                 message => ignore,
                 status => any(qw(error fail pass)),
+                do { my $v = $_; map +($_ => $v->$_), qw(name version description) },
             }, @validations)),
         });
 

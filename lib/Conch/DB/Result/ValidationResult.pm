@@ -241,6 +241,24 @@ __PACKAGE__->add_columns(
     '+device_id' => { is_serializable => 0 },
 );
 
+use experimental 'signatures';
+
+=head2 TO_JSON
+
+Include information about the validation corresponding to the result, if available.
+
+=cut
+
+sub TO_JSON ($self) {
+    my $data = $self->next::method(@_);
+
+    if (my $validation = ($self->related_resultset('validation')->get_cache // [])->[0]) {
+        $data->{$_} = $validation->$_ foreach qw(name version description);
+    }
+
+    return $data;
+}
+
 1;
 __END__
 

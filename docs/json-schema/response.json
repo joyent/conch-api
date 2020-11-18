@@ -1918,7 +1918,10 @@
         "hint",
         "message",
         "status",
-        "validation_id"
+        "validation_id",
+        "name",
+        "version",
+        "description"
       ],
       "type" : "object"
     },
