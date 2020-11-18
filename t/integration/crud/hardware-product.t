@@ -9,6 +9,7 @@ use Conch::UUID 'create_uuid_str';
 use Mojo::Util 'url_escape';
 
 my $t = Test::Conch->new;
+my $base_uri = $t->ua->server->url; # used as the base uri for all requests
 $t->load_fixture('super_user');
 
 $t->authenticate;
@@ -80,7 +81,7 @@ $t->post_ok('/hardware_product', json => { %hw_fields, specification => { disk_s
     ->json_cmp_deeply({
         error => 'request did not match required format',
         details => superbagof(superhashof({ data_location => '/specification/disk_size', error => 'wrong type (expected object)' })),
-        schema => '/json_schema/request/HardwareProductCreate',
+        schema => $base_uri.'json_schema/request/HardwareProductCreate',
     });
 
 $hw_fields{specification} = { disk_size => { _default => 0, AcmeCorp => 512 } };
@@ -193,7 +194,7 @@ $t->post_ok("/hardware_product/$new_hw_id", json => { specification => { disk_si
     ->json_cmp_deeply({
         error => 'request did not match required format',
         details => superbagof(superhashof({ data_location => '/specification/disk_size', error => 'wrong type (expected object)' })),
-        schema => '/json_schema/request/HardwareProductUpdate',
+        schema => $base_uri.'json_schema/request/HardwareProductUpdate',
     });
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
@@ -277,7 +278,7 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply(superhashof({
       details => [ superhashof({ error => 'wrong type (expected object)' }) ],
-      schema => '/json_schema/request/HardwareProductSpecification',
+      schema => $base_uri.'json_schema/request/HardwareProductSpecification',
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size', json => 1)
@@ -285,7 +286,7 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply(superhashof({
       details => [ superhashof({ error => 'wrong type (expected object)' }) ],
-      schema => '/json_schema/request/HardwareProductSpecification',
+      schema => $base_uri.'json_schema/request/HardwareProductSpecification',
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size',
@@ -306,7 +307,7 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply(superhashof({
       details => [ superhashof({ error => 'wrong type (expected integer)' }) ],
-      schema => '/json_schema/request/HardwareProductSpecification',
+      schema => $base_uri.'json_schema/request/HardwareProductSpecification',
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/SEAGATE_8000',

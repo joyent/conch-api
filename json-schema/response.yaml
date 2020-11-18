@@ -30,7 +30,7 @@ $defs:
           $ref: '#/$defs/JSONSchemaError'
       schema:
         type: string
-        format: uri-reference
+        format: uri
         pattern: '/json_schema/[^/.~]+/[A-Za-z0-9_-]+$'
       data:
         $comment: any supplementary details will be included here

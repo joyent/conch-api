@@ -35,7 +35,7 @@ subtest 'failed query params validation' => sub {
                     error => 'value does not match',
                 },
             ],
-            schema => '/json_schema/query_params/ChangePassword',
+            schema => $base_uri.'json_schema/query_params/ChangePassword',
             data => { clear_tokens => 'whargarbl' },
         })
         ->log_warn_like(qr{^FAILED query_params validation for schema ChangePassword: .*value does not match});
@@ -74,7 +74,7 @@ subtest 'failed request validation' => sub {
                     error => 'missing property: password',
                 },
             ],
-            schema => '/json_schema/request/Login',
+            schema => $base_uri.'json_schema/request/Login',
         })
         ->log_warn_like(qr{^FAILED request payload validation for schema Login: .*missing property});
 };

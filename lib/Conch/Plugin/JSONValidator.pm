@@ -76,7 +76,7 @@ Population of missing data from specified defaults is performed.
                 error => 'query parameters did not match required format',
                 data => $data,
                 details => \@errors,
-                schema => $c->url_for('/json_schema/query_params/'.$schema_name),
+                schema => $c->url_for('/json_schema/query_params/'.$schema_name)->to_abs,
             });
         }
 
@@ -111,7 +111,8 @@ using the F<response.yaml#/$defs/RequestValidationError> json response schema.
             return $c->status(400, {
                 error => 'request did not match required format',
                 details => \@errors,
-                schema => $c->url_for('/json_schema/request/'.$schema_name),
+                schema => $c->url_for('/json_schema/request/'.$schema_name)->to_abs,
+                # data is not included here because it could be large, and it is exactly what was sent.
             });
         }
 
