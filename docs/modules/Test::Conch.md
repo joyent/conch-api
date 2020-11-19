@@ -61,13 +61,15 @@ Returns a read-only connection to an existing [Test::PostgreSQL](https://metacpa
 Wrapper around ["status\_is" in Test::Mojo](https://metacpan.org/pod/Test%3A%3AMojo#status_is), adding some additional checks.
 
 ```
-* successful GET requests should not return 201, 202 (ideally just 200, 204).
-* successful DELETE requests should not return 201
-* GET requests should not have request body content
-* 200 and most 4xx responses should have content.
-* 201 and most 3xx responses should have a Location header.
-* 204 and most 3xx responses should not have body content.
-* 302 should not be used at all
+0. GET requests should not have request body content
+1. successful GET requests should not return 201, 202 (ideally just 200, 204)
+2. successful DELETE requests should not return 201
+3. 201 and most 3xx responses should have a Location header
+4. HEAD requests should not have body content
+5. 200, 203, 206, 207 and most 4xx responses should have body content
+6. 201, 204, 205 and most 3xx responses should not have body content
+7. 302 should not be used at all
+8. 401, 403 responses should have a WWW-Authenticate header
 ```
 
 Also, unexpected responses will dump the response payload.
@@ -82,10 +84,10 @@ As ["location\_is"](#location_is), but takes a regular expression.
 
 ### json\_schema\_is
 
-Validates the JSON response of
-the most recent request. If given a string, looks up the schema in
-\#/definitions in the JSON Schema spec to validate. If given a hash, uses
-the hash as the schema to validate.
+Validates the JSON response of the most recent request. If given a string that looks like a URL,
+fetches that URL; otherwise if a string, looks up the schema in `#/$defs` in the JSON Schema
+response specification document to validate. If given a hash, uses the hash as the schema to
+validate.
 
 ### json\_cmp\_deeply
 

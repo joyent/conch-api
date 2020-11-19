@@ -210,7 +210,7 @@ sub with_build_name ($self) {
 
 =head2 location_data
 
-Returns a resultset that provides location data (F<response.yaml#/definitions/DeviceLocation>),
+Returns a resultset that provides location data (F<response.yaml#/$defs/DeviceLocation>),
 optionally returned under a hash using the provided key name.
 
 =cut

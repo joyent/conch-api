@@ -134,7 +134,7 @@ Supports the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/get_all>
 
-=item * Response: F<response.yaml#/definitions/Builds>
+=item * Response: F<response.yaml#/$defs/Builds>
 
 =back
 
@@ -146,7 +146,7 @@ Supports the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/create>
 
-=item * Request: F<request.yaml#/definitions/BuildCreate>
+=item * Request: F<request.yaml#/$defs/BuildCreate>
 
 =item * Response: Redirect to the build
 
@@ -172,7 +172,7 @@ Supports the following optional query parameters:
 
 =item * Requires system admin authorization or the read-only role on the build
 
-=item * Response: F<response.yaml#/definitions/Build>
+=item * Response: F<response.yaml#/$defs/Build>
 
 =back
 
@@ -184,7 +184,7 @@ Supports the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/update>
 
-=item * Request: F<request.yaml#/definitions/BuildUpdate>
+=item * Request: F<request.yaml#/$defs/BuildUpdate>
 
 =item * Response: Redirect to the build
 
@@ -198,7 +198,7 @@ Supports the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/add_links>
 
-=item * Request: F<request.yaml#/definitions/BuildLinks>
+=item * Request: F<request.yaml#/$defs/BuildLinks>
 
 =item * Response: Redirect to the updated build
 
@@ -210,7 +210,7 @@ Supports the following optional query parameters:
 
 =item * Requires system admin authorization or the admin role on the build
 
-=item * Request: F<request.yaml#/definitions/BuildLinksOrNull>
+=item * Request: F<request.yaml#/$defs/BuildLinksOrNull>
 
 =item * Response: 204 NO CONTENT
 
@@ -224,7 +224,7 @@ Supports the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/get_users>
 
-=item * Response: F<response.yaml#/definitions/BuildUsers>
+=item * Response: F<response.yaml#/$defs/BuildUsers>
 
 =back
 
@@ -239,7 +239,7 @@ an email to the user.
 
 =item * Controller/Action: L<Conch::Controller::Build/add_user>
 
-=item * Request: F<request.yaml#/definitions/BuildAddUser>
+=item * Request: F<request.yaml#/$defs/BuildAddUser>
 
 =item * Response: C<204 No Content>
 
@@ -268,7 +268,7 @@ an email to the user.
 
 =item * Controller/Action: L<Conch::Controller::Build/get_organizations>
 
-=item * Response: F<response.yaml#/definitions/BuildOrganizations>
+=item * Response: F<response.yaml#/$defs/BuildOrganizations>
 
 =back
 
@@ -283,7 +283,7 @@ an email to the organization members and build admins.
 
 =item * Controller/Action: L<Conch::Controller::Build/add_organization>
 
-=item * Request: F<request.yaml#/definitions/BuildAddOrganization>
+=item * Request: F<request.yaml#/$defs/BuildAddOrganization>
 
 =item * Response: C<204 No Content>
 
@@ -328,7 +328,7 @@ Accepts the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/get_devices>
 
-=item * Response: one of F<response.yaml#/definitions/Devices>, F<response.yaml#/definitions/DeviceIds> or F<response.yaml#/definitions/DeviceSerials>
+=item * Response: one of F<response.yaml#/$defs/Devices>, F<response.yaml#/$defs/DeviceIds> or F<response.yaml#/$defs/DeviceSerials>
 
 =back
 
@@ -340,7 +340,7 @@ Accepts the following optional query parameters:
 
 =item * Controller/Action: L<Conch::Controller::Build/get_pxe_devices>
 
-=item * Response: F<response.yaml#/definitions/DevicePXEs>
+=item * Response: F<response.yaml#/$defs/DevicePXEs>
 
 =back
 
@@ -354,7 +354,7 @@ L<Conch::Route::Device/routes>)
 
 =item * Controller/Action: L<Conch::Controller::Build/create_and_add_devices>
 
-=item * Request: F<request.yaml#/definitions/BuildCreateDevices>
+=item * Request: F<request.yaml#/$defs/BuildCreateDevices>
 
 =item * Response: C<204 No Content>
 
@@ -405,7 +405,7 @@ read-only role on a build that contains the rack
 
 =item * Controller/Action: L<Conch::Controller::Build/get_racks>
 
-=item * Response: one of F<response.yaml#/definitions/Racks> or F<response.yaml#/definitions/RackIds>
+=item * Response: one of F<response.yaml#/$defs/Racks> or F<response.yaml#/$defs/RackIds>
 
 =back
 

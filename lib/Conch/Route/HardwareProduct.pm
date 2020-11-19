@@ -74,7 +74,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::HardwareProduct/get_all>
 
-=item * Response: F<response.yaml#/definitions/HardwareProducts>
+=item * Response: F<response.yaml#/$defs/HardwareProducts>
 
 =back
 
@@ -86,7 +86,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::HardwareProduct/create>
 
-=item * Request: F<request.yaml#/definitions/HardwareProductCreate>
+=item * Request: F<request.yaml#/$defs/HardwareProductCreate>
 
 =item * Response: Redirect to the created hardware product
 
@@ -100,7 +100,7 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =item * Controller/Action: L<Conch::Controller::HardwareProduct/get>
 
-=item * Response: F<response.yaml#/definitions/HardwareProduct>
+=item * Response: F<response.yaml#/$defs/HardwareProduct>
 
 =back
 
@@ -116,7 +116,7 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =item * Controller/Action: L<Conch::Controller::HardwareProduct/update>
 
-=item * Request: F<request.yaml#/definitions/HardwareProductUpdate>
+=item * Request: F<request.yaml#/$defs/HardwareProductUpdate>
 
 =item * Response: Redirect to the updated hardware product
 
@@ -167,7 +167,7 @@ Results in this data in C<specification>, changing the data type at node C</foo/
 =item * Controller/Action: L<Conch::Controller::HardwareProduct/set_specification>
 
 =item * Request: after the update operation, the C<specification> property must validate against
-F<common.yaml#/definitions/HardwareProductSpecification>.
+F<common.yaml#/$defs/HardwareProductSpecification>.
 
 =item * Response: C<204 No Content>
 
@@ -180,7 +180,7 @@ parameter C<path> as the JSON pointer to the data to be removed. All other prope
 blob are left untouched.
 
 After the delete operation, the C<specification> property must validate against
-F<common.yaml#/definitions/HardwareProductSpecification>.
+F<common.yaml#/$defs/HardwareProductSpecification>.
 
 =over 4
 

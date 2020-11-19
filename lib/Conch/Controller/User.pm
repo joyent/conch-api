@@ -75,15 +75,15 @@ sub revoke_user_tokens ($c) {
     $c->validate_request('Null');
     return if $c->res->code;
 
-    my $login_only = $params->{login_only} // 0;
-    my $api_only = $params->{api_only} // 0;
+    my $login_only = $params->{login_only};
+    my $api_only = $params->{api_only};
 
     my $user = $c->stash('target_user');
     $c->log->debug('revoking '
         .($login_only ? 'login' : $api_only ? 'api' : 'all')
         .' tokens for user '.$user->name.', forcing them to /login again');
 
-    my $send_mail = $user->id ne $c->stash('user_id') && ($params->{send_mail} // 1);
+    my $send_mail = $user->id ne $c->stash('user_id') && $params->{send_mail};
 
     my $rs = $user->user_session_tokens->unexpired;
     $rs = $rs->login_only if $login_only;
@@ -247,7 +247,7 @@ sub change_own_password ($c) {
     my $input = $c->validate_request('UserPassword');
     return if not $input;
 
-    my $clear_tokens = $params->{clear_tokens} // 'login_only';
+    my $clear_tokens = $params->{clear_tokens};
 
     my $user = $c->stash('user');
     $user->update({
@@ -293,7 +293,7 @@ sub reset_user_password ($c) {
     my $params = $c->validate_query_params('ResetUserPassword');
     return if not $params;
 
-    my $clear_tokens = $params->{clear_tokens} // 'login_only';
+    my $clear_tokens = $params->{clear_tokens};
 
     my $user = $c->stash('target_user');
     my %update = (
@@ -331,7 +331,7 @@ sub reset_user_password ($c) {
         From => 'noreply',
         Subject => 'Your Conch password has changed',
         password => $update{password},
-    ) if $params->{send_mail} // 1;
+    ) if $params->{send_mail};
 
     return $c->status(204);
 }
@@ -401,7 +401,7 @@ sub update ($c) {
         });
     }
 
-    if ($params->{send_mail} // 1) {
+    if ($params->{send_mail}) {
         %orig_columns = %orig_columns{keys %dirty_columns};
 
         if (exists $dirty_columns{is_admin}) {
@@ -477,7 +477,7 @@ sub create ($c) {
     my $user = $c->db_user_accounts->create({ $input->%*, force_password_change => 1 });
     $c->log->info('created user: '.$user->name.', email: '.$user->email.', id: '.$user->id);
 
-    if ($params->{send_mail} // 1) {
+    if ($params->{send_mail}) {
         $c->stash('target_user', $user);
         $c->send_mail(
             template_file => 'new_user_account',
@@ -549,7 +549,7 @@ sub deactivate ($c) {
     $user->delete_related('user_organization_roles');
     $user->delete_related('user_build_roles');
 
-    if ($params->{clear_tokens} // 1) {
+    if ($params->{clear_tokens}) {
         $c->log->warn('user '.$c->stash('user')->name.' deleting all user session tokens for user '.$user->name);
         $user->delete_related('user_session_tokens');
     }

@@ -199,11 +199,11 @@ Error responses will use:
 
 =over
 
-=item * failure to validate query parameters: HTTP 400, F<response.yaml#/definitions/QueryParamsValidationError>
+=item * failure to validate query parameters: HTTP 400, F<response.yaml#/$defs/QueryParamsValidationError>
 
-=item * failure to validate request body payload: HTTP 400, F<response.yaml#/definitions/RequestValidationError>
+=item * failure to validate request body payload: HTTP 400, F<response.yaml#/$defs/RequestValidationError>
 
-=item * all other errors, unless specified: HTTP 4xx, F<response.yaml#/definitions/Error>
+=item * all other errors, unless specified: HTTP 4xx, F<response.yaml#/$defs/Error>
 
 =back
 
@@ -213,7 +213,7 @@ Error responses will use:
 
 =item * Does not require authentication.
 
-=item * Response: F<response.yaml#/definitions/Ping>
+=item * Response: F<response.yaml#/$defs/Ping>
 
 =back
 
@@ -223,7 +223,7 @@ Error responses will use:
 
 =item * Does not require authentication.
 
-=item * Response: F<response.yaml#/definitions/Version>
+=item * Response: F<response.yaml#/$defs/Version>
 
 =back
 
@@ -233,9 +233,9 @@ Error responses will use:
 
 =item * Controller/Action: L<Conch::Controller::Login/login>
 
-=item * Request: F<request.yaml#/definitions/Login>
+=item * Request: F<request.yaml#/$defs/Login>
 
-=item * Response: F<response.yaml#/definitions/LoginToken>
+=item * Response: F<response.yaml#/$defs/LoginToken>
 
 =back
 
@@ -245,7 +245,7 @@ Error responses will use:
 
 =item * Controller/Action: L<Conch::Controller::Login/logout>
 
-=item * Request: F<request.yaml#/definitions/Null>
+=item * Request: F<request.yaml#/$defs/Null>
 
 =item * Response: C<204 No Content>
 
@@ -257,9 +257,9 @@ Error responses will use:
 
 =item * Controller/Action: L<Conch::Controller::Login/refresh_token>
 
-=item * Request: F<request.yaml#/definitions/Null>
+=item * Request: F<request.yaml#/$defs/Null>
 
-=item * Response: F<response.yaml#/definitions/LoginToken>
+=item * Response: F<response.yaml#/$defs/LoginToken>
 
 =back
 

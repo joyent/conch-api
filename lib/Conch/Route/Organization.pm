@@ -67,7 +67,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Organization/get_all>
 
-=item * Response: F<response.yaml#/definitions/Organizations>
+=item * Response: F<response.yaml#/$defs/Organizations>
 
 =back
 
@@ -79,7 +79,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Organization/create>
 
-=item * Request: F<request.yaml#/definitions/OrganizationCreate>
+=item * Request: F<request.yaml#/$defs/OrganizationCreate>
 
 =item * Response: Redirect to the organization
 
@@ -93,7 +93,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Organization/get>
 
-=item * Response: F<response.yaml#/definitions/Organization>
+=item * Response: F<response.yaml#/$defs/Organization>
 
 =back
 
@@ -105,7 +105,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::Organization/update>
 
-=item * Request: F<request.yaml#/definitions/OrganizationUpdate>
+=item * Request: F<request.yaml#/$defs/OrganizationUpdate>
 
 =item * Response: Redirect to the organization
 
@@ -134,7 +134,7 @@ an email to the user.
 
 =item * Controller/Action: L<Conch::Controller::Organization/add_user>
 
-=item * Request: F<request.yaml#/definitions/OrganizationAddUser>
+=item * Request: F<request.yaml#/$defs/OrganizationAddUser>
 
 =item * Response: C<204 No Content>
 

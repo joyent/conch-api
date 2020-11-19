@@ -1,7 +1,6 @@
 {
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/device_report/$schema_name' endpoints, or within conch itself, json-schema/device_report.yaml.",
-  "$schema" : "http://json-schema.org/draft-07/schema#",
-  "definitions" : {
+  "$defs" : {
     "DeviceReport_v3_0_0" : {
       "description" : "the contents of a posted device report from relays and reporters",
       "properties" : {
@@ -30,7 +29,7 @@
               "memory-serial-number" : {
                 "oneOf" : [
                   {
-                    "$ref" : "common.json#/definitions/non_empty_string"
+                    "$ref" : "common.json#/$defs/non_empty_string"
                   },
                   {
                     "type" : "null"
@@ -40,7 +39,7 @@
               "memory-size" : {
                 "oneOf" : [
                   {
-                    "$ref" : "#/definitions/int_or_stringy_int"
+                    "$ref" : "#/$defs/int_or_stringy_int"
                   },
                   {
                     "type" : "null"
@@ -66,13 +65,13 @@
                 "type" : "string"
               },
               "enclosure" : {
-                "$ref" : "#/definitions/int_or_stringy_int"
+                "$ref" : "#/$defs/int_or_stringy_int"
               },
               "firmware" : {
                 "type" : "string"
               },
               "hba" : {
-                "$ref" : "#/definitions/int_or_stringy_int"
+                "$ref" : "#/$defs/int_or_stringy_int"
               },
               "health" : {
                 "type" : "string"
@@ -84,10 +83,10 @@
                 "type" : "integer"
               },
               "slot" : {
-                "$ref" : "#/definitions/int_or_stringy_int"
+                "$ref" : "#/$defs/int_or_stringy_int"
               },
               "temp" : {
-                "$ref" : "#/definitions/int_or_stringy_int"
+                "$ref" : "#/$defs/int_or_stringy_int"
               },
               "transport" : {
                 "type" : "string"
@@ -99,7 +98,7 @@
             "type" : "object"
           },
           "propertyNames" : {
-            "$ref" : "common.json#/definitions/disk_serial_number"
+            "$ref" : "common.json#/$defs/disk_serial_number"
           },
           "type" : "object"
         },
@@ -109,7 +108,7 @@
               "ipaddr" : {
                 "oneOf" : [
                   {
-                    "$ref" : "common.json#/definitions/ipaddr"
+                    "$ref" : "common.json#/$defs/ipaddr"
                   },
                   {
                     "type" : "null"
@@ -117,12 +116,12 @@
                 ]
               },
               "mac" : {
-                "$ref" : "common.json#/definitions/macaddr"
+                "$ref" : "common.json#/$defs/macaddr"
               },
               "mtu" : {
                 "oneOf" : [
                   {
-                    "$ref" : "#/definitions/int_or_stringy_int"
+                    "$ref" : "#/$defs/int_or_stringy_int"
                   },
                   {
                     "type" : "null"
@@ -132,7 +131,7 @@
               "peer_mac" : {
                 "oneOf" : [
                   {
-                    "$ref" : "common.json#/definitions/macaddr"
+                    "$ref" : "common.json#/$defs/macaddr"
                   },
                   {
                     "type" : "null"
@@ -164,14 +163,14 @@
             "type" : "object"
           },
           "propertyNames" : {
-            "$ref" : "common.json#/definitions/device_interface_name"
+            "$ref" : "common.json#/$defs/device_interface_name"
           },
           "type" : "object"
         },
         "links" : {
           "allOf" : [
             {
-              "$ref" : "common.json#/definitions/links"
+              "$ref" : "common.json#/$defs/links"
             },
             {
               "minItems" : 1
@@ -195,7 +194,7 @@
         "relay" : {
           "properties" : {
             "serial" : {
-              "$ref" : "common.json#/definitions/relay_serial_number"
+              "$ref" : "common.json#/$defs/relay_serial_number"
             }
           },
           "required" : [
@@ -204,27 +203,27 @@
           "type" : "object"
         },
         "serial_number" : {
-          "$ref" : "common.json#/definitions/device_serial_number"
+          "$ref" : "common.json#/$defs/device_serial_number"
         },
         "sku" : {
           "type" : "string"
         },
         "system_uuid" : {
-          "$ref" : "common.json#/definitions/non_zero_uuid"
+          "$ref" : "common.json#/$defs/non_zero_uuid"
         },
         "temp" : {
           "properties" : {
             "cpu0" : {
-              "$ref" : "#/definitions/int_or_stringy_int"
+              "$ref" : "#/$defs/int_or_stringy_int"
             },
             "cpu1" : {
-              "$ref" : "#/definitions/int_or_stringy_int"
+              "$ref" : "#/$defs/int_or_stringy_int"
             },
             "exhaust" : {
-              "$ref" : "#/definitions/int_or_stringy_int"
+              "$ref" : "#/$defs/int_or_stringy_int"
             },
             "inlet" : {
-              "$ref" : "#/definitions/int_or_stringy_int"
+              "$ref" : "#/$defs/int_or_stringy_int"
             }
           },
           "required" : [
@@ -258,5 +257,6 @@
         }
       ]
     }
-  }
+  },
+  "$schema" : "http://json-schema.org/draft-07/schema#"
 }

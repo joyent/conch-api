@@ -3,7 +3,7 @@ package Conch::Plugin::JSONValidator;
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
 use feature 'unicode_strings', 'fc';
-use JSON::Validator;
+use JSON::Validator 3.20;
 
 =pod
 
@@ -54,13 +54,15 @@ appearing once are scalars, parameters appearing more than once have their value
 arrayref).
 
 On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
-F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
+F<response.yaml#/$defs/QueryParamsValidationError> json response schema.
+
+Population of missing data from specified defaults is performed.
 
 =cut
 
     $app->helper(validate_query_params => sub ($c, $schema_name, $data = $c->req->query_params->to_hash) {
         my $validator = $c->get_query_params_validator;
-        my $schema = $validator->get('/definitions/'.$schema_name);
+        my $schema = $validator->get('/$defs/'.$schema_name);
 
         if (not $schema) {
             Mojo::Exception->throw("unable to locate query_params schema $schema_name");
@@ -68,7 +70,7 @@ F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
         }
 
         if (my @errors = $validator->validate($data, $schema)) {
-            $c->log->warn("FAILED query_params validation for schema $schema_name: ".join(' // ', @errors));
+            $c->log->warn("FAILED query_params validation for schema $schema_name: ".join(' ', @errors));
             return $c->status(400, {
                 error => 'query parameters did not match required format',
                 data => $data,
@@ -76,6 +78,10 @@ F<response.yaml#/definitions/QueryParamsValidationError> json response schema.
                 schema => $c->url_for('/json_schema/query_params/'.$schema_name),
             });
         }
+
+        # now underlay data defaults
+        # (FIXME: we should be receiving these as annotations from the validator)
+        $data->%* = ( ($schema->{default} // {})->%*, $data->%* );
 
         $c->log->debug("Passed data validation for query_params schema $schema_name");
         return $data;
@@ -87,13 +93,13 @@ Given the name of a json schema in the request namespace, validate the provided 
 it (defaulting to the request's json payload).
 
 On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
-using the F<response.yaml#/definitions/RequestValidationError> json response schema.
+using the F<response.yaml#/$defs/RequestValidationError> json response schema.
 
 =cut
 
     $app->helper(validate_request => sub ($c, $schema_name, $data = $c->req->json) {
         my $validator = $c->get_request_validator;
-        my $schema = $validator->get('/definitions/'.$schema_name);
+        my $schema = $validator->get('/$defs/'.$schema_name);
 
         if (not $schema) {
             Mojo::Exception->throw("unable to locate request schema $schema_name");
@@ -101,7 +107,7 @@ using the F<response.yaml#/definitions/RequestValidationError> json response sch
         }
 
         if (my @errors = $validator->validate($data, $schema)) {
-            $c->log->warn("FAILED request payload validation for schema $schema_name: ".join(' // ', @errors));
+            $c->log->warn("FAILED request payload validation for schema $schema_name: ".join(' ', @errors));
             return $c->status(400, {
                 error => 'request did not match required format',
                 details => \@errors,
@@ -118,17 +124,15 @@ using the F<response.yaml#/definitions/RequestValidationError> json response sch
 Returns a L<JSON::Validator> object suitable for validating an endpoint's query parameters
 (when transformed into a hashref: see L</validate_query_params>).
 
-Strings that look like numbers are converted into numbers, so strict 'integer' and 'number'
-typing is possible. No default population is done yet though; see
-L<https://github.com/mojolicious/json-validator/issues/158>.
+Because values are being parsed from the URI string, all values are strings even if they look like
+numbers.
 
 =cut
 
     my $_query_params_validator;
     $app->helper(get_query_params_validator => sub ($c) {
         return $_query_params_validator if $_query_params_validator;
-        # TODO: ->new(coerce => '...,defaults')
-        $_query_params_validator = JSON::Validator->new(coerce => 'numbers');
+        $_query_params_validator = JSON::Validator->new;
         $_query_params_validator->formats->@{qw(json-pointer uri uri-reference)} =
             (\&_check_json_pointer, \&_check_uri, \&_check_uri_reference);
         # FIXME: JSON::Validator should be extracting $schema out of the document - see https://github.com/mojolicious/json-validator/pull/152

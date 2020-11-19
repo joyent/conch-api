@@ -163,7 +163,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/lookup_by_other_attribute>
 
-=item * Response: F<response.yaml#/definitions/Devices>
+=item * Response: F<response.yaml#/$defs/Devices>
 
 =back
 
@@ -175,7 +175,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/get>
 
-=item * Response: F<response.yaml#/definitions/DetailedDevice>
+=item * Response: F<response.yaml#/$defs/DetailedDevice>
 
 =back
 
@@ -187,7 +187,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/get_pxe>
 
-=item * Response: F<response.yaml#/definitions/DevicePXE>
+=item * Response: F<response.yaml#/$defs/DevicePXE>
 
 =back
 
@@ -199,7 +199,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/get_phase>
 
-=item * Response: F<response.yaml#/definitions/DevicePhase>
+=item * Response: F<response.yaml#/$defs/DevicePhase>
 
 =back
 
@@ -211,7 +211,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/get_sku>
 
-=item * Response: F<response.yaml#/definitions/DeviceSku>
+=item * Response: F<response.yaml#/$defs/DeviceSku>
 
 =back
 
@@ -223,7 +223,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/set_asset_tag>
 
-=item * Request: F<request.yaml#/definitions/DeviceAssetTag>
+=item * Request: F<request.yaml#/$defs/DeviceAssetTag>
 
 =item * Response: Redirect to the updated device
 
@@ -237,7 +237,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/set_validated>
 
-=item * Request: F<request.yaml#/definitions/Null>
+=item * Request: F<request.yaml#/$defs/Null>
 
 =item * Response: Redirect to the updated device
 
@@ -251,7 +251,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/set_phase>
 
-=item * Request: F<request.yaml#/definitions/DevicePhase>
+=item * Request: F<request.yaml#/$defs/DevicePhase>
 
 =item * Response: Redirect to the updated device
 
@@ -265,7 +265,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/add_links>
 
-=item * Request: F<request.yaml#/definitions/DeviceLinks>
+=item * Request: F<request.yaml#/$defs/DeviceLinks>
 
 =item * Response: Redirect to the updated device
 
@@ -279,7 +279,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/remove_links>
 
-=item * Request: F<request.yaml#/definitions/DeviceLinksOrNull>
+=item * Request: F<request.yaml#/$defs/DeviceLinksOrNull>
 
 =item * Response: 204 No Content
 
@@ -293,7 +293,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/set_build>
 
-=item * Request: F<request.yaml#/definitions/DeviceBuild>
+=item * Request: F<request.yaml#/$defs/DeviceBuild>
 
 =item * Response: Redirect to the updated device
 
@@ -309,7 +309,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::Device/set_hardware_product>
 
-=item * Request: F<request.yaml#/definitions/DeviceHardware>
+=item * Request: F<request.yaml#/$defs/DeviceHardware>
 
 =item * Response: Redirect to the updated device
 
@@ -323,7 +323,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::DeviceLocation/get>
 
-=item * Response: F<response.yaml#/definitions/DeviceLocation>
+=item * Response: F<response.yaml#/$defs/DeviceLocation>
 
 =back
 
@@ -335,7 +335,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::DeviceLocation/set>
 
-=item * Request: F<request.yaml#/definitions/DeviceLocationUpdate>
+=item * Request: F<request.yaml#/$defs/DeviceLocationUpdate>
 
 =item * Response: Redirect to the updated device
 
@@ -361,7 +361,7 @@ below.
 
 =item * Controller/Action: L<Conch::Controller::DeviceSettings/get_all>
 
-=item * Response: F<response.yaml#/definitions/DeviceSettings>
+=item * Response: F<response.yaml#/$defs/DeviceSettings>
 
 =back
 
@@ -374,7 +374,7 @@ settings that do not start with C<tag.>.
 
 =item * Controller/Action: L<Conch::Controller::DeviceSettings/set_all>
 
-=item * Request: F<request.yaml#/definitions/DeviceSettings>
+=item * Request: F<request.yaml#/$defs/DeviceSettings>
 
 =item * Response: C<204 No Content>
 
@@ -388,7 +388,7 @@ settings that do not start with C<tag.>.
 
 =item * Controller/Action: L<Conch::Controller::DeviceSettings/get_single>
 
-=item * Response: F<response.yaml#/definitions/DeviceSetting>
+=item * Response: F<response.yaml#/$defs/DeviceSetting>
 
 =back
 
@@ -401,7 +401,7 @@ settings that do not start with C<tag.>.
 
 =item * Controller/Action: L<Conch::Controller::DeviceSettings/set_single>
 
-=item * Request: F<request.yaml#/definitions/DeviceSettings>
+=item * Request: F<request.yaml#/$defs/DeviceSettings>
 
 =item * Response: C<204 No Content>
 
@@ -432,9 +432,9 @@ This endpoint is B<deprecated> and will be removed in Conch API v4.0.
 
 =item * Controller/Action: L<Conch::Controller::DeviceValidation/validate>
 
-=item * Request: F<request.yaml#/definitions/DeviceReport>
+=item * Request: F<request.yaml#/$defs/DeviceReport>
 
-=item * Response: F<response.yaml#/definitions/LegacyValidationResults>
+=item * Response: F<response.yaml#/$defs/LegacyValidationResults>
 
 =back
 
@@ -450,9 +450,9 @@ This endpoint is B<deprecated> and will be removed in Conch API v4.0.
 
 =item * Controller/Action: L<Conch::Controller::DeviceValidation/run_validation_plan>
 
-=item * Request: F<request.yaml#/definitions/DeviceReport>
+=item * Request: F<request.yaml#/$defs/DeviceReport>
 
-=item * Response: F<response.yaml#/definitions/LegacyValidationResults>
+=item * Response: F<response.yaml#/$defs/LegacyValidationResults>
 
 =back
 
@@ -467,7 +467,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =item * Controller/Action: L<Conch::Controller::DeviceValidation/get_validation_state>
 
-=item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
+=item * Response: F<response.yaml#/$defs/ValidationStateWithResults>
 
 =back
 
@@ -479,7 +479,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =item * Controller/Action: L<Conch::Controller::DeviceInterface/get_all>
 
-=item * Response: F<response.yaml#/definitions/DeviceNics>
+=item * Response: F<response.yaml#/$defs/DeviceNics>
 
 =back
 
@@ -491,7 +491,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =item * Controller/Action: L<Conch::Controller::DeviceInterface/get_one>
 
-=item * Response: F<response.yaml#/definitions/DeviceNic>
+=item * Response: F<response.yaml#/$defs/DeviceNic>
 
 =back
 
@@ -503,7 +503,7 @@ to search for (one of C<pass>, C<fail>, C<error>). Can be used more than once.
 
 =item * Controller/Action: L<Conch::Controller::DeviceInterface/get_one_field>
 
-=item * Response: F<response.yaml#/definitions/DeviceNicField>
+=item * Response: F<response.yaml#/$defs/DeviceNicField>
 
 =back
 

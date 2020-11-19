@@ -22,7 +22,7 @@ Device data will be updated in the database.
 - The authenticated user must have previously registered the relay being used for the
 report submission (as indicated via `#/relay/serial` in the report).
 - Controller/Action: ["process" in Conch::Controller::DeviceReport](../modules/Conch%3A%3AController%3A%3ADeviceReport#process)
-- Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
+- Request: [request.json#/$defs/DeviceReport](../json-schema/request.json#/$defs/DeviceReport)
 - Response: `201 Created`, plus Location header
 
 ### `POST /device_report?no_update_db=1`
@@ -31,14 +31,14 @@ Submits a device report for processing. Device data will **not** be updated in t
 only validations will be run.
 
 - Controller/Action: ["validate\_report" in Conch::Controller::DeviceReport](../modules/Conch%3A%3AController%3A%3ADeviceReport#validate_report)
-- Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
-- Response: [response.json#/definitions/ReportValidationResults](../json-schema/response.json#/definitions/ReportValidationResults)
+- Request: [request.json#/$defs/DeviceReport](../json-schema/request.json#/$defs/DeviceReport)
+- Response: [response.json#/$defs/ReportValidationResults](../json-schema/response.json#/$defs/ReportValidationResults)
 
 ### `GET /device_report/:device_report_id`
 
 - User requires the read-only role, as described in ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes).
 - Controller/Action: ["get" in Conch::Controller::DeviceReport](../modules/Conch%3A%3AController%3A%3ADeviceReport#get)
-- Response: [response.json#/definitions/DeviceReportRow](../json-schema/response.json#/definitions/DeviceReportRow)
+- Response: [response.json#/$defs/DeviceReportRow](../json-schema/response.json#/$defs/DeviceReportRow)
 
 ## LICENSING
 

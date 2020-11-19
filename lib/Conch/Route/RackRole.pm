@@ -52,7 +52,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::RackRole/get_all>
 
-=item * Response: F<response.yaml#/definitions/RackRoles>
+=item * Response: F<response.yaml#/$defs/RackRoles>
 
 =back
 
@@ -64,7 +64,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::RackRole/create>
 
-=item * Request: F<request.yaml#/definitions/RackRoleCreate>
+=item * Request: F<request.yaml#/$defs/RackRoleCreate>
 
 =item * Response: Redirect to the created rack role
 
@@ -76,7 +76,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::RackRole/get>
 
-=item * Response: F<response.yaml#/definitions/RackRole>
+=item * Response: F<response.yaml#/$defs/RackRole>
 
 =back
 
@@ -88,7 +88,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::RackRole/update>
 
-=item * Request: F<request.yaml#/definitions/RackRoleUpdate>
+=item * Request: F<request.yaml#/$defs/RackRoleUpdate>
 
 =item * Response: Redirect to the updated rack role
 

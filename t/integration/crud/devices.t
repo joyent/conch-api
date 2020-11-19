@@ -203,7 +203,7 @@ subtest 'unlocated device with a registered relay' => sub {
                 do { my %_data = $test_device_data->%*; delete $_data{location}; %_data },
                 phase => 'integration',
             },
-            $t->validator->get('/definitions/DetailedDevice')) ],
+            $t->validator->get('/$defs/DetailedDevice')) ],
         [
             methods(
                 path => '/location',
@@ -216,7 +216,7 @@ subtest 'unlocated device with a registered relay' => sub {
     cmp_deeply(
         [ $t->validator->validate(
             { $test_device_data->%*, phase => 'production' },
-            $t->validator->get('/definitions/DetailedDevice')) ],
+            $t->validator->get('/$defs/DetailedDevice')) ],
         [
             methods(
                 path => '/',

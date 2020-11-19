@@ -41,37 +41,37 @@ Successful (HTTP 2xx code) response structures are as described for each endpoin
 
 Error responses will use:
 
-- failure to validate query parameters: HTTP 400, [response.json#/definitions/QueryParamsValidationError](../json-schema/response.json#/definitions/QueryParamsValidationError)
-- failure to validate request body payload: HTTP 400, [response.json#/definitions/RequestValidationError](../json-schema/response.json#/definitions/RequestValidationError)
-- all other errors, unless specified: HTTP 4xx, [response.json#/definitions/Error](../json-schema/response.json#/definitions/Error)
+- failure to validate query parameters: HTTP 400, [response.json#/$defs/QueryParamsValidationError](../json-schema/response.json#/$defs/QueryParamsValidationError)
+- failure to validate request body payload: HTTP 400, [response.json#/$defs/RequestValidationError](../json-schema/response.json#/$defs/RequestValidationError)
+- all other errors, unless specified: HTTP 4xx, [response.json#/$defs/Error](../json-schema/response.json#/$defs/Error)
 
 ### `GET /ping`
 
 - Does not require authentication.
-- Response: [response.json#/definitions/Ping](../json-schema/response.json#/definitions/Ping)
+- Response: [response.json#/$defs/Ping](../json-schema/response.json#/$defs/Ping)
 
 ### `GET /version`
 
 - Does not require authentication.
-- Response: [response.json#/definitions/Version](../json-schema/response.json#/definitions/Version)
+- Response: [response.json#/$defs/Version](../json-schema/response.json#/$defs/Version)
 
 ### `POST /login`
 
 - Controller/Action: ["login" in Conch::Controller::Login](../modules/Conch%3A%3AController%3A%3ALogin#login)
-- Request: [request.json#/definitions/Login](../json-schema/request.json#/definitions/Login)
-- Response: [response.json#/definitions/LoginToken](../json-schema/response.json#/definitions/LoginToken)
+- Request: [request.json#/$defs/Login](../json-schema/request.json#/$defs/Login)
+- Response: [response.json#/$defs/LoginToken](../json-schema/response.json#/$defs/LoginToken)
 
 ### `POST /logout`
 
 - Controller/Action: ["logout" in Conch::Controller::Login](../modules/Conch%3A%3AController%3A%3ALogin#logout)
-- Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
+- Request: [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null)
 - Response: `204 No Content`
 
 ### `POST /refresh_token`
 
 - Controller/Action: ["refresh\_token" in Conch::Controller::Login](../modules/Conch%3A%3AController%3A%3ALogin#refresh_token)
-- Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
-- Response: [response.json#/definitions/LoginToken](../json-schema/response.json#/definitions/LoginToken)
+- Request: [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null)
+- Response: [response.json#/$defs/LoginToken](../json-schema/response.json#/$defs/LoginToken)
 
 ### `GET /me`
 

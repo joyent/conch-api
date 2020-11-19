@@ -1,6 +1,6 @@
 ---
 $schema: 'http://json-schema.org/draft-07/schema#'
-definitions:
+$defs:
   Null:
     type: 'null'
   DatacenterCreate:
@@ -12,26 +12,26 @@ definitions:
       - location
     properties:
       vendor:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       region:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       vendor_name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       location:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
   DatacenterUpdate:
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
       vendor:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       region:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       vendor_name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       location:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
   DatacenterRoomCreate:
     type: object
     additionalProperties: false
@@ -42,28 +42,28 @@ definitions:
       - vendor_name
     properties:
       datacenter_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       az:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       alias:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       vendor_name:
-        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+        $ref: common.yaml#/$defs/mojo_relaxed_placeholder
   DatacenterRoomUpdate:
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
       datacenter_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       az:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       alias:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       vendor_name:
-        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+        $ref: common.yaml#/$defs/mojo_relaxed_placeholder
   DeviceReport:
-    $ref: device_report.yaml#/definitions/DeviceReport_v3_0_0
+    $ref: device_report.yaml#/$defs/DeviceReport_v3_0_0
   RackCreate:
     type: object
     additionalProperties: false
@@ -74,46 +74,46 @@ definitions:
       - build_id
     properties:
       name:
-        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+        $ref: common.yaml#/$defs/mojo_relaxed_placeholder
       datacenter_room_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       rack_role_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       serial_number:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       asset_tag:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       phase:
-        $ref: common.yaml#/definitions/device_phase
+        $ref: common.yaml#/$defs/device_phase
       build_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       links:
-        $ref: common.yaml#/definitions/links
+        $ref: common.yaml#/$defs/links
   RackUpdate:
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
       name:
-        $ref: common.yaml#/definitions/mojo_relaxed_placeholder
+        $ref: common.yaml#/$defs/mojo_relaxed_placeholder
       datacenter_room_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       rack_role_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       serial_number:
         oneOf:
           - type: 'null'
-          - $ref: common.yaml#/definitions/non_empty_string
+          - $ref: common.yaml#/$defs/non_empty_string
       asset_tag:
         oneOf:
           - type: 'null'
-          - $ref: common.yaml#/definitions/non_empty_string
+          - $ref: common.yaml#/$defs/non_empty_string
       phase:
-        $ref: common.yaml#/definitions/device_phase
+        $ref: common.yaml#/$defs/device_phase
       build_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       links:
-        $ref: common.yaml#/definitions/links
+        $ref: common.yaml#/$defs/links
   RackLinks:
     type: object
     additionalProperties: false
@@ -122,18 +122,18 @@ definitions:
     properties:
       links:
         allOf:
-          - $ref: common.yaml#/definitions/links
+          - $ref: common.yaml#/$defs/links
           - minItems: 1
   RackLinksOrNull:
     oneOf:
       - type: 'null'
-      - $ref: '#/definitions/BuildLinks'
+      - $ref: '#/$defs/BuildLinks'
   RackAssignmentUpdates:
     type: array
     uniqueItems: true
     minItems: 1
     items:
-      $ref: '#/definitions/RackAssignmentUpdate'
+      $ref: '#/$defs/RackAssignmentUpdate'
   RackAssignmentUpdate:
     type: object
     additionalProperties: false
@@ -146,21 +146,21 @@ definitions:
         - device_serial_number
     properties:
       device_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       device_serial_number:
-        $ref: common.yaml#/definitions/device_serial_number
+        $ref: common.yaml#/$defs/device_serial_number
       rack_unit_start:
-        $ref: common.yaml#/definitions/positive_integer
+        $ref: common.yaml#/$defs/positive_integer
       device_asset_tag:
         oneOf:
-          - $ref: common.yaml#/definitions/device_asset_tag
+          - $ref: common.yaml#/$defs/device_asset_tag
           - type: 'null'
   RackAssignmentDeletes:
     type: array
     uniqueItems: true
     minItems: 1
     items:
-      $ref: '#/definitions/RackAssignmentDelete'
+      $ref: '#/$defs/RackAssignmentDelete'
   RackAssignmentDelete:
     type: object
     additionalProperties: false
@@ -169,9 +169,9 @@ definitions:
       - rack_unit_start
     properties:
       device_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       rack_unit_start:
-        $ref: common.yaml#/definitions/positive_integer
+        $ref: common.yaml#/$defs/positive_integer
   RackPhase:
     type: object
     additionalProperties: false
@@ -179,7 +179,7 @@ definitions:
       - phase
     properties:
       phase:
-        $ref: common.yaml#/definitions/device_phase
+        $ref: common.yaml#/$defs/device_phase
   RackRoleCreate:
     type: object
     additionalProperties: false
@@ -188,18 +188,18 @@ definitions:
       - rack_size
     properties:
       name:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       rack_size:
-        $ref: common.yaml#/definitions/positive_integer
+        $ref: common.yaml#/$defs/positive_integer
   RackRoleUpdate:
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
       name:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       rack_size:
-        $ref: common.yaml#/definitions/positive_integer
+        $ref: common.yaml#/$defs/positive_integer
   RackLayoutCreate:
     type: object
     additionalProperties: false
@@ -209,11 +209,11 @@ definitions:
       - rack_unit_start
     properties:
       rack_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       hardware_product_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       rack_unit_start:
-        $ref: common.yaml#/definitions/positive_integer
+        $ref: common.yaml#/$defs/positive_integer
   RackLayouts:
     type: array
     uniqueItems: true
@@ -225,18 +225,18 @@ definitions:
         - rack_unit_start
       properties:
         hardware_product_id:
-          $ref: common.yaml#/definitions/uuid
+          $ref: common.yaml#/$defs/uuid
         rack_unit_start:
-          $ref: common.yaml#/definitions/positive_integer
+          $ref: common.yaml#/$defs/positive_integer
   RackLayoutUpdate:
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
       hardware_product_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       rack_unit_start:
-        $ref: common.yaml#/definitions/positive_integer
+        $ref: common.yaml#/$defs/positive_integer
   DeviceLocationUpdate:
     type: object
     additionalProperties: false
@@ -245,12 +245,12 @@ definitions:
       - rack_unit_start
     properties:
       rack_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       rack_unit_start:
-        $ref: common.yaml#/definitions/positive_integer
+        $ref: common.yaml#/$defs/positive_integer
   HardwareProductCreate:
     allOf:
-      - $ref: '#/definitions/HardwareProductUpdate'
+      - $ref: '#/$defs/HardwareProductUpdate'
       - required:
         - name
         - alias
@@ -263,41 +263,41 @@ definitions:
         - cpu_type
   HardwareProductSpecification:
     # this is just a hack for the /hardware_product/*/specification endpoints
-    $ref: common.yaml#/definitions/HardwareProductSpecification
+    $ref: common.yaml#/$defs/HardwareProductSpecification
   HardwareProductUpdate:
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
       name:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       alias:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       prefix:
         oneOf:
-          - $ref: common.yaml#/definitions/non_empty_string
+          - $ref: common.yaml#/$defs/non_empty_string
           - type: 'null'
       hardware_vendor_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       specification:
         oneOf:
-          - $ref: common.yaml#/definitions/HardwareProductSpecification
+          - $ref: common.yaml#/$defs/HardwareProductSpecification
           - type: 'null'
       sku:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       generation_name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       legacy_product_name:
         oneOf:
-          - $ref: common.yaml#/definitions/non_empty_string
+          - $ref: common.yaml#/$defs/non_empty_string
           - type: 'null'
       rack_unit_size:
-        $ref: common.yaml#/definitions/positive_integer
+        $ref: common.yaml#/$defs/positive_integer
       validation_plan_id:
         $comment: this property will become nullable in v3.3 and removed in v4.0
         deprecated: true
         allOf:
-          - $ref: common.yaml#/definitions/uuid
+          - $ref: common.yaml#/$defs/uuid
       purpose:
         type: string
       bios_firmware:
@@ -384,14 +384,15 @@ definitions:
         - email
     properties:
       user_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       email:
-        $ref: common.yaml#/definitions/email_address
+        $ref: common.yaml#/$defs/email_address
       password:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       set_session:
         type: boolean
-        default: false
+    default:
+      set_session: false
   UserIdOrEmail:
     type: object
     additionalProperties: true
@@ -402,9 +403,9 @@ definitions:
         - email
     properties:
       user_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       email:
-        $ref: common.yaml#/definitions/email_address
+        $ref: common.yaml#/$defs/email_address
   UserPassword:
     type: object
     additionalProperties: false
@@ -412,7 +413,7 @@ definitions:
       - password
     properties:
       password:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
   NewUser:
     type: object
     additionalProperties: false
@@ -421,11 +422,11 @@ definitions:
       - email
     properties:
       name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       email:
-        $ref: common.yaml#/definitions/email_address
+        $ref: common.yaml#/$defs/email_address
       password:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       is_admin:
         type: boolean
   UpdateUser:
@@ -434,23 +435,23 @@ definitions:
     minProperties: 1
     properties:
       name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       email:
-        $ref: common.yaml#/definitions/email_address
+        $ref: common.yaml#/$defs/email_address
       is_admin:
         type: boolean
   UserSetting:
     allOf:
-      - $ref: '#/definitions/UserSettings'
+      - $ref: '#/$defs/UserSettings'
       - type: object
         maxProperties: 1
   UserSettings:
     type: object
     additionalProperties:
-      $ref: common.yaml#/definitions/non_empty_string
+      $ref: common.yaml#/$defs/non_empty_string
     minProperties: 1
     propertyNames:
-      $ref: common.yaml#/definitions/user_setting_key
+      $ref: common.yaml#/$defs/user_setting_key
   NewUserToken:
     type: object
     additionalProperties: false
@@ -458,7 +459,7 @@ definitions:
       - name
     properties:
       name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
   DeviceAssetTag:
     type: object
     additionalProperties: false
@@ -467,7 +468,7 @@ definitions:
     properties:
       asset_tag:
         oneOf:
-          - $ref: common.yaml#/definitions/device_asset_tag
+          - $ref: common.yaml#/$defs/device_asset_tag
           - type: 'null'
   DevicePhase:
     type: object
@@ -476,7 +477,7 @@ definitions:
       - phase
     properties:
       phase:
-        $ref: common.yaml#/definitions/device_phase
+        $ref: common.yaml#/$defs/device_phase
   DeviceLinks:
     type: object
     additionalProperties: false
@@ -485,12 +486,12 @@ definitions:
     properties:
       links:
         allOf:
-          - $ref: common.yaml#/definitions/links
+          - $ref: common.yaml#/$defs/links
           - minItems: 1
   DeviceLinksOrNull:
     oneOf:
       - type: 'null'
-      - $ref: '#/definitions/DeviceLinks'
+      - $ref: '#/$defs/DeviceLinks'
   DeviceBuild:
     type: object
     additionalProperties: false
@@ -498,7 +499,7 @@ definitions:
       - build_id
     properties:
       build_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
   DeviceHardware:
     type: object
     additionalProperties: false
@@ -506,24 +507,24 @@ definitions:
     maxProperties: 1
     properties:
       hardware_product_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       sku:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
   DeviceSetting:
     allOf:
-      - $ref: '#/definitions/DeviceSettings'
+      - $ref: '#/$defs/DeviceSettings'
       - type: object
         maxProperties: 1
   DeviceSettings:
     type: object
     additionalProperties:
       anyOf:
-        - $ref: common.yaml#/definitions/non_empty_string
+        - $ref: common.yaml#/$defs/non_empty_string
         - type: number
         - type: boolean
     minProperties: 1
     propertyNames:
-      $ref: common.yaml#/definitions/device_setting_key
+      $ref: common.yaml#/$defs/device_setting_key
   RegisterRelay:
     type: object
     additionalProperties: false
@@ -531,9 +532,9 @@ definitions:
       - serial
     properties:
       serial:
-        $ref: common.yaml#/definitions/relay_serial_number
+        $ref: common.yaml#/$defs/relay_serial_number
       name:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       version:
         description: usually a git commit SHA
         type: string
@@ -541,7 +542,7 @@ definitions:
         description: 'postgres "inet": ipv4 or ipv6, with optional netmask'
         type: string
       ssh_port:
-        $ref: common.yaml#/definitions/non_negative_integer
+        $ref: common.yaml#/$defs/non_negative_integer
   OrganizationCreate:
     type: object
     additionalProperties: false
@@ -550,9 +551,9 @@ definitions:
       - admins
     properties:
       name:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       description:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       admins:
         type: array
         uniqueItems: true
@@ -567,20 +568,20 @@ definitions:
               - email
           properties:
             user_id:
-              $ref: common.yaml#/definitions/uuid
+              $ref: common.yaml#/$defs/uuid
             email:
-              $ref: common.yaml#/definitions/email_address
+              $ref: common.yaml#/$defs/email_address
   OrganizationUpdate:
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
       name:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       description:
         oneOf:
           - type: 'null'
-          - $ref: common.yaml#/definitions/non_empty_string
+          - $ref: common.yaml#/$defs/non_empty_string
   OrganizationAddUser:
     type: object
     additionalProperties: false
@@ -593,11 +594,11 @@ definitions:
         - email
     properties:
       user_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       email:
-        $ref: common.yaml#/definitions/email_address
+        $ref: common.yaml#/$defs/email_address
       role:
-        $ref: common.yaml#/definitions/role
+        $ref: common.yaml#/$defs/role
   BuildCreate:
     type: object
     additionalProperties: false
@@ -610,9 +611,9 @@ definitions:
         - build_id
     properties:
       name:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       description:
-        $ref: common.yaml#/definitions/non_empty_string
+        $ref: common.yaml#/$defs/non_empty_string
       started:
         type: string
         format: date-time
@@ -630,24 +631,24 @@ definitions:
               - email
           properties:
             user_id:
-              $ref: common.yaml#/definitions/uuid
+              $ref: common.yaml#/$defs/uuid
             email:
-              $ref: common.yaml#/definitions/email_address
+              $ref: common.yaml#/$defs/email_address
       build_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       links:
-        $ref: common.yaml#/definitions/links
+        $ref: common.yaml#/$defs/links
   BuildUpdate:
     type: object
     additionalProperties: false
     minProperties: 1
     properties:
       name:
-        $ref: common.yaml#/definitions/mojo_standard_placeholder
+        $ref: common.yaml#/$defs/mojo_standard_placeholder
       description:
         oneOf:
           - type: 'null'
-          - $ref: common.yaml#/definitions/non_empty_string
+          - $ref: common.yaml#/$defs/non_empty_string
       started:
         oneOf:
           - type: 'null'
@@ -659,7 +660,7 @@ definitions:
           - type: string
             format: date-time
       links:
-        $ref: common.yaml#/definitions/links
+        $ref: common.yaml#/$defs/links
   BuildLinks:
     type: object
     additionalProperties: false
@@ -668,12 +669,12 @@ definitions:
     properties:
       links:
         allOf:
-          - $ref: common.yaml#/definitions/links
+          - $ref: common.yaml#/$defs/links
           - minItems: 1
   BuildLinksOrNull:
     oneOf:
       - type: 'null'
-      - $ref: '#/definitions/BuildLinks'
+      - $ref: '#/$defs/BuildLinks'
   BuildAddUser:
     type: object
     additionalProperties: false
@@ -686,11 +687,11 @@ definitions:
         - email
     properties:
       user_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       email:
-        $ref: common.yaml#/definitions/email_address
+        $ref: common.yaml#/$defs/email_address
       role:
-        $ref: common.yaml#/definitions/role
+        $ref: common.yaml#/$defs/role
   BuildAddOrganization:
     type: object
     additionalProperties: false
@@ -699,9 +700,9 @@ definitions:
       - role
     properties:
       organization_id:
-        $ref: common.yaml#/definitions/uuid
+        $ref: common.yaml#/$defs/uuid
       role:
-        $ref: common.yaml#/definitions/role
+        $ref: common.yaml#/$defs/role
   BuildCreateDevices:
     type: array
     uniqueItems: true
@@ -718,16 +719,16 @@ definitions:
           - serial_number
       properties:
         id:
-          $ref: common.yaml#/definitions/uuid
+          $ref: common.yaml#/$defs/uuid
         serial_number:
-          $ref: common.yaml#/definitions/device_serial_number
+          $ref: common.yaml#/$defs/device_serial_number
         asset_tag:
           oneOf:
-            - $ref: common.yaml#/definitions/device_asset_tag
+            - $ref: common.yaml#/$defs/device_asset_tag
             - type: 'null'
         sku:
-          $ref: common.yaml#/definitions/mojo_standard_placeholder
+          $ref: common.yaml#/$defs/mojo_standard_placeholder
         links:
-          $ref: common.yaml#/definitions/links
+          $ref: common.yaml#/$defs/links
 
 # vim: set sts=2 sw=2 et :

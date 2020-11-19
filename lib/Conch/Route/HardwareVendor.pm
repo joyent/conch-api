@@ -55,7 +55,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::HardwareVendor/get_all>
 
-=item * Response: F<response.yaml#/definitions/HardwareVendors>
+=item * Response: F<response.yaml#/$defs/HardwareVendors>
 
 =back
 
@@ -65,7 +65,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::HardwareVendor/get_one>
 
-=item * Response: F<response.yaml#/definitions/HardwareVendor>
+=item * Response: F<response.yaml#/$defs/HardwareVendor>
 
 =back
 
@@ -89,7 +89,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::HardwareVendor/create>
 
-=item * Request: F<request.yaml#/definitions/Null>
+=item * Request: F<request.yaml#/$defs/Null>
 
 =item * Response: Redirect to the created hardware vendor
 

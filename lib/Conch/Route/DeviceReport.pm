@@ -59,7 +59,7 @@ report submission (as indicated via C<#/relay/serial> in the report).
 
 =item * Controller/Action: L<Conch::Controller::DeviceReport/process>
 
-=item * Request: F<request.yaml#/definitions/DeviceReport>
+=item * Request: F<request.yaml#/$defs/DeviceReport>
 
 =item * Response: C<201 Created>, plus Location header
 
@@ -74,9 +74,9 @@ only validations will be run.
 
 =item * Controller/Action: L<Conch::Controller::DeviceReport/validate_report>
 
-=item * Request: F<request.yaml#/definitions/DeviceReport>
+=item * Request: F<request.yaml#/$defs/DeviceReport>
 
-=item * Response: F<response.yaml#/definitions/ReportValidationResults>
+=item * Response: F<response.yaml#/$defs/ReportValidationResults>
 
 =back
 
@@ -88,7 +88,7 @@ only validations will be run.
 
 =item * Controller/Action: L<Conch::Controller::DeviceReport/get>
 
-=item * Response: F<response.yaml#/definitions/DeviceReportRow>
+=item * Response: F<response.yaml#/$defs/DeviceReportRow>
 
 =back
 

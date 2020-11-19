@@ -72,7 +72,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 
 =item * Controller/Action: L<Conch::Controller::RackLayout/get_all>
 
-=item * Response: F<response.yaml#/definitions/RackLayouts>
+=item * Response: F<response.yaml#/$defs/RackLayouts>
 
 =back
 
@@ -84,7 +84,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 
 =item * Controller/Action: L<Conch::Controller::RackLayout/create>
 
-=item * Request: F<request.yaml#/definitions/RackLayoutCreate>
+=item * Request: F<request.yaml#/$defs/RackLayoutCreate>
 
 =item * Response: Redirect to the created rack layout
 
@@ -98,7 +98,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 
 =item * Controller/Action: L<Conch::Controller::RackLayout/get>
 
-=item * Response: F<response.yaml#/definitions/RackLayout>
+=item * Response: F<response.yaml#/$defs/RackLayout>
 
 =back
 
@@ -110,7 +110,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 
 =item * Controller/Action: L<Conch::Controller::RackLayout/update>
 
-=item * Request: F<request.yaml#/definitions/RackLayoutUpdate>
+=item * Request: F<request.yaml#/$defs/RackLayoutUpdate>
 
 =item * Response: Redirect to the update rack layout
 

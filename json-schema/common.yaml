@@ -1,12 +1,12 @@
 ---
 $schema: 'http://json-schema.org/draft-07/schema#'
-definitions:
+$defs:
   uuid:
     type: string
     pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
   non_zero_uuid:
     allOf:
-      - $ref: '#/definitions/uuid'
+      - $ref: '#/$defs/uuid'
       - not:
           const: 00000000-0000-0000-0000-000000000000
   ipaddr:
@@ -25,7 +25,7 @@ definitions:
     allOf:
       - type: string
         pattern: ^\S+$
-      - $ref: '#/definitions/mojo_standard_placeholder'
+      - $ref: '#/$defs/mojo_standard_placeholder'
   device_asset_tag:
     type: string
     pattern: ^\S+$
@@ -50,9 +50,9 @@ definitions:
     allOf:
       - type: string
         pattern: ^\S+$
-      - $ref: '#/definitions/mojo_relaxed_placeholder'
+      - $ref: '#/$defs/mojo_relaxed_placeholder'
   device_setting_key:
-    $ref: '#/definitions/mojo_relaxed_placeholder'
+    $ref: '#/$defs/mojo_relaxed_placeholder'
   disk_serial_number:
     type: string
     pattern: ^\S+$
@@ -60,7 +60,7 @@ definitions:
     type: string
     pattern: ^[\w-]+$
   user_setting_key:
-    $ref: '#/definitions/mojo_relaxed_placeholder'
+    $ref: '#/$defs/mojo_relaxed_placeholder'
   role:
     description: corresponds to role_enum in the database
     type: string
@@ -96,7 +96,7 @@ definitions:
     allOf:
       - type: string
         format: email
-      - $ref: '#/definitions/mojo_relaxed_placeholder'
+      - $ref: '#/$defs/mojo_relaxed_placeholder'
   links:
     type: array
     uniqueItems: true

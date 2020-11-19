@@ -114,7 +114,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Controller/Action: L<Conch::Controller::Rack/create>
 
-=item * Request: F<request.yaml#/definitions/RackCreate>
+=item * Request: F<request.yaml#/$defs/RackCreate>
 
 =item * Response: Redirect to the created rack
 
@@ -128,7 +128,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Controller/Action: L<Conch::Controller::Rack/get>
 
-=item * Response: F<response.yaml#/definitions/Rack>
+=item * Response: F<response.yaml#/$defs/Rack>
 
 =back
 
@@ -140,7 +140,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Controller/Action: L<Conch::Controller::Rack/update>
 
-=item * Request: F<request.yaml#/definitions/RackUpdate>
+=item * Request: F<request.yaml#/$defs/RackUpdate>
 
 =item * Response: Redirect to the updated rack
 
@@ -166,7 +166,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Controller/Action: L<Conch::Controller::Rack/get_layouts>
 
-=item * Response: F<response.yaml#/definitions/RackLayouts>
+=item * Response: F<response.yaml#/$defs/RackLayouts>
 
 =back
 
@@ -178,7 +178,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Controller/Action: L<Conch::Controller::Rack/overwrite_layouts>
 
-=item * Request: F<request.yaml#/definitions/RackLayouts>
+=item * Request: F<request.yaml#/$defs/RackLayouts>
 
 =item * Response: Redirect to the rack's layouts
 
@@ -192,7 +192,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Controller/Action: L<Conch::Controller::Rack/get_assignment>
 
-=item * Response: F<response.yaml#/definitions/RackAssignments>
+=item * Response: F<response.yaml#/$defs/RackAssignments>
 
 =back
 
@@ -204,7 +204,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Controller/Action: L<Conch::Controller::Rack/set_assignment>
 
-=item * Request: F<request.yaml#/definitions/RackAssignmentUpdates>
+=item * Request: F<request.yaml#/$defs/RackAssignmentUpdates>
 
 =item * Response: Redirect to the updated rack assignment
 
@@ -220,7 +220,7 @@ This method requires a request body.
 
 =item * Controller/Action: L<Conch::Controller::Rack/delete_assignment>
 
-=item * Request: F<request.yaml#/definitions/RackAssignmentDeletes>
+=item * Request: F<request.yaml#/$defs/RackAssignmentDeletes>
 
 =item * Response: C<204 No Content>
 
@@ -237,7 +237,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =item * Controller/Action: L<Conch::Controller::Rack/set_phase>
 
-=item * Request: F<request.yaml#/definitions/RackPhase>
+=item * Request: F<request.yaml#/$defs/RackPhase>
 
 =item * Response: Redirect to the updated rack
 
@@ -251,7 +251,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =item * Controller/Action: L<Conch::Controller::Rack/add_links>
 
-=item * Request: F<request.yaml#/definitions/RackLinks>
+=item * Request: F<request.yaml#/$defs/RackLinks>
 
 =item * Response: Redirect to the updated rack
 
@@ -263,7 +263,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =item * User requires the read/write role on the rack
 
-=item * Request: F<request.yaml#/definitions/RackLinksOrNull>
+=item * Request: F<request.yaml#/$defs/RackLinksOrNull>
 
 =item * Response: 204 NO CONTENT
 

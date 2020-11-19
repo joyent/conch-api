@@ -237,13 +237,15 @@ sub ro_schema ($class, $pgsql) {
 
 Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
 
- * successful GET requests should not return 201, 202 (ideally just 200, 204).
- * successful DELETE requests should not return 201
- * GET requests should not have request body content
- * 200 and most 4xx responses should have content.
- * 201 and most 3xx responses should have a Location header.
- * 204 and most 3xx responses should not have body content.
- * 302 should not be used at all
+ 0. GET requests should not have request body content
+ 1. successful GET requests should not return 201, 202 (ideally just 200, 204)
+ 2. successful DELETE requests should not return 201
+ 3. 201 and most 3xx responses should have a Location header
+ 4. HEAD requests should not have body content
+ 5. 200, 203, 206, 207 and most 4xx responses should have body content
+ 6. 201, 204, 205 and most 3xx responses should not have body content
+ 7. 302 should not be used at all
+ 8. 401, 403 responses should have a WWW-Authenticate header
 
 Also, unexpected responses will dump the response payload.
 
@@ -258,29 +260,41 @@ sub status_is ($self, $status, $desc = undef) {
     my $method = $self->tx->req->method;
     my $code = $self->tx->res->code;
 
+    # 0.
     $self->test('fail', 'GET requests should not have request body content')
         if $method eq 'GET' and $self->tx->req->text;
 
-    $self->test('fail', 'HEAD requests should not have body content')
-        if $method eq 'HEAD' and $self->tx->res->text;
-
-    $self->test('fail', $code.' responses should have a Location header')
-        if any { $code == $_ } 201,301,302,303,305,307,308 and not $self->header_exists('Location');
-
+    # 1.
     $self->test('fail', $method.' requests should not return '.$code)
         if $method eq 'GET' and any { $code == $_ } 201,202;
 
+    # 2.
     $self->test('fail', $method.' requests should not return '.$code)
         if $method eq 'DELETE' and $code == 201;
 
-    $self->test('fail', $code.' responses should have content')
-        if $method ne 'HEAD' and any { $code == $_ } 200,400,401,403,404,409,422 and not $self->tx->res->text;
+    # 3.
+    $self->test('fail', $code.' responses should have a Location header')
+        if any { $code == $_ } 201,301,302,303,305,307,308 and not $self->header_exists('Location');
 
+    # 4.
+    $self->test('fail', 'HEAD requests should not have response body content')
+        if $method eq 'HEAD' and $self->tx->res->text;
+
+    # 5.
+    $self->test('fail', $code.' responses should have content')
+        if $method ne 'HEAD' and any { $code == $_ } 200,203,206,207,400,401,403,404,409,422 and not $self->tx->res->text;
+
+    # 6.
     $self->test('fail', $code.' responses should not have content')
         if any { $code == $_ } 204,301,302,303,304,305,307,308 and $self->tx->res->text;
 
+    # 7.
     $self->test('fail', 'HTTP 302 is superseded by 303 and 307')
         if $code == 302;
+
+    # 8.
+    $self->test('fail', 'HTTP 401 and 403 responses must have a WWW-Authenticate header')
+        if ($code == 401 or $code == 403) and not $self->header_exists('WWW-Authenticate');
 
     Test::More::diag('got response: ', Data::Dumper->new([ $self->tx->res->json ])
             ->Sortkeys(1)->Indent(1)->Terse(1)->Maxdepth(5)->Dump)
@@ -312,39 +326,47 @@ sub location_like ($self, $pattern, $desc = 'location header') {
 
 =head2 json_schema_is
 
-Validates the JSON response of
-the most recent request. If given a string, looks up the schema in
-#/definitions in the JSON Schema spec to validate. If given a hash, uses
-the hash as the schema to validate.
+Validates the JSON response of the most recent request. If given a string that looks like a URL,
+fetches that URL; otherwise if a string, looks up the schema in C<#/$defs> in the JSON Schema
+response specification document to validate. If given a hash, uses the hash as the schema to
+validate.
 
 =cut
 
 sub json_schema_is ($self, $schema, $message = undef) {
-    my @errors;
     return $self->test('fail', 'No request has been made') unless $self->tx;
     my $data = $self->tx->res->json;
     return $self->test('fail', 'No JSON in response') unless $data;
 
-    my $schema_name;
+    my $validator;
+
+    my ($schema_name, @errors);
     if (ref $schema) {
         $schema_name = '<inlined>';
+        $validator = $self->validator;
+    }
+    elsif ($schema =~ /^http/) {
+        # do not use the network, but rely solely on JSON::Validator's internal cache
+        $validator = JSON::Validator->new(ua => undef, version => 7)->schema($schema);
+        ($schema_name, $schema) = ($schema, undef);
     }
     else {
         $schema_name = $schema;
-        $schema = $self->validator->get('/definitions/'.$schema_name);
-        die "schema '$schema_name' not found" if not $schema;
+        $validator = $self->validator;
+        $schema = $validator->get('/$defs/'.$schema_name)
+            or die "schema '$schema_name' not found";
     }
 
-    @errors = $self->validator->validate($data, $schema);
-    my $error_count = @errors;
-    return $self->test('ok', !$error_count, $message // 'JSON response has no schema validation errors')
+    @errors = $validator->validate($data, $schema);
+
+    return $self->test('ok', !@errors, $message // 'JSON response has no schema validation errors')
         ->or(sub ($self) {
-            my $errors = [ map +{ path => $_->path, message => $_->message }, @errors ];
-            Test::More::diag($error_count
-                .' error(s) occurred when validating '
+            Test::More::diag(
+                @errors.' error(s) occurred when validating '
                 .$self->tx->req->method.' '.$self->tx->req->url->path
                 .' with schema '.$schema_name.":\n\t"
-                .Data::Dumper->new([ $errors ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump);
+                .Data::Dumper->new([[ map +{ path => $_->path, message => $_->message }, @errors ]])
+                    ->Sortkeys(1)->Indent(1)->Terse(1)->Dump);
 
             0;
         }

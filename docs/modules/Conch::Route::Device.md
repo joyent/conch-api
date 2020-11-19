@@ -36,72 +36,72 @@ value. For information on how to create a setting key or set its value see
 below.
 
 - Controller/Action: ["lookup\_by\_other\_attribute" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#lookup_by_other_attribute)
-- Response: [response.json#/definitions/Devices](../json-schema/response.json#/definitions/Devices)
+- Response: [response.json#/$defs/Devices](../json-schema/response.json#/$defs/Devices)
 
 ### `GET /device/:device_id_or_serial_number`
 
 - User requires the read-only role
 - Controller/Action: ["get" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#get)
-- Response: [response.json#/definitions/DetailedDevice](../json-schema/response.json#/definitions/DetailedDevice)
+- Response: [response.json#/$defs/DetailedDevice](../json-schema/response.json#/$defs/DetailedDevice)
 
 ### `GET /device/:device_id_or_serial_number/pxe`
 
 - User requires the read-only role
 - Controller/Action: ["get\_pxe" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#get_pxe)
-- Response: [response.json#/definitions/DevicePXE](../json-schema/response.json#/definitions/DevicePXE)
+- Response: [response.json#/$defs/DevicePXE](../json-schema/response.json#/$defs/DevicePXE)
 
 ### `GET /device/:device_id_or_serial_number/phase`
 
 - User requires the read-only role
 - Controller/Action: ["get\_phase" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#get_phase)
-- Response: [response.json#/definitions/DevicePhase](../json-schema/response.json#/definitions/DevicePhase)
+- Response: [response.json#/$defs/DevicePhase](../json-schema/response.json#/$defs/DevicePhase)
 
 ### `GET /device/:device_id_or_serial_number/sku`
 
 - User requires the read-only role
 - Controller/Action: ["get\_sku" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#get_sku)
-- Response: [response.json#/definitions/DeviceSku](../json-schema/response.json#/definitions/DeviceSku)
+- Response: [response.json#/$defs/DeviceSku](../json-schema/response.json#/$defs/DeviceSku)
 
 ### `POST /device/:device_id_or_serial_number/asset_tag`
 
 - User requires the read/write role
 - Controller/Action: ["set\_asset\_tag" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#set_asset_tag)
-- Request: [request.json#/definitions/DeviceAssetTag](../json-schema/request.json#/definitions/DeviceAssetTag)
+- Request: [request.json#/$defs/DeviceAssetTag](../json-schema/request.json#/$defs/DeviceAssetTag)
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id_or_serial_number/validated`
 
 - User requires the read/write role
 - Controller/Action: ["set\_validated" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#set_validated)
-- Request: [request.json#/definitions/Null](../json-schema/request.json#/definitions/Null)
+- Request: [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null)
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id_or_serial_number/phase`
 
 - User requires the read/write role
 - Controller/Action: ["set\_phase" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#set_phase)
-- Request: [request.json#/definitions/DevicePhase](../json-schema/request.json#/definitions/DevicePhase)
+- Request: [request.json#/$defs/DevicePhase](../json-schema/request.json#/$defs/DevicePhase)
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id_or_serial_number/links`
 
 - User requires the read/write role
 - Controller/Action: ["add\_links" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#add_links)
-- Request: [request.json#/definitions/DeviceLinks](../json-schema/request.json#/definitions/DeviceLinks)
+- Request: [request.json#/$defs/DeviceLinks](../json-schema/request.json#/$defs/DeviceLinks)
 - Response: Redirect to the updated device
 
 ### `DELETE /device/:device_id_or_serial_number/links`
 
 - User requires the read/write role
 - Controller/Action: ["remove\_links" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#remove_links)
-- Request: [request.json#/definitions/DeviceLinksOrNull](../json-schema/request.json#/definitions/DeviceLinksOrNull)
+- Request: [request.json#/$defs/DeviceLinksOrNull](../json-schema/request.json#/$defs/DeviceLinksOrNull)
 - Response: 204 No Content
 
 ### `POST /device/:device_id_or_serial_number/build`
 
 - User requires the read/write role for the device, as well as the old and new builds
 - Controller/Action: ["set\_build" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#set_build)
-- Request: [request.json#/definitions/DeviceBuild](../json-schema/request.json#/definitions/DeviceBuild)
+- Request: [request.json#/$defs/DeviceBuild](../json-schema/request.json#/$defs/DeviceBuild)
 - Response: Redirect to the updated device
 
 ### `POST /device/:device_id_or_serial_number/hardware_product`
@@ -110,20 +110,20 @@ below.
 
 - User requires the admin role for the device
 - Controller/Action: ["set\_hardware\_product" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#set_hardware_product)
-- Request: [request.json#/definitions/DeviceHardware](../json-schema/request.json#/definitions/DeviceHardware)
+- Request: [request.json#/$defs/DeviceHardware](../json-schema/request.json#/$defs/DeviceHardware)
 - Response: Redirect to the updated device
 
 ### `GET /device/:device_id_or_serial_number/location`
 
 - User requires the read-only role
 - Controller/Action: ["get" in Conch::Controller::DeviceLocation](../modules/Conch%3A%3AController%3A%3ADeviceLocation#get)
-- Response: [response.json#/definitions/DeviceLocation](../json-schema/response.json#/definitions/DeviceLocation)
+- Response: [response.json#/$defs/DeviceLocation](../json-schema/response.json#/$defs/DeviceLocation)
 
 ### `POST /device/:device_id_or_serial_number/location`
 
 - User requires the read/write role
 - Controller/Action: ["set" in Conch::Controller::DeviceLocation](../modules/Conch%3A%3AController%3A%3ADeviceLocation#set)
-- Request: [request.json#/definitions/DeviceLocationUpdate](../json-schema/request.json#/definitions/DeviceLocationUpdate)
+- Request: [request.json#/$defs/DeviceLocationUpdate](../json-schema/request.json#/$defs/DeviceLocationUpdate)
 - Response: Redirect to the updated device
 
 ### `DELETE /device/:device_id_or_serial_number/location`
@@ -136,28 +136,28 @@ below.
 
 - User requires the read-only role
 - Controller/Action: ["get\_all" in Conch::Controller::DeviceSettings](../modules/Conch%3A%3AController%3A%3ADeviceSettings#get_all)
-- Response: [response.json#/definitions/DeviceSettings](../json-schema/response.json#/definitions/DeviceSettings)
+- Response: [response.json#/$defs/DeviceSettings](../json-schema/response.json#/$defs/DeviceSettings)
 
 ### `POST /device/:device_id_or_serial_number/settings`
 
 - User requires the read/write role, or admin when overwriting existing
 settings that do not start with `tag.`.
 - Controller/Action: ["set\_all" in Conch::Controller::DeviceSettings](../modules/Conch%3A%3AController%3A%3ADeviceSettings#set_all)
-- Request: [request.json#/definitions/DeviceSettings](../json-schema/request.json#/definitions/DeviceSettings)
+- Request: [request.json#/$defs/DeviceSettings](../json-schema/request.json#/$defs/DeviceSettings)
 - Response: `204 No Content`
 
 ### `GET /device/:device_id_or_serial_number/settings/:key`
 
 - User requires the read-only role
 - Controller/Action: ["get\_single" in Conch::Controller::DeviceSettings](../modules/Conch%3A%3AController%3A%3ADeviceSettings#get_single)
-- Response: [response.json#/definitions/DeviceSetting](../json-schema/response.json#/definitions/DeviceSetting)
+- Response: [response.json#/$defs/DeviceSetting](../json-schema/response.json#/$defs/DeviceSetting)
 
 ### `POST /device/:device_id_or_serial_number/settings/:key`
 
 - User requires the read/write role, or admin when overwriting existing
 settings that do not start with `tag.`.
 - Controller/Action: ["set\_single" in Conch::Controller::DeviceSettings](../modules/Conch%3A%3AController%3A%3ADeviceSettings#set_single)
-- Request: [request.json#/definitions/DeviceSettings](../json-schema/request.json#/definitions/DeviceSettings)
+- Request: [request.json#/$defs/DeviceSettings](../json-schema/request.json#/$defs/DeviceSettings)
 - Response: `204 No Content`
 
 ### `DELETE /device/:device_id_or_serial_number/settings/:key`
@@ -175,8 +175,8 @@ This endpoint is **deprecated** and will be removed in Conch API v4.0.
 
 - User requires the read-only role
 - Controller/Action: ["validate" in Conch::Controller::DeviceValidation](../modules/Conch%3A%3AController%3A%3ADeviceValidation#validate)
-- Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
-- Response: [response.json#/definitions/LegacyValidationResults](../json-schema/response.json#/definitions/LegacyValidationResults)
+- Request: [request.json#/$defs/DeviceReport](../json-schema/request.json#/$defs/DeviceReport)
+- Response: [response.json#/$defs/LegacyValidationResults](../json-schema/response.json#/$defs/LegacyValidationResults)
 
 ### `POST /device/:device_id_or_serial_number/validation_plan/:validation_plan_id`
 
@@ -186,8 +186,8 @@ This endpoint is **deprecated** and will be removed in Conch API v4.0.
 
 - User requires the read-only role
 - Controller/Action: ["run\_validation\_plan" in Conch::Controller::DeviceValidation](../modules/Conch%3A%3AController%3A%3ADeviceValidation#run_validation_plan)
-- Request: [request.json#/definitions/DeviceReport](../json-schema/request.json#/definitions/DeviceReport)
-- Response: [response.json#/definitions/LegacyValidationResults](../json-schema/response.json#/definitions/LegacyValidationResults)
+- Request: [request.json#/$defs/DeviceReport](../json-schema/request.json#/$defs/DeviceReport)
+- Response: [response.json#/$defs/LegacyValidationResults](../json-schema/response.json#/$defs/LegacyValidationResults)
 
 ### `GET /device/:device_id_or_serial_number/validation_state?status=<pass|fail|error>&status=...`
 
@@ -196,25 +196,25 @@ to search for (one of `pass`, `fail`, `error`). Can be used more than once.
 
 - User requires the read-only role
 - Controller/Action: ["get\_validation\_state" in Conch::Controller::DeviceValidation](../modules/Conch%3A%3AController%3A%3ADeviceValidation#get_validation_state)
-- Response: [response.json#/definitions/ValidationStateWithResults](../json-schema/response.json#/definitions/ValidationStateWithResults)
+- Response: [response.json#/$defs/ValidationStateWithResults](../json-schema/response.json#/$defs/ValidationStateWithResults)
 
 ### `GET /device/:device_id_or_serial_number/interface`
 
 - User requires the read-only role
 - Controller/Action: ["get\_all" in Conch::Controller::DeviceInterface](../modules/Conch%3A%3AController%3A%3ADeviceInterface#get_all)
-- Response: [response.json#/definitions/DeviceNics](../json-schema/response.json#/definitions/DeviceNics)
+- Response: [response.json#/$defs/DeviceNics](../json-schema/response.json#/$defs/DeviceNics)
 
 ### `GET /device/:device_id_or_serial_number/interface/:interface_name`
 
 - User requires the read-only role
 - Controller/Action: ["get\_one" in Conch::Controller::DeviceInterface](../modules/Conch%3A%3AController%3A%3ADeviceInterface#get_one)
-- Response: [response.json#/definitions/DeviceNic](../json-schema/response.json#/definitions/DeviceNic)
+- Response: [response.json#/$defs/DeviceNic](../json-schema/response.json#/$defs/DeviceNic)
 
 ### `GET /device/:device_id_or_serial_number/interface/:interface_name/:field`
 
 - User requires the read-only role
 - Controller/Action: ["get\_one\_field" in Conch::Controller::DeviceInterface](../modules/Conch%3A%3AController%3A%3ADeviceInterface#get_one_field)
-- Response: [response.json#/definitions/DeviceNicField](../json-schema/response.json#/definitions/DeviceNicField)
+- Response: [response.json#/$defs/DeviceNicField](../json-schema/response.json#/$defs/DeviceNicField)
 
 ## LICENSING
 

@@ -33,6 +33,27 @@ subtest 'failed query params validation' => sub {
         ->log_warn_like(qr{^FAILED query_params validation for schema ChangePassword: /clear_tokens: Not in enum list});
 };
 
+subtest 'insert defaults for missing query parameter values' => sub {
+    my $validator = $t->app->get_query_params_validator;
+    my $schema = $validator->get('/$defs/RevokeUserTokens');
+    my $data = {};
+
+    my @errors = $validator->validate($data, $schema);
+    cmp_deeply(\@errors, [], 'got no validation errors');
+    cmp_deeply($data, {}, 'no default coercion from the validator itself');
+
+    ok($t->app->validate_query_params('RevokeUserTokens', $data), 'no validation errors here either');
+    cmp_deeply(
+        $data,
+        {
+            login_only => 0,
+            api_only => 0,
+            send_mail => 1,
+        },
+        'empty params hash populated with default values',
+    );
+};
+
 subtest 'failed request validation' => sub {
     $t->post_ok('/login', json => { email => 'foo@bar.com' })
         ->status_is(400)
@@ -47,7 +68,7 @@ subtest 'failed request validation' => sub {
 
 subtest '/device/:id/interface/:iface_name/:field validation' => sub {
     my $validator = $t->app->get_response_validator;
-    my $schema = $validator->get('/definitions/DeviceNicField');
+    my $schema = $validator->get('/$defs/DeviceNicField');
 
     cmp_deeply(
         [ $validator->validate({ device_id => create_uuid_str() }, $schema) ],
@@ -75,7 +96,7 @@ subtest 'device report validation' => sub {
 
     cmp_deeply(
         [ $validator->validate('00000000-0000-0000-0000-000000000000',
-                $validator->get('/definitions/DeviceReport_v3_0_0/properties/system_uuid')) ],
+                $validator->get('/$defs/DeviceReport_v3_0_0/properties/system_uuid')) ],
         [ methods(
             path => '/',
             message => re(qr/should not match/i),
@@ -85,7 +106,7 @@ subtest 'device report validation' => sub {
 
     cmp_deeply(
         [ $validator->validate({ '' => {} },
-                $validator->get('/definitions/DeviceReport_v3_0_0/properties/disks')) ],
+                $validator->get('/$defs/DeviceReport_v3_0_0/properties/disks')) ],
         [ methods(
             path => '/',
             message => re(qr{/propertyName/ String does not match '?\^\\S\+\$'?}i),
@@ -96,7 +117,7 @@ subtest 'device report validation' => sub {
 
 subtest '*Error response schemas' => sub {
     my $validator = $t->validator;
-    my $definitions = $t->validator->get(['definitions']);
+    my $defs = $t->validator->get(['$defs']);
 
     $validator->schema({
         anyOf => [
@@ -135,9 +156,9 @@ subtest '*Error response schemas' => sub {
         ],
     });
 
-    foreach my $schema_name (sort grep /Error$/, keys $definitions->%*) {
+    foreach my $schema_name (sort grep /Error$/, keys $defs->%*) {
         next if $schema_name eq 'JSONValidatorError';
-        my @errors = $validator->validate($definitions->{$schema_name});
+        my @errors = $validator->validate($defs->{$schema_name});
         cmp_deeply(\@errors, [], 'schema '.$schema_name.' is a superset of the Error schema')
             or diag 'got errors: ', explain([ map $_->to_string, @errors ]);
     }

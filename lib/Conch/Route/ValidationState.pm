@@ -41,7 +41,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::ValidationState/get>
 
-=item * Response: F<response.yaml#/definitions/ValidationStateWithResults>
+=item * Response: F<response.yaml#/$defs/ValidationStateWithResults>
 
 =back
 

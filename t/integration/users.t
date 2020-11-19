@@ -578,7 +578,7 @@ subtest 'JWT authentication' => sub {
     $t_super->post_ok('/user/'.$ro_user->email.'/revoke?login_only=1&api_only=1')
         ->status_is(400)
         ->json_schema_is('QueryParamsValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr{allOf/1 should not match}i) } ])
+        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr{Should not match}) } ])
         ->email_not_sent;
 
     $t_super->post_ok('/user/'.$ro_user->email.'/revoke?api_only=1')

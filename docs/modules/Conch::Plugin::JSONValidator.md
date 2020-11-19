@@ -45,7 +45,9 @@ appearing once are scalars, parameters appearing more than once have their value
 arrayref).
 
 On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
-[response.json#/definitions/QueryParamsValidationError](../json-schema/response.json#/definitions/QueryParamsValidationError) json response schema.
+[response.json#/$defs/QueryParamsValidationError](../json-schema/response.json#/$defs/QueryParamsValidationError) json response schema.
+
+Population of missing data from specified defaults is performed.
 
 ### validate\_request
 
@@ -53,16 +55,15 @@ Given the name of a json schema in the request namespace, validate the provided 
 it (defaulting to the request's json payload).
 
 On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
-using the [response.json#/definitions/RequestValidationError](../json-schema/response.json#/definitions/RequestValidationError) json response schema.
+using the [response.json#/$defs/RequestValidationError](../json-schema/response.json#/$defs/RequestValidationError) json response schema.
 
 ### get\_query\_params\_validator
 
 Returns a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object suitable for validating an endpoint's query parameters
 (when transformed into a hashref: see ["validate\_query\_params"](#validate_query_params)).
 
-Strings that look like numbers are converted into numbers, so strict 'integer' and 'number'
-typing is possible. No default population is done yet though; see
-[https://github.com/mojolicious/json-validator/issues/158](https://github.com/mojolicious/json-validator/issues/158).
+Because values are being parsed from the URI string, all values are strings even if they look like
+numbers.
 
 ### get\_request\_validator
 

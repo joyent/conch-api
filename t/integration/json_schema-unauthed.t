@@ -22,11 +22,11 @@ subtest 'extraction with $refs' => sub {
                 title => 'i_have_nested_refs',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
                 # begin all referenced definitions
-                definitions => {
+                '$defs' => {
                     ref1 => {
                         type => 'array',
                         items => {
-                            '$ref' => '#/definitions/ref2',
+                            '$ref' => '#/$defs/ref2',
                         },
                     },
                     ref2 => {
@@ -38,10 +38,10 @@ subtest 'extraction with $refs' => sub {
                 type => 'object',
                 properties => {
                     my_key1 => {
-                        '$ref' => '#/definitions/ref1',
+                        '$ref' => '#/$defs/ref1',
                     },
                     my_key2 => {
-                        '$ref' => '#/definitions/ref1',
+                        '$ref' => '#/$defs/ref1',
                     },
                 },
             },
@@ -53,14 +53,14 @@ subtest 'extraction with $refs' => sub {
                 title => 'i_have_a_recursive_ref',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
                 # begin all referenced definitions
-                definitions => {
+                '$defs' => {
                     i_have_a_recursive_ref => {
                         type => 'object',
                         properties => {
                             name => { type => 'string' },
                             children => {
                                 type => 'array',
-                                items => { '$ref' => '#/definitions/i_have_a_recursive_ref' },
+                                items => { '$ref' => '#/$defs/i_have_a_recursive_ref' },
                                 default => [],
                             },
                         },
@@ -74,7 +74,7 @@ subtest 'extraction with $refs' => sub {
                     name => { type => 'string' },
                     children => {
                         type => 'array',
-                        items => { '$ref' => '#/definitions/i_have_a_recursive_ref' },
+                        items => { '$ref' => '#/$defs/i_have_a_recursive_ref' },
                         default => [],
                     },
                 },
@@ -87,7 +87,7 @@ subtest 'extraction with $refs' => sub {
                 title => 'i_have_a_ref_to_another_file',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
                 # begin all referenced definitions
-                definitions => {
+                '$defs' => {
                     my_name => {
                         type => 'string',
                         minLength => 2,
@@ -99,14 +99,14 @@ subtest 'extraction with $refs' => sub {
                                 type => 'string',
                             },
                             city => {
-                                '$ref' => '#/definitions/my_name',
+                                '$ref' => '#/$defs/my_name',
                             },
                         },
                     },
                     ref1 => {
                         type => 'array',
                         items => {
-                            '$ref' => '#/definitions/ref2',
+                            '$ref' => '#/$defs/ref2',
                         },
                     },
                     ref2 => {
@@ -118,9 +118,9 @@ subtest 'extraction with $refs' => sub {
                 type => 'object',
                 properties => {
                     # these ref targets are rewritten
-                    name => { '$ref' => '#/definitions/my_name' },
-                    address => { '$ref' => '#/definitions/my_address' },
-                    secrets => { '$ref' => '#/definitions/ref1' },
+                    name => { '$ref' => '#/$defs/my_name' },
+                    address => { '$ref' => '#/$defs/my_address' },
+                    secrets => { '$ref' => '#/$defs/ref1' },
                 },
             },
             'find and resolve references to other local files',
@@ -131,7 +131,7 @@ subtest 'extraction with $refs' => sub {
                 title => 'i_am_a_ref',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
                 # begin all referenced definitions
-                definitions => {
+                '$defs' => {
                     ref2 => {
                         type => 'string',
                         minLength => 1,
@@ -140,7 +140,7 @@ subtest 'extraction with $refs' => sub {
                 # begin i_am_a_ref definition - which is actually ref1
                 type => 'array',
                 items => {
-                    '$ref' => '#/definitions/ref2',
+                    '$ref' => '#/$defs/ref2',
                 },
             },
             'find and resolve references where the definition itself is a ref',
@@ -161,7 +161,7 @@ subtest 'extraction with $refs' => sub {
                 title => 'i_have_refs_with_the_same_name',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
                 # begin all referenced definitions
-                definitions => {
+                '$defs' => {
                     i_am_a_ref_with_the_same_name => {
                         type => 'string',
                     },
@@ -170,7 +170,7 @@ subtest 'extraction with $refs' => sub {
                 type => 'object',
                 properties => {
                     me => {
-                        '$ref' => '#/definitions/i_am_a_ref_with_the_same_name',
+                        '$ref' => '#/$defs/i_am_a_ref_with_the_same_name',
                     },
                 },
             },
@@ -190,7 +190,7 @@ subtest 'extraction with $refs' => sub {
         [
             {
                 title => 'i_contain_refs_to_same_named_definitions',
-                exception => qr!namespace collision: .*t/data/test-schema2?\.yaml#/definitions/dupe_name but already have a /definitions/dupe_name from .*t/data/test-schema2?\.yaml#/definitions/dupe_name!,
+                exception => qr!namespace collision: .*t/data/test-schema2?\.yaml#/\$defs/dupe_name but already have a /\$defs/dupe_name from .*t/data/test-schema2?\.yaml#/\$defs/dupe_name!,
             },
             'cannot handle pulling in references that have the same root name',
         ],
@@ -200,7 +200,7 @@ subtest 'extraction with $refs' => sub {
                 title => 'i_have_a_ref_with_the_same_name',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
                 # begin all referenced definitions
-                definitions => {
+                '$defs' => {
                     i_have_a_ref_with_the_same_name => { type => 'string' },
                 },
                 # begin i_have_a_ref_with_the_same_name definition
@@ -209,7 +209,7 @@ subtest 'extraction with $refs' => sub {
                     name => { type => 'string' },
                     children => {
                         type => 'array',
-                        items => { '$ref' => '#/definitions/i_have_a_ref_with_the_same_name' },
+                        items => { '$ref' => '#/$defs/i_have_a_ref_with_the_same_name' },
                         default => [],
                     },
                 },
@@ -222,13 +222,13 @@ subtest 'extraction with $refs' => sub {
                 title => 'i_am_a_ref_to_another_file',
                 '$schema' => 'http://json-schema.org/draft-07/schema#',
                 # begin all referenced definitions
-                definitions => {
+                '$defs' => {
                     ref3 => { type => 'integer' },
                 },
                 # begin i_am_a_ref_to_another_file definition - which is actually i_have_a_ref_to_the_first_filename
                 type => 'object',
                 properties => {
-                    gotcha => { '$ref' => '#/definitions/ref3' },
+                    gotcha => { '$ref' => '#/$defs/ref3' },
                 },
             },
             'find and resolve a reference that immediately leaps to another file',
@@ -272,9 +272,9 @@ subtest 'extraction with $refs' => sub {
     foreach @tests;
 };
 
+use constant SPEC_URL => 'http://json-schema.org/draft-07/schema#';
 
 my $t = Test::Conch->new(pg => undef);
-my $json_spec_schema = $_validator->schema->data;
 my $base_uri = $t->ua->server->url; # used as the base uri for all requests
 
 $t->get_ok('/schema/request/foo')
@@ -304,9 +304,9 @@ $t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan
     ->status_is(200)
     ->header_is('Last-Modified', $t->app->startup_time->strftime('%a, %d %b %Y %T GMT'))
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply({
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/response/Ping',
         type => 'object',
         additionalProperties => bool(0),
@@ -326,9 +326,9 @@ $t->ua->max_redirects(10);
 $t->get_ok('/schema/response/login_token')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply(my $response_login_token = {
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/response/LoginToken',
         type => 'object',
         additionalProperties => bool(0),
@@ -340,59 +340,64 @@ $t->ua->max_redirects(0);
 $t->get_ok('/json_schema/response/LoginToken')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply($response_login_token);
 
 $t->get_ok('/json_schema/request/Login')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply({
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/request/Login',
         type => 'object',
         additionalProperties => bool(0),
         required => [ 'password' ],
         oneOf => [ { required => [ 'user_id' ] }, { required => [ 'email' ] } ],
         properties => {
-            user_id => { '$ref' => '#/definitions/uuid' },
-            email => { '$ref' => '#/definitions/email_address' },
-            password => { '$ref' => '#/definitions/non_empty_string' },
-            set_session => { type => 'boolean', default => JSON::PP::false },
+            user_id => { '$ref' => '#/$defs/uuid' },
+            email => { '$ref' => '#/$defs/email_address' },
+            password => { '$ref' => '#/$defs/non_empty_string' },
+            set_session => { type => 'boolean' },
         },
-        definitions => {
+        '$defs' => {
             non_empty_string => { type => 'string', minLength => 1 },
             uuid => superhashof({}),
             email_address => superhashof({}),
             mojo_relaxed_placeholder => superhashof({}),
         },
+        default => { set_session => bool(0) },
     });
 
 $t->get_ok('/json_schema/query_params/ResetUserPassword')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply({
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/query_params/ResetUserPassword',
-        definitions => {
-            boolean_integer_default_true => { type => 'integer', minimum => 0, maximum => 1, default => 1 },
+        '$defs' => {
+            boolean_string => { type => 'string', enum => [ '0', '1' ] },
         },
         type => 'object',
         additionalProperties => bool(0),
         properties => {
-            clear_tokens => { type => 'string', enum => [ qw(none login_only all) ], default => 'login_only' },
-            send_mail => { '$ref' => '#/definitions/boolean_integer_default_true' },
+            clear_tokens => { type => 'string', enum => [ qw(none login_only all) ] },
+            send_mail => { '$ref' => '#/$defs/boolean_string' },
+        },
+        default => {
+            clear_tokens => 'login_only',
+            send_mail => '1',
         },
     });
 
 $t->get_ok('/json_schema/request/HardwareProductCreate')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply('', superhashof({
         '$id' => $base_uri.'json_schema/request/HardwareProductCreate',
-        definitions => {
+        '$defs' => {
             map +($_ => superhashof({})), qw(
                 uuid
                 positive_integer
@@ -407,21 +412,21 @@ $t->get_ok('/json_schema/request/HardwareProductCreate')
 $t->get_ok('/json_schema/request/DeviceReport')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
-    ->json_is('/$schema', 'http://json-schema.org/draft-07/schema#');
+    ->json_schema_is(SPEC_URL)
+    ->json_is('/$schema', SPEC_URL);
 
 $t->get_ok('/json_schema/common/non_zero_uuid')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply({
         '$id' => $base_uri.'json_schema/common/non_zero_uuid',
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         allOf => [
-            { '$ref' => '#/definitions/uuid' },
+            { '$ref' => '#/$defs/uuid' },
             { not => { const => '00000000-0000-0000-0000-000000000000' } },
         ],
-        definitions => {
+        '$defs' => {
             uuid => {
                 type => 'string', pattern => ignore,
             },
@@ -431,15 +436,15 @@ $t->get_ok('/json_schema/common/non_zero_uuid')
 $t->get_ok('/json_schema/device_report/DeviceReport_v3_0_0')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is($json_spec_schema)
+    ->json_schema_is(SPEC_URL)
     ->json_cmp_deeply({
         '$id' => $base_uri.'json_schema/device_report/DeviceReport_v3_0_0',
-        '$schema' => 'http://json-schema.org/draft-07/schema#',
+        '$schema' => SPEC_URL,
         description => ignore,
         type => 'object',
         required => ignore,
         properties => superhashof({}),
-        definitions => {
+        '$defs' => {
             map +($_ => superhashof({})),
                 qw(non_empty_string int_or_stringy_int disk_serial_number device_interface_name macaddr ipaddr relay_serial_number device_serial_number non_zero_uuid links uuid mojo_standard_placeholder mojo_relaxed_placeholder),
         },

@@ -27,26 +27,26 @@ well as
 
 - Requires system admin authorization
 - Controller/Action: ["get\_all" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#get_all)
-- Response: [response.json#/definitions/RackLayouts](../json-schema/response.json#/definitions/RackLayouts)
+- Response: [response.json#/$defs/RackLayouts](../json-schema/response.json#/$defs/RackLayouts)
 
 ### `POST /layout`
 
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#create)
-- Request: [request.json#/definitions/RackLayoutCreate](../json-schema/request.json#/definitions/RackLayoutCreate)
+- Request: [request.json#/$defs/RackLayoutCreate](../json-schema/request.json#/$defs/RackLayoutCreate)
 - Response: Redirect to the created rack layout
 
 ### `GET /layout/:layout_id`
 
 - Requires system admin authorization
 - Controller/Action: ["get" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#get)
-- Response: [response.json#/definitions/RackLayout](../json-schema/response.json#/definitions/RackLayout)
+- Response: [response.json#/$defs/RackLayout](../json-schema/response.json#/$defs/RackLayout)
 
 ### `POST /layout/:layout_id`
 
 - Requires system admin authorization
 - Controller/Action: ["update" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#update)
-- Request: [request.json#/definitions/RackLayoutUpdate](../json-schema/request.json#/definitions/RackLayoutUpdate)
+- Request: [request.json#/$defs/RackLayoutUpdate](../json-schema/request.json#/$defs/RackLayoutUpdate)
 - Response: Redirect to the update rack layout
 
 ### `DELETE /layout/:layout_id`

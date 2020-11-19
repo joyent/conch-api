@@ -345,7 +345,7 @@ sub add_user ($c) {
         $c->log->info('Updated access for user '.$user->id.' ('.$user->name.') in build '
             .$c->stash('build_id_or_name').' to the '.$input->{role}.' role');
 
-        if ($params->{send_mail} // 1) {
+        if ($params->{send_mail}) {
             $c->send_mail(
                 template_file => 'build_user_update_user',
                 From => 'noreply',
@@ -375,7 +375,7 @@ sub add_user ($c) {
     });
     $c->log->info('Added user '.$user->id.' ('.$user->name.') to build '.$c->stash('build_id_or_name').' with the '.$input->{role}.' role');
 
-    if ($params->{send_mail} // 1) {
+    if ($params->{send_mail}) {
         $c->send_mail(
             template_file => 'build_user_add_user',
             From => 'noreply',
@@ -428,7 +428,7 @@ sub remove_user ($c) {
     $c->log->info('removing user '.$user->id.' ('.$user->name.') from build '.$c->stash('build_id_or_name'));
     my $deleted = $rs->delete;
 
-    if ($deleted > 0 and $params->{send_mail} // 1) {
+    if ($deleted > 0 and $params->{send_mail}) {
         my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
         $c->send_mail(
             template_file => 'build_user_remove_user',
@@ -541,7 +541,7 @@ sub add_organization ($c) {
         $c->log->info('Upgraded organization '.$organization->id.' in build '.$build_id.' to '.$input->{role});
 
         my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
-        if ($params->{send_mail} // 1) {
+        if ($params->{send_mail}) {
             $c->send_mail(
                 template_file => 'build_organization_update_members',
                 To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),
@@ -579,7 +579,7 @@ sub add_organization ($c) {
     });
     $c->log->info('Added organization '.$organization->id.' to build '.$build_id.' with the '.$input->{role}.' role');
 
-    if ($params->{send_mail} // 1) {
+    if ($params->{send_mail}) {
         my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
         $c->send_mail(
             template_file => 'build_organization_add_members',
@@ -637,7 +637,7 @@ sub remove_organization ($c) {
 
     $rs->delete;
 
-    if ($params->{send_mail} // 1) {
+    if ($params->{send_mail}) {
         $c->send_mail(
             template_file => 'build_organization_remove_members',
             To => $c->construct_address_list($organization->user_accounts->order_by('user_account.name')),

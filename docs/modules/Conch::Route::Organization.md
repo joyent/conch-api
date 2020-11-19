@@ -17,26 +17,26 @@ All routes require authentication.
 ### `GET /organization`
 
 - Controller/Action: ["get\_all" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#get_all)
-- Response: [response.json#/definitions/Organizations](../json-schema/response.json#/definitions/Organizations)
+- Response: [response.json#/$defs/Organizations](../json-schema/response.json#/$defs/Organizations)
 
 ### `POST /organization`
 
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#create)
-- Request: [request.json#/definitions/OrganizationCreate](../json-schema/request.json#/definitions/OrganizationCreate)
+- Request: [request.json#/$defs/OrganizationCreate](../json-schema/request.json#/$defs/OrganizationCreate)
 - Response: Redirect to the organization
 
 ### `GET /organization/:organization_id_or_name`
 
 - Requires system admin authorization or the admin role on the organization
 - Controller/Action: ["get" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#get)
-- Response: [response.json#/definitions/Organization](../json-schema/response.json#/definitions/Organization)
+- Response: [response.json#/$defs/Organization](../json-schema/response.json#/$defs/Organization)
 
 ### `POST /organization/:organization_id_or_name`
 
 - Requires system admin authorization or the admin role on the organization
 - Controller/Action: ["update" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#update)
-- Request: [request.json#/definitions/OrganizationUpdate](../json-schema/request.json#/definitions/OrganizationUpdate)
+- Request: [request.json#/$defs/OrganizationUpdate](../json-schema/request.json#/$defs/OrganizationUpdate)
 - Response: Redirect to the organization
 
 ### `DELETE /organization/:organization_id_or_name`
@@ -52,7 +52,7 @@ an email to the user.
 
 - Requires system admin authorization or the admin role on the organization
 - Controller/Action: ["add\_user" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#add_user)
-- Request: [request.json#/definitions/OrganizationAddUser](../json-schema/request.json#/definitions/OrganizationAddUser)
+- Request: [request.json#/$defs/OrganizationAddUser](../json-schema/request.json#/$defs/OrganizationAddUser)
 - Response: `204 No Content`
 
 ### `DELETE /organization/:organization_id_or_name/user/#target_user_id_or_email?send_mail=<1|0`>

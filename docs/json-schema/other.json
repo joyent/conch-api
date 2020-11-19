@@ -1,5 +1,5 @@
 {
-  "definitions" : {
+  "$defs" : {
     "RollbarPayload" : {
       "additionalProperties" : false,
       "properties" : {
@@ -233,7 +233,7 @@
               "type" : "integer"
             },
             "uuid" : {
-              "$ref" : "common.json#/definitions/uuid"
+              "$ref" : "common.json#/$defs/uuid"
             }
           },
           "required" : [

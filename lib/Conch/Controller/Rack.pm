@@ -552,7 +552,7 @@ sub set_phase ($c) {
     $rack->update({ updated => \'now()' }) if $rack->is_changed;
     $c->log->debug('set the phase for rack '.$rack->id.' to '.$input->{phase});
 
-    if (not $params->{rack_only} // 0) {
+    if (not $params->{rack_only}) {
         $c->stash('rack_rs')
             ->related_resultset('device_locations')
             ->related_resultset('device')

@@ -138,7 +138,7 @@ All routes require authentication.
 
 =item * Controller/Action: L<Conch::Controller::User/get>
 
-=item * Response: F<response.yaml#/definitions/UserDetailed>
+=item * Response: F<response.yaml#/$defs/UserDetailed>
 
 =back
 
@@ -151,11 +151,11 @@ an email telling the user their account was updated
 
 =item * Controller/Action: L<Conch::Controller::User/update>
 
-=item * Request: F<request.yaml#/definitions/UpdateUser>
+=item * Request: F<request.yaml#/$defs/UpdateUser>
 
 =item * Success Response: Redirect to the user that was updated
 
-=item * Error response on duplicate user: F<response.yaml#/definitions/UserError> (only if the
+=item * Error response on duplicate user: F<response.yaml#/$defs/UserError> (only if the
 calling user is a system admin)
 
 =back
@@ -181,7 +181,7 @@ C<api_only> and C<login_only> cannot both be C<1>.
 
 =item * Controller/Action: L<Conch::Controller::User/revoke_user_tokens>
 
-=item * Request: F<request.yaml#/definitions/UserSettings>
+=item * Request: F<request.yaml#/$defs/UserSettings>
 
 =item * Response: C<204 No Content>
 
@@ -209,7 +209,7 @@ otherwise, the user is logged out.
 
 =item * Controller/Action: L<Conch::Controller::User/change_own_password>
 
-=item * Request: F<request.yaml#/definitions/UserSettings>
+=item * Request: F<request.yaml#/$defs/UserSettings>
 
 =item * Response: C<204 No Content>
 
@@ -222,7 +222,7 @@ otherwise, the user is logged out.
 
 =item * Controller/Action: L<Conch::Controller::User/get_settings>
 
-=item * Response: F<response.yaml#/definitions/UserSettings>
+=item * Response: F<response.yaml#/$defs/UserSettings>
 
 =back
 
@@ -232,7 +232,7 @@ otherwise, the user is logged out.
 
 =item * Controller/Action: L<Conch::Controller::User/set_settings>
 
-=item * Request: F<request.yaml#/definitions/UserSettings>
+=item * Request: F<request.yaml#/$defs/UserSettings>
 
 =item * Response: C<204 No Content>
 
@@ -244,7 +244,7 @@ otherwise, the user is logged out.
 
 =item * Controller/Action: L<Conch::Controller::User/get_setting>
 
-=item * Response: F<response.yaml#/definitions/UserSetting>
+=item * Response: F<response.yaml#/$defs/UserSetting>
 
 =back
 
@@ -254,7 +254,7 @@ otherwise, the user is logged out.
 
 =item * Controller/Action: L<Conch::Controller::User/set_setting>
 
-=item * Request: F<request.yaml#/definitions/UserSetting>
+=item * Request: F<request.yaml#/$defs/UserSetting>
 
 =item * Response: C<204 No Content>
 
@@ -276,7 +276,7 @@ otherwise, the user is logged out.
 
 =item * Controller/Action: L<Conch::Controller::User/get_api_tokens>
 
-=item * Response: F<response.yaml#/definitions/UserTokens>
+=item * Response: F<response.yaml#/$defs/UserTokens>
 
 =back
 
@@ -286,9 +286,9 @@ otherwise, the user is logged out.
 
 =item * Controller/Action: L<Conch::Controller::User/create_api_token>
 
-=item * Request: F<request.yaml#/definitions/NewUserToken>
+=item * Request: F<request.yaml#/$defs/NewUserToken>
 
-=item * Response: F<response.yaml#/definitions/NewUserToken>
+=item * Response: F<response.yaml#/$defs/NewUserToken>
 
 =back
 
@@ -298,7 +298,7 @@ otherwise, the user is logged out.
 
 =item * Controller/Action: L<Conch::Controller::User/get_api_token>
 
-=item * Response: F<response.yaml#/definitions/UserToken>
+=item * Response: F<response.yaml#/$defs/UserToken>
 
 =back
 
@@ -320,7 +320,7 @@ otherwise, the user is logged out.
 
 =item * Controller/Action: L<Conch::Controller::User/get>
 
-=item * Response: F<response.yaml#/definitions/UserDetailed>
+=item * Response: F<response.yaml#/$defs/UserDetailed>
 
 =back
 
@@ -335,11 +335,11 @@ an email telling the user their account was updated
 
 =item * Controller/Action: L<Conch::Controller::User/update>
 
-=item * Request: F<request.yaml#/definitions/UpdateUser>
+=item * Request: F<request.yaml#/$defs/UpdateUser>
 
 =item * Success Response: Redirect to the user that was updated
 
-=item * Error response on duplicate user: F<response.yaml#/definitions/UserError> (only if the
+=item * Error response on duplicate user: F<response.yaml#/$defs/UserError> (only if the
 calling user is a system admin)
 
 =back
@@ -427,7 +427,7 @@ Optionally accepts the following query parameters:
 
 =item * Controller/Action: L<Conch::Controller::User/get_all>
 
-=item * Response: F<response.yaml#/definitions/Users>
+=item * Response: F<response.yaml#/$defs/Users>
 
 =back
 
@@ -442,11 +442,11 @@ email to the user with the new password.
 
 =item * Controller/Action: L<Conch::Controller::User/create>
 
-=item * Request: F<request.yaml#/definitions/NewUser>
+=item * Request: F<request.yaml#/$defs/NewUser>
 
-=item * Success Response: F<response.yaml#/definitions/NewUser>
+=item * Success Response: F<response.yaml#/$defs/NewUser>
 
-=item * Error response on duplicate user: F<response.yaml#/definitions/UserError>
+=item * Error response on duplicate user: F<response.yaml#/$defs/UserError>
 
 =back
 
@@ -458,7 +458,7 @@ email to the user with the new password.
 
 =item * Controller/Action: L<Conch::Controller::User/get_api_tokens>
 
-=item * Response: F<response.yaml#/definitions/UserTokens>
+=item * Response: F<response.yaml#/$defs/UserTokens>
 
 =back
 
@@ -470,7 +470,7 @@ email to the user with the new password.
 
 =item * Controller/Action: L<Conch::Controller::User/get_api_token>
 
-=item * Response: F<response.yaml#/definitions/UserTokens>
+=item * Response: F<response.yaml#/$defs/UserTokens>
 
 =back
 
@@ -484,7 +484,7 @@ email to the user with the new password.
 
 =item * Success Response: C<204 No Content>
 
-=item * Error response when user already deactivated: F<response.yaml#/definitions/UserError>
+=item * Error response when user already deactivated: F<response.yaml#/$defs/UserError>
 
 =back
 
