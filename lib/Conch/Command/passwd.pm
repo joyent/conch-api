@@ -44,6 +44,11 @@ sub run ($self, @opts) {
   my $user = $opt->id ? $user_rs->find($opt->id)
     : $user_rs->find_by_email($opt->email);
 
+  if (not $user) {
+    say 'user not found';
+    exit;
+  };
+
   my $echo_password = !$opt->password;
   my $new_password = $opt->password // $self->app->random_string;
 
