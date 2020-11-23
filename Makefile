@@ -54,9 +54,6 @@ migrate-db: ## Apply database migrations
 .PHONY: db-schema
 db-schema: ## create a dump of current db schema
 	pg_dump --username conch --schema-only \
-            --exclude-table=legacy_workspace_rack \
-            --exclude-table=legacy_user_workspace_role \
-            --exclude-table=legacy_workspace \
             --file sql/schema.sql conch
 
 docker_test:
