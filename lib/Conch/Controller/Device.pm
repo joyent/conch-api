@@ -214,7 +214,7 @@ sub lookup_by_other_attribute ($c) {
         $device_rs = $device_rs->search(
             {
                 # production devices do not consider interface data to be canonical
-                $device_rs->current_source_alias.'.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] },
+                $device_rs->current_source_alias.'.phase' => { '<' => 'production' },
                 'device_nics.'.$key => $value,
             },
             { join => 'device_nics' },
