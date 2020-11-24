@@ -2,7 +2,8 @@
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/common/$schema_name' endpoints, or within conch itself, json-schema/common.yaml.",
   "$defs" : {
     "HardwareProductSpecification" : {
-      "description" : "this is the structure of the hardware_product.specification database column",
+      "$comment" : "this is the structure of the hardware_product.specification database column",
+      "additionalProperties" : true,
       "properties" : {
         "chassis" : {
           "properties" : {
@@ -47,77 +48,58 @@
       "type" : "string"
     },
     "device_health" : {
-      "description" : "corresponds to device_health_enum in the database",
+      "$comment" : "corresponds to device_health_enum in the database",
       "enum" : [
         "error",
         "fail",
         "unknown",
         "pass"
-      ],
-      "type" : "string"
-    },
-    "device_interface_name" : {
-      "allOf" : [
-        {
-          "pattern" : "^\\S+$",
-          "type" : "string"
-        },
-        {
-          "$ref" : "#/$defs/mojo_relaxed_placeholder"
-        }
       ]
     },
+    "device_interface_name" : {
+      "$ref" : "#/$defs/mojo_relaxed_placeholder",
+      "pattern" : "^\\S+$",
+      "type" : "string"
+    },
     "device_phase" : {
-      "description" : "corresponds to device_phase_enum in the database (also used for racks)",
+      "$comment" : "corresponds to device_phase_enum in the database (also used for racks)",
       "enum" : [
         "integration",
         "installation",
         "production",
         "diagnostics",
         "decommissioned"
-      ],
-      "type" : "string"
-    },
-    "device_serial_number" : {
-      "allOf" : [
-        {
-          "pattern" : "^\\S+$",
-          "type" : "string"
-        },
-        {
-          "$ref" : "#/$defs/mojo_standard_placeholder"
-        }
       ]
     },
-    "device_setting_key" : {
-      "$ref" : "#/$defs/mojo_relaxed_placeholder"
+    "device_serial_number" : {
+      "$ref" : "#/$defs/mojo_standard_placeholder",
+      "pattern" : "^\\S+$",
+      "type" : "string"
     },
     "disk_serial_number" : {
       "pattern" : "^\\S+$",
       "type" : "string"
     },
     "email_address" : {
-      "allOf" : [
-        {
-          "format" : "email",
-          "type" : "string"
-        },
-        {
-          "$ref" : "#/$defs/mojo_relaxed_placeholder"
-        }
-      ]
+      "$ref" : "#/$defs/mojo_relaxed_placeholder",
+      "format" : "email",
+      "type" : "string"
     },
     "ipaddr" : {
       "oneOf" : [
         {
-          "format" : "ipv4",
-          "type" : "string"
+          "format" : "ipv4"
         },
         {
-          "format" : "ipv6",
-          "type" : "string"
+          "format" : "ipv6"
         }
-      ]
+      ],
+      "type" : "string"
+    },
+    "json_pointer_token" : {
+      "$comment" : "a json-pointer reference-token (see RFC6901). Special characters requiring escaping are disallowed for simplicity.",
+      "pattern" : "^[A-Za-z0-9_-]+$",
+      "type" : "string"
     },
     "links" : {
       "items" : {
@@ -132,12 +114,12 @@
       "type" : "string"
     },
     "mojo_relaxed_placeholder" : {
-      "description" : "see https://metacpan.org/pod/Mojolicious::Guides::Routing#Relaxed-placeholders",
+      "$comment" : "see https://metacpan.org/pod/Mojolicious::Guides::Routing#Relaxed-placeholders",
       "pattern" : "^[^/]+$",
       "type" : "string"
     },
     "mojo_standard_placeholder" : {
-      "description" : "see https://metacpan.org/pod/Mojolicious::Guides::Routing#Standard-placeholders",
+      "$comment" : "see https://metacpan.org/pod/Mojolicious::Guides::Routing#Standard-placeholders",
       "pattern" : "^[^/.]+$",
       "type" : "string"
     },
@@ -150,16 +132,10 @@
       "type" : "integer"
     },
     "non_zero_uuid" : {
-      "allOf" : [
-        {
-          "$ref" : "#/$defs/uuid"
-        },
-        {
-          "not" : {
-            "const" : "00000000-0000-0000-0000-000000000000"
-          }
-        }
-      ]
+      "$ref" : "#/$defs/uuid",
+      "not" : {
+        "const" : "00000000-0000-0000-0000-000000000000"
+      }
     },
     "positive_integer" : {
       "minimum" : 1,
@@ -170,19 +146,18 @@
       "type" : "string"
     },
     "role" : {
-      "description" : "corresponds to role_enum in the database",
+      "$comment" : "corresponds to role_enum in the database",
       "enum" : [
         "ro",
         "rw",
         "admin"
-      ],
-      "type" : "string"
+      ]
     },
     "room_az" : {
       "pattern" : "^[\\w-]+$",
       "type" : "string"
     },
-    "user_setting_key" : {
+    "setting_key" : {
       "$ref" : "#/$defs/mojo_relaxed_placeholder"
     },
     "uuid" : {
@@ -190,14 +165,13 @@
       "type" : "string"
     },
     "validation_status" : {
-      "description" : "corresponds to validation_status_enum in the database",
+      "$comment" : "corresponds to validation_status_enum in the database",
       "enum" : [
         "error",
         "fail",
         "pass"
-      ],
-      "type" : "string"
+      ]
     }
   },
-  "$schema" : "http://json-schema.org/draft-07/schema#"
+  "$schema" : "https://json-schema.org/draft/2019-09/schema"
 }

@@ -9,6 +9,7 @@ use Conch::UUID 'create_uuid_str';
 use Mojo::Util 'url_escape';
 
 my $t = Test::Conch->new;
+my $base_uri = $t->ua->server->url; # used as the base uri for all requests
 $t->load_fixture('super_user');
 
 $t->authenticate;
@@ -42,15 +43,15 @@ my $validation_plan_id = $t->tx->res->json->{validation_plan_id};
 $t->post_ok('/hardware_product', json => { wat => 'wat' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof({ path => '/', message => re(qr/properties not allowed/i) }));
+    ->json_cmp_deeply('/details', [
+        superhashof({ error => 'additional property not permitted' }),
+        superhashof({ error => 'missing properties: name, alias, hardware_vendor_id, sku, rack_unit_size, validation_plan_id, purpose, bios_firmware, cpu_type' }),
+    ]);
 
 $t->post_ok('/hardware_product', json => { name => 'sungo', alias => 'sungo' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', bag(
-        map +{ path => "/$_", message => re(qr/missing property/i) },
-        qw(hardware_vendor_id sku rack_unit_size validation_plan_id purpose bios_firmware cpu_type),
-    ));
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: hardware_vendor_id, sku, rack_unit_size, validation_plan_id, purpose, bios_firmware, cpu_type' }) ]);
 
 my %hw_fields = (
     name => 'sungo',
@@ -67,20 +68,20 @@ my %hw_fields = (
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => 'not json!' } )
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof({ path => '/specification', message => re(qr{Expected object - got string}) }));
+    ->json_cmp_deeply('/details', superbagof(superhashof({ data_location => '/specification', error => 'wrong type (expected object)' })));
 
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => '{"disk_size":"not an object"}' } )
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof({ path => '/specification', message => re(qr{Expected object - got string}) }));
+    ->json_cmp_deeply('/details', superbagof(superhashof({ data_location => '/specification', error => 'wrong type (expected object)' })));
 
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => { disk_size => 'not an object' } })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply({
         error => 'request did not match required format',
-        details => superbagof({ path => '/specification/disk_size', message => re(qr{Expected object - got string}) }),
-        schema => '/json_schema/request/HardwareProductCreate',
+        details => superbagof(superhashof({ data_location => '/specification/disk_size', error => 'wrong type (expected object)' })),
+        schema => $base_uri.'json_schema/request/HardwareProductCreate',
     });
 
 $hw_fields{specification} = { disk_size => { _default => 0, AcmeCorp => 512 } };
@@ -180,20 +181,20 @@ $t->post_ok('/hardware_product', json => {
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => 'not json!' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof({ path => '/specification', message => re(qr{Expected object - got string}) }));
+    ->json_cmp_deeply('/details', superbagof(superhashof({ data_location => '/specification', error => 'wrong type (expected object)' })));
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => '{"disk_size":"not an object"}' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof({ path => '/specification', message => re(qr{Expected object - got string}) }));
+    ->json_cmp_deeply('/details', superbagof(superhashof({ data_location => '/specification', error => 'wrong type (expected object)' })));
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => { disk_size => 'not an object' } })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply({
         error => 'request did not match required format',
-        details => superbagof({ path => '/specification/disk_size', message => re(qr{Expected object - got string}) }),
-        schema => '/json_schema/request/HardwareProductUpdate',
+        details => superbagof(superhashof({ data_location => '/specification/disk_size', error => 'wrong type (expected object)' })),
+        schema => $base_uri.'json_schema/request/HardwareProductUpdate',
     });
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
@@ -261,7 +262,7 @@ subtest 'manipulate hardware_product.specification' => sub {
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification', json => {})
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/path', message => re(qr/Missing property/) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: path' }) ]);
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=', json => {})
     ->status_is(204)
@@ -276,16 +277,16 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply(superhashof({
-      details => [ { path => '/', message => re(qr/Expected object - got string/) } ],
-      schema => '/json_schema/request/HardwareProductSpecification',
+      details => [ superhashof({ error => 'wrong type (expected object)' }) ],
+      schema => $base_uri.'json_schema/request/HardwareProductSpecification',
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size', json => 1)
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply(superhashof({
-      details => [ { path => '/disk_size', message => re(qr/Expected object - got number/) } ],
-      schema => '/json_schema/request/HardwareProductSpecification',
+      details => [ superhashof({ error => 'wrong type (expected object)' }) ],
+      schema => $base_uri.'json_schema/request/HardwareProductSpecification',
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size',
@@ -305,8 +306,8 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply(superhashof({
-      details => [ { path => '/disk_size/SEAGATE_8000', message => re(qr/Expected integer - got object/) } ],
-      schema => '/json_schema/request/HardwareProductSpecification',
+      details => [ superhashof({ error => 'wrong type (expected integer)' }) ],
+      schema => $base_uri.'json_schema/request/HardwareProductSpecification',
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/SEAGATE_8000',
@@ -336,7 +337,7 @@ subtest 'manipulate hardware_product.specification' => sub {
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/tilde~1~device', json => 2)
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/path', message => re(qr/Does not match json-pointer format/) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'not a json-pointer' }) ]);
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/tilde~01~0device', json => 2)
     ->status_is(204)
@@ -370,18 +371,18 @@ subtest 'manipulate hardware_product.specification' => sub {
   $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification')
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/path', message => re(qr/Missing property/) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: path' }) ]);
 
   # the path we want to operate on is called .../~1~device/  and encodes as .../~01~0device/...
   $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/tilde~1~device')
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/path', message => re(qr/Does not match json-pointer format/) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'not a json-pointer' }) ]);
 
   $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/_default')
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/disk_size/_default', message => re(qr/Missing property/) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: _default' }) ]);
 
   $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/tilde~01~0device')
     ->status_is(204)

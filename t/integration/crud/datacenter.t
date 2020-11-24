@@ -44,7 +44,10 @@ $t->get_ok('/dc/'.$datacenter->id.'/rooms')
 $t->post_ok('/dc', json => { wat => 'wat' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
+    ->json_cmp_deeply('/details', [
+        superhashof({ error => 'missing properties: vendor, region, location' }),
+        superhashof({ error => 'additional property not permitted' }),
+    ]);
 
 $t->post_ok('/dc', json => { vendor => 'vend0r', region => 'regi0n', location => 'locati0n' })
     ->status_is(201)

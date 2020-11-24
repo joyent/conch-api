@@ -198,31 +198,34 @@ subtest 'unlocated device with a registered relay' => sub {
         ->json_is($validation_state);
 
     cmp_deeply(
-        [ $t->validator->validate(
+        $t->app->json_schema_validator->evaluate(
             {
                 do { my %_data = $test_device_data->%*; delete $_data{location}; %_data },
                 phase => 'integration',
             },
-            $t->validator->get('/$defs/DetailedDevice')) ],
-        [
-            methods(
-                path => '/location',
-                message => re(qr/missing property/i),
-            ),
-        ],
+            'response.yaml#/$defs/DetailedDevice')->TO_JSON,
+        {
+            valid => bool(0),
+            errors => [ superhashof({ error => 'missing property: location' }) ],
+        },
         'lack of location data is rejected by the response schema when phase=integration',
     );
 
     cmp_deeply(
-        [ $t->validator->validate(
+        my $res = $t->app->json_schema_validator->evaluate(
             { $test_device_data->%*, phase => 'production' },
-            $t->validator->get('/$defs/DetailedDevice')) ],
-        [
-            methods(
-                path => '/',
-                message => re(qr/should not match/i),
-            ),
-        ],
+            'response.yaml#/$defs/DetailedDevice')->TO_JSON,
+        {
+            valid => bool(0),
+            errors => [
+                map +{
+                    instanceLocation => '/'.$_,
+                    keywordLocation => '/else/properties/'.$_,
+                    absoluteKeywordLocation => 'response.yaml#/$defs/DetailedDevice/else/properties/'.$_,
+                    error => 'property not permitted',
+                }, sort qw(location nics disks),
+            ],
+        },
         'location data is rejected by the response schema when phase=production',
     );
 
@@ -812,14 +815,14 @@ subtest 'mutate device attributes' => sub {
     $t->post_ok('/device/TEST/asset_tag')
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected object)' }) ]);
 
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset tag' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
         ->json_cmp_deeply('/details', [
-            { path => '/asset_tag', message => re(qr/String does not match/) },
-            { path => '/asset_tag', message => re(qr/Not null/) },
+            superhashof({ error => 'pattern does not match' }),
+            superhashof({ error => 'wrong type (expected null)' }),
         ]);
 
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset_tag' })
@@ -989,12 +992,12 @@ subtest 'Device settings' => sub {
     $t->post_ok('/device/LOCATED_DEVICE/settings')
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected object)' }) ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => 'bar', baz => 'quux' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/too many properties/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'more than 1 property' }) ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/FOO/BAR', json => { 'FOO/BAR' => 'foo' })
         ->status_is(404)
@@ -1039,17 +1042,17 @@ subtest 'Device settings' => sub {
     $t->post_ok('/device/LOCATED_DEVICE/settings', json => { foo => undef })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/foo', message => re(qr/expected string.*got null/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected one of string, number, boolean)' }) ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => undef })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/foo', message => re(qr/expected string.*got null/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected one of string, number, boolean)' }) ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/foo', json => { foo => { bar => 'baz' } })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/foo', message => re(qr/expected string.*got object/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected one of string, number, boolean)' }) ]);
 
     $t->post_ok('/device/LOCATED_DEVICE/settings/fizzle', json => { no_match => 'gibbet' })
         ->status_is(400);
@@ -1285,7 +1288,7 @@ subtest 'Device location' => sub {
     $t_build->post_ok('/device/TEST/location')
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/expected object/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected object)' }) ]);
 
     $t_build->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 42 })
         ->status_is(409)

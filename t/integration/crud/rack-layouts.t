@@ -89,7 +89,10 @@ $t->get_ok('/layout/1')
 $t->post_ok('/layout', json => { wat => 'wat' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/properties not allowed/i) } ]);
+    ->json_cmp_deeply('/details', [
+        superhashof({ error => 'missing properties: rack_id, hardware_product_id, rack_unit_start' }),
+        superhashof({ error => 'additional property not permitted' }),
+    ]);
 
 $t->get_ok("/rack/$rack_id/layout")
     ->status_is(200)

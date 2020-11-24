@@ -38,12 +38,18 @@ $t->get_ok('/rack_role/rack_role 42U')
 $t->post_ok('/rack_role', json => { wat => 'wat' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/Properties not allowed/) } ]);
+    ->json_cmp_deeply('/details', [
+        superhashof({ error => 'missing properties: name, rack_size' }),
+        superhashof({ error => 'additional property not permitted' }),
+    ]);
 
 $t->post_ok('/rack_role', json => { name => $_ })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof({ path => '/name', message => re(qr/does not match/i) }))
+    ->json_cmp_deeply('/details', [
+        superhashof({ error => 'missing property: rack_size' }),
+        superhashof({ error => 'pattern does not match' }),
+    ])
 foreach 'foo/bar', 'foo.bar';
 
 $t->post_ok('/rack_role', json => { name => 'r0le', rack_size => 2 })

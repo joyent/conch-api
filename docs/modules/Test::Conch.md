@@ -21,8 +21,6 @@ with extra settings or loaded with additional data.
 This is the attribute to copy if you want multiple Test::Conch objects to be able to talk to
 the same database.
 
-### validator
-
 ### fixtures
 
 Provides access to the fixtures defined in [Test::Conch::Fixtures](../modules/Test%3A%3AConch%3A%3AFixtures).

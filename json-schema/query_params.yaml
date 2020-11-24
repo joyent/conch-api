@@ -1,17 +1,16 @@
 ---
 $comment: 'Note that all parameters are parsed internally from the request URI as strings, so all type checks here use strings. When a query parameter is used more than once, its values are parsed as an arrayref. See ../modules/Conch::Plugin::JSONValidator#validate_query_params.'
-$schema: 'http://json-schema.org/draft-07/schema#'
+$schema: 'https://json-schema.org/draft/2019-09/schema'
 $defs:
   boolean_string:
     type: string
     enum: [ '0', '1' ]
   boolean_string_or_flag:
-    description: '"?foo" and "?foo=1" are true; "?foo=0" is false'
-    oneOf:
-      - const: ''
-      - $ref: '#/$defs/boolean_string'
+    $comment: '"?foo" and "?foo=1" are true; "?foo=0" is false'
+    type: string
+    enum: [ '', '0', '1' ]
   non_negative_integer_string:
-    description: see common.yaml#/$defs/non_negative_integer
+    $comment: see common.yaml#/$defs/non_negative_integer
     type: string
     pattern: '^[0-9]+$'
 
@@ -31,9 +30,7 @@ $defs:
       send_mail: '1'
     not:
       type: object
-      required:
-        - login_only
-        - api_only
+      required: [ login_only, api_only ]
       properties:
         login_only:
           const: '1'
@@ -44,11 +41,7 @@ $defs:
     additionalProperties: false
     properties:
       clear_tokens:
-        type: string
-        enum:
-          - none
-          - login_only
-          - all
+        enum: [ none, login_only, all ]
     default:
       clear_tokens: login_only
   DeactivateUser:
@@ -58,18 +51,14 @@ $defs:
     additionalProperties: false
     properties:
       clear_tokens:
-        type: string
-        enum:
-          - none
-          - login_only
-          - all
+        enum: [ none, login_only, all ]
       send_mail:
         $ref: '#/$defs/boolean_string'
     default:
       clear_tokens: login_only
       send_mail: '1'
   NotifyUsers:
-    description: used for operations where email can optionally be sent
+    $comment: used for operations where email can optionally be sent
     type: object
     additionalProperties: false
     properties:
@@ -92,12 +81,13 @@ $defs:
         type: string
         format: uri
     propertyNames:
-      $ref: common.yaml#/$defs/device_setting_key
+      $ref: common.yaml#/$defs/setting_key
     additionalProperties:
       type: string
   GetValidationState:
     type: object
-    additionalProperties: true  # may be used at the same time as other schemas
+    $ref: '#/$defs/FindDevice'
+    unevaluatedProperties: false
     properties:
       status:
         oneOf:
@@ -117,6 +107,7 @@ $defs:
       rack_only: '0'
   GetBuilds:
     type: object
+    additionalProperties: false
     properties:
       started:
         $ref: '#/$defs/boolean_string'
@@ -131,9 +122,12 @@ $defs:
           const: 0
         completed:
           const: 1
+  GetBuild:
+    $ref: '#/$defs/WithDeviceRackData'
+    unevaluatedProperties: false
   WithDeviceRackData:
     type: object
-    additionalProperties: true  # overlays with other schemas
+    additionalProperties: true  # used in non-terminal action: other parameters checked later
     properties:
       with_device_health:
         $ref: '#/$defs/boolean_string_or_flag'
@@ -143,15 +137,17 @@ $defs:
         $ref: '#/$defs/boolean_string_or_flag'
   FindDevice:
     type: object
-    additionalProperties: true  # may be used at the same time as other schemas
+    additionalProperties: true  # used in non-terminal action: other parameters checked later
     properties:
       phase_earlier_than:
+        $comment: usually defaults to 'production'
         oneOf:
           - const: ''
           - $ref: common.yaml#/$defs/device_phase
   BuildDevices:
     type: object
-    additionalProperties: true  # may be used at the same time as other schemas
+    $ref: '#/$defs/FindDevice'
+    unevaluatedProperties: false
     properties:
       health:
         oneOf:
@@ -217,8 +213,7 @@ $defs:
   HardwareProductSpecification:
     type: object
     additionalProperties: false
-    required:
-      - path
+    required: [ path ]
     properties:
       path:
         type: string

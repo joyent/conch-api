@@ -2,7 +2,7 @@
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/query_params/$schema_name' endpoints, or within conch itself, json-schema/query_params.yaml.\nNote that all parameters are parsed internally from the request URI as strings, so all type checks here use strings. When a query parameter is used more than once, its values are parsed as an arrayref. See ../modules/Conch::Plugin::JSONValidator#validate_query_params.",
   "$defs" : {
     "BuildDevices" : {
-      "additionalProperties" : true,
+      "$ref" : "#/$defs/FindDevice",
       "allOf" : [
         {
           "not" : {
@@ -76,7 +76,8 @@
           "$ref" : "#/$defs/boolean_string"
         }
       },
-      "type" : "object"
+      "type" : "object",
+      "unevaluatedProperties" : false
     },
     "BuildRacks" : {
       "additionalProperties" : false,
@@ -116,8 +117,7 @@
             "none",
             "login_only",
             "all"
-          ],
-          "type" : "string"
+          ]
         }
       },
       "type" : "object"
@@ -129,6 +129,7 @@
       "additionalProperties" : true,
       "properties" : {
         "phase_earlier_than" : {
+          "$comment" : "usually defaults to 'production'",
           "oneOf" : [
             {
               "const" : ""
@@ -141,7 +142,12 @@
       },
       "type" : "object"
     },
+    "GetBuild" : {
+      "$ref" : "#/$defs/WithDeviceRackData",
+      "unevaluatedProperties" : false
+    },
     "GetBuilds" : {
+      "additionalProperties" : false,
       "not" : {
         "properties" : {
           "completed" : {
@@ -188,12 +194,12 @@
         }
       },
       "propertyNames" : {
-        "$ref" : "common.json#/$defs/device_setting_key"
+        "$ref" : "common.json#/$defs/setting_key"
       },
       "type" : "object"
     },
     "GetValidationState" : {
-      "additionalProperties" : true,
+      "$ref" : "#/$defs/FindDevice",
       "properties" : {
         "status" : {
           "oneOf" : [
@@ -211,7 +217,8 @@
           ]
         }
       },
-      "type" : "object"
+      "type" : "object",
+      "unevaluatedProperties" : false
     },
     "HardwareProductSpecification" : {
       "additionalProperties" : false,
@@ -227,11 +234,11 @@
       "type" : "object"
     },
     "NotifyUsers" : {
+      "$comment" : "used for operations where email can optionally be sent",
       "additionalProperties" : false,
       "default" : {
         "send_mail" : "1"
       },
-      "description" : "used for operations where email can optionally be sent",
       "properties" : {
         "send_mail" : {
           "$ref" : "#/$defs/boolean_string"
@@ -263,8 +270,7 @@
             "none",
             "login_only",
             "all"
-          ],
-          "type" : "string"
+          ]
         },
         "send_mail" : {
           "$ref" : "#/$defs/boolean_string"
@@ -342,21 +348,19 @@
       "type" : "string"
     },
     "boolean_string_or_flag" : {
-      "description" : "\"?foo\" and \"?foo=1\" are true; \"?foo=0\" is false",
-      "oneOf" : [
-        {
-          "const" : ""
-        },
-        {
-          "$ref" : "#/$defs/boolean_string"
-        }
-      ]
+      "$comment" : "\"?foo\" and \"?foo=1\" are true; \"?foo=0\" is false",
+      "enum" : [
+        "",
+        "0",
+        "1"
+      ],
+      "type" : "string"
     },
     "non_negative_integer_string" : {
-      "description" : "see common.json#/$defs/non_negative_integer",
+      "$comment" : "see common.json#/$defs/non_negative_integer",
       "pattern" : "^[0-9]+$",
       "type" : "string"
     }
   },
-  "$schema" : "http://json-schema.org/draft-07/schema#"
+  "$schema" : "https://json-schema.org/draft/2019-09/schema"
 }

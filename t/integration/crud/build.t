@@ -23,21 +23,18 @@ $t->get_ok('/build')
 $t->post_ok('/build', json => { name => $_, admins => [ { user_id => create_uuid_str() } ] })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/name', message => re(qr/does not match/i) } ])
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'pattern does not match' }) ])
         foreach '', 'foo/bar', 'foo.bar';
 
 $t->post_ok('/build', json => { name => 'my first build', admins => [ {} ] })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', bag(map +{ path => '/admins/0/'.$_, message => re(qr/missing property/i) }, qw(user_id email)));
+    ->json_cmp_deeply('/details', [ map superhashof({ data_location => '/admins/0', error => 'missing property: '.$_ }), qw(user_id email) ]);
 
 $t->post_ok('/build', json => { name => 'my first build' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [
-            { path => '/admins', message => re(qr/missing property/i) },
-            { path => '/build_id', message => re(qr/missing property/i) },
-        ] );
+    ->json_cmp_deeply('/details', [ map superhashof({ error => 'missing property: '.$_ }), qw(admins build_id) ]);
 
 $t->post_ok('/build', json => {
         name => 'my first build',
@@ -45,7 +42,7 @@ $t->post_ok('/build', json => {
     })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/admins/0', message => re(qr/all of the oneof rules/i) } ] );
+    ->json_cmp_deeply('/details', superbagof(superhashof({ error => 'multiple subschemas are valid: 0, 1' })));
 
 $t->post_ok('/build', json => { name => 'my first build', admins => [ { user_id => create_uuid_str() } ] })
     ->status_is(409)
@@ -302,12 +299,15 @@ $t->get_ok('/build/my first build/user')
 $t->post_ok('/build/'.$build->{id}.'/user', json => { role => 'ro' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', bag(map +{ path => $_, message => re(qr/missing property/i) }, qw(/user_id /email)));
+    ->json_cmp_deeply('/details', [ map superhashof({ error => 'missing property: '.$_ }), qw(user_id email) ])
+    ->log_warn_like(qr/FAILED request payload validation for schema UserIdOrEmail/);
 
 $t->post_ok('/build/my first build/user', json => { email => $new_user->email })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/role', message => re(qr/missing property/i) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: role' }) ])
+    ->log_debug_is('Passed data validation for request schema UserIdOrEmail')
+    ->log_warn_like(qr/FAILED request payload validation for schema BuildAddUser/);
 
 $t->post_ok('/build/my first build/user', json => {
         email => $new_user->email,
@@ -551,12 +551,12 @@ $t->get_ok('/build/'.$build->{id}.'/organization')
 $t->post_ok('/build/'.$build->{id}.'/organization', json => { role => 'ro' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/organization_id', message => re(qr/missing property/i) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: organization_id' }) ]);
 
 $t->post_ok('/build/'.$build->{id}.'/organization', json => { organization_id => $organization->id })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/role', message => re(qr/missing property/i) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: role' }) ]);
 
 my $t3 = Test::Conch->new(pg => $t->pg);
 $t3->authenticate(email => $new_user2->email);
@@ -726,15 +726,12 @@ $t->get_ok('/build/our second build/rack')
 $t->post_ok('/build/our second build/device', json => [ { serial_number => 'FOO' } ])
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/0/sku', message => re(qr/missing property/i) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: sku' }) ]);
 
 $t->post_ok('/build/our second build/device', json => [ { sku => 'ugh' } ])
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [
-            { path => '/0/id', message => re(qr/missing property/i) },
-            { path => '/0/serial_number', message => re(qr/missing property/i) },
-        ]);
+    ->json_cmp_deeply('/details', [ map superhashof({ error => 'missing property: '.$_ }), qw(id serial_number) ]);
 
 $t->app->db_builds->search({ id => $build2->{id} })->update({ completed => \'now()', completed_user_id => $super_user->id, completed_status => 'failure' });
 
@@ -800,10 +797,7 @@ my $devices = $t->tx->res->json;
 $t->get_ok('/build/our second build/device?health=foo')
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
-    ->json_cmp_deeply('/details', [
-        { path => '/health', message => re(qr/Not in enum list/) },
-        { path => '/health', message => re(qr/Expected array - got string/) },
-    ]);
+    ->json_cmp_deeply('/details', superbagof(superhashof({ error => 'value does not match' })));
 
 $t->get_ok('/build/our second build/device?health=fail')
     ->status_is(200)
@@ -829,7 +823,7 @@ $t->get_ok('/build/our second build/device?phase=installation')
 $t->get_ok('/build/our second build/device?ids_only=1&serials_only=1')
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/', message => re(qr{should not match}i) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'subschema is valid' }) ]);
 
 $t->get_ok('/build/our second build/device?ids_only=1')
     ->status_is(200)

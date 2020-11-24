@@ -1,0 +1,58 @@
+---
+$schema: 'https://json-schema.org/draft/2019-09/schema'
+$comment: This is a superset of the draft-2019-09 meta-specification, that adds more restrictions that could have been in the schema but is not, and also additional constraints to ensure extraneous information is not accidentally added.
+$recursiveAnchor: true
+$ref: 'https://json-schema.org/draft/2019-09/schema'
+
+# properties not defined by the base schema will be disallowed
+unevaluatedProperties: false
+
+# tighter requirements for individual schema properties
+properties:
+  definitions: false
+  dependencies: false
+  format:
+    $comment: iri-reference and uri-template are not supported by JSON::Schema::Draft201909
+    enum: [ date-time, date, time, duration, email, idn-email, hostname, idn-hostname, ipv4, ipv6, uri, uri-reference, iri, uuid, json-pointer, relative-json-pointer, regex ]
+
+  $defs:
+    propertyNames:
+      $ref: common.yaml#/$defs/json_pointer_token
+    additionalProperties:
+      $comment: all definitions (of object type) must be tight enough to either allow additional properties (they are a schema for a non-terminal route), or to disallow additional properties in this or all evaluated schemas
+      allOf:
+        - if:
+            anyOf:
+              - required: [ type ]
+                properties:
+                  type: # the 'type' property is present
+                    anyOf:
+                      - const: object # and it is 'object'
+                      - type: array
+                        contains:
+                          const: object # or it is a list with 'object' as a member
+              - required: [ properties ]
+              - required: [ patternProperties ]
+              - required: [ propertyNames ]
+          then:
+            # then we *must* verify all properties, through one of these keywords
+            anyOf:
+              - required: [ additionalProperties ]
+              - required: [ unevaluatedProperties ]
+                properties:
+                  unevaluatedProperties:
+                    const: false
+        - if:
+            required: [ type ]
+            properties:
+              type: # the 'type' property is present
+                anyOf:
+                  - const: array # and it is 'array'
+                  - type: array
+                    contains:
+                      const: array # or it is a list with 'array' as a member
+          then:
+            # then we *must* verify all items (additionalItems, unevaluatedItems would also be ok)
+            required: [ items ]
+
+# vim: set sts=2 sw=2 et :

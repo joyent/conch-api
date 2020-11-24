@@ -31,12 +31,12 @@ $build2->create_related('organization_build_roles', { organization_id => $organi
 $t->post_ok('/login', json => { email => 'a', password => 'b' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/email', message => re(qr/does not match/i) } ]);
+    ->json_cmp_deeply('/details', superbagof(superhashof({ error => 'not an email' })));
 
 $t->post_ok('/login', json => { email => 'foo@bar.com' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ { path => '/password', message => re(qr/missing property/i) } ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: password' }) ]);
 
 $t->post_ok('/login', json => { email => 'foo@bar.com', password => 'b' })
     ->status_is(401)
@@ -83,7 +83,7 @@ subtest 'User' => sub {
     $t->post_ok('/user/me/settings/TEST', json => { TEST => 'bar', MORETEST => 'quux' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr/too many properties/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'more than 1 property' }) ]);
 
     $t->post_ok('/user/me/settings/FOO/BAR', json => { 'FOO/BAR' => 'TEST' })
         ->status_is(404)
@@ -109,17 +109,17 @@ subtest 'User' => sub {
     $t->post_ok('/user/me/settings', json => { TEST => undef })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/TEST', message => re(qr/expected string.*got null/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected string)' }) ]);
 
     $t->post_ok('/user/me/settings/TEST', json => { TEST => undef })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/TEST', message => re(qr/expected string.*got null/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected string)' }) ]);
 
     $t->post_ok('/user/me/settings/TEST', json => { TEST => { foo => 'bar' } })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/TEST', message => re(qr/expected string.*got object/i) } ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected string)' }) ]);
 
     $t->post_ok('/user/me/settings/TEST', json => { TEST => 'TEST2' })
         ->status_is(204);
@@ -578,7 +578,7 @@ subtest 'JWT authentication' => sub {
     $t_super->post_ok('/user/'.$ro_user->email.'/revoke?login_only=1&api_only=1')
         ->status_is(400)
         ->json_schema_is('QueryParamsValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/', message => re(qr{Should not match}) } ])
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'subschema is valid' }) ])
         ->email_not_sent;
 
     $t_super->post_ok('/user/'.$ro_user->email.'/revoke?api_only=1')
@@ -645,7 +645,7 @@ subtest 'modify another user' => sub {
     $t_super->post_ok('/user', json => { email => 'foo/bar@conch.joyent.us', name => 'foo' })
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ { path => '/email', message => re(qr/does not match/i) } ])
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'pattern does not match' }) ])
         ->email_not_sent;
 
     $t_super->post_ok('/user', json => { email => 'foo@joyent-com', name => 'foo' })

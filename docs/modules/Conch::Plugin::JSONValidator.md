@@ -44,6 +44,9 @@ against it (defaulting to the request's query parameters converted into a hashre
 appearing once are scalars, parameters appearing more than once have their values in an
 arrayref).
 
+Because values are being parsed from the URI string, all values are strings even if they look like
+numbers.
+
 On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
 [response.json#/$defs/QueryParamsValidationError](../json-schema/response.json#/$defs/QueryParamsValidationError) json response schema.
 
@@ -57,21 +60,14 @@ it (defaulting to the request's json payload).
 On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
 using the [response.json#/$defs/RequestValidationError](../json-schema/response.json#/$defs/RequestValidationError) json response schema.
 
-### get\_query\_params\_validator
+### json\_schema\_validator
 
-Returns a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object suitable for validating an endpoint's query parameters
-(when transformed into a hashref: see ["validate\_query\_params"](#validate_query_params)).
+Returns a [JSON::Schema::Draft201909](https://metacpan.org/pod/JSON%3A%3ASchema%3A%3ADraft201909) object with all JSON Schemas pre-loaded.
 
-Because values are being parsed from the URI string, all values are strings even if they look like
-numbers.
+### normalize\_evaluation\_result
 
-### get\_request\_validator
-
-Returns a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object suitable for validating an endpoint's json request payload.
-
-### get\_response\_validator
-
-Returns a [JSON::Validator](https://metacpan.org/pod/JSON%3A%3AValidator) object suitable for validating an endpoint's json response payload.
+Rewrite a [JSON::Schema::Draft201909::Result](https://metacpan.org/pod/JSON%3A%3ASchema%3A%3ADraft201909%3A%3AResult) to match the format used by
+[response.json#/$defs/JSONSchemaError](../json-schema/response.json#/$defs/JSONSchemaError).
 
 ## LICENSING
 

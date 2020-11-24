@@ -1,23 +1,19 @@
 ---
-$schema: 'http://json-schema.org/draft-07/schema#'
+$schema: 'https://json-schema.org/draft/2019-09/schema'
 $defs:
   Error:
-    description: this is the superset of all error schemas
+    $comment: this is the superset of all error schemas
     type: object
     additionalProperties: false
-    required:
-      - error
+    required: [ error ]
     properties:
       error:
         type: string
   ValidationError:
-    description: base structure for all query_param, request, response validation error responses
+    $comment: base structure for all query_param, request, response validation error responses
     type: object
     additionalProperties: false
-    required:
-      - error
-      - details
-      - schema
+    required: [ error, details, schema ]
     properties:
       error:
         type: string
@@ -27,78 +23,81 @@ $defs:
         uniqueItems: true
         minItems: 1
         items:
-          $ref: '#/$defs/JSONValidatorError'
+          $ref: '#/$defs/JSONSchemaError'
       schema:
         type: string
-        format: uri-reference
-        pattern: '/json_schema/[^/.~]+/[^/.~]+$'
+        format: uri
+        pattern: '/json_schema/[^/.~]+/[A-Za-z0-9_-]+$'
       data:
-        description: any supplementary details will be included here
+        $comment: any supplementary details will be included here
   QueryParamsValidationError:
-    allOf:
-      - $ref: '#/$defs/ValidationError'
-      - type: object
-        required:
-          - data
-          - error
-        properties:
-          error:
-            type: string
-            const: query parameters did not match required format
-          schema:
-            pattern: '/json_schema/query_params/[^/.~]+$'
-          data:
-            description: the parsed form of the query parameters, as they were passed to the schema for validation
-            type: object
-            additionalProperties:
-              anyOf:
-                - type: string
-                - type: array
-                  minItems: 2
-                  items:
-                    type: string
-  RequestValidationError:
-    allOf:
-      - $ref: '#/$defs/ValidationError'
-      - type: object
-        required:
-          - error
-        properties:
-          error:
-            type: string
-            const: request did not match required format
-          schema:
-            pattern: '/json_schema/request/[^/.~]+$'
-  JSONValidatorError:
-    description: 'serialized JSON::Validator::Error object: a single failure from validating a document with a JSON Schema'
+    $ref: '#/$defs/ValidationError'
     type: object
-    additionalProperties: false
-    required:
-      - path
-      - message
+    unevaluatedProperties: false
+    required: [ error, schema, data ]
     properties:
-      path:
+      error:
+        type: string
+        const: query parameters did not match required format
+      schema:
+        pattern: '/json_schema/query_params/[A-Za-z0-9_-]+$'
+      data:
+        $comment: the parsed form of the query parameters, as they were passed to the schema for validation
+        type: object
+        additionalProperties:
+          type: [ string, array ]
+          minItems: 2
+          items:
+            type: string
+  RequestValidationError:
+    $ref: '#/$defs/ValidationError'
+    type: object
+    unevaluatedProperties: false
+    required: [ error, schema ]
+    properties:
+      error:
+        type: string
+        const: request did not match required format
+      schema:
+        pattern: '/json_schema/request/[A-Za-z0-9_-]+$'
+  JSONSchemaError:
+    $comment: very similar to https://json-schema.org/draft/2019-09/output/schema#/$defs/outputUnit - see https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10.4.2
+    type: object
+    required: [ data_location, schema_location, error ]
+    additionalProperties: false
+    properties:
+      data_location:
         type: string
         format: json-pointer
-      message:
+      schema_location:
         type: string
+        format: json-pointer
+      absolute_schema_location:
+        type: string
+        format: uri
+      error:
+        $ref: common.yaml#/$defs/non_empty_string
+  JSONSchemaErrors:
+    type: array
+    uniqueItems: true
+    items:
+      $ref: '#/$defs/JSONSchemaError'
   Ping:
     type: object
     additionalProperties: false
-    required:
-      - status
+    required: [ status ]
     properties:
       status:
         const: ok
   LoginToken:
     type: object
     additionalProperties: false
-    required:
-      - jwt_token
+    required: [ jwt_token ]
     properties:
       jwt_token:
         type: string
-        pattern: '[^.]+\.[^.]+\.[^.]+'
+        pattern: '^[^.]+\.[^.]+\.[^.]+$'
+        contentMediaType: application/jwt
   DetailedDevice:
     type: object
     additionalProperties: false
@@ -140,14 +139,10 @@ $defs:
       health:
         $ref: common.yaml#/$defs/device_health
       hostname:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       last_seen:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
+        type: [ 'null', string ]
+        format: date-time
       system_uuid:
         oneOf:
           - type: 'null'
@@ -156,15 +151,11 @@ $defs:
         type: string
         format: date-time
       uptime_since:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
+        type: [ 'null', string ]
+        format: date-time
       validated:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
+        type: [ 'null', string ]
+        format: date-time
       phase:
         $ref: common.yaml#/$defs/device_phase
       links:
@@ -206,17 +197,11 @@ $defs:
             iface_type:
               type: string
             peer_mac:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             peer_port:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             peer_switch:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
       disks:
         $comment: disks is included only when device 'phase' is earlier than 'production'
         type: array
@@ -252,37 +237,21 @@ $defs:
                 - $ref: common.yaml#/$defs/non_negative_integer
                 - type: 'null'
             vendor:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             model:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             firmware:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             transport:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             health:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             drive_type:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             enclosure:
-              oneOf:
-                - type: integer
-                - type: 'null'
+              type: [ 'null', integer ]
             hba:
-              oneOf:
-                - type: integer
-                - type: 'null'
+              type: [ 'null', integer ]
             created:
               type: string
               format: date-time
@@ -290,32 +259,19 @@ $defs:
               type: string
               format: date-time
       latest_report:
-        description: the contents of the device report. Given its age we cannot provide a schema.
-        anyOf:
-          - type: 'null'
-          - $ref: device_report.yaml#/$defs/DeviceReport_v3_0_0
-          - type: object
+        $comment: the contents of the device report. Given its age we cannot provide a schema.
+        type: [ 'null', object ]
     if:
       properties:
         phase:
-          type: string
-          enum:
-            - integration
-            - installation
+          enum: [ integration, installation ]
     then:
-      required:
-        - location
-        - nics
-        - disks
+      required: [ location, nics, disks ]
     else:
-      not:
-        anyOf:
-          - required:
-            - location
-          - required:
-            - nics
-          - required:
-            - disks
+      properties:
+        location: false
+        nics: false
+        disks: false
   DeviceIds:
     type: array
     uniqueItems: true
@@ -371,14 +327,10 @@ $defs:
       health:
         $ref: common.yaml#/$defs/device_health
       hostname:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       last_seen:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
+        type: [ 'null', string ]
+        format: date-time
       system_uuid:
         oneOf:
           - type: 'null'
@@ -387,15 +339,11 @@ $defs:
         type: string
         format: date-time
       uptime_since:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
+        type: [ 'null', string ]
+        format: date-time
       validated:
-        oneOf:
-          - type: string
-            format: date-time
-          - type: 'null'
+        type: [ 'null', string ]
+        format: date-time
       phase:
         $ref: common.yaml#/$defs/device_phase
       links:
@@ -413,7 +361,7 @@ $defs:
           - $ref: common.yaml#/$defs/uuid
           - type: 'null'
       rack_name:
-        description: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
+        $comment: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
         oneOf:
           - $ref: common.yaml#/$defs/mojo_relaxed_placeholder
           - type: 'null'
@@ -424,41 +372,31 @@ $defs:
     if:
       properties:
         phase:
-          type: string
-          enum:
-            - integration
-            - installation
+          enum: [ integration, installation ]
     then:
-      required:
-        - rack_id
-        - rack_name
-        - rack_unit_start
+      required: [ rack_id, rack_name, rack_unit_start ]
     else:
-      not:
-        anyOf:
-          - required:
-            - rack_id
-          - required:
-            - rack_name
-          - required:
-            - rack_unit_start
+      properties:
+        rack_id: false
+        rack_name: false
+        rack_unit_start: false
   DeviceNics:
     type: array
     uniqueItems: true
     items:
       $ref: '#/$defs/DeviceNic'
   DeviceNic:
-    allOf:
-      - $ref: '#/$defs/DeviceNicFields'
-      - type: object
-        required:
-          - device_id
-          - mac
-          - iface_name
-          - iface_vendor
-          - state
-          - ipaddr
-          - mtu
+    $ref: '#/$defs/DeviceNicFields'
+    type: object
+    unevaluatedProperties: false
+    required:
+      - device_id
+      - mac
+      - iface_name
+      - iface_vendor
+      - state
+      - ipaddr
+      - mtu
   DeviceNicFields:
     type: object
     additionalProperties: false
@@ -474,35 +412,25 @@ $defs:
       iface_type:
         type: string
       state:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       ipaddr:
         oneOf:
           - $ref: common.yaml#/$defs/ipaddr
           - type: 'null'
       mtu:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: [ 'null', integer ]
   DeviceNicField:
-    allOf:
-      - $ref: '#/$defs/DeviceNicFields'
-      - type: object
-        minProperties: 1
-        maxProperties: 1
-      - not:
-          type: object
-          required:
-            - device_id
+    $ref: '#/$defs/DeviceNicFields'
+    unevaluatedProperties: false
+    type: object
+    minProperties: 1
+    maxProperties: 1
+    properties:
+      device_id: false
   DevicePXE:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - phase
-      - ipmi
-      - pxe
+    required: [ id, phase, ipmi, pxe ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -513,44 +441,32 @@ $defs:
           - type: 'null'
           - $ref: '#/$defs/DeviceLocation'
       ipmi:
-        oneOf:
-          - type: 'null'
-          - type: object
-            additionalProperties: false
-            required:
-              - mac
-              - ip
-            properties:
-              mac:
-                $ref: common.yaml#/$defs/macaddr
-              ip:
-                oneOf:
-                  - type: 'null'
-                  - $ref: common.yaml#/$defs/ipaddr
+        type: [ 'null', object ]
+        additionalProperties: false
+        required: [ mac, ip ]
+        properties:
+          mac:
+            $ref: common.yaml#/$defs/macaddr
+          ip:
+            oneOf:
+              - type: 'null'
+              - $ref: common.yaml#/$defs/ipaddr
       pxe:
-        oneOf:
-          - type: 'null'
-          - type: object
-            additionalProperties: false
-            required:
-              - mac
-            properties:
-              mac:
-                $ref: common.yaml#/$defs/macaddr
+        type: [ 'null', object ]
+        additionalProperties: false
+        required: [ mac ]
+        properties:
+          mac:
+            $ref: common.yaml#/$defs/macaddr
     if:
       properties:
         phase:
-          type: string
-          enum:
-            - integration
-            - installation
+          enum: [ integration, installation ]
     then:
-      required:
-        - location
+      required: [ location ]
     else:
-      not:
-        required:
-          - location
+      properties:
+        location: false
   DevicePXEs:
     type: array
     uniqueItems: true
@@ -559,9 +475,7 @@ $defs:
   DevicePhase:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - phase
+    required: [ id, phase ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -570,10 +484,7 @@ $defs:
   DeviceSku:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - hardware_product_id
-      - sku
+    required: [ id, hardware_product_id, sku ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -594,15 +505,15 @@ $defs:
       az:
         type: string
       datacenter_room:
-        # description: datacenter_room.alias
+        $comment: datacenter_room.alias
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       rack:
-        # description: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
+        $comment: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
         $ref: common.yaml#/$defs/mojo_relaxed_placeholder
       rack_unit_start:
         $ref: common.yaml#/$defs/positive_integer
       target_hardware_product:
-        description: Details of the hardware product the device is expected to be based on its current position and the rack layout.
+        $comment: Details of the hardware product the device is expected to be based on its current position and the rack layout.
         type: object
         additionalProperties: false
         required:
@@ -613,28 +524,25 @@ $defs:
           - hardware_vendor_id
         properties:
           id:
-            allOf:
-              - description: hardware product ID
-              - $ref: common.yaml#/$defs/uuid
+            $comment: hardware product ID
+            $ref: common.yaml#/$defs/uuid
           name:
-            description: Hardware product name
+            $comment: Hardware product name
             type: string
           alias:
-            description: Hardware product alias
+            $comment: Hardware product alias
             type: string
           sku:
             $ref: common.yaml#/$defs/mojo_standard_placeholder
           hardware_vendor_id:
             $ref: common.yaml#/$defs/uuid
   DeviceSetting:
-    allOf:
-      - $ref: '#/$defs/DeviceSettings'
-      - type: object
-        maxProperties: 1
+    $ref: '#/$defs/DeviceSettings'
+    maxProperties: 1
   DeviceSettings:
     type: object
     propertyNames:
-      $ref: common.yaml#/$defs/device_setting_key
+      $ref: common.yaml#/$defs/setting_key
     additionalProperties:
       type: string
   HardwareProducts:
@@ -659,9 +567,7 @@ $defs:
         alias:
           $ref: common.yaml#/$defs/mojo_standard_placeholder
         generation_name:
-          oneOf:
-            - type: string
-            - type: 'null'
+          type: [ 'null', string ]
         sku:
           $ref: common.yaml#/$defs/mojo_standard_placeholder
         created:
@@ -721,19 +627,13 @@ $defs:
       alias:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       prefix:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       hardware_vendor_id:
         $ref: common.yaml#/$defs/uuid
       generation_name:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       legacy_product_name:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       sku:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       specification:
@@ -751,8 +651,7 @@ $defs:
       validation_plan_id:
         $comment: this property will become nullable in v3.3 and removed in v4.0
         deprecated: true
-        allOf:
-          - $ref: common.yaml#/$defs/uuid
+        $ref: common.yaml#/$defs/uuid
       bios_firmware:
         type: string
       cpu_num:
@@ -762,9 +661,7 @@ $defs:
       dimms_num:
         type: integer
       hba_firmware:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       nics_num:
         type: integer
       psu_total:
@@ -776,53 +673,33 @@ $defs:
       sas_hdd_num:
         type: integer
       sas_hdd_size:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: [ 'null', integer ]
       sas_hdd_slots:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       sata_hdd_num:
         type: integer
       sata_hdd_size:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: [ 'null', integer ]
       sata_hdd_slots:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       sata_ssd_num:
         type: integer
       sata_ssd_size:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: [ 'null', integer ]
       sata_ssd_slots:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       sas_ssd_num:
         type: integer
       sas_ssd_size:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: [ 'null', integer ]
       sas_ssd_slots:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       nvme_ssd_num:
         type: integer
       nvme_ssd_size:
-        oneOf:
-          - type: integer
-          - type: 'null'
+        type: [ 'null', integer ]
       nvme_ssd_slots:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       raid_lun_num:
         type: integer
       usb_num:
@@ -916,13 +793,9 @@ $defs:
       category:
         type: string
       component:
-        oneOf:
-          - type: 'null'
-          - type: string
+        type: [ 'null', string ]
       hint:
-        oneOf:
-          - type: 'null'
-          - type: string
+        type: [ 'null', string ]
       message:
         type: string
       status:
@@ -1012,10 +885,8 @@ $defs:
       vendor:
         type: string
       vendor_name:
-        description: the vendor's name for the datacenter
-        oneOf:
-          - type: string
-          - type: 'null'
+        $comment: the vendor's name for the datacenter
+        type: [ 'null', string ]
       region:
         type: string
       location:
@@ -1050,7 +921,7 @@ $defs:
       alias:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       vendor_name:
-        # description: the vendor's name for the room
+        $comment: the vendor's name for the room
         $ref: common.yaml#/$defs/mojo_relaxed_placeholder
       datacenter_id:
         $ref: common.yaml#/$defs/uuid
@@ -1085,9 +956,7 @@ $defs:
       serial_number:
         $ref: common.yaml#/$defs/relay_serial_number
       name:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       created:
         type: string
         format: date-time
@@ -1106,16 +975,13 @@ $defs:
         type: string
         format: date-time
       version:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       user_id:
         $ref: common.yaml#/$defs/uuid
   Version:
     type: object
     additionalProperties: false
-    required:
-      - version
+    required: [ version ]
     properties:
       version:
         type: string
@@ -1149,7 +1015,7 @@ $defs:
       name:
         $ref: common.yaml#/$defs/mojo_relaxed_placeholder
       full_rack_name:
-        # description: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
+        $comment: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
         $ref: common.yaml#/$defs/mojo_relaxed_placeholder
       datacenter_room_id:
         $ref: common.yaml#/$defs/uuid
@@ -1160,9 +1026,7 @@ $defs:
       rack_role_name:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       serial_number:
-        oneOf:
-          - type: string
-          - type: 'null'
+        type: [ 'null', string ]
       asset_tag:
         oneOf:
           - $ref: common.yaml#/$defs/device_asset_tag
@@ -1241,7 +1105,7 @@ $defs:
       rack_id:
         $ref: common.yaml#/$defs/uuid
       rack_name:
-        # description: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
+        $comment: rack.full_rack_name (datacenter_room.vendor_name + ':' + rack.name)
         $ref: common.yaml#/$defs/mojo_relaxed_placeholder
       hardware_product_id:
         $ref: common.yaml#/$defs/uuid
@@ -1297,10 +1161,7 @@ $defs:
   NewUser:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - email
-      - name
+    required: [ id, email, name ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -1311,21 +1172,14 @@ $defs:
   UserError:
     type: object
     additionalProperties: false
-    required:
-      - error
-      - user
+    required: [ error, user ]
     properties:
       error:
         type: string
       user:
         type: object
         additionalProperties: false
-        required:
-          - id
-          - email
-          - name
-          - created
-          - deactivated
+        required: [ id, email, name, created, deactivated ]
         properties:
           id:
             $ref: common.yaml#/$defs/uuid
@@ -1337,10 +1191,8 @@ $defs:
             type: string
             format: date-time
           deactivated:
-            oneOf:
-              - type: string
-                format: date-time
-              - type: 'null'
+            type: [ 'null', string ]
+            format: date-time
   UserDetailed:
     type: object
     additionalProperties: false
@@ -1367,15 +1219,11 @@ $defs:
         type: string
         format: date-time
       last_login:
-        oneOf:
-          - type: 'null'
-          - type: string
-            format: date-time
+        type: [ 'null', string ]
+        format: date-time
       last_seen:
-        oneOf:
-          - type: 'null'
-          - type: string
-            format: date-time
+        type: [ 'null', string ]
+        format: date-time
       refuse_session_auth:
         type: boolean
       force_password_change:
@@ -1388,20 +1236,14 @@ $defs:
         items:
           type: object
           additionalProperties: false
-          required:
-            - id
-            - name
-            - description
-            - role
+          required: [ id, name, description, role ]
           properties:
             id:
               $ref: common.yaml#/$defs/uuid
             name:
               $ref: common.yaml#/$defs/mojo_standard_placeholder
             description:
-              oneOf:
-                - type: 'null'
-                - type: string
+              type: [ 'null', string ]
             role:
               $ref: common.yaml#/$defs/role
       builds:
@@ -1410,20 +1252,14 @@ $defs:
         items:
           type: object
           additionalProperties: false
-          required:
-            - id
-            - name
-            - description
-            - role
+          required: [ id, name, description, role ]
           properties:
             id:
               $ref: common.yaml#/$defs/uuid
             name:
               $ref: common.yaml#/$defs/mojo_standard_placeholder
             description:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             role:
               $ref: common.yaml#/$defs/role
             role_via_organization_id:
@@ -1469,14 +1305,12 @@ $defs:
   UserSettings:
     type: object
     propertyNames:
-      $ref: common.yaml#/$defs/user_setting_key
+      $ref: common.yaml#/$defs/setting_key
     additionalProperties:
       type: string
   UserSetting:
-    allOf:
-      - $ref: '#/$defs/UserSettings'
-      - type: object
-        maxProperties: 1
+    $ref: '#/$defs/UserSettings'
+    maxProperties: 1
   UserTokens:
     type: array
     uniqueItems: true
@@ -1485,12 +1319,7 @@ $defs:
   UserToken:
     type: object
     additionalProperties: false
-    required:
-      - name
-      - created
-      - last_used
-      - expires
-      - last_ipaddr
+    required: [ name, created, last_used, expires, last_ipaddr ]
     properties:
       name:
         type: string
@@ -1498,10 +1327,8 @@ $defs:
         type: string
         format: date-time
       last_used:
-        oneOf:
-          - type: 'null'
-          - type: string
-            format: date-time
+        type: [ 'null', string ]
+        format: date-time
       expires:
         type: string
         format: date-time
@@ -1512,24 +1339,17 @@ $defs:
   NewUserToken:
     type: object
     additionalProperties: false
-    required:
-      - token
-      - created
-      - last_used
-      - expires
-      - name
+    required: [ token, created, last_used, expires, name ]
     properties:
       token:
         type: string
-        pattern: '[^.]+\.[^.]+\.[^.]+'
+        pattern: '^[^.]+\.[^.]+\.[^.]+$'
       created:
         type: string
         format: date-time
       last_used:
-        oneOf:
-          - type: 'null'
-          - type: string
-            format: date-time
+        type: [ 'null', string ]
+        format: date-time
       expires:
         type: string
         format: date-time
@@ -1538,11 +1358,7 @@ $defs:
   HardwareVendor:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - name
-      - created
-      - updated
+    required: [ id, name, created, updated ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -1562,31 +1378,22 @@ $defs:
   DeviceReportRow:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - device_id
-      - report
-      - created
+    required: [ id, device_id, report, created ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
       device_id:
         $ref: common.yaml#/$defs/uuid
       report:
-        description: the contents of the device report. Given its age we cannot provide a schema.
-        oneOf:
-          - type: 'null'
-          - type: object
+        $comment: the contents of the device report. Given its age we cannot provide a schema.
+        type: [ 'null', object ]
       created:
         type: string
         format: date-time
   UserTerse:
     type: object
     additionalProperties: false
-    required:
-      - id
-      - name
-      - email
+    required: [ id, name, email ]
     properties:
       id:
         $ref: common.yaml#/$defs/uuid
@@ -1610,9 +1417,7 @@ $defs:
       name:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       description:
-        oneOf:
-          - type: 'null'
-          - type: string
+        type: [ 'null', string ]
       created:
         type: string
         format: date-time
@@ -1623,11 +1428,7 @@ $defs:
         items:
           type: object
           additionalProperties: false
-          required:
-            - id
-            - name
-            - email
-            - role
+          required: [ id, name, email, role ]
           properties:
             id:
               $ref: common.yaml#/$defs/uuid
@@ -1648,20 +1449,14 @@ $defs:
         items:
           type: object
           additionalProperties: false
-          required:
-            - id
-            - name
-            - description
-            - role
+          required: [ id, name, description, role ]
           properties:
             id:
               $ref: common.yaml#/$defs/uuid
             name:
               $ref: common.yaml#/$defs/mojo_standard_placeholder
             description:
-              oneOf:
-                - type: string
-                - type: 'null'
+              type: [ 'null', string ]
             role:
               $ref: common.yaml#/$defs/role
   Organizations:
@@ -1683,9 +1478,7 @@ $defs:
         name:
           $ref: common.yaml#/$defs/mojo_standard_placeholder
         description:
-          oneOf:
-            - type: 'null'
-            - type: string
+          type: [ 'null', string ]
         created:
           type: string
           format: date-time
@@ -1701,25 +1494,19 @@ $defs:
           items:
             type: object
             additionalProperties: false
-            required:
-              - id
-              - name
-              - description
-              - role
+            required: [ id, name, description, role ]
             properties:
               id:
                 $ref: common.yaml#/$defs/uuid
               name:
                 $ref: common.yaml#/$defs/mojo_standard_placeholder
               description:
-                oneOf:
-                  - type: string
-                  - type: 'null'
+                type: [ 'null', string ]
               role:
                 $ref: common.yaml#/$defs/role
   Build:
     type: object
-    additionalProperties: false
+    unevaluatedProperties: false
     required:
       - id
       - name
@@ -1737,17 +1524,13 @@ $defs:
       name:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       description:
-        oneOf:
-          - type: 'null'
-          - type: string
+        type: [ 'null', string ]
       created:
         type: string
         format: date-time
       started:
-        oneOf:
-          - type: 'null'
-          - type: string
-            format: date-time
+        type: [ 'null', string ]
+        format: date-time
       admins:
         type: array
         uniqueItems: true
@@ -1780,9 +1563,6 @@ $defs:
           $ref: common.yaml#/$defs/device_phase
         additionalProperties:
           $ref: common.yaml#/$defs/non_negative_integer
-      completed: true
-      completed_user: true
-      completed_status: true
     if:
       properties:
         completed:
@@ -1807,7 +1587,7 @@ $defs:
     uniqueItems: true
     items:
       type: object
-      additionalProperties: false
+      unevaluatedProperties: false
       required:
         - id
         - name
@@ -1823,21 +1603,15 @@ $defs:
         name:
           $ref: common.yaml#/$defs/mojo_standard_placeholder
         description:
-          oneOf:
-            - type: 'null'
-            - type: string
+          type: [ 'null', string ]
         created:
           type: string
           format: date-time
         started:
-          oneOf:
-            - type: 'null'
-            - type: string
-              format: date-time
+          type: [ 'null', string ]
+          format: date-time
         links:
           $ref: common.yaml#/$defs/links
-        completed: true
-        completed_status: true
       if:
         properties:
           completed:
@@ -1860,11 +1634,7 @@ $defs:
     items:
       type: object
       additionalProperties: false
-      required:
-        - id
-        - name
-        - email
-        - role
+      required: [ id, name, email, role ]
       properties:
         id:
           $ref: common.yaml#/$defs/uuid
@@ -1885,21 +1655,14 @@ $defs:
     items:
       type: object
       additionalProperties: false
-      required:
-        - id
-        - name
-        - description
-        - role
-        - admins
+      required: [ id, name, description, role, admins ]
       properties:
         id:
           $ref: common.yaml#/$defs/uuid
         name:
           type: string
         description:
-          oneOf:
-            - type: 'null'
-            - type: string
+          type: [ 'null', string ]
         role:
           $ref: common.yaml#/$defs/role
         admins:
@@ -1908,5 +1671,26 @@ $defs:
           minItems: 1
           items:
             $ref: '#/$defs/UserTerse'
+  JSONSchemaOnDisk:
+    $comment: this is the structure for responses from GET /json_schema/[query_params|request|response|common_device_report]/:name only
+    contentMediaType: application/schema+json
+    allOf:
+      - $comment: Here we are essentially adding on to the main "schema" definition defined in the metaschema.
+        # hack! we need an $id here in order to use this location as a $recursiveRef target
+        $id: /json_schema/response/JSONSchemaOnDisk_recurse
+        $recursiveAnchor: true
+        $ref: 'https://json-schema.org/draft/2019-09/schema'
+        properties:
+          $schema:
+            const: 'https://json-schema.org/draft/2019-09/schema'
+        unevaluatedProperties: false
+      - $comment: Here we are adding on additional requirements for the top level schema only.
+        type: object
+        # $id: the official path, e.g. https://conch.joyent.us/json_schema/request/Foo
+        required: [ $id, $schema ]
+        properties:
+          $id:
+            type: string
+            format: uri   # never merely a uri-reference
 
 # vim: set sts=2 sw=2 et :

@@ -64,7 +64,7 @@ requests and responses.
 
 =item * Controller/Action: L<Conch::Controller::JSONSchema/get>
 
-=item * Response: a JSON Schema (L<http://json-schema.org/draft-07/schema#>) (Content-Type is
+=item * Response: a JSON Schema (F<response.yaml#/$defs/JSONSchemaOnDisk>) (Content-Type is
 C<application/schema+json>).
 
 =back
