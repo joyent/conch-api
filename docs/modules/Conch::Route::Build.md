@@ -148,6 +148,7 @@ read-only role on the device (via a build or a relay registration, see
 - Requires system admin authorization, or the read/write role on the build and the
 read-write role on the device (via a build; see ["routes" in Conch::Route::Device](../modules/Conch%3A%3ARoute%3A%3ADevice#routes))
 - Controller/Action: ["add\_device" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_device)
+- Request: [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null)
 - Response: `204 No Content`
 
 ### `DELETE /build/:build_id_or_name/device/:device_id_or_serial_number`
@@ -174,6 +175,7 @@ read-only role on a build that contains the rack
 - Requires system admin authorization, or the read/write role on the build and the
 read-write role on a build that contains the rack
 - Controller/Action: ["add\_rack" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_rack)
+- Request: [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null)
 - Response: `204 No Content`
 
 ## LICENSING

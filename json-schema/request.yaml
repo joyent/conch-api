@@ -3,6 +3,8 @@ $schema: 'https://json-schema.org/draft/2019-09/schema'
 $defs:
   'Null':
     type: 'null'
+  Anything:
+    true
   DatacenterCreate:
     type: object
     additionalProperties: false

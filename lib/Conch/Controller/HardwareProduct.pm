@@ -96,8 +96,7 @@ Creates a new hardware_product.
 =cut
 
 sub create ($c) {
-    my $input = $c->validate_request('HardwareProductCreate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     for my $key (qw(name alias sku)) {
         next if not $input->{$key};
@@ -133,9 +132,7 @@ Updates an existing hardware_product.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_request('HardwareProductUpdate');
-    return if not $input;
-
+    my $input = $c->stash('request_data');
     my $hardware_product = $c->stash('hardware_product_rs')->single;
 
     for my $key (qw(name alias sku)) {
@@ -193,13 +190,10 @@ F<common.yaml#/$defs/HardwareProductSpecification>.
 =cut
 
 sub set_specification ($c) {
-  my $params = $c->validate_query_params('HardwareProductSpecification');
-  return if not $params;
-
   my $hardware_product_id = $c->stash('hardware_product_rs')->get_column('id')->single;
   my $rs = $c->db_hardware_products->search({ id => $hardware_product_id });
-  my $json = to_json($c->req->json);
-  my $jsonp = $params->{path};
+  my $json = to_json($c->stash('request_data'));
+  my $jsonp = $c->stash('query_params')->{path};
 
   my $specification_clause = $jsonp ? do {
     my @path = map s!~1!/!gr =~ s!~0!~!gr, split('/', $jsonp, -1);
@@ -238,8 +232,7 @@ F<common.yaml#/$defs/HardwareProductSpecification>.
 =cut
 
 sub delete_specification ($c) {
-  my $params = $c->validate_query_params('HardwareProductSpecification');
-  return if not $params;
+  my $params = $c->stash('query_params');
 
   my $hardware_product_id = $c->stash('hardware_product_rs')->get_column('id')->single;
   my $rs = $c->db_hardware_products->search({ id => $hardware_product_id });

@@ -130,6 +130,7 @@ C<< $c->render >> as a side-effect.
         $payload //= { error => 'Unauthorized' } if $code == 401;
         $payload //= { error => 'Forbidden' } if $code == 403;
         $payload //= { error => 'Entity Not Found' } if $code == 404;
+        $payload //= { error => 'Entity No Longer Available' } if $code == 410;
         $payload //= { error => 'Unimplemented' } if $code == 501;
 
         # https://tools.ietf.org/html/rfc7235#section-4.1

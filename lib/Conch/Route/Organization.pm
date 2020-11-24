@@ -23,10 +23,10 @@ sub routes {
     $organization->to({ controller => 'organization' });
 
     # GET /organization
-    $organization->get('/')->to('#get_all');
+    $organization->get('/')->to('#get_all', response_schema => 'Organizations');
 
     # POST /organization
-    $organization->require_system_admin->post('/')->to('#create');
+    $organization->require_system_admin->post('/')->to('#create', request_schema => 'OrganizationCreate');
 
     {
         # chainable action that extracts and looks up organization_id from the path
@@ -35,20 +35,21 @@ sub routes {
             ->to('#find_organization');
 
         # GET /organization/:organization_id_or_name
-        $with_organization->get('/')->to('#get');
+        $with_organization->get('/')->to('#get', response_schema => 'Organization');
 
         # POST /organization/:organization_id_or_name
-        $with_organization->post('/')->to('#update');
+        $with_organization->post('/')->to('#update', request_schema => 'OrganizationUpdate');
 
         # DELETE /organization/:organization_id_or_name
         $with_organization->require_system_admin->delete('/')->to('#delete');
 
         # POST /organization/:organization_id_or_name/user?send_mail=<1|0>
-        $with_organization->find_user_from_payload->post('/user')->to('organization#add_user');
+        $with_organization->find_user_from_payload->post('/user')
+            ->to('organization#add_user', query_params_schema => 'NotifyUsers', request_schema => 'OrganizationAddUser');
 
         # DELETE /organization/:organization_id_or_name/user/#target_user_id_or_email?send_mail=<1|0>
         $with_organization->under('/user/#target_user_id_or_email')->to('user#find_user')
-            ->delete('/')->to('organization#remove_user');
+            ->delete('/')->to('organization#remove_user', query_params_schema => 'NotifyUsers');
     }
 }
 

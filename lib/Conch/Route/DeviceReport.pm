@@ -22,9 +22,11 @@ sub routes {
 
     $device_report
         # POST /device_report
-        ->under(['POST'], '/')->to('device_report#process')
+        ->under(['POST'], '/')->to('device_report#process',
+            query_params_schema => 'ProcessDeviceReport',
+            request_schema => 'DeviceReport')
         # POST /device_report?no_save_db=1
-        ->post('/')->to('device_report#validate_report');
+        ->post('/')->to('device_report#validate_report', response_schema => 'ReportValidationResults');
 
     # chainable action that looks up device_report_id, saves a device_report_rs,
     # and checks device access authorization
@@ -35,7 +37,7 @@ sub routes {
         ->under('/')->to('device#find_device');
 
     # GET /device_report/:device_report_id
-    $with_device_report_and_device->get('/')->to('device_report#get');
+    $with_device_report_and_device->get('/')->to('device_report#get', response_schema => 'DeviceReportRow');
 }
 
 1;

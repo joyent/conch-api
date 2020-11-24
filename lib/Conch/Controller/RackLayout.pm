@@ -66,8 +66,7 @@ Creates a new rack_layout entry according to the passed-in specification.
 =cut
 
 sub create ($c) {
-    my $input = $c->validate_request('RackLayoutCreate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     if (not $c->db_racks->search({ id => $input->{rack_id} })->exists) {
         $c->log->debug('Could not find rack '.$input->{rack_id});
@@ -162,9 +161,7 @@ rack starting position.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_request('RackLayoutUpdate');
-    return if not $input;
-
+    my $input = $c->stash('request_data');
     my $layout = $c->stash('rack_layout_rs')->single;
 
     # only permit updating occupied layouts if the hardware_product_id is the only change,

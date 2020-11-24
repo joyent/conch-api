@@ -47,18 +47,21 @@ arrayref).
 Because values are being parsed from the URI string, all values are strings even if they look like
 numbers.
 
-On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
+On failure, an HTTP 400 response is prepared, using the
 [response.json#/$defs/QueryParamsValidationError](../json-schema/response.json#/$defs/QueryParamsValidationError) json response schema.
 
 Population of missing data from specified defaults is performed.
+Returns a boolean.
 
 ### validate\_request
 
 Given the name of a json schema in the request namespace, validate the provided payload against
 it (defaulting to the request's json payload).
 
-On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
-using the [response.json#/$defs/RequestValidationError](../json-schema/response.json#/$defs/RequestValidationError) json response schema.
+On failure, an HTTP 400 response is prepared, using the
+[response.json#/$defs/RequestValidationError](../json-schema/response.json#/$defs/RequestValidationError) json response schema.
+
+Returns a boolean.
 
 ### json\_schema\_validator
 
@@ -68,6 +71,43 @@ Returns a [JSON::Schema::Draft201909](https://metacpan.org/pod/JSON%3A%3ASchema%
 
 Rewrite a [JSON::Schema::Draft201909::Result](https://metacpan.org/pod/JSON%3A%3ASchema%3A%3ADraft201909%3A%3AResult) to match the format used by
 [response.json#/$defs/JSONSchemaError](../json-schema/response.json#/$defs/JSONSchemaError).
+
+### add\_link\_to\_schema
+
+Adds a response header of the form:
+
+```
+Link: <http://example.com/my-schema>; rel="describedby"
+```
+
+...indicating the JSON Schema that describes the response.
+
+## HOOKS
+
+### around\_action
+
+Before a controller action is executed, validate the incoming query parameters and request body
+payloads against the schemas in the stash variables `query_params_schema` and
+`request_schema`, respectively.
+
+Performs more checks when this ["feature" in Conch::Plugin::Features](../modules/Conch%3A%3APlugin%3A%3AFeatures#feature) is enabled:
+
+- `validate_all_requests`
+
+    Assumes the query parameters schema is [query_params.json#/$defs/Null](../json-schema/query_params.json#/$defs/Null) when not provided;
+    assumes the request body schema is [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null) when not provided (for
+    `POST`, `PUT`, `DELETE` requests)
+
+### after\_dispatch
+
+Runs after dispatching is complete.
+
+Performs more checks when this ["feature" in Conch::Plugin::Features](../modules/Conch%3A%3APlugin%3A%3AFeatures#feature) is enabled:
+
+- `validate_all_responses`
+
+    When not provided, assumes the response body schema is [response.json#/$defs/Null](../json-schema/response.json#/$defs/Null)
+    (for all 2xx responses), or [response.json#/$defs/Error](../json-schema/response.json#/$defs/Error) (for 4xx responses).
 
 ## LICENSING
 

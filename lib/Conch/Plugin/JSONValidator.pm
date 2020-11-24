@@ -7,6 +7,7 @@ use JSON::Schema::Draft201909 '0.017';
 use YAML::PP;
 use Mojo::JSON 'to_json';
 use Path::Tiny;
+use List::Util qw(any none first);
 
 =pod
 
@@ -59,10 +60,11 @@ arrayref).
 Because values are being parsed from the URI string, all values are strings even if they look like
 numbers.
 
-On success, returns the validated data; on failure, an HTTP 400 response is prepared, using the
+On failure, an HTTP 400 response is prepared, using the
 F<response.yaml#/$defs/QueryParamsValidationError> json response schema.
 
 Population of missing data from specified defaults is performed.
+Returns a boolean.
 
 =cut
 
@@ -72,6 +74,7 @@ Population of missing data from specified defaults is performed.
         if (not $result) {
             my @errors = $c->normalize_evaluation_result($result);
             $c->log->warn("FAILED query_params validation for schema $schema_name: ".to_json(\@errors));
+            $c->stash('response_schema', 'QueryParamsValidationError');
             return $c->status(400, {
                 error => 'query parameters did not match required format',
                 data => $data,
@@ -89,7 +92,7 @@ Population of missing data from specified defaults is performed.
         }
 
         $c->log->debug("Passed data validation for query_params schema $schema_name");
-        return $data;
+        return 1;
     });
 
 =head2 validate_request
@@ -97,8 +100,10 @@ Population of missing data from specified defaults is performed.
 Given the name of a json schema in the request namespace, validate the provided payload against
 it (defaulting to the request's json payload).
 
-On success, returns the validated payload data; on failure, an HTTP 400 response is prepared,
-using the F<response.yaml#/$defs/RequestValidationError> json response schema.
+On failure, an HTTP 400 response is prepared, using the
+F<response.yaml#/$defs/RequestValidationError> json response schema.
+
+Returns a boolean.
 
 =cut
 
@@ -108,6 +113,7 @@ using the F<response.yaml#/$defs/RequestValidationError> json response schema.
         if (not $result) {
             my @errors = $c->normalize_evaluation_result($result);
             $c->log->warn("FAILED request payload validation for schema $schema_name: ".to_json(\@errors));
+            $c->stash('response_schema', 'RequestValidationError');
             return $c->status(400, {
                 error => 'request did not match required format',
                 details => \@errors,
@@ -117,7 +123,7 @@ using the F<response.yaml#/$defs/RequestValidationError> json response schema.
         }
 
         $c->log->debug("Passed data validation for request schema $schema_name");
-        return $data;
+        return 1;
     });
 
 =head2 json_schema_validator
@@ -164,6 +170,171 @@ F<response.yaml#/$defs/JSONSchemaError>.
                 }),
             error => $_->{error},
         }, $result->TO_JSON->{errors}->@*;
+    });
+
+=head2 add_link_to_schema
+
+Adds a response header of the form:
+
+    Link: <http://example.com/my-schema>; rel="describedby"
+
+...indicating the JSON Schema that describes the response.
+
+=cut
+
+    $app->helper(add_link_to_schema => sub ($c, $schema) {
+        my $url = $schema =~ /^http/ ? $schema : $c->url_for('/json_schema/response/'.$schema);
+        $c->res->headers->link('<'.$url.'>; rel="describedby"');
+    });
+
+
+=head1 HOOKS
+
+=head2 around_action
+
+Before a controller action is executed, validate the incoming query parameters and request body
+payloads against the schemas in the stash variables C<query_params_schema> and
+C<request_schema>, respectively.
+
+Performs more checks when this L<Conch::Plugin::Features/feature> is enabled:
+
+=over 4
+
+=item * C<validate_all_requests>
+
+Assumes the query parameters schema is F<query_params.yaml#/$defs/Null> when not provided;
+assumes the request body schema is F<request.yaml#/$defs/Null> when not provided (for
+C<POST>, C<PUT>, C<DELETE> requests)
+
+=back
+
+=cut
+
+    $app->hook(around_action => sub ($next, $c, $action, $last) {
+        $c->stash('validated', { map +($_.'_schema' => []), qw(query_params request) })
+            if not $c->stash('validated');
+
+        my $query_params_schema = $c->stash('query_params_schema');
+        $query_params_schema = 'Null'
+            if not $query_params_schema and $last and not $c->stash('query_params')
+                and $c->feature('validate_all_requests');
+
+        if ($query_params_schema
+                and none { $_ eq $query_params_schema } $c->stash('validated')->{query_params_schema}->@*) {
+            my $query_params = $c->req->query_params->to_hash;
+            return if not $c->validate_query_params($query_params_schema, $query_params);
+            $c->stash('query_params', $query_params);
+
+            # remember that we already ran this validation, so we don't do it again in a
+            # subsequent route in the chain
+            push $c->stash('validated')->{query_params_schema}->@*, $query_params_schema;
+        }
+
+        # TODO: also validate the schema(s) specified as the parameter when Content-Type
+        # is application/schema+json or application/schema-instance+json
+
+        my $request_schema = $c->stash('request_schema');
+        my $method = $c->req->method;
+        $request_schema = 'Null'
+            if not $request_schema and $last and not $c->stash('request_data')
+                and $c->feature('validate_all_requests');
+
+        if ($request_schema
+                and any { $method eq $_ } qw(POST PUT DELETE)
+                and none { $_ eq $request_schema } $c->stash('validated')->{request_schema}->@*) {
+            my $request_data = ($c->req->headers->content_type // '') =~ m{application/(?:[a-z-]+\+)?json}i ? $c->req->json : undef;
+            return if not $c->validate_request($request_schema, $request_data);
+            $c->stash('request_data', $request_data);
+
+            # remember that we already ran this validation, so we don't do it again in a
+            # subsequent route in the chain
+            push $c->stash('validated')->{request_schema}->@*, $request_schema;
+        }
+
+        return $next->();
+    });
+
+=head2 after_dispatch
+
+Runs after dispatching is complete.
+
+Performs more checks when this L<Conch::Plugin::Features/feature> is enabled:
+
+=over 4
+
+=item * C<validate_all_responses>
+
+When not provided, assumes the response body schema is F<response.yaml#/$defs/Null>
+(for all 2xx responses), or F<response.yaml#/$defs/Error> (for 4xx responses).
+
+=back
+
+=cut
+
+    $app->hook(after_dispatch => sub ($c) {
+        return if ($c->res->headers->content_type // '')
+            !~ m{application/(?:schema(?:-instance)?\+)?json}i;
+
+        my $res_code = $c->res->code;
+        return if not ($res_code >= 200 and $res_code < 300)
+            and not ($res_code >= 400 and $res_code < 500);
+
+        my $response_schema = $c->stash('response_schema');
+        $response_schema = 'Error'
+            if (not defined $response_schema or $response_schema !~ /Error$/)
+                and $res_code >= 400 and $res_code < 500 and $c->res->json;
+        $response_schema //= 'Null';
+        $c->log->fatal('failed to specify exact response_schema used') if ref $response_schema;
+
+        $c->add_link_to_schema($response_schema)
+            if not ref $response_schema and $response_schema ne 'Null'
+                and not $c->res->headers->link;
+
+        return if not $c->feature('validate_all_responses');
+
+        my $validator = $c->json_schema_validator;
+        my $schema = !ref($response_schema)
+            ? ($response_schema =~ /^http/ ? $response_schema
+                : 'response.yaml#/$defs/'.$response_schema)
+            : ref($response_schema) ne 'ARRAY' ? $response_schema
+            : { anyOf => [ map +{ '$ref' => 'response.yaml#/$defs/'.$_ }, $response_schema->@* ] };
+
+        # we don't track successes or failures when multiple schemas are provided, because we
+        # don't know which schema is intended to match
+
+        my @errors;
+        $c->stash('response_validation_errors', { $response_schema => \@errors })
+            if not ref $response_schema;
+        my $schema_description = ref($response_schema) eq 'ARRAY'
+            ? 'anyOf: ['.join(',',$response_schema->@*).']'
+            : $response_schema;
+
+        if (not (my $result = $validator->evaluate($c->res->json, $schema))) {
+            @errors = $c->normalize_evaluation_result($result);
+
+            if (my $notfound = first { $_->{error} =~ /EXCEPTION: unable to find resource / } @errors) {
+                $c->log->fatal($notfound->{error} =~ s/^EXCEPTION: //r);
+                return;
+            }
+
+            my $level = $INC{'Test/Conch.pm'} ? 'fatal' : 'warn';
+            $c->log->$level('FAILED response payload validation for schema '.$schema_description.': '
+                .to_json(\@errors));
+
+            if ($c->feature('rollbar')) {
+                my $endpoint = join '#', map $_//'', ($c->match->stack->[-1]//{})->@{qw(controller action)};
+                $c->send_message_to_rollbar(
+                    'error',
+                    'failed response payload validation for schema '.$schema_description,
+                    { endpoint => $endpoint, url => $c->req->url, errors => \@errors },
+                    [ 'response schema validation failed', $endpoint ],
+                );
+            }
+            return;
+        }
+
+        $c->log->debug('Passed data validation for response schema '.$schema_description);
+        return;
     });
 }
 

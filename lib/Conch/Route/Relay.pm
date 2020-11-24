@@ -23,15 +23,15 @@ sub routes {
     $relay->to({ controller => 'relay' });
 
     # POST /relay/:relay_serial_number/register
-    $relay->post('/:relay_serial_number/register')->to('#register');
+    $relay->post('/:relay_serial_number/register')->to('#register', request_schema => 'RegisterRelay');
 
     # GET /relay
-    $relay->require_system_admin->get('/')->to('#get_all');
+    $relay->require_system_admin->get('/')->to('#get_all', response_schema => 'Relays');
 
     my $with_relay = $relay->under('/:relay_id_or_serial_number')->to('#find_relay');
 
     # GET /relay/:relay_id_or_serial_number
-    $with_relay->get('/')->to('#get');
+    $with_relay->get('/')->to('#get', response_schema => 'Relay');
 
     # DELETE /relay/:relay_id_or_serial_number
     $with_relay->require_system_admin->delete('/')->to('#delete');

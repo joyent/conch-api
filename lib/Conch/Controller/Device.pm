@@ -32,8 +32,7 @@ the provided phase (or later).
 =cut
 
 sub find_device ($c) {
-    my $params = $c->validate_query_params('FindDevice');
-    return if not $params;
+    my $params = $c->stash('query_params');
 
     my $rs = $c->db_devices;
     my $identifier;
@@ -197,8 +196,7 @@ Response uses the Devices json schema.
 =cut
 
 sub lookup_by_other_attribute ($c) {
-    my $params = $c->validate_query_params('GetDeviceByAttribute');
-    return if not $params;
+    my $params = $c->stash('query_params');
 
     my ($key, $value) = $params->%*;
     $c->log->debug('looking up device by '.$key.' = '.$value);
@@ -303,8 +301,7 @@ Sets the C<asset_tag> field on a device
 =cut
 
 sub set_asset_tag ($c) {
-    my $input = $c->validate_request('DeviceAssetTag');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     my $device = $c->stash('device_rs')->single;
 
@@ -324,9 +321,6 @@ Sets the C<validated> field on a device unless that field has already been set
 =cut
 
 sub set_validated ($c) {
-    $c->validate_request('Null');
-    return if $c->res->code;
-
     my $device = $c->stash('device_rs')->single;
     my $device_id = $device->id;
     return $c->status(204) if defined($device->validated);
@@ -369,9 +363,7 @@ sub get_sku($c) {
 =cut
 
 sub set_phase ($c) {
-    my $input = $c->validate_request('DevicePhase');
-    return if not $input;
-
+    my $input = $c->stash('request_data');
     my $device = $c->stash('device_rs')->single;
 
     $device->set_columns($input);
@@ -390,8 +382,7 @@ Appends the provided link(s) to the device record.
 =cut
 
 sub add_links ($c) {
-    my $input = $c->validate_request('DeviceLinks');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     # only perform the update if not all links are already present
     $c->stash('device_rs')
@@ -412,8 +403,7 @@ with a null payload, removes all links.
 =cut
 
 sub remove_links ($c) {
-    my $input = $c->validate_request('DeviceLinksOrNull');
-    return if $c->res->code;
+    my $input = $c->stash('request_data');
 
     if ($input) {
         $c->stash('device_rs')
@@ -443,9 +433,7 @@ Also requires read/write access to the old and new builds.
 =cut
 
 sub set_build ($c) {
-    my $input = $c->validate_request('DeviceBuild');
-    return if not $input;
-
+    my $input = $c->stash('request_data');
     my $device = $c->stash('device_rs')->single;
     return $c->status(204) if $device->build_id and $device->build_id eq $input->{build_id};
 
@@ -475,9 +463,7 @@ Requires admin access to the device.
 =cut
 
 sub set_hardware_product ($c) {
-    my $input = $c->validate_request('DeviceHardware');
-    return if not $input;
-
+    my $input = $c->stash('request_data');
     my $device = $c->stash('device_rs')->single;
 
     my $hardware_product = $c->db_hardware_products->search({

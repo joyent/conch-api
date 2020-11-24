@@ -82,10 +82,8 @@ aborting with HTTP 410 or HTTP 404 if not found.
 
     # provides a route to chain to that looks up the user provided in the payload
     $root->add_shortcut(find_user_from_payload => sub ($r) {
-        $r->under('/', sub ($c) {
-            my $input = $c->validate_request('UserIdOrEmail');
-            return if not $input;
-
+        $r->under('/', { request_schema => 'UserIdOrEmail' }, sub ($c) {
+            my $input = $c->stash('request_data');
             $c->stash('target_user_id_or_email', $input->{user_id} // $input->{email});
             return 1;
         })
@@ -115,16 +113,16 @@ Returns the root node.
     $root->add_type(json_pointer_token => qr{[A-Za-z0-9_-]+});
 
     # GET /ping
-    $root->get('/ping', sub ($c) { $c->status(200, { status => 'ok' }) });
+    $root->get('/ping', { response_schema => 'Ping' }, sub ($c) { $c->status(200, { status => 'ok' }) });
 
     # GET /version
-    $root->get('/version', sub ($c) {
+    $root->get('/version', { response_schema => 'Version' }, sub ($c) {
         $c->res->headers->last_modified(Mojo::Date->new($c->startup_time->epoch));
         $c->status(200, { version => $c->version_tag })
     });
 
     # POST /login
-    $root->post('/login')->to('login#login');
+    $root->post('/login')->to('login#login', request_schema => 'Login', response_schema => 'LoginToken');
 
     # * /json_schema/...
     Conch::Route::JSONSchema->unsecured_routes($root->any('/json_schema'));
@@ -134,13 +132,13 @@ Returns the root node.
     my $secured = $root->under('/')->to('login#authenticate');
 
     # POST /logout
-    $secured->post('/logout')->to('login#logout');
+    $secured->post('/logout')->to('login#logout', request_schema => 'Null');
 
     # GET /me
     $secured->get('/me', sub ($c) { $c->status(204) });
 
     # POST /refresh_token
-    $secured->post('/refresh_token')->to('login#refresh_token');
+    $secured->post('/refresh_token')->to('login#refresh_token', request_schema => 'Null', response_schema => 'LoginToken');
 
     Conch::Route::Device->routes($secured->any('/device'), $app);
     Conch::Route::DeviceReport->routes($secured->any('/device_report'));
@@ -171,7 +169,7 @@ Returns the root node.
     my @top_level_paths = (uniqstr (map find_paths($_), $root->children->@*),
         qw(validation workspace));
 
-    $root->any('/*all', sub ($c) {
+    $root->any('/*all', { query_params_schema => 'Anything', request_schema => 'Anything' }, sub ($c) {
         $c->log->warn('no endpoint found for: '.$c->req->method.' '.$c->req->url->path);
 
         if (any { $c->req->url->path =~ m{^/$_\b} } @top_level_paths) {

@@ -20,8 +20,7 @@ not already exist, or is updated with additional payload information otherwise.
 =cut
 
 sub register ($c) {
-    my $input = $c->validate_request('RegisterRelay');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     return $c->status(400, { error => 'serial number in path doesn\'t match payload data' })
         if $c->stash('relay_serial_number') ne $input->{serial};

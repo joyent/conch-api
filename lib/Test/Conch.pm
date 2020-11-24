@@ -104,6 +104,8 @@ sub new {
             mode => $ENV{MOJO_MODE} // 'test',
             features => {
                 no_db => ($pg ? 0 : 1),
+                validate_all_requests => 1,
+                validate_all_responses => 1,
                 ($args->{config}//{})->{features} ? delete($args->{config}{features})->%* : (),
             },
             database => {
@@ -233,6 +235,7 @@ Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
  1. successful GET requests should not return 201, 202 (ideally just 200, 204)
  2. successful DELETE requests should not return 201
  3. 201 and most 3xx responses should have a Location header
+ 3.1. 2xx and 4xx JSON responses should have a Link header
  4. HEAD requests should not have body content
  5. 200, 203, 206, 207 and most 4xx responses should have body content
  6. 201, 204, 205 and most 3xx responses should not have body content
@@ -267,6 +270,11 @@ sub status_is ($self, $status, $desc = undef) {
     # 3.
     $self->test('fail', $code.' responses should have a Location header')
         if any { $code == $_ } 201,301,302,303,305,307,308 and not $self->header_exists('Location');
+
+    # 3.1.
+    $self->test('fail', $code.' responses should have a Link header')
+        if ($code >= 200 and $code < 300 or $code >= 400 and $code < 500)
+            and $self->tx->res->json and not $self->tx->res->headers->link;
 
     # 4.
     $self->test('fail', 'HEAD requests should not have response body content')
@@ -330,27 +338,44 @@ sub json_schema_is ($self, $schema, $message = undef) {
     my $data = $self->tx->res->json;
     return $self->test('fail', 'No JSON in response') unless $data;
 
-    my $schema_name;
+    my ($schema_name, $result, @errors);
     if (ref $schema) {
         1;
     }
     elsif ($schema =~ /^http/) {
         $schema_name = $schema;
     }
+    # we may have already validated against this response schema in an around_action hook
+    elsif (exists $self->stash->{response_validation_errors}
+            and exists $self->stash->{response_validation_errors}{$schema}) {
+        @errors = $self->stash->{response_validation_errors}{$schema}->@*;
+        ($schema_name, $schema, $result) = ($schema, undef, !@errors);
+    }
     else {
         ($schema_name, $schema) = ($schema, 'response.yaml#/$defs/'.$schema);
     }
 
+    if ($schema_name) {
+        my $re = $schema_name =~ /^http/ ? qr{<([^>]+)>;} : qr{/json_schema/response/(\w+)>;};
+        my ($name_in_link) = ($self->tx->res->headers->link // '') =~ /$re/;
+        $self->test('is', $name_in_link, $schema_name, 'schema name in Link header matches actual response schema') if $schema_name;
+    }
+
     $schema_name //= '<inlined>';
-    my $result = $self->app->json_schema_validator->evaluate($data, $schema);
-    my @errors = $self->app->normalize_evaluation_result($result);
+    if (not defined $result) {
+        $result = $self->app->json_schema_validator->evaluate($data, $schema);
+        @errors = $self->app->normalize_evaluation_result($result);
+    }
 
     return $self->test('ok', $result, $message // 'JSON response has no schema validation errors')
         ->or(sub ($self) {
             Test::More::diag(
                 @errors.' error(s) occurred when validating '
                 .$self->tx->req->method.' '.$self->tx->req->url->path
-                .' with schema '.$schema_name.":\n\t"
+                .' with schema '.$schema_name
+                .($schema_name eq 'Null' || $schema_name eq 'Error'
+                    ? ' -- perhaps you forgot to do $c->stash(\'response_schema\', $real_schema_name) ?' : '')
+                .":\n\t"
                 .Data::Dumper->new([ \@errors ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump);
 
             0;
@@ -785,7 +810,7 @@ sub _request_ok ($self, @args) {
 
     my $dump_log;
     my $log_history = $self->app->log->history;
-    if (any { $_->[1] eq 'fatal' } $log_history->@*) {
+    if (not $ENV{SKIP_LOG_FATAL_TEST} and any { $_->[1] eq 'fatal' } $log_history->@*) {
         local $Test::Builder::Level = $Test::Builder::Level + 1;
         $self->test('fail', 'should not have gotten a fatal log message');
         $dump_log = 1;

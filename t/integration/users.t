@@ -361,6 +361,17 @@ subtest 'User' => sub {
         ->location_is('/user/me/token/an api token');
     my $api_token = $t->tx->res->json->{token};
 
+    $t->post_ok('/user/me/password?clear_tokens=whargarbl', { Authorization => 'Bearer '.$login_token[0] })
+        ->status_is(400)
+        ->json_schema_is('QueryParamsValidationError')
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'value does not match' }) ])
+        ->email_not_sent;
+
+    $t->post_ok('/user/me/password', { Authorization => 'Bearer '.$login_token[0] }, json => { password => '' })
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'length is less than 1' }) ])
+        ->email_not_sent;
+
     $t->post_ok('/user/me/password?clear_tokens=none', { Authorization => 'Bearer '.$login_token[0] }, json => { password => 'øƕḩẳȋ' })
         ->status_is(204, 'changed password')
         ->log_info_is('updated password for user rO_USer ('.$ro_user->email.') at their request')
@@ -532,6 +543,11 @@ subtest 'JWT authentication' => sub {
     is($ro_user->related_resultset('user_session_tokens')->count, 1, 'just one token presently');
     my $token_id = $ro_user->related_resultset('user_session_tokens')->get_column('id')->single;
     is($t->tx->res->cookie('conch')->expires, 1, 'session is expired');
+
+    $t->post_ok('/refresh_token', { Authorization => 'Bearer '.$jwt_token }, json => {})
+        ->status_is(400)
+        ->json_schema_is('RequestValidationError')
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'wrong type (expected null)' }) ]);
 
     $t->post_ok('/refresh_token', { Authorization => 'Bearer '.$jwt_token })
         ->status_is(200)

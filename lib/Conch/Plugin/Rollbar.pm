@@ -224,9 +224,6 @@ sub _request_data($c) {
                 body    => $c->req->text,
                 remote_address => $c->tx->remote_address,
                 $c->req->reverse_proxy ? ( proxy_address => $c->tx->original_remote_address ) : (),
-                # TODO, when we store these values in the stash via a common shortcut:
-                # GET => $c->stash('parsed_query_params'),
-                # POST => $c->stash('parsed_body_params'),
             },
             $c->stash('action') ? (context => ($c->stash('controller')//'').'#'.$c->stash('action')): (),
         ) : (),

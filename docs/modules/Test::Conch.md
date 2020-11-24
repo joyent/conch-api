@@ -63,6 +63,7 @@ Wrapper around ["status\_is" in Test::Mojo](https://metacpan.org/pod/Test%3A%3AM
 1. successful GET requests should not return 201, 202 (ideally just 200, 204)
 2. successful DELETE requests should not return 201
 3. 201 and most 3xx responses should have a Location header
+3.1. 2xx and 4xx JSON responses should have a Link header
 4. HEAD requests should not have body content
 5. 200, 203, 206, 207 and most 4xx responses should have body content
 6. 201, 204, 205 and most 3xx responses should not have body content

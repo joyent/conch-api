@@ -25,8 +25,7 @@ Response uses the Builds json schema.
 =cut
 
 sub get_all ($c) {
-    my $params = $c->validate_query_params('GetBuilds');
-    return if not $params;
+    my $params = $c->stash('query_params');
 
     my $rs = $c->db_builds->order_by('build.name');
 
@@ -55,8 +54,7 @@ Requires the user to be a system admin.
 =cut
 
 sub create ($c) {
-    my $input = $c->validate_request('BuildCreate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     return $c->status(409, { error => 'a build already exists with that name' })
         if $c->db_builds->search({ $input->%{name} })->exists;
@@ -153,8 +151,7 @@ Response uses the Build json schema.
 =cut
 
 sub get ($c) {
-    my $params = $c->validate_query_params('GetBuild');
-    return if not $params;
+    my $params = $c->stash('query_params');
 
     my $rs = $c->stash('build_rs')
         ->search({ 'user_build_roles.role' => 'admin' })
@@ -180,8 +177,7 @@ Requires the 'admin' role on the build.
 =cut
 
 sub update ($c) {
-    my $input = $c->validate_request('BuildUpdate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     my $build = $c->stash('build_rs')->single;
     my %old_columns = $build->get_columns;
@@ -249,8 +245,7 @@ Requires the 'admin' role on the build.
 =cut
 
 sub add_links ($c) {
-  my $input = $c->validate_request('BuildLinks');
-  return if not $input;
+  my $input = $c->stash('request_data');
 
   # only perform the update if not all links are already present
   $c->stash('build_rs')
@@ -269,8 +264,7 @@ with a null payload, removes all links.
 =cut
 
 sub remove_links ($c) {
-  my $input = $c->validate_request('BuildLinksOrNull');
-  return if $c->res->code;
+  my $input = $c->stash('request_data');
 
   if ($input) {
     $c->stash('build_rs')
@@ -323,12 +317,8 @@ This endpoint is nearly identical to L<Conch::Controller::Organization/add_user>
 =cut
 
 sub add_user ($c) {
-    my $params = $c->validate_query_params('NotifyUsers');
-    return if not $params;
-
-    my $input = $c->validate_request('BuildAddUser');
-    return if not $input;
-
+    my $params = $c->stash('query_params');
+    my $input = $c->stash('request_data');
     my $user = $c->stash('target_user');
     my $build_name = $c->stash('build_name') // $c->stash('build_rs')->get_column('name')->single;
 
@@ -412,9 +402,7 @@ This endpoint is nearly identical to L<Conch::Controller::Organization/remove_us
 =cut
 
 sub remove_user ($c) {
-    my $params = $c->validate_query_params('NotifyUsers');
-    return if not $params;
-
+    my $params = $c->stash('query_params');
     my $user = $c->stash('target_user');
     my $rs = $c->stash('build_rs')
         ->search_related('user_build_roles', { user_id => $user->id });
@@ -508,11 +496,8 @@ to all organization members and all build admins.
 =cut
 
 sub add_organization ($c) {
-    my $params = $c->validate_query_params('NotifyUsers');
-    return if not $params;
-
-    my $input = $c->validate_request('BuildAddOrganization');
-    return if not $input;
+    my $params = $c->stash('query_params');
+    my $input = $c->stash('request_data');
 
     my $organization = $c->db_organizations->active->find($input->{organization_id});
     if (not $organization) {
@@ -623,9 +608,7 @@ to all organization members and to all build admins.
 =cut
 
 sub remove_organization ($c) {
-    my $params = $c->validate_query_params('NotifyUsers');
-    return if not $params;
-
+    my $params = $c->stash('query_params');
     my $organization = $c->stash('organization_rs')->single;
 
     my $rs = $c->stash('build_rs')
@@ -673,8 +656,7 @@ devices for such phases).
 =cut
 
 sub find_devices ($c) {
-    my $params = $c->validate_query_params('FindDevice');
-    return if not $params;
+    my $params = $c->stash('query_params');
 
     # production devices do not consider location, interface data to be canonical
     my $bad_phase = exists $params->{phase} ? undef
@@ -725,8 +707,7 @@ C<serials_only=1>.
 =cut
 
 sub get_devices ($c) {
-    my $params = $c->validate_query_params('BuildDevices');
-    return if not $params;
+    my $params = $c->stash('query_params');
 
     my $rs = $c->stash('build_devices_rs');
 
@@ -736,9 +717,18 @@ sub get_devices ($c) {
     $rs = $rs->search({ last_seen => { '>' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } })
         if $params->{active_minutes};
 
-    $rs = $params->{ids_only} ? $rs->get_column('id')
-        : $params->{serials_only} ? $rs->get_column('serial_number')
-        : $rs->with_device_location->with_sku->with_build_name;
+    if ($params->{ids_only}) {
+        $rs = $rs->get_column('id');
+        $c->stash('response_schema', 'DeviceIds');
+    }
+    elsif ($params->{serials_only}) {
+        $rs = $rs->get_column('serial_number');
+        $c->stash('response_schema', 'DeviceSerials');
+    }
+    else {
+        $rs = $rs->with_device_location->with_sku->with_build_name;
+        $c->stash('response_schema', 'Devices');
+    }
 
     $c->status(200, [ $rs->all ]);
 }
@@ -786,8 +776,7 @@ Requires the 'read/write' role on the build and on existing device(s).
 =cut
 
 sub create_and_add_devices ($c) {
-    my $input = $c->validate_request('BuildCreateDevices');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     return $c->status(409, { error => 'cannot add devices to a completed build' })
         if $c->stash('build_rs')->search({ completed => { '!=' => undef } })->exists;
@@ -945,18 +934,23 @@ Response uses the Racks json schema, or RackIds iff C<ids_only=1>.
 =cut
 
 sub get_racks ($c) {
-    my $params = $c->validate_query_params('BuildRacks');
-    return if not $params;
+    my $params = $c->stash('query_params');
 
     my $rs = $c->stash('build_rs')->related_resultset('racks');
     $rs = $rs->search({ 'racks.phase' => $params->{phase} }) if $params->{phase};
 
-    $rs = $params->{ids_only} ? $rs->get_column('id')
-        : $rs->add_columns({ build_name => 'build.name' })
-              ->with_full_rack_name
-              ->with_datacenter_room_alias
-              ->with_rack_role_name
-              ->order_by('racks.name');
+    if ($params->{ids_only}) {
+        $rs = $rs->get_column('id');
+        $c->stash('response_schema', 'RackIds');
+    }
+    else {
+        $rs = $rs->add_columns({ build_name => 'build.name' })
+            ->with_full_rack_name
+            ->with_datacenter_room_alias
+            ->with_rack_role_name
+            ->order_by('racks.name');
+        $c->stash('response_schema', 'Racks');
+    }
 
     $c->status(200, [ $rs->all ]);
 }

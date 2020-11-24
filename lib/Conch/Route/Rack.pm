@@ -25,7 +25,7 @@ sub routes {
     my $rack_with_system_admin = $rack->require_system_admin;
 
     # POST /rack
-    $rack_with_system_admin->post('/')->to('#create');
+    $rack_with_system_admin->post('/')->to('#create', request_schema => 'RackCreate');
 
     # for these endpoints, rack name must be a long name (room_vendor_name:rack_name) --
     # short name is only supported when room qualifier is included (see /room/* endpoints)
@@ -57,35 +57,37 @@ sub one_rack_routes ($class, $r) {
     my $one_rack = $r->under('/#rack_id_or_name')->to('#find_rack', controller => 'rack');
 
     # GET .../rack/:rack_id_or_name
-    $one_rack->get('/')->to('#get');
+    $one_rack->get('/')->to('#get', response_schema => 'Rack');
     # POST .../rack/:rack_id_or_name
-    $one_rack->post('/')->to('#update');
+    $one_rack->post('/')->to('#update', request_schema => 'RackUpdate');
     # DELETE .../rack/:rack_id_or_name
     $one_rack->require_system_admin->delete('/')->to('#delete');
 
     # GET .../rack/:rack_id_or_name/layout
     $one_rack->get('/layouts', sub { shift->status(308, 'get_layouts') });
-    $one_rack->get('/layout', 'get_layouts')->to('#get_layouts');
+    $one_rack->get('/layout', 'get_layouts')->to('#get_layouts', response_schema => 'RackLayouts');
 
     # POST .../rack/:rack_id_or_name/layout
-    $one_rack->post('/layouts', sub { shift->status(308, 'overwrite_layouts') });
-    $one_rack->post('/layout', 'overwrite_layouts')->to('#overwrite_layouts');
+    $one_rack->post('/layouts', { request_schema => 'Anything' },
+        sub { shift->status(308, 'overwrite_layouts') });
+    $one_rack->post('/layout', 'overwrite_layouts')
+        ->to('#overwrite_layouts', request_schema => 'RackLayouts');
 
     # GET .../rack/:rack_id_or_name/assignment
-    $one_rack->get('/assignment')->to('#get_assignment');
+    $one_rack->get('/assignment')->to('#get_assignment', response_schema => 'RackAssignments');
     # POST .../rack/:rack_id_or_name/assignment
-    $one_rack->post('/assignment')->to('#set_assignment');
+    $one_rack->post('/assignment')->to('#set_assignment', request_schema => 'RackAssignmentUpdates');
     # DELETE .../rack/:rack_id_or_name/assignment
-    $one_rack->delete('/assignment')->to('#delete_assignment');
+    $one_rack->delete('/assignment')->to('#delete_assignment', request_schema => 'RackAssignmentDeletes');
 
     # POST .../rack/:rack_id_or_name/phase?rack_only=<0|1>
-    $one_rack->post('/phase')->to('#set_phase');
+    $one_rack->post('/phase')->to('#set_phase', query_params_schema => 'SetPhase', request_schema => 'RackPhase');
 
     # POST .../rack/:rack_id_or_name/links
-    $one_rack->post('/links')->to('#add_links');
+    $one_rack->post('/links')->to('#add_links', request_schema => 'RackLinks');
 
     # DELETE .../rack/:rack_id_or_name/links
-    $one_rack->delete('/links')->to('#remove_links');
+    $one_rack->delete('/links')->to('#remove_links', request_schema => 'RackLinksOrNull');
 
     # GET .../rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start
     # POST .../rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start

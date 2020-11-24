@@ -22,8 +22,7 @@ Response uses the ValidationStateWithResults json schema.
 =cut
 
 sub get_validation_state ($c) {
-    my $params = $c->validate_query_params('GetValidationState');
-    return if not $params;
+    my $params = $c->stash('query_params');
 
     my ($validation_state) = $c->db_validation_states
         ->search({
@@ -64,19 +63,13 @@ sub validate ($c) {
         return $c->status(404);
     }
 
-    my $data = $c->validate_request('DeviceReport');
-    if (not $data) {
-        $c->log->debug('Device report input failed validation');
-        return;
-    }
-
     my @validation_results = Conch::ValidationSystem->new(
         schema => $c->ro_schema,
         log => $c->get_logger('validation'),
     )->run_validation(
         validation => $validation,
         device => $c->db_ro_devices->find($c->stash('device_id')),
-        data => $data,
+        data => $c->stash('request_data'),
     );
 
     $c->status(200, \@validation_results);
@@ -103,19 +96,13 @@ sub run_validation_plan ($c) {
         return $c->status(404);
     }
 
-    my $data = $c->validate_request('DeviceReport');
-    if (not $data) {
-        $c->log->debug('Device report input failed validation');
-        return;
-    }
-
     my ($status, @validation_results) = Conch::ValidationSystem->new(
         schema => $c->ro_schema,
         log => $c->get_logger('validation'),
     )->run_validation_plan(
         validation_plan => $validation_plan,
         device => $c->db_ro_devices->find($c->stash('device_id')),
-        data => $data,
+        data => $c->stash('request_data'),
         no_save_db => 1,
     );
 

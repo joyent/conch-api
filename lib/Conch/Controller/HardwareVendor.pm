@@ -75,9 +75,6 @@ sub get_one ($c) {
 =cut
 
 sub create ($c) {
-    $c->validate_request('Null');
-    return if $c->res->code;
-
     if ($c->db_hardware_vendors->active->search({ name => $c->stash('hardware_vendor_name') }) > 0) {
         $c->log->debug('Failed to create hardware vendor: unique constraint violation for name');
         return $c->status(409, { error => 'Unique constraint violated on \'name\'' });

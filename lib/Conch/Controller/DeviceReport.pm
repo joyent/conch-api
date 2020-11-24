@@ -24,12 +24,10 @@ Response contains no data but returns the resource to fetch the result in the Lo
 =cut
 
 sub process ($c) {
-    my $params = $c->validate_query_params('ProcessDeviceReport');
-    return if not $params;
+    my $params = $c->stash('query_params');
     return 1 if $params->{no_save_db};  # dispatch to device_report#validate_report
 
-    my $unserialized_report = $c->validate_request('DeviceReport');
-    return if not $unserialized_report;
+    my $unserialized_report = $c->stash('request_data');
 
     if ($unserialized_report->{relay} and my $relay_serial = $unserialized_report->{relay}{serial}) {
         my $relay_rs = $c->db_relays->active->search({ serial_number => $relay_serial });
@@ -401,11 +399,7 @@ Response uses the ReportValidationResults json schema.
 =cut
 
 sub validate_report ($c) {
-    my $unserialized_report = $c->validate_request('DeviceReport');
-    if (not $unserialized_report) {
-        $c->log->debug('Device report input did not match json schema specification');
-        return;
-    }
+    my $unserialized_report = $c->stash('request_data');
 
     my $device = $c->db_devices
         ->prefetch({ hardware_product => 'validation_plan' })

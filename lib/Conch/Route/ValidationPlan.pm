@@ -25,16 +25,16 @@ sub routes {
     $vp->to(controller => 'validation_plan', deprecated => 'v4.0');
 
     # GET /validation_plan
-    $vp->get('/')->to('#get_all');
+    $vp->get('/')->to('#get_all', response_schema => 'LegacyValidationPlans');
 
     {
         my $with_plan = $vp->under('/:legacy_validation_plan_id_or_name')->to('#find_validation_plan');
 
         # GET /validation_plan/:legacy_validation_plan_id_or_name
-        $with_plan->get('/')->to('#get');
+        $with_plan->get('/')->to('#get', response_schema => 'LegacyValidationPlan');
 
         # GET /validation_plan/:legacy_validation_plan_id_or_name/validation
-        $with_plan->get('/validation')->to('#get_validations');
+        $with_plan->get('/validation')->to('#get_validations', response_schema => 'LegacyValidations');
     }
 }
 

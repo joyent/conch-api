@@ -23,7 +23,7 @@ sub routes {
     $vs->to({ controller => 'validation_state' });
 
     # GET /validation_state/:validation_state_id
-    $vs->get('/<validation_state_id:uuid>')->to('#get');
+    $vs->get('/<validation_state_id:uuid>')->to('#get', response_schema => 'ValidationStateWithResults');
 }
 
 1;

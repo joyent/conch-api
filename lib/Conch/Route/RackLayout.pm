@@ -23,9 +23,9 @@ sub routes {
     $layout = $layout->require_system_admin->to({ controller => 'rack_layout' });
 
     # GET /layout
-    $layout->get('/')->to('#get_all');
+    $layout->get('/')->to('#get_all', response_schema => 'RackLayouts');
     # POST /layout
-    $layout->post('/')->to('#create');
+    $layout->post('/')->to('#create', request_schema => 'RackLayoutCreate');
 
     # GET /layout/:layout_id
     # POST /layout/:layout_id
@@ -43,9 +43,9 @@ sub one_layout_routes ($class, $r) {
     my $with_layout = $r->under('/:layout_id_or_rack_unit_start')->to('#find_rack_layout', controller => 'rack_layout');
 
     # GET .../layout/:layout_id_or_rack_unit_start
-    $with_layout->get('/')->to('#get');
+    $with_layout->get('/')->to('#get', response_schema => 'RackLayout');
     # POST .../layout/:layout_id_or_rack_unit_start
-    $with_layout->post('/')->to('#update');
+    $with_layout->post('/')->to('#update', request_schema => 'RackLayoutUpdate');
     # DELETE .../layout/:layout_id_or_rack_unit_start
     $with_layout->delete('/')->to('#delete');
 }

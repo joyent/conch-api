@@ -1,6 +1,15 @@
 {
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/response/$schema_name' endpoints, or within conch itself, json-schema/response.yaml.",
   "$defs" : {
+    "Anything" : {
+      "additionalProperties" : true,
+      "items" : true,
+      "type" : [
+        "null",
+        "object",
+        "array"
+      ]
+    },
     "Build" : {
       "else" : {
         "properties" : {
@@ -1794,6 +1803,9 @@
         "name"
       ],
       "type" : "object"
+    },
+    "Null" : {
+      "type" : "null"
     },
     "Organization" : {
       "additionalProperties" : false,

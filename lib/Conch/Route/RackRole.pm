@@ -23,16 +23,16 @@ sub routes {
     $rack_role->to({ controller => 'rack_role' });
 
     # GET /rack_role
-    $rack_role->get('/')->to('#get_all');
+    $rack_role->get('/')->to('#get_all', response_schema => 'RackRoles');
     # POST /rack_role
-    $rack_role->require_system_admin->post('/')->to('#create');
+    $rack_role->require_system_admin->post('/')->to('#create', request_schema => 'RackRoleCreate');
 
     my $with_rack_role = $rack_role->under('/:rack_role_id_or_name')->to('#find_rack_role');
 
     # GET /rack_role/:rack_role_id_or_name
-    $with_rack_role->get('/')->to('#get');
+    $with_rack_role->get('/')->to('#get', response_schema => 'RackRole');
     # POST /rack_role/:rack_role_id_or_name
-    $with_rack_role->require_system_admin->post('/')->to('#update');
+    $with_rack_role->require_system_admin->post('/')->to('#update', request_schema => 'RackRoleUpdate');
     # DELETE /rack_role/:rack_role_id_or_name
     $with_rack_role->require_system_admin->delete('/')->to('#delete');
 }

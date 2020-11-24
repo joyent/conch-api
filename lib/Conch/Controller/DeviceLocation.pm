@@ -36,8 +36,7 @@ occupant, it is removed; the new occupant's hardware_product is updated to match
 =cut
 
 sub set ($c) {
-    my $input = $c->validate_request('DeviceLocationUpdate');
-    return if not $input;
+    my $input = $c->stash('request_data');
 
     my $layout_rs = $c->db_rack_layouts->search({ map +('rack_layout.'.$_ => $input->{$_}), qw(rack_id rack_unit_start) });
     return $c->status(409, { error => "slot $input->{rack_unit_start} does not exist in the layout for rack $input->{rack_id}" }) if not $layout_rs->exists;
