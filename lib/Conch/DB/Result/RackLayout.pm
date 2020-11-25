@@ -186,6 +186,7 @@ __PACKAGE__->belongs_to(
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:JPGX9CQzIOxaAK8cxoNY5Q
 
 use experimental 'signatures';
+use next::XS;
 
 =head1 METHODS
 

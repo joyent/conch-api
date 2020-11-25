@@ -32,6 +32,7 @@ requires 'experimental', '0.020';
 requires 'JSON::Schema::Draft201909', '0.017';
 requires 'Email::Address::XS', '1.01';
 requires 'YAML::PP';
+requires 'next::XS';
 
 # mojolicious and networking
 requires 'Mojolicious', '8.36';

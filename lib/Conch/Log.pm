@@ -8,6 +8,7 @@ use Mojo::JSON 'to_json';
 use Mojo::Path;
 use Mojo::Home;
 use Conch::Time;
+use next::XS;
 
 =head1 Conch::Log
 

@@ -242,6 +242,7 @@ __PACKAGE__->add_columns(
 );
 
 use experimental 'signatures';
+use next::XS;
 
 =head2 TO_JSON
 

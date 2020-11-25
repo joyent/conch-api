@@ -3353,6 +3353,14 @@ DISTRIBUTIONS
       perl 5.008
       strict 0
       warnings 0
+  PkgConfig-0.25026
+    pathname: P/PL/PLICEASE/PkgConfig-0.25026.tar.gz
+    provides:
+      PkgConfig 0.25026
+    requirements:
+      ExtUtils::MakeMaker 6.56
+      Test::More 0.94
+      perl 5.006000
   Pod-Coverage-0.23
     pathname: R/RC/RCLAMP/Pod-Coverage-0.23.tar.gz
     provides:
@@ -4247,6 +4255,18 @@ DISTRIBUTIONS
       Win32::ShellQuote 0.003001
     requirements:
       perl 5.006
+  XS-Install-1.3.1
+    pathname: S/SY/SYBER/XS-Install-1.3.1.tar.gz
+    provides:
+      XS::Install 1.003001
+      XS::Install::Payload undef
+      XS::Loader undef
+    requirements:
+      Exporter 5.58
+      ExtUtils::MakeMaker 7.12
+      ExtUtils::ParseXS 3.24
+      PkgConfig 0.24
+      perl 5.010000
   XString-0.005
     pathname: A/AT/ATOOMIC/XString-0.005.tar.gz
     provides:
@@ -4424,6 +4444,13 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Package::Stash 0.23
       perl 5.008001
+  next-XS-1.0.7
+    pathname: S/SY/SYBER/next-XS-1.0.7.tar.gz
+    provides:
+      next::XS 1.000007
+    requirements:
+      XS::Install v1.3.1
+      perl 5.018000
   strictures-2.000006
     pathname: H/HA/HAARG/strictures-2.000006.tar.gz
     provides:

@@ -18,6 +18,7 @@ use Mojo::URL;
 use Scalar::Util 'weaken';
 use List::Util 'any';
 use Data::Dumper ();
+use next::XS;
 
 =pod
 
