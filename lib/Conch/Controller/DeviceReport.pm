@@ -17,7 +17,7 @@ Controller for processing and managing device reports.
 =head2 process
 
 Processes the device report, turning it into the various device_* tables as well
-as running validations
+as running validations.
 
 Response contains no data but returns the resource to fetch the result in the Location header.
 

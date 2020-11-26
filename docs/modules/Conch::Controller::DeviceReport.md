@@ -13,7 +13,7 @@ Controller for processing and managing device reports.
 ### process
 
 Processes the device report, turning it into the various device\_\* tables as well
-as running validations
+as running validations.
 
 Response contains no data but returns the resource to fetch the result in the Location header.
 
