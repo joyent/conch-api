@@ -1606,6 +1606,7 @@
       "properties" : {
         "absolute_schema_location" : {
           "format" : "uri",
+          "minLength" : 1,
           "type" : "string"
         },
         "data_location" : {
@@ -1654,6 +1655,7 @@
           "properties" : {
             "$id" : {
               "format" : "uri",
+              "minLength" : 1,
               "type" : "string"
             }
           },

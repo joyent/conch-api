@@ -74,6 +74,7 @@ $defs:
         format: json-pointer
       absolute_schema_location:
         type: string
+        minLength: 1
         format: uri
       error:
         $ref: common.yaml#/$defs/non_empty_string
@@ -1789,6 +1790,7 @@ $defs:
         properties:
           $id:
             type: string
+            minLength: 1
             format: uri   # never merely a uri-reference
 
 # vim: set sts=2 sw=2 et :
