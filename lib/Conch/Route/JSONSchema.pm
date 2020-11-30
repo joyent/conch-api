@@ -37,6 +37,10 @@ sub unsecured_routes ($class, $js) {
     $js->get('/:json_schema_type/<json_schema_name:json_pointer_token>',
             [ json_schema_type => [qw(query_params request response common device_report)] ])
         ->to('#get', response_schema => 'JSONSchemaOnDisk');
+
+    # TODO: this will become secured in v3.2, and handled directly instead of by redirect.
+    $js->get('/hardware_product/specification/latest',
+      sub ($c) { $c->status(307, '/json_schema/common/HardwareProductSpecification') });
 }
 
 1;
