@@ -84,7 +84,7 @@ sub get ($c) {
 
     # the canonical location of this document -- which should be the same URL used to get here
     $bundled_schema->{'$id'} = $c->url_for('/json_schema/'.$type.'/'.$name)->to_abs;
-    $bundled_schema->{'$schema'} = 'https://json-schema.org/draft/2019-09/schema';
+    $bundled_schema->{'$schema'} //= 'https://json-schema.org/draft/2019-09/schema';
 
     $c->res->headers->content_type('application/schema+json');
     return $c->status(200, $bundled_schema);

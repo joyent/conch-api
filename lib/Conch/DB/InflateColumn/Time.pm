@@ -6,6 +6,7 @@ use experimental 'signatures';
 use parent 'DBIx::Class::InflateColumn::TimeMoment';
 
 use Conch::Time;
+use next::XS;
 
 =pod
 

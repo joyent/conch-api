@@ -445,6 +445,7 @@ __PACKAGE__->has_many(
 
 use experimental 'signatures';
 use Mojo::JSON 'from_json';
+use next::XS;
 
 __PACKAGE__->add_columns(
     '+deactivated' => { is_serializable => 0 },

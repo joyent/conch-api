@@ -274,6 +274,7 @@ __PACKAGE__->add_columns(
 
 use experimental 'signatures';
 use List::Util 'reduce';
+use next::XS;
 
 =head1 METHODS
 

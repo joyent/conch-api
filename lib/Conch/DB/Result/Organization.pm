@@ -155,6 +155,7 @@ __PACKAGE__->add_columns(
 );
 
 use experimental 'signatures';
+use next::XS;
 
 =head1 METHODS
 

@@ -38,7 +38,7 @@ sub with_role ($self, $role) {
     if !$ENV{MOJO_MODE} and not $self->result_source->has_column('role');
 
     return $self->search if $role eq 'ro';
-    $self->search({ $self->current_source_alias.'.role' => { '>=' => \[ '?::role_enum', $role ] } });
+    $self->search({ $self->current_source_alias.'.role' => { '>=' => $role } });
 }
 
 1;

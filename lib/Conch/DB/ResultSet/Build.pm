@@ -60,7 +60,7 @@ sub with_user_role ($self, $user_id, $role) {
 
     my $via_user_rs = $self->search(
         {
-            $role ne 'ro' ? ('user_build_roles.role' => { '>=' => \[ '?::role_enum', $role ] } ) : (),
+            $role ne 'ro' ? ('user_build_roles.role' => { '>=' => $role } ) : (),
             'user_build_roles.user_id' => $user_id,
         },
         { join => 'user_build_roles' },
@@ -68,7 +68,7 @@ sub with_user_role ($self, $user_id, $role) {
 
     my $via_org_rs = $self->search(
         {
-            $role ne 'ro' ? ('organization_build_roles.role' => { '>=' => \[ '?::role_enum', $role ] }) : (),
+            $role ne 'ro' ? ('organization_build_roles.role' => { '>=' => $role }) : (),
             'user_organization_roles.user_id' => $user_id,
         },
         { join => { organization_build_roles => { organization => 'user_organization_roles' } } } );

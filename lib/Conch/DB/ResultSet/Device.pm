@@ -44,7 +44,7 @@ sub with_user_role ($self, $user_id, $role) {
     my $devices_in_rack_builds = $self->search(
         {
             # production devices do not consider location data to be canonical
-            $me.'.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] },
+            $me.'.phase' => { '<' => 'production' },
             'rack.build_id' => { -in => $build_ids_rs->as_query },
         },
         { join => { device_location => 'rack' } },
@@ -93,7 +93,7 @@ sub user_has_role ($self, $user_id, $role) {
     # device -> rack -> build -> organization_build_role -> organization -> user
     $self
         # production devices do not consider location data to be canonical
-        ->search({ $self->current_source_alias.'.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] } })
+        ->search({ $self->current_source_alias.'.phase' => { '<' => 'production' } })
         ->related_resultset('device_location')
         ->related_resultset('rack')
         ->user_has_role($user_id, $role);

@@ -405,6 +405,7 @@ __PACKAGE__->many_to_many("relays", "device_relay_connections", "relay");
 __PACKAGE__->load_components('+Conch::DB::Helper::Row::WithPhase');
 
 use experimental 'signatures';
+use next::XS;
 
 =head1 METHODS
 

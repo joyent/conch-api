@@ -40,7 +40,7 @@ sub register ($self, $app, $config) {
             $c->on(finish => sub ($c) {
                 $c->send_message_to_rollbar(
                     'info',
-                    'endpoint '.$c->req->url->path.' '.$substr.' removed in api '.$deprecated,
+                    'endpoint '.$c->req->method.' '.$c->req->url->path.' '.$substr.' removed in api '.$deprecated,
                     { context => ($c->stash('controller')//'').'#'.($c->stash('action')//'') },
                 );
             })

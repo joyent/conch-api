@@ -40,7 +40,7 @@ $t->post_ok('/organization', json => {
     })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof(superhashof({ error => 'multiple subschemas are valid: 0, 1' })));
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'multiple subschemas are valid: 0, 1' }) ]);
 
 $t->post_ok('/organization', json => { name => 'my first organization', admins => [ { user_id => create_uuid_str() } ] })
     ->status_is(409)

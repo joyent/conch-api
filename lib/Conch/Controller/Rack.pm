@@ -369,7 +369,7 @@ sub set_assignment ($c) {
         if $c->stash('rack_rs')->related_resultset('build')->search({ completed => { '!=' => undef } })->exists;
 
     return $c->status(409, { error => 'cannot add devices to a rack in production (or later) phase' })
-        if $c->stash('rack_rs')->search({ phase => { '>=' => \[ '?::device_phase_enum', 'production' ] } })->exists;
+        if $c->stash('rack_rs')->search({ phase => { '>=' => 'production' } })->exists;
 
     # in order to determine if we have duplicate devices, we need to look up all ids for device
     # serial numbers...

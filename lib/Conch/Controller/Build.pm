@@ -211,13 +211,13 @@ sub update ($c) {
         my $unhealthy_devices =
             $build->search_related('devices', {
                     health => { '!=' => 'pass' },
-                    phase => { '<' => \[ '?::device_phase_enum', 'production' ] },
+                    phase => { '<' => 'production' },
                 })->count
              + $build
                 ->related_resultset('racks')
                 ->related_resultset('device_locations')
                 ->search_related('device', {
-                    'device.phase' => { '<' => \[ '?::device_phase_enum', 'production' ] },
+                    'device.phase' => { '<' => 'production' },
                     health => { '!=' => 'pass' }
                 })
                 ->count;
@@ -672,7 +672,7 @@ sub find_devices ($c) {
             {
                 'device.build_id' => undef,
                 'rack.build_id' => $build_id,
-                $bad_phase ? ('device.phase' => { '<' => \[ '?::device_phase_enum', $bad_phase ] }) : (),
+                $bad_phase ? ('device.phase' => { '<' => $bad_phase }) : (),
             },
         ] },
         { join => { device_location => 'rack' } },
@@ -714,7 +714,7 @@ sub get_devices ($c) {
     $rs = $rs->search({ health => $params->{health} }) if $params->{health};
     $rs = $rs->search({ 'device.phase' => $params->{phase} }) if $params->{phase};
 
-    $rs = $rs->search({ last_seen => { '>' => \[ 'now() - ?::interval', $params->{active_minutes}.' minutes' ] } })
+    $rs = $rs->search({ last_seen => { '>' => \[ q{now() - interval '1 minute' * ?}, $params->{active_minutes} ] } })
         if $params->{active_minutes};
 
     if ($params->{ids_only}) {
@@ -798,7 +798,7 @@ sub create_and_add_devices ($c) {
         }
 
         return $c->status(409, { error => 'cannot add devices to a build when in production (or later) phase' })
-            if $device_rs->search({ 'device.phase' => { '>=' => \[ '?::device_phase_enum', 'production' ] } })->exists;
+            if $device_rs->search({ 'device.phase' => { '>=' => 'production' } })->exists;
 
         %devices = map +($_->id => $_), $device_rs->all;
     }
