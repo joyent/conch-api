@@ -176,6 +176,10 @@ $t->get_ok('/json_schema/request/HardwareProductCreate')
         },
     }), 'nested definitions are found and included');
 
+$t->get_ok('/json_schema/hardware_product/specification/latest')
+    ->status_is(307)
+    ->location_is('/json_schema/common/HardwareProductSpecification');
+
 $t->get_ok('/json_schema/response/JSONSchemaOnDisk')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')

@@ -82,24 +82,30 @@ $defs:
       type: string
       format: uri
   HardwareProductSpecification:
-    $comment: this is the structure of the hardware_product.specification database column
+    $comment: 'this is the structure of the hardware_product.specification database column. NOTE: by conch api v3.2 this schema will be in the json_schema table in the database (available via GET /json_schema/hardware_product/specification/latest) so it can be updated dynamically'
+    deprecated: true
     type: object
     additionalProperties: true  # there is all kinds of junk in here still
     properties:
       disk_size:
+        title: Disk Size
         type: object
         $comment: property names correspond to device report /disks/<disk serial>/model
         required: [ _default ]
         additionalProperties:
+          title: Drive Model
           $comment: property values are compared to device report /disks/<disk serial>/block_sz
           type: integer
       chassis:
+        title: Chassis
         type: object
         properties:
           memory:
+            title: Memory
             type: object
             properties:
               dimms:
+                title: DIMMs
                 $comment: items are in slot order, as in device report /dimms/*
                 type: array
                 minItems: 1

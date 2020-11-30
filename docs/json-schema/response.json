@@ -1217,152 +1217,237 @@
       "additionalProperties" : false,
       "properties" : {
         "alias" : {
-          "$ref" : "common.json#/$defs/mojo_standard_placeholder"
+          "$ref" : "common.json#/$defs/mojo_standard_placeholder",
+          "title" : "Alias"
         },
         "bios_firmware" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "BIOS Firmware",
           "type" : "string"
         },
         "cpu_num" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "Number of CPUs",
           "type" : "integer"
         },
         "cpu_type" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "CPU Type",
           "type" : "string"
         },
         "created" : {
           "format" : "date-time",
+          "readOnly" : true,
+          "title" : "Created",
           "type" : "string"
         },
         "dimms_num" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "Number of DIMMs",
           "type" : "integer"
         },
         "generation_name" : {
+          "title" : "Generation Name",
           "type" : [
             "null",
             "string"
           ]
         },
         "hardware_vendor_id" : {
-          "$ref" : "common.json#/$defs/uuid"
+          "$ref" : "common.json#/$defs/uuid",
+          "title" : "Hardware Vendor ID"
         },
         "hba_firmware" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "HBA Firmware",
           "type" : [
             "null",
             "string"
           ]
         },
         "id" : {
-          "$ref" : "common.json#/$defs/uuid"
+          "$ref" : "common.json#/$defs/uuid",
+          "readOnly" : true,
+          "title" : "ID"
         },
         "legacy_product_name" : {
+          "title" : "Legacy Product Name",
           "type" : [
             "null",
             "string"
           ]
         },
         "name" : {
-          "$ref" : "common.json#/$defs/mojo_standard_placeholder"
+          "$ref" : "common.json#/$defs/mojo_standard_placeholder",
+          "title" : "Name"
         },
         "nics_num" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "Number of NICs",
           "type" : "integer"
         },
         "nvme_ssd_num" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "Number of SAS HDDs",
           "type" : "integer"
         },
         "nvme_ssd_size" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "NVME SSD Size",
           "type" : [
             "null",
             "integer"
           ]
         },
         "nvme_ssd_slots" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "NVME SSD Slots",
           "type" : [
             "null",
             "string"
           ]
         },
         "prefix" : {
+          "title" : "Prefix",
           "type" : [
             "null",
             "string"
           ]
         },
         "psu_total" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "PSU Total",
           "type" : "integer"
         },
         "purpose" : {
+          "title" : "Purpose",
           "type" : "string"
         },
         "rack_unit_size" : {
-          "$ref" : "common.json#/$defs/positive_integer"
+          "$ref" : "common.json#/$defs/positive_integer",
+          "title" : "Rack Unit Size (RU)"
         },
         "raid_lun_num" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "Number of RAID LUNs",
           "type" : "integer"
         },
         "ram_total" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "RAM Total",
           "type" : "integer"
         },
         "sas_hdd_num" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "Number of SAS HDDs",
           "type" : "integer"
         },
         "sas_hdd_size" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "SAS HDD Size",
           "type" : [
             "null",
             "integer"
           ]
         },
         "sas_hdd_slots" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "SAS HDD Slots",
           "type" : [
             "null",
             "string"
           ]
         },
         "sas_ssd_num" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "Number of SSD SSDs",
           "type" : "integer"
         },
         "sas_ssd_size" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "SAS SSD Size",
           "type" : [
             "null",
             "integer"
           ]
         },
         "sas_ssd_slots" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "SAS SSD Slots",
           "type" : [
             "null",
             "string"
           ]
         },
         "sata_hdd_num" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "Number of SATA HDDs",
           "type" : "integer"
         },
         "sata_hdd_size" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "SATA HDD Size",
           "type" : [
             "null",
             "integer"
           ]
         },
         "sata_hdd_slots" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "SATA HDD Slots",
           "type" : [
             "null",
             "string"
           ]
         },
         "sata_ssd_num" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "Number of SATA SSDs",
           "type" : "integer"
         },
         "sata_ssd_size" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "SATA SSD Size",
           "type" : [
             "null",
             "integer"
           ]
         },
         "sata_ssd_slots" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "SATA SSD Slots",
           "type" : [
             "null",
             "string"
           ]
         },
         "sku" : {
-          "$ref" : "common.json#/$defs/mojo_standard_placeholder"
+          "$ref" : "common.json#/$defs/mojo_standard_placeholder",
+          "title" : "SKU"
         },
         "specification" : {
           "oneOf" : [
@@ -1372,19 +1457,26 @@
             {
               "type" : "null"
             }
-          ]
+          ],
+          "title" : "Specification"
         },
         "updated" : {
           "format" : "date-time",
+          "readOnly" : true,
+          "title" : "Updated",
           "type" : "string"
         },
         "usb_num" : {
+          "$comment" : "this property will be moved into /specification in v3.2",
+          "deprecated" : true,
+          "title" : "Number of USBs",
           "type" : "integer"
         },
         "validation_plan_id" : {
           "$comment" : "this property will become nullable in v3.3 and removed in v4.0",
           "$ref" : "common.json#/$defs/uuid",
-          "deprecated" : true
+          "deprecated" : true,
+          "title" : "Validation Plan ID"
         }
       },
       "required" : [
