@@ -2,8 +2,9 @@
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/common/$schema_name' endpoints, or within conch itself, json-schema/common.yaml.",
   "$defs" : {
     "HardwareProductSpecification" : {
-      "$comment" : "this is the structure of the hardware_product.specification database column",
+      "$comment" : "this is the structure of the hardware_product.specification database column. NOTE: by conch api v3.2 this schema will be in the json_schema table in the database (available via GET /json_schema/hardware_product/specification/latest) so it can be updated dynamically",
       "additionalProperties" : true,
+      "deprecated" : true,
       "properties" : {
         "chassis" : {
           "properties" : {
@@ -21,23 +22,28 @@
                     "type" : "object"
                   },
                   "minItems" : 1,
+                  "title" : "DIMMs",
                   "type" : "array"
                 }
               },
+              "title" : "Memory",
               "type" : "object"
             }
           },
+          "title" : "Chassis",
           "type" : "object"
         },
         "disk_size" : {
           "$comment" : "property names correspond to device report /disks/<disk serial>/model",
           "additionalProperties" : {
             "$comment" : "property values are compared to device report /disks/<disk serial>/block_sz",
+            "title" : "Drive Model",
             "type" : "integer"
           },
           "required" : [
             "_default"
           ],
+          "title" : "Disk Size",
           "type" : "object"
         }
       },

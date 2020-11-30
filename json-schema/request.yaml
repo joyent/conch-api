@@ -243,84 +243,170 @@ $defs:
     minProperties: 1
     properties:
       name:
+        title: Name
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       alias:
+        title: Alias
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       prefix:
+        title: Prefix
         oneOf:
           - $ref: common.yaml#/$defs/non_empty_string
           - type: 'null'
       hardware_vendor_id:
+        title: Hardware Vendor ID
         $ref: common.yaml#/$defs/uuid
       specification:
+        title: Specification
         oneOf:
           - $ref: common.yaml#/$defs/HardwareProductSpecification
           - type: 'null'
       sku:
+        title: SKU
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       generation_name:
+        title: Generation Name
         $ref: common.yaml#/$defs/non_empty_string
       legacy_product_name:
+        title: Legacy Product Name
         oneOf:
           - $ref: common.yaml#/$defs/non_empty_string
           - type: 'null'
       rack_unit_size:
+        title: Rack Unit Size (RU)
         $ref: common.yaml#/$defs/positive_integer
       validation_plan_id:
         $comment: this property will become nullable in v3.3 and removed in v4.0
         deprecated: true
+        title: Validation Plan ID
         $ref: common.yaml#/$defs/uuid
       purpose:
         type: string
+        title: Purpose
       bios_firmware:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: BIOS Firmware
         type: string
       hba_firmware:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: HBA Firmware
         type: [ 'null', string ]
       cpu_num:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: Number of CPUs
         type: integer
       cpu_type:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: CPU Type
         type: string
       dimms_num:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: Number of DIMMs
         type: integer
       ram_total:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: RAM Total
         type: integer
       nics_num:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: Number of NICs
         type: integer
       sata_hdd_num:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: Number of SATA HDDs
         type: integer
       sata_hdd_size:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: SATA HDD Size
         type: [ 'null', integer ]
       sata_hdd_slots:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: SATA HDD Slots
         type: [ 'null', string ]
       sas_hdd_num:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: Number of SAS HDDs
         type: integer
       sas_hdd_size:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: SAS HDD Size
         type: [ 'null', integer ]
       sas_hdd_slots:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: SAS HDD Slots
         type: [ 'null', string ]
       sata_ssd_num:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: Number of SATA SSDs
         type: integer
       sata_ssd_size:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: SATA SSD Size
         type: [ 'null', integer ]
       sata_ssd_slots:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: SATA SSD Slots
         type: [ 'null', string ]
       sas_ssd_num:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: Number of SSD SSDs
         type: integer
       sas_ssd_size:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: SAS SSD Size
         type: [ 'null', integer ]
       sas_ssd_slots:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: SAS SSD Slots
         type: [ 'null', string ]
       nvme_ssd_num:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: Number of SAS HDDs
         type: integer
       nvme_ssd_size:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: NVME SSD Size
         type: [ 'null', integer ]
       nvme_ssd_slots:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: NVME SSD Slots
         type: [ 'null', string ]
       raid_lun_num:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: Number of RAID LUNs
         type: integer
       psu_total:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: PSU Total
         type: integer
       usb_num:
+        $comment: this property will be moved into /specification in v3.2
+        deprecated: true
+        title: Number of USBs
         type: integer
   Login:
     type: object
