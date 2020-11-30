@@ -481,7 +481,7 @@
         "nvme_ssd_num" : {
           "$comment" : "this property will be moved into /specification in v3.2",
           "deprecated" : true,
-          "title" : "Number of SAS HDDs",
+          "title" : "Number of NVME SSDs",
           "type" : "integer"
         },
         "nvme_ssd_size" : {
@@ -566,7 +566,7 @@
         "sas_ssd_num" : {
           "$comment" : "this property will be moved into /specification in v3.2",
           "deprecated" : true,
-          "title" : "Number of SSD SSDs",
+          "title" : "Number of SAS SSDs",
           "type" : "integer"
         },
         "sas_ssd_size" : {
