@@ -17,7 +17,6 @@ $defs:
     properties:
       error:
         type: string
-        pattern: ' did not match required format$'
       details:
         type: array
         uniqueItems: true
@@ -26,8 +25,9 @@ $defs:
           $ref: '#/$defs/JSONSchemaError'
       schema:
         type: string
-        format: uri
-        pattern: '/json_schema/[^/.~]+/[A-Za-z0-9_-]+$'
+        minLength: 1
+        format: uri-reference
+        pattern: '/json_schema/[^/.~]+/[^/.~]+(?:$|/[^/.~]+$)'
       data:
         $comment: any supplementary details will be included here
   QueryParamsValidationError:
@@ -40,6 +40,7 @@ $defs:
         type: string
         const: query parameters did not match required format
       schema:
+        format: uri
         pattern: '/json_schema/query_params/[A-Za-z0-9_-]+$'
       data:
         $comment: the parsed form of the query parameters, as they were passed to the schema for validation
@@ -59,6 +60,7 @@ $defs:
         type: string
         const: request did not match required format
       schema:
+        format: uri
         pattern: '/json_schema/request/[A-Za-z0-9_-]+$'
   JSONSchemaError:
     $comment: very similar to https://json-schema.org/draft/2019-09/output/schema#/$defs/outputUnit - see https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10.4.2
@@ -73,9 +75,10 @@ $defs:
         type: string
         format: json-pointer
       absolute_schema_location:
+        $comment: 'usually a uri - except when validating against a new schema, or referencing a json_schema in the database'
         type: string
         minLength: 1
-        format: uri
+        format: uri-reference
       error:
         $ref: common.yaml#/$defs/non_empty_string
   JSONSchemaErrors:
@@ -664,7 +667,8 @@ $defs:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       specification:
         title: Specification
-        $ref: common.yaml#/$defs/HardwareProductSpecification
+        type: object
+        $ref: /json_schema/hardware_product/specification/latest
       rack_unit_size:
         title: Rack Unit Size (RU)
         $ref: common.yaml#/$defs/positive_integer
@@ -1799,7 +1803,7 @@ $defs:
           $id:
             type: string
             minLength: 1
-            format: uri   # never merely a uri-reference
+            format: uri
   JSONSchema:
     $comment: this is the structure for responses from GET /json_schema/:type/:name/:version and GET /json_schema/:uuid, which fetches JSON Schemas from the database
     contentMediaType: application/schema+json

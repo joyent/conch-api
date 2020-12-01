@@ -35,6 +35,7 @@ Provides (guaranteed) read-only access to the database via [DBIx::Class](https:/
 
 Provides direct read/write and read-only accessors to resultsets. The table name is used in
 the `alias` attribute (see ["alias" in DBIx::Class::ResultSet](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AResultSet#alias)).
+Note that these are **NOT** available when the (developer-only) `no_db` feature is enabled.
 
 ### txn\_wrapper
 

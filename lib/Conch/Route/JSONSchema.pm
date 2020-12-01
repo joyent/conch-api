@@ -29,6 +29,9 @@ sub unsecured_routes ($class, $js) {
 
     $js->to({ controller => 'JSONSchema' });
 
+    $js->get('/common/HardwareProductSpecification',
+       sub ($c) { $c->status(308, '/hardware_product/specification/latest') });
+
     # GET /json_schema/query_params/:json_schema_name
     # GET /json_schema/request/:json_schema_name
     # GET /json_schema/response/:json_schema_name
@@ -37,12 +40,6 @@ sub unsecured_routes ($class, $js) {
     $js->get('/:json_schema_type/<json_schema_name:json_pointer_token>',
             [ json_schema_type => [qw(query_params request response common device_report)] ])
         ->to('#get_from_disk', response_schema => 'JSONSchemaOnDisk');
-
-    # TODO: this will become secured in v3.2, and handled directly by the main 'get' endpoint
-    $js->get('/hardware_product/specification/:json_schema_version',
-        { json_schema_version => qr/(?:1|latest)/ })
-      ->to('#get_from_disk', json_schema_type => 'common', json_schema_name => 'HardwareProductSpecification',
-          response_schema => 'JSONSchemaOnDisk');
 }
 
 =head2 secured_routes
@@ -115,16 +112,6 @@ requests and responses.
 C<application/schema+json>).
 
 =back
-
-=head2 C<GET /json_schema/hardware_product/specification/latest>
-
-Fetches the JSON Schema document used for describing the structure of the C<specification>
-column of the C<hardware_product> database table.
-
-Note: this is a special case of a generic endpoint to be added in Conch API version 3.2.
-In the future, it will be modifiable; attempted modifications of this schema will be verified
-against all existing C<hardware_product.specification> data, and any attempted modifications to
-specification data will be verified against this schema.
 
 =head2 C<POST /json_schema/:json_schema_type/:json_schema_name>
 

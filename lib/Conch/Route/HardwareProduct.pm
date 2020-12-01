@@ -20,14 +20,32 @@ Sets up the routes for /hardware_product.
 sub routes {
     my $class = shift;
     my $hardware_product = shift; # secured, under /hardware_product
+    my $app = shift;
+
+    return if $app->feature('no_db'); # for testing only
 
     $hardware_product->to({ controller => 'hardware_product' });
 
     # GET /hardware_product
     $hardware_product->get('/')->to('#get_all', response_schema => 'HardwareProducts');
 
+    # forces the JSON Schema evaluator to re-load its data if the specification schema has changed
+    my $specification_schema_version = $app->db_json_schemas->active
+      ->resource('hardware_product', 'specification', 'latest')->get_column('version')->single // 0;
+    my $check_for_changed_specification_schema = sub ($c) {
+      my $new_version = $c->db_json_schemas->active
+        ->resource('hardware_product', 'specification', 'latest')->get_column('version')->single // 0;
+      if ($specification_schema_version != $new_version) {
+        $c->_refresh_json_schema_validator;
+        $specification_schema_version = $new_version;
+      }
+      return 1;
+    };
+
     # POST /hardware_product
-    $hardware_product->require_system_admin->post('/')->to('#create', request_schema => 'HardwareProductCreate');
+    $hardware_product->require_system_admin
+      ->under($check_for_changed_specification_schema)
+      ->post('/')->to('#create', request_schema => 'HardwareProductCreate');
 
     {
         $hardware_product->any('/<:hardware_product_key>=<:hardware_product_value>/*optional',
@@ -42,21 +60,29 @@ sub routes {
             ->to('#find_hardware_product');
 
         # GET /hardware_product/:hardware_product_id_or_other
-        $with_hardware_product_id_or_other->get('/')->to('#get', response_schema => 'HardwareProduct');
+        $with_hardware_product_id_or_other
+          ->under($check_for_changed_specification_schema)
+          ->get('/')->to('#get', response_schema => 'HardwareProduct');
 
         my $hwp_with_admin = $with_hardware_product_id_or_other->require_system_admin;
 
         # POST /hardware_product/:hardware_product_id_or_other
-        $hwp_with_admin->post('/')->to('#update', request_schema => 'HardwareProductUpdate');
+        $hwp_with_admin
+          ->under($check_for_changed_specification_schema)
+          ->post('/')->to('#update', request_schema => 'HardwareProductUpdate');
 
         # DELETE /hardware_product/:hardware_product_id_or_other
         $hwp_with_admin->delete('/')->to('#delete');
 
         # PUT /hardware_product/:hardware_product_id_or_other/specification?path=:json_pointer_to_data
-        $hwp_with_admin->put('/specification')->to('#set_specification', query_params_schema => 'HardwareProductSpecification', request_schema => 'Anything');
+        $hwp_with_admin
+          ->under($check_for_changed_specification_schema)
+          ->put('/specification')->to('#set_specification', query_params_schema => 'HardwareProductSpecification', request_schema => 'Anything');
 
         # DELETE /hardware_product/:hardware_product_id_or_other/specification?path=:json_pointer_to_data
-        $hwp_with_admin->delete('/specification')->to('#delete_specification', query_params_schema => 'HardwareProductSpecification');
+        $hwp_with_admin
+          ->under($check_for_changed_specification_schema)
+          ->delete('/specification')->to('#delete_specification', query_params_schema => 'HardwareProductSpecification');
     }
 }
 

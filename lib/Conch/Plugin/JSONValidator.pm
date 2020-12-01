@@ -135,6 +135,7 @@ Returns a L<JSON::Schema::Draft201909> object with all JSON Schemas pre-loaded.
 =cut
 
     my $_validator;
+    my $_has_db = !$app->feature('no_db');
     $app->helper(json_schema_validator => sub ($c) {
         return $_validator if $_validator;
         $_validator = JSON::Schema::Draft201909->new(output_format => 'terse');
@@ -144,6 +145,19 @@ Returns a L<JSON::Schema::Draft201909> object with all JSON Schemas pre-loaded.
         try {
           $_validator->add_schema($_, $yaml->load_file('json-schema/'.$_))
             foreach map path($_)->basename, glob('json-schema/*.yaml');
+
+          # some schemas have "$ref": "/json_schema/hardware_product/specification/latest"
+          if ($_has_db) {
+            if (my $row = $c->db_json_schemas->active
+                ->resource('hardware_product', 'specification', 'latest')->single) {
+              my $id_generator = sub ($row) { $c->url_for($row->canonical_path)->to_abs->to_string };
+              my $schema = $row->schema_document($id_generator);
+              $_validator->add_schema($_, $schema)
+                foreach
+                  $schema->{'$id'}, # absolute uri with .../<version>
+                  '/json_schema/hardware_product/specification/latest'; # the actual $ref value
+            }
+          }
         }
         catch {
           require Data::Dumper;
@@ -154,6 +168,11 @@ Returns a L<JSON::Schema::Draft201909> object with all JSON Schemas pre-loaded.
 
         $_validator;
     });
+
+    # for internal use only! create a new validator so as to re-load everything (e.g. if an
+    # underlying database resource has changed)
+    $app->helper(_refresh_json_schema_validator => sub ($c) { undef $_validator });
+
 
 =head2 normalize_evaluation_result
 

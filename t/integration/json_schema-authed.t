@@ -6,6 +6,7 @@ use Test::Warnings;
 use Test::Deep;
 use Test::Deep::JSON;
 use Conch::UUID 'create_uuid_str';
+use Mojo::JSON 'to_json';
 
 use constant SPEC_URL => 'https://json-schema.org/draft/2019-09/schema';
 
@@ -124,7 +125,32 @@ $t_ro->post_ok('/json_schema/foo/bar', json => {
   ]);
 
 
-$t_ro->post_ok('/json_schema/hardware_product/specification', json => { description => 'spec schema' })
+my $hardware_product = $t_ro->load_fixture('hardware_product_compute');
+$hardware_product->update({ specification => to_json({ evaluate => JSON::PP::false }) });
+
+$t_ro->post_ok('/json_schema/hardware_product/specification', json => my $specification_schema = {
+    '$schema' => SPEC_URL,
+    description => 'hardware_product.specification constraints',
+    type => 'object',
+    properties => {
+      evaluate => { const => JSON::PP::true },  # if this property exists, the value must be true
+    },
+  })
+  ->status_is(409)
+  ->json_schema_is('ValidationError')
+  ->json_cmp_deeply({
+    error => 'proposed hardware_product specification schema does not successfully evaluate against existing specification for hardware_product id \''.$hardware_product->id.'\' (2-ssds-1-cpu)',
+    schema => '/json_schema/hardware_product/specification/1',
+    details => [ {
+      data_location => '/specification/evaluate',
+      schema_location => '/properties/evaluate/const',
+      absolute_schema_location => '/json_schema/hardware_product/specification/1#/properties/evaluate/const',
+      error => 'value does not match',
+    } ],
+});
+
+$hardware_product->update({ specification => to_json({}) });
+$t_ro->post_ok('/json_schema/hardware_product/specification', json => $specification_schema)
   ->status_is(201)
   ->location_like(qr!^/json_schema/${\Conch::UUID::UUID_FORMAT}$!)
   ->header_is('Content-Location', '/json_schema/hardware_product/specification/1');
@@ -163,7 +189,7 @@ $t_ro->post_ok('/json_schema/foo/bar', json => $schema1)
   ->header_is('Content-Location', '/json_schema/foo/bar/1');
 my ($schema1_id) = $t_ro->tx->res->headers->location =~ m!/([^/]+)$!;
 
-my @db_rows = $t_ro->app->db_json_schemas->hri->all;
+my @db_rows = $t_ro->app->db_json_schemas->active->hri->all;
 cmp_deeply(
   \@db_rows,
   [{
@@ -241,7 +267,7 @@ $t_ro->post_ok('/json_schema/foo/bar', json => $schema2)
   ->header_is('Content-Location', '/json_schema/foo/bar/2');
 my ($schema2_id) = $t_ro->tx->res->headers->location =~ m!/([^/]+)$!;
 
-@db_rows = $t_ro->app->db_json_schemas->hri->all;
+@db_rows = $t_ro->app->db_json_schemas->active->hri->all;
 
 $t_ro->get_ok($_)
   ->status_is(200)

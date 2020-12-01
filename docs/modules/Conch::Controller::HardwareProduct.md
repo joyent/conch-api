@@ -43,7 +43,7 @@ Uses the URI query parameter `path` as a json pointer to determine the path with
 without regard to type (so long as it conforms to the schema).
 
 After the update operation, the `specification` property must validate against
-[common.json#/$defs/HardwareProductSpecification](../json-schema/common.json#/$defs/HardwareProductSpecification).
+the schema at `/json_schema/hardware_product/specification/latest`.
 
 ### delete\_specification
 
@@ -51,7 +51,7 @@ Uses the URI query parameter `path` as a json pointer to determine the path with
 `specification` property to operate on. All of the data at the indicated path is deleted.
 
 After the delete operation, the `specification` property must validate against
-[common.json#/$defs/HardwareProductSpecification](../json-schema/common.json#/$defs/HardwareProductSpecification).
+the schema at `/json_schema/hardware_product/specification/latest`.
 
 ## LICENSING
 

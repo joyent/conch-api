@@ -192,6 +192,8 @@ C<< $c->render >> as a side-effect.
     });
 
     $self->plugin('Conch::Plugin::JSONValidator', $self->config);
+    my $load_schemas_prefork = $self->json_schema_validator;
+
     $self->plugin('Conch::Plugin::AuthHelpers', $self->config);
     $self->plugin('Conch::Plugin::Mail', $self->config);
 

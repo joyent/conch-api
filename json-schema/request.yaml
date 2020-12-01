@@ -234,9 +234,6 @@ $defs:
       - purpose
       - bios_firmware
       - cpu_type
-  HardwareProductSpecification:
-    $comment: used for the /hardware_product/*/specification endpoints
-    $ref: common.yaml#/$defs/HardwareProductSpecification
   HardwareProductUpdate:
     type: object
     additionalProperties: false
@@ -258,7 +255,8 @@ $defs:
         $ref: common.yaml#/$defs/uuid
       specification:
         title: Specification
-        $ref: common.yaml#/$defs/HardwareProductSpecification
+        type: object
+        $ref: /json_schema/hardware_product/specification/latest
       sku:
         title: SKU
         $ref: common.yaml#/$defs/mojo_standard_placeholder

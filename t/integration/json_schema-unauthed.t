@@ -167,25 +167,26 @@ $t->get_ok('/json_schema/request/HardwareProductCreate')
                 non_empty_string
                 mojo_standard_placeholder
                 HardwareProductUpdate
-                HardwareProductSpecification
             )
         },
     }), 'nested definitions are found and included');
 
-$t->get_ok('/json_schema/hardware_product/specification/'.$_)
+$t->get_ok('/json_schema/request/HardwareProductUpdate')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is('JSONSchemaOnDisk')
-    ->json_cmp_deeply({
-        '$schema' => SPEC_URL,
-        '$id' => $base_uri.'json_schema/hardware_product/specification/1',
-        '$comment' => ignore,
-        # no deprecated!
-        type => 'object',
-        additionalProperties => bool(1),
-        properties => superhashof({}),
-      })
-    foreach qw(latest 1);
+    ->json_cmp_deeply('', superhashof({
+      '$schema' => SPEC_URL,
+      '$id' => $base_uri.'json_schema/request/HardwareProductUpdate',
+      properties => superhashof({
+        specification => {
+          title => 'Specification',
+          type => 'object',
+          # note this reference is not expanded into $defs
+          '$ref' => '/json_schema/hardware_product/specification/latest',
+        },
+      }),
+    }), 'reference to hardware_product specification is contained');
 
 $t->get_ok('/json_schema/response/JSONSchemaOnDisk')
     ->status_is(200)
@@ -380,6 +381,10 @@ subtest 'schemas that contain an unresolvable $ref property because it is not a 
     foreach
       '/json_schema/'.create_uuid_str,
       '/json_schema/foo/bar/1';
+
+  $t->get_ok('/json_schema/hardware_product/specification/'.$_)
+      ->status_is(401)
+    foreach qw(latest 1);
 }
 
 done_testing;

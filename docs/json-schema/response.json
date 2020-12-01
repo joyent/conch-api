@@ -1450,8 +1450,9 @@
           "title" : "SKU"
         },
         "specification" : {
-          "$ref" : "common.json#/$defs/HardwareProductSpecification",
-          "title" : "Specification"
+          "$ref" : "/json_schema/hardware_product/specification/latest",
+          "title" : "Specification",
+          "type" : "object"
         },
         "updated" : {
           "format" : "date-time",
@@ -1716,7 +1717,8 @@
       "additionalProperties" : false,
       "properties" : {
         "absolute_schema_location" : {
-          "format" : "uri",
+          "$comment" : "usually a uri - except when validating against a new schema, or referencing a json_schema in the database",
+          "format" : "uri-reference",
           "minLength" : 1,
           "type" : "string"
         },
@@ -2217,6 +2219,7 @@
           "type" : "string"
         },
         "schema" : {
+          "format" : "uri",
           "pattern" : "/json_schema/query_params/[A-Za-z0-9_-]+$"
         }
       },
@@ -2606,6 +2609,7 @@
           "type" : "string"
         },
         "schema" : {
+          "format" : "uri",
           "pattern" : "/json_schema/request/[A-Za-z0-9_-]+$"
         }
       },
@@ -2936,12 +2940,12 @@
           "uniqueItems" : true
         },
         "error" : {
-          "pattern" : " did not match required format$",
           "type" : "string"
         },
         "schema" : {
-          "format" : "uri",
-          "pattern" : "/json_schema/[^/.~]+/[A-Za-z0-9_-]+$",
+          "format" : "uri-reference",
+          "minLength" : 1,
+          "pattern" : "/json_schema/[^/.~]+/[^/.~]+(?:$|/[^/.~]+$)",
           "type" : "string"
         }
       },

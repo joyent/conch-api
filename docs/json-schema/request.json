@@ -404,10 +404,6 @@
         "cpu_type"
       ]
     },
-    "HardwareProductSpecification" : {
-      "$comment" : "used for the /hardware_product/*/specification endpoints",
-      "$ref" : "common.json#/$defs/HardwareProductSpecification"
-    },
     "HardwareProductUpdate" : {
       "additionalProperties" : false,
       "minProperties" : 1,
@@ -640,8 +636,9 @@
           "title" : "SKU"
         },
         "specification" : {
-          "$ref" : "common.json#/$defs/HardwareProductSpecification",
-          "title" : "Specification"
+          "$ref" : "/json_schema/hardware_product/specification/latest",
+          "title" : "Specification",
+          "type" : "object"
         },
         "usb_num" : {
           "$comment" : "this property will be moved into /specification in v3.2",

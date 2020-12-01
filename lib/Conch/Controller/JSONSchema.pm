@@ -3,7 +3,7 @@ package Conch::Controller::JSONSchema;
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use feature 'current_sub';
-use Mojo::JSON 'to_json';
+use Mojo::JSON qw(to_json from_json);
 
 =pod
 
@@ -42,6 +42,9 @@ sub get_from_disk ($c) {
 
     my (@errors, $seen_uris, $bundled_schema);
     my $ref_callback = sub ($schema, $state) {
+        # we special-case this reference to a resource maintained dynamically
+        return if $schema->{'$ref'} eq '/json_schema/hardware_product/specification/latest';
+
         my $ref_uri = Mojo::URL->new($schema->{'$ref'});
         return if $ref_uri->is_abs;
         $ref_uri = $ref_uri->to_abs(JSON::Schema::Draft201909::Utilities::canonical_schema_uri($state));
@@ -131,6 +134,40 @@ sub create ($c) {
   if (@refs) {
     return $c->status(409, { error => 'schema contains prohibited $ref'
       .(@refs > 1 ? 's' : '').': '. join(', ', @refs) });
+  }
+
+  # if submitting a new hardware_product.specification schema, make sure all existing
+  # hardware_product.specification data successfully evaluates against it
+  if ($base_uri eq '/json_schema/hardware_product/specification/latest') {
+    my $version = $c->db_json_schemas
+      ->resource('hardware_product', 'specification', 'latest')
+      ->get_column('version')->single;
+    $version = ($version // 0) + 1;
+
+    my $uri = $base_uri =~ s/latest$/$version/r;
+    my $schema = +{ $input->%*, '$id' => $uri };
+
+    my $js = JSON::Schema::Draft201909->new(output_format => 'terse', validate_formats => 1);
+    $js->add_schema($uri, $schema);
+
+    my $hw_rs = $c->db_hardware_products->active->columns([qw(id name specification)])->hri;
+    while (my $hw_row = $hw_rs->next) {
+      if (not (my $result = $js->evaluate(from_json($hw_row->{specification}), $uri))) {
+        my @errors = map +{
+          data_location => '/specification'.$_->{instanceLocation},
+          schema_location => $_->{keywordLocation},
+          absolute_schema_location => $_->{absoluteKeywordLocation},
+          error => $_->{error},
+        }, $result->TO_JSON->{errors}->@*;
+
+        $c->stash('response_schema', 'ValidationError');
+        return $c->status(409, {
+          error => 'proposed hardware_product specification schema does not successfully evaluate against existing specification for hardware_product id \''.$hw_row->{id}.'\' ('.$hw_row->{name}.')',
+          schema => '/json_schema/hardware_product/specification/'.$version,
+          details => \@errors,
+        });
+      }
+    }
   }
 
   my $row = $c->db_json_schemas->create({

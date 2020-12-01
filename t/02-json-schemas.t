@@ -33,6 +33,9 @@ foreach my $filename (split /\n/, `git ls-files json-schema`) {
   push @files, $path->basename;
 }
 
+# simple substitution for the real schema that is stored in the database
+$js->add_schema('/json_schema/hardware_product/specification/latest', { type => 'object' });
+
 my $pass = 1;
 foreach my $filename (@files) {
   my $schema = $js->get($filename);
@@ -73,6 +76,7 @@ foreach my $filename (@files) {
           next;
         }
 
+        next if $uri eq '/json_schema/hardware_product/specification/latest';
         my @def_segments = split('/', $uri->fragment//'');
         if (@def_segments < 3 or ($def_segments[0] ne '' and $def_segments[1] ne '$defs')) {
           $result = fail('in '.$filename.', invalid uri fragment in $ref: "'.($uri->fragment//'').'"');
