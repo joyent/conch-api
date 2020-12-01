@@ -30,6 +30,16 @@ requests and responses.
 - Response: a JSON Schema ([response.json#/$defs/JSONSchemaOnDisk](../json-schema/response.json#/$defs/JSONSchemaOnDisk)) (Content-Type is
 `application/schema+json`).
 
+### `GET /json_schema/hardware_product/specification/latest`
+
+Fetches the JSON Schema document used for describing the structure of the `specification`
+column of the `hardware_product` database table.
+
+Note: this is a special case of a generic endpoint to be added in Conch API version 3.2.
+In the future, it will be modifiable; attempted modifications of this schema will be verified
+against all existing `hardware_product.specification` data, and any attempted modifications to
+specification data will be verified against this schema.
+
 ## LICENSING
 
 Copyright Joyent, Inc.
