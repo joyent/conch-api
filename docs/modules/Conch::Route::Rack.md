@@ -103,6 +103,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 #### `DELETE /rack/:rack_id_or_name/links`
 
 - User requires the read/write role on the rack
+- Controller/Action: ["remove\_links" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#remove_links)
 - Request: [request.json#/$defs/RackLinksOrNull](../json-schema/request.json#/$defs/RackLinksOrNull)
 - Response: `204 No Content`, plus Location header
 

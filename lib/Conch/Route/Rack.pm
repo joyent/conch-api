@@ -265,6 +265,8 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =item * User requires the read/write role on the rack
 
+=item * Controller/Action: L<Conch::Controller::Rack/remove_links>
+
 =item * Request: F<request.yaml#/$defs/RackLinksOrNull>
 
 =item * Response: C<204 No Content>, plus Location header

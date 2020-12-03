@@ -219,6 +219,8 @@ Supports the following optional query parameters:
 
 =item * Requires system admin authorization or the admin role on the build
 
+=item * Controller/Action: L<Conch::Controller::Build/remove_links>
+
 =item * Request: F<request.yaml#/$defs/BuildLinksOrNull>
 
 =item * Response: C<204 No Content>, plus Location header
