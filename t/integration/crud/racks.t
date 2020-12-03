@@ -510,10 +510,12 @@ subtest 'rack links' => sub {
     }));
 
   $t->delete_ok('/rack/'.$rack->id.'/links', json => { links => [ 'https://does-not-exist.com' ] })
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/rack/'.$rack->id);
 
   $t->delete_ok('/rack/'.$rack->id.'/links', json => { links => ['https://alpha.com/1'] })
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/rack/'.$rack->id);
 
   $t->get_ok('/rack/'.$rack->id)
     ->status_is(200)
@@ -524,7 +526,8 @@ subtest 'rack links' => sub {
     }));
 
   $t->delete_ok('/rack/'.$rack->id.'/links')
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/rack/'.$rack->id);
   $rack->{links} = [];
 
   $t->get_ok('/rack/'.$rack->id)

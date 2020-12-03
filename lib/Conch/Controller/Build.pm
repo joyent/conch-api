@@ -280,7 +280,8 @@ sub remove_links ($c) {
       ->update({ links => '{}' });
   }
 
-  $c->status(204);
+  my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
+  $c->status(204, '/build/'.$build_id);
 }
 
 =head2 get_users

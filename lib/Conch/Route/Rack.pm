@@ -267,7 +267,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =item * Request: F<request.yaml#/$defs/RackLinksOrNull>
 
-=item * Response: 204 NO CONTENT
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

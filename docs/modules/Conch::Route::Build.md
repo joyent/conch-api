@@ -61,7 +61,7 @@ Supports the following optional query parameters:
 
 - Requires system admin authorization or the admin role on the build
 - Request: [request.json#/$defs/BuildLinksOrNull](../json-schema/request.json#/$defs/BuildLinksOrNull)
-- Response: 204 NO CONTENT
+- Response: `204 No Content`, plus Location header
 
 ### `GET /build/:build_id_or_name/user`
 

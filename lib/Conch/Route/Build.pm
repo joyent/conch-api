@@ -221,7 +221,7 @@ Supports the following optional query parameters:
 
 =item * Request: F<request.yaml#/$defs/BuildLinksOrNull>
 
-=item * Response: 204 NO CONTENT
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

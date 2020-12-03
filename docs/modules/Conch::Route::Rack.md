@@ -104,7 +104,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 - User requires the read/write role on the rack
 - Request: [request.json#/$defs/RackLinksOrNull](../json-schema/request.json#/$defs/RackLinksOrNull)
-- Response: 204 NO CONTENT
+- Response: `204 No Content`, plus Location header
 
 ### `GET /rack/:rack_id_or_name/layout/:layout_id_or_rack_unit_start`
 

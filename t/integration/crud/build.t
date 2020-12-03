@@ -192,10 +192,12 @@ $t->get_ok('/build/my first build')
     ->json_is($build);
 
 $t->delete_ok('/build/my first build/links', json => { links => [ 'https://does-not-exist.com' ] })
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/build/'.$build->{id});
 
 $t->delete_ok('/build/my first build/links', json => { links => ['https://alpha.com/1'] })
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/build/'.$build->{id});
 $build->{links} = ['https://baz.com/3'];
 
 $t->get_ok('/build/my first build')
@@ -204,7 +206,8 @@ $t->get_ok('/build/my first build')
     ->json_is($build);
 
 $t->delete_ok('/build/my first build/links')
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/build/'.$build->{id});
 $build->{links} = [];
 
 $t->get_ok('/build/my first build')

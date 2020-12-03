@@ -604,7 +604,8 @@ sub remove_links ($c) {
       ->update({ links => '{}', updated => \'now()' });
   }
 
-  $c->status(204);
+  my $rack_id = $c->stash('rack_id') // $c->stash('rack_rs')->get_column('id')->single;
+  $c->status(204, '/rack/'.$rack_id);
 }
 
 1;
