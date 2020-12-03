@@ -49,6 +49,13 @@
       },
       "type" : "object"
     },
+    "date-time" : {
+      "format" : "date-time",
+      "not" : {
+        "pattern" : "^000[01]",
+        "type" : "string"
+      }
+    },
     "device_asset_tag" : {
       "pattern" : "^\\S+$",
       "type" : "string"
