@@ -5,6 +5,7 @@ use experimental 'signatures';
 use Test::More;
 use YAML::PP;
 use Path::Tiny;
+use Try::Tiny;
 use JSON::Schema::Draft201909;
 use JSON::Schema::Draft201909::Utilities 'canonical_schema_uri';
 
@@ -24,7 +25,12 @@ my @files;
 foreach my $filename (split /\n/, `git ls-files json-schema`) {
   diag('skipping '.$filename), next if $filename =~ /^\./ or $filename !~ /yaml$/;
   my $path = path($filename);
-  $js->add_schema($path->basename, $yaml->load_file($filename));
+  try {
+    $js->add_schema($path->basename, $yaml->load_file($filename));
+  }
+  catch {
+    die "$filename is not parseable: ", explain(map $_->TO_JSON, @$_);
+  };
   push @files, $path->basename;
 }
 

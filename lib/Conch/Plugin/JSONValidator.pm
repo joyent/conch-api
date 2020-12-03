@@ -8,6 +8,7 @@ use YAML::PP;
 use Mojo::JSON 'to_json';
 use Path::Tiny;
 use List::Util qw(any none first);
+use Try::Tiny;
 
 =pod
 
@@ -143,8 +144,15 @@ Returns a L<JSON::Schema::Draft201909> object with all JSON Schemas pre-loaded.
         # TODO: blocked on https://github.com/ingydotnet/yaml-libyaml-pm/issues/68
         # local $YAML::XS::Boolean = 'JSON::PP'; ... YAML::XS::LoadFile(...)
         my $yaml = YAML::PP->new(boolean => 'JSON::PP');
-        $_validator->add_schema($_, $yaml->load_file('json-schema/'.$_))
+        try {
+          $_validator->add_schema($_, $yaml->load_file('json-schema/'.$_))
             foreach map path($_)->basename, glob('json-schema/*.yaml');
+        }
+        catch {
+          require Data::Dumper;
+          die "problems adding schema (YAML is not parseable?) - ",
+            Data::Dumper->new([ [ map $_->TO_JSON, @$_ ] ])->Indent(0)->Terse(1)->Dump;
+        };
 
         $_validator;
     });
