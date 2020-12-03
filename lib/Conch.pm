@@ -234,6 +234,29 @@ in user-facing content.
     Conch::Route->all_routes($self->routes, $self);
 
     $self->log->info('Conch initialized at '.$self->version_tag);
+
+=head2 banner
+
+Banner text suitable for displaying on startup.
+
+=cut
+
+    $self->helper(banner => sub ($c) {
+      my $banner = <<'BANNER';
+
+          /\                           _
+         {-.}      ___ ___  _ __   ___| |__
+        /'-._;    / __/ _ \| '_ \ / __| '_ \
+      _{._    }  | (_| (_) | | | | (__| | | |
+    ,'  \ `-./    \___\___/|_| |_|\___|_| |_|
+    \    |  /
+     \,  | /     Version: %s
+       \_|/      Started: %s
+
+BANNER
+
+      return sprintf($banner, $c->version_tag, $c->startup_time);
+    });
 }
 
 1;
