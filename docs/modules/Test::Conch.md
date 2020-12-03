@@ -66,7 +66,7 @@ Wrapper around ["status\_is" in Test::Mojo](https://metacpan.org/pod/Test%3A%3AM
 3.1. 2xx and 4xx JSON responses should have a Link header
 4. HEAD requests should not have body content
 5. 200, 203, 206, 207 and most 4xx responses should have body content
-6. 201, 204, 205 and most 3xx responses should not have body content
+6. 204, 205 and most 3xx responses should not have body content
 7. 302 should not be used at all
 8. 401, 403 responses should have a WWW-Authenticate header
 ```
