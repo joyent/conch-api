@@ -258,9 +258,7 @@ $defs:
         $ref: common.yaml#/$defs/uuid
       specification:
         title: Specification
-        oneOf:
-          - $ref: common.yaml#/$defs/HardwareProductSpecification
-          - type: 'null'
+        $ref: common.yaml#/$defs/HardwareProductSpecification
       sku:
         title: SKU
         $ref: common.yaml#/$defs/mojo_standard_placeholder

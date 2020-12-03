@@ -79,7 +79,8 @@ __PACKAGE__->table("hardware_product");
 =head2 specification
 
   data_type: 'jsonb'
-  is_nullable: 1
+  default_value: '{}'
+  is_nullable: 0
 
 =head2 sku
 
@@ -285,7 +286,7 @@ __PACKAGE__->add_columns(
     original      => { default_value => \"now()" },
   },
   "specification",
-  { data_type => "jsonb", is_nullable => 1 },
+  { data_type => "jsonb", default_value => "{}", is_nullable => 0 },
   "sku",
   { data_type => "text", is_nullable => 0 },
   "generation_name",
@@ -441,7 +442,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:9Q3v8Ag2aFFkitFegf0t2g
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jh81nspu+x8IBhfHU063jQ
 
 use experimental 'signatures';
 use Mojo::JSON 'from_json';

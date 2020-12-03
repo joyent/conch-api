@@ -1450,14 +1450,7 @@
           "title" : "SKU"
         },
         "specification" : {
-          "oneOf" : [
-            {
-              "$ref" : "common.json#/$defs/HardwareProductSpecification"
-            },
-            {
-              "type" : "null"
-            }
-          ],
+          "$ref" : "common.json#/$defs/HardwareProductSpecification",
           "title" : "Specification"
         },
         "updated" : {
