@@ -111,7 +111,8 @@ sub create ($c) {
     my $layout = $c->db_rack_layouts->create($input);
     $c->log->debug('Created rack layout '.$layout->id);
 
-    $c->status(303, '/layout/'.$layout->id);
+    $c->res->headers->location('/layout/'.$layout->id);
+    $c->status(201);
 }
 
 =head2 get
@@ -242,7 +243,7 @@ sub update ($c) {
     return $c->status(204) if not $layout->is_changed;
 
     $layout->update({ updated => \'now()' });
-    return $c->status(303);
+    return $c->status(204);
 }
 
 =head2 delete

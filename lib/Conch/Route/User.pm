@@ -153,7 +153,7 @@ an email telling the user their account was updated
 
 =item * Request: F<request.yaml#/$defs/UpdateUser>
 
-=item * Success Response: Redirect to the user that was updated
+=item * Response: C<204 No Content>, plus Location header
 
 =item * Error response on duplicate user: F<response.yaml#/$defs/UserError> (only if the
 calling user is a system admin)
@@ -337,7 +337,7 @@ an email telling the user their account was updated
 
 =item * Request: F<request.yaml#/$defs/UpdateUser>
 
-=item * Success Response: Redirect to the user that was updated
+=item * Response: C<204 No Content>, plus Location header
 
 =item * Error response on duplicate user: F<response.yaml#/$defs/UserError> (only if the
 calling user is a system admin)

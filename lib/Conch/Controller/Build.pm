@@ -91,7 +91,8 @@ sub create ($c) {
         user_build_roles => [ map +{ user_id => $_->[2], role => 'admin' }, @admins ],
     });
     $c->log->info('created build '.$build->id.' ('.$build->name.')');
-    $c->status(303, '/build/'.$build->id);
+    $c->res->headers->location('/build/'.$build->id);
+    $c->status(201);
 }
 
 =head2 find_build
@@ -234,7 +235,7 @@ sub update ($c) {
 
     $build->update if $build->is_changed;
 
-    $c->status(303, '/build/'.$build->id);
+    $c->status(204, '/build/'.$build->id);
 }
 
 =head2 add_links
@@ -253,7 +254,7 @@ sub add_links ($c) {
     ->update({ links => \[ 'array_cat_distinct(links,?)', [{},$input->{links}] ] });
 
   my $build_id = $c->stash('build_id') // $c->stash('build_rs')->get_column('id')->single;
-  $c->status(303, '/build/'.$build_id);
+  $c->status(204, '/build/'.$build_id);
 }
 
 =head2 remove_links

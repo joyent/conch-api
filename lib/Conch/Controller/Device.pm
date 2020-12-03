@@ -311,7 +311,7 @@ sub set_asset_tag ($c) {
     $device->update({ updated => \'now()' });
     $c->log->debug('Set the asset tag for device '.$device->id.' to '.($input->{asset_tag} // 'null'));
 
-    $c->status(303);
+    $c->status(204);
 }
 
 =head2 set_validated
@@ -328,7 +328,7 @@ sub set_validated ($c) {
     $device->update({ validated => \'now()', updated => \'now()' });
     $c->log->debug('Marked the device '.$device_id.' as validated');
 
-    $c->status(303);
+    $c->status(204);
 }
 
 =head2 get_phase
@@ -372,7 +372,7 @@ sub set_phase ($c) {
     $device->update({ updated => \'now()' });
     $c->log->debug('Set the phase for device '.$c->stash('device_id').' to '.$input->{phase});
 
-    $c->status(303);
+    $c->status(204);
 }
 
 =head2 add_links
@@ -392,7 +392,7 @@ sub add_links ($c) {
             updated => \'now()',
         });
 
-    $c->status(303);
+    $c->status(204);
 }
 
 =head2 remove_links
@@ -451,7 +451,7 @@ sub set_build ($c) {
     }
 
     $device->update({ build_id => $input->{build_id}, updated => \'now()' });
-    $c->status(303);
+    $c->status(204);
 }
 
 =head2 set_hardware_product
@@ -476,7 +476,7 @@ sub set_hardware_product ($c) {
     return $c->status(204) if $device->hardware_product_id eq $hardware_product->id;
 
     $device->update({ hardware_product_id => $hardware_product->id, updated => \'now()' });
-    $c->status(303);
+    $c->status(204);
 }
 
 1;

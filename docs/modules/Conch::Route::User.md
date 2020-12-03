@@ -26,7 +26,7 @@ an email telling the user their account was updated
 
 - Controller/Action: ["update" in Conch::Controller::User](../modules/Conch%3A%3AController%3A%3AUser#update)
 - Request: [request.json#/$defs/UpdateUser](../json-schema/request.json#/$defs/UpdateUser)
-- Success Response: Redirect to the user that was updated
+- Response: `204 No Content`, plus Location header
 - Error response on duplicate user: [response.json#/$defs/UserError](../json-schema/response.json#/$defs/UserError) (only if the
 calling user is a system admin)
 
@@ -123,7 +123,7 @@ an email telling the user their account was updated
 - Requires system admin authorization
 - Controller/Action: ["update" in Conch::Controller::User](../modules/Conch%3A%3AController%3A%3AUser#update)
 - Request: [request.json#/$defs/UpdateUser](../json-schema/request.json#/$defs/UpdateUser)
-- Success Response: Redirect to the user that was updated
+- Response: `204 No Content`, plus Location header
 - Error response on duplicate user: [response.json#/$defs/UserError](../json-schema/response.json#/$defs/UserError) (only if the
 calling user is a system admin)
 

@@ -118,7 +118,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Request: F<request.yaml#/$defs/RackCreate>
 
-=item * Response: Redirect to the created rack
+=item * Response: C<201 Created>, plus Location header
 
 =back
 
@@ -144,7 +144,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Request: F<request.yaml#/$defs/RackUpdate>
 
-=item * Response: Redirect to the updated rack
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -182,7 +182,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Request: F<request.yaml#/$defs/RackLayouts>
 
-=item * Response: Redirect to the rack's layouts
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -208,7 +208,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name>.
 
 =item * Request: F<request.yaml#/$defs/RackAssignmentUpdates>
 
-=item * Response: Redirect to the updated rack assignment
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -241,7 +241,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =item * Request: F<request.yaml#/$defs/RackPhase>
 
-=item * Response: Redirect to the updated rack
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -255,7 +255,7 @@ only the rack's phase, or all the rack's devices' phases as well.
 
 =item * Request: F<request.yaml#/$defs/RackLinks>
 
-=item * Response: Redirect to the updated rack
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

@@ -24,7 +24,7 @@ All routes require authentication.
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#create)
 - Request: [request.json#/$defs/OrganizationCreate](../json-schema/request.json#/$defs/OrganizationCreate)
-- Response: Redirect to the organization
+- Response: `201 Created`, plus Location header
 
 ### `GET /organization/:organization_id_or_name`
 
@@ -37,7 +37,7 @@ All routes require authentication.
 - Requires system admin authorization or the admin role on the organization
 - Controller/Action: ["update" in Conch::Controller::Organization](../modules/Conch%3A%3AController%3A%3AOrganization#update)
 - Request: [request.json#/$defs/OrganizationUpdate](../json-schema/request.json#/$defs/OrganizationUpdate)
-- Response: Redirect to the organization
+- Response: `204 No Content`, plus Location header
 
 ### `DELETE /organization/:organization_id_or_name`
 

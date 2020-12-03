@@ -43,8 +43,9 @@ sub set ($c) {
 
     my $device_id = $c->stash('device_id');
 
-    return $c->status(303, '/device/'.$device_id.'/location')
-        if $layout_rs->search_related('device_location', { device_id => $device_id })->exists;
+    if ($layout_rs->search_related('device_location', { device_id => $device_id })->exists) {
+        return $c->status(204, '/device/'.$device_id.'/location');
+    }
 
     $c->txn_wrapper(sub ($c) {
         my $hardware_product_id = $layout_rs->get_column('hardware_product_id')->single;
@@ -73,7 +74,7 @@ sub set ($c) {
     })
     or return $c->status(400);
 
-    $c->status(303, '/device/'.$device_id.'/location');
+    $c->status(204, '/device/'.$device_id.'/location');
 }
 
 =head2 delete

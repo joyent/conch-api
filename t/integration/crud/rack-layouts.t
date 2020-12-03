@@ -164,7 +164,7 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $hw_product_switch->id,
         rack_unit_start => 42,
     })
-    ->status_is(303)
+    ->status_is(201)
     ->location_like(qr!^/layout/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok($t->tx->res->headers->location)
@@ -258,7 +258,7 @@ $t->post_ok('/layout/'.$layout_1_2->id,
 
 $t->post_ok('/layout/'.$layout_1_2->id,
         json => { rack_unit_start => 19, hardware_product_id => $hw_product_storage->id })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/layout/'.$layout_1_2->id);
 
 my $layout_19_22 = $layout_1_2;
@@ -296,7 +296,7 @@ $t->post_ok('/layout', json => {
         hardware_product_id => $hw_product_compute->id,
         rack_unit_start => 1,
     })
-    ->status_is(303)
+    ->status_is(201)
     ->location_like(qr!^/layout/${\Conch::UUID::UUID_FORMAT}$!);
 
 # now we have these assigned slots:
@@ -320,7 +320,7 @@ $t->get_ok("/rack/$rack_id/layout")
 
 # slide a layout forward, overlapping with itself
 $t->post_ok('/layout/'.$layout_19_22->id, json => { rack_unit_start => 20 })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/layout/'.$layout_19_22->id);
 
 my $layout_20_23 = $layout_19_22;
@@ -391,7 +391,7 @@ $t->post_ok('/layout/'.$layout_20_23->id,
 
 # can change just the hardware_product_id, as long as it matches the occupying device
 $t->post_ok('/layout/'.$layout_20_23->id, json => { hardware_product_id => $hw_product_compute->id })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/layout/'.$layout_20_23->id);
 
 $t->post_ok('/rack/'.$rack_id.'/layout',
@@ -421,7 +421,7 @@ $t->post_ok('/rack/'.$rack_id.'/layout',
             # new layout
             { rack_unit_start => 26, hardware_product_id => $hw_product_storage->id },
         ])
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/rack/'.$rack_id.'/layout')
     ->log_debug_is('deleted 2 rack layouts, created 1 rack layouts for rack '.$rack_id);
 
@@ -472,7 +472,7 @@ $t->post_ok('/rack/'.$rack_id.'/layout',
         json => [
             { rack_unit_start => 3, hardware_product_id => $hw_product_compute->id },
         ])
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/rack/'.$rack_id.'/layout')
     ->log_debug_is('unlocated 1 devices, deleted 3 rack layouts, created 1 rack layouts for rack '.$rack_id);
 
@@ -500,7 +500,7 @@ $t->get_ok('/rack/'.$rack_id.'/assignment')
     ]);
 
 $t->post_ok('/rack/'.$rack_id.'/layout', json => [])
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/rack/'.$rack_id.'/layout')
     ->log_debug_is('deleted 1 rack layouts for rack '.$rack_id);
 

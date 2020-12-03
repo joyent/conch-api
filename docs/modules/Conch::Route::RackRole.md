@@ -24,7 +24,7 @@ All routes require authentication.
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::RackRole](../modules/Conch%3A%3AController%3A%3ARackRole#create)
 - Request: [request.json#/$defs/RackRoleCreate](../json-schema/request.json#/$defs/RackRoleCreate)
-- Response: Redirect to the created rack role
+- Response: `201 Created`, plus Location header
 
 ### `GET /rack_role/:rack_role_id_or_name`
 
@@ -36,7 +36,7 @@ All routes require authentication.
 - Requires system admin authorization
 - Controller/Action: ["update" in Conch::Controller::RackRole](../modules/Conch%3A%3AController%3A%3ARackRole#update)
 - Request: [request.json#/$defs/RackRoleUpdate](../json-schema/request.json#/$defs/RackRoleUpdate)
-- Response: Redirect to the updated rack role
+- Response: `204 No Content`, plus Location header
 
 ### `DELETE /rack_role/:rack_role_id_or_name`
 

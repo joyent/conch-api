@@ -184,7 +184,7 @@ subtest 'User' => sub {
                 { name => 'conch' };
 
     $t->post_ok('/user/me', json => { email => 'rO_USer@cONCh.joyent.us', name => 'rO_USer' })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/user/'.$ro_user->id)
         ->email_cmp_deeply({
             To => '"rO_USer" <rO_USer@cONCh.joyent.us>',
@@ -794,7 +794,7 @@ subtest 'modify another user' => sub {
             email => 'TEST_UsER@cONCh.jOYENT.us',
             is_admin => JSON::PP::false,
         })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/user/'.$test_user_id)
         ->email_cmp_deeply({
             To => '"test user" <TEST_UsER@cONCh.jOYENT.us>',
@@ -805,7 +805,7 @@ subtest 'modify another user' => sub {
 
     $t_super->post_ok('/user/untrusted@conch.joyent.us',
             json => { name => 'UNTRUSTED', is_admin => JSON::PP::true })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/user/'.$new_user_id)
         ->email_cmp_deeply({
             To => '"UNTRUSTED" <untrusted@conch.joyent.us>',

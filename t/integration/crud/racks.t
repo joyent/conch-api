@@ -143,7 +143,7 @@ $t->post_ok('/rack', json => {
         build_id => $build->id,
         links => ['https://foo.com/1', 'https://bar.com/2'],
     })
-    ->status_is(303)
+    ->status_is(201)
     ->location_like(qr!^/rack/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok($t->tx->res->headers->location)
@@ -236,7 +236,7 @@ $t->post_ok("/rack/$new_rack->{id}", json => {
         asset_tag => 'deadbeef',
         links => ['https://baz.com/3'],
     })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/rack/'.$new_rack->{id});
 $new_rack->@{qw(name serial_number asset_tag)} = qw(rack abc deadbeef);
 $new_rack->{full_rack_name} = $room->vendor_name.':rack';
@@ -249,7 +249,7 @@ $t->get_ok("/rack/$new_rack->{id}")
     ->json_cmp_deeply($new_rack);
 
 $t->post_ok($_, json => { rack_role_id => $small_rack_role->id })
-    ->status_is($_ eq '/rack/'.$new_rack->{id} ? 303 : 204)
+    ->status_is(204)
     ->location_is('/rack/'.$new_rack->{id})
     foreach
         '/rack/'.$new_rack->{id},
@@ -425,7 +425,7 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 3,
         },
     ])
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/rack/'.$rack->id.'/assignment');
 
 my $foo = $t->app->db_devices->find({ serial_number => 'FOO' });
@@ -463,7 +463,7 @@ subtest 'rack phases' => sub {
     );
 
     $t->post_ok('/rack/'.$rack->id.'/phase?rack_only=1', json => { phase => 'production' })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/rack/'.$rack->id);
 
     $t->get_ok('/rack/'.$rack->id)
@@ -482,7 +482,7 @@ subtest 'rack phases' => sub {
     );
 
     $t->post_ok('/rack/'.$rack->id.'/phase', json => { phase => 'production' })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/rack/'.$rack->id);
 
     cmp_deeply(
@@ -498,7 +498,7 @@ subtest 'rack phases' => sub {
 subtest 'rack links' => sub {
   $t->post_ok('/rack/'.$rack->id.'/links', json => {
       links => ['https://bar.com/2', 'https://alpha.com/1'] })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/rack/'.$rack->id);
 
   $t->get_ok('/rack/'.$rack->id)
@@ -603,7 +603,7 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 3,
         },
     ])
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/rack/'.$rack->id.'/assignment');
 
 $foo->discard_changes;
@@ -641,7 +641,7 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 3,
         },
     ])
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/rack/'.$rack->id.'/assignment');
 
 $assignments->@[0,1] = (
@@ -673,7 +673,7 @@ $t->post_ok('/rack/'.$rack->id.'/assignment', json => [
             rack_unit_start => 11,
         },
     ])
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/rack/'.$rack->id.'/assignment');
 
 my $baz = $t->app->db_devices->find({ serial_number => 'BAZ' });

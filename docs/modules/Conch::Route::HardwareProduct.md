@@ -24,7 +24,7 @@ All routes require authentication.
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#create)
 - Request: [request.json#/$defs/HardwareProductCreate](../json-schema/request.json#/$defs/HardwareProductCreate)
-- Response: Redirect to the created hardware product
+- Response: `201 Created`, plus Location header
 
 ### `GET /hardware_product/:hardware_product_id_or_other`
 
@@ -42,7 +42,7 @@ Identifiers accepted: `id`, `sku`, `name` and `alias`.
 - Requires system admin authorization
 - Controller/Action: ["update" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#update)
 - Request: [request.json#/$defs/HardwareProductUpdate](../json-schema/request.json#/$defs/HardwareProductUpdate)
-- Response: Redirect to the updated hardware product
+- Response: `204 No Content`, plus Location header
 
 ### `DELETE /hardware_product/:hardware_product_id_or_other`
 

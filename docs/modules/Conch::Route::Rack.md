@@ -27,7 +27,7 @@ available under `/rack/:rack_id_or_long_name` as well as
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#create)
 - Request: [request.json#/$defs/RackCreate](../json-schema/request.json#/$defs/RackCreate)
-- Response: Redirect to the created rack
+- Response: `201 Created`, plus Location header
 
 ### `GET /rack/:rack_id_or_name`
 
@@ -40,7 +40,7 @@ available under `/rack/:rack_id_or_long_name` as well as
 - User requires the read/write role on the rack
 - Controller/Action: ["update" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#update)
 - Request: [request.json#/$defs/RackUpdate](../json-schema/request.json#/$defs/RackUpdate)
-- Response: Redirect to the updated rack
+- Response: `204 No Content`, plus Location header
 
 ### `DELETE /rack/:rack_id_or_name`
 
@@ -59,7 +59,7 @@ available under `/rack/:rack_id_or_long_name` as well as
 - User requires the read/write role on the rack
 - Controller/Action: ["overwrite\_layouts" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#overwrite_layouts)
 - Request: [request.json#/$defs/RackLayouts](../json-schema/request.json#/$defs/RackLayouts)
-- Response: Redirect to the rack's layouts
+- Response: `204 No Content`, plus Location header
 
 ### `GET /rack/:rack_id_or_name/assignment`
 
@@ -72,7 +72,7 @@ available under `/rack/:rack_id_or_long_name` as well as
 - User requires the read/write role on the rack
 - Controller/Action: ["set\_assignment" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#set_assignment)
 - Request: [request.json#/$defs/RackAssignmentUpdates](../json-schema/request.json#/$defs/RackAssignmentUpdates)
-- Response: Redirect to the updated rack assignment
+- Response: `204 No Content`, plus Location header
 
 ### `DELETE /rack/:rack_id_or_name/assignment`
 
@@ -91,14 +91,14 @@ only the rack's phase, or all the rack's devices' phases as well.
 - User requires the read/write role on the rack
 - Controller/Action: ["set\_phase" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#set_phase)
 - Request: [request.json#/$defs/RackPhase](../json-schema/request.json#/$defs/RackPhase)
-- Response: Redirect to the updated rack
+- Response: `204 No Content`, plus Location header
 
 #### `POST /rack/:rack_id_or_name/links`
 
 - User requires the read/write role on the rack
 - Controller/Action: ["add\_links" in Conch::Controller::Rack](../modules/Conch%3A%3AController%3A%3ARack#add_links)
 - Request: [request.json#/$defs/RackLinks](../json-schema/request.json#/$defs/RackLinks)
-- Response: Redirect to the updated rack
+- Response: `204 No Content`, plus Location header
 
 #### `DELETE /rack/:rack_id_or_name/links`
 

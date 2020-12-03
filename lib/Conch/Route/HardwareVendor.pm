@@ -91,7 +91,7 @@ All routes require authentication.
 
 =item * Request: F<request.yaml#/$defs/Null>
 
-=item * Response: Redirect to the created hardware vendor
+=item * Response: C<201 Created>, plus Location header
 
 =back
 

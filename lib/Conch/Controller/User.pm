@@ -408,7 +408,7 @@ sub update ($c) {
     $c->log->debug('updating user '.$user->email.': '.$c->req->text);
     $user->update;
 
-    $c->status(303, '/user/'.$user->id);
+    $c->status(204, '/user/'.$user->id);
 }
 
 =head2 get_all

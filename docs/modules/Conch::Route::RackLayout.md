@@ -34,7 +34,7 @@ well as
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#create)
 - Request: [request.json#/$defs/RackLayoutCreate](../json-schema/request.json#/$defs/RackLayoutCreate)
-- Response: Redirect to the created rack layout
+- Response: `201 Created`, plus Location header
 
 ### `GET /layout/:layout_id`
 
@@ -47,7 +47,7 @@ well as
 - Requires system admin authorization
 - Controller/Action: ["update" in Conch::Controller::RackLayout](../modules/Conch%3A%3AController%3A%3ARackLayout#update)
 - Request: [request.json#/$defs/RackLayoutUpdate](../json-schema/request.json#/$defs/RackLayoutUpdate)
-- Response: Redirect to the update rack layout
+- Response: `204 No Content`, plus Location header
 
 ### `DELETE /layout/:layout_id`
 

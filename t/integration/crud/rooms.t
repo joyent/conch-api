@@ -175,7 +175,7 @@ $t2->post_ok('/room', json => { datacenter_id => $datacenter->id })
     ->status_is(403);
 
 $t->post_ok('/room', json => { datacenter_id => $datacenter->id, az => 'sungo-test-1', alias => 'me', vendor_name => 'A:B' })
-    ->status_is(303);
+    ->status_is(201);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)
@@ -211,7 +211,7 @@ $t2->post_ok("/room/$idr", json => { vendor_name => 'sungo' })
     ->status_is(403);
 
 $t->post_ok("/room/$idr", json => { vendor_name => 'sungo', alias => 'you' })
-    ->status_is(303);
+    ->status_is(204);
 
 $t->get_ok($t->tx->res->headers->location)
     ->status_is(200)

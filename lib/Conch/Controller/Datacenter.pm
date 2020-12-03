@@ -89,8 +89,7 @@ sub create ($c) {
             return $c->status(409, { error => 'a datacenter already exists with that vendor-region-location' });
         }
         else {
-            $c->res->headers->location('/dc/'.$dc->id);
-            return $c->status(204);
+            return $c->status(204, '/dc/'.$dc->id);
         }
     }
 
@@ -110,11 +109,11 @@ sub update ($c) {
     my $input = $c->stash('request_data');
     my $datacenter = $c->stash('datacenter');
     $datacenter->set_columns($input);
-    return $c->status(204) if not $datacenter->is_changed;
+    return $c->status(204, '/dc/'.$datacenter->id) if not $datacenter->is_changed;
 
     $datacenter->update({ updated => \'now()' });
     $c->log->debug('Updated datacenter '.$datacenter->id);
-    $c->status(303, '/dc/'.$datacenter->id);
+    $c->status(204, '/dc/'.$datacenter->id);
 }
 
 =head2 delete

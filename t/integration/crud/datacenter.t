@@ -70,7 +70,7 @@ $t->post_ok('/dc', json => { vendor => 'vend0r', region => 'regi0n', location =>
     ->json_is({ error => 'a datacenter already exists with that vendor-region-location' });
 
 $t->post_ok("/dc/$idd", json => { vendor => 'vendor' })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/dc/'.$idd);
 
 $t->get_ok($t->tx->res->headers->location)

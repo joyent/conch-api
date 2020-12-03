@@ -59,7 +59,7 @@ $t->post_ok('/organization', json => {
 
 my $admin_user = $t->generate_fixtures('user_account');
 $t->post_ok('/organization', json => { name => 'my first organization', admins => [ { user_id => $admin_user->id } ] })
-    ->status_is(303)
+    ->status_is(201)
     ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created organization ${\Conch::UUID::UUID_FORMAT} \(my first organization\)$/);
 
@@ -102,7 +102,7 @@ $t->post_ok('/organization', json => { name => 'my first organization', admins =
     ->json_is({ error => 'an organization already exists with that name' });
 
 $t->post_ok('/organization', json => { name => 'our second organization', description => 'funky', admins => [ { email => $admin_user->email } ] })
-    ->status_is(303)
+    ->status_is(201)
     ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created organization ${\Conch::UUID::UUID_FORMAT} \(our second organization\)$/);
 
@@ -134,7 +134,7 @@ $t->post_ok('/organization/our second organization', json => { name => 'my first
     ->json_is({ error => 'duplicate organization found' });
 
 $t->post_ok('/organization/our second organization', json => { description => 'more funky' })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/organization/'.$organization2->{id});
 $organization2->{description} = $organizations->[1]{description} = 'more funky';
 

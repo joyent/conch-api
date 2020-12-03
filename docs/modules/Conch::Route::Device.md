@@ -67,28 +67,28 @@ below.
 - User requires the read/write role
 - Controller/Action: ["set\_asset\_tag" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#set_asset_tag)
 - Request: [request.json#/$defs/DeviceAssetTag](../json-schema/request.json#/$defs/DeviceAssetTag)
-- Response: Redirect to the updated device
+- Response: `204 No Content`, plus Location header
 
 ### `POST /device/:device_id_or_serial_number/validated`
 
 - User requires the read/write role
 - Controller/Action: ["set\_validated" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#set_validated)
 - Request: [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null)
-- Response: Redirect to the updated device
+- Response: `204 No Content`, plus Location header
 
 ### `POST /device/:device_id_or_serial_number/phase`
 
 - User requires the read/write role
 - Controller/Action: ["set\_phase" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#set_phase)
 - Request: [request.json#/$defs/DevicePhase](../json-schema/request.json#/$defs/DevicePhase)
-- Response: Redirect to the updated device
+- Response: `204 No Content`, plus Location header
 
 ### `POST /device/:device_id_or_serial_number/links`
 
 - User requires the read/write role
 - Controller/Action: ["add\_links" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#add_links)
 - Request: [request.json#/$defs/DeviceLinks](../json-schema/request.json#/$defs/DeviceLinks)
-- Response: Redirect to the updated device
+- Response: `204 No Content`, plus Location header
 
 ### `DELETE /device/:device_id_or_serial_number/links`
 
@@ -102,7 +102,7 @@ below.
 - User requires the read/write role for the device, as well as the old and new builds
 - Controller/Action: ["set\_build" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#set_build)
 - Request: [request.json#/$defs/DeviceBuild](../json-schema/request.json#/$defs/DeviceBuild)
-- Response: Redirect to the updated device
+- Response: `204 No Content`, plus Location header
 
 ### `POST /device/:device_id_or_serial_number/hardware_product`
 
@@ -111,7 +111,7 @@ below.
 - User requires the admin role for the device
 - Controller/Action: ["set\_hardware\_product" in Conch::Controller::Device](../modules/Conch%3A%3AController%3A%3ADevice#set_hardware_product)
 - Request: [request.json#/$defs/DeviceHardware](../json-schema/request.json#/$defs/DeviceHardware)
-- Response: Redirect to the updated device
+- Response: `204 No Content`, plus Location header
 
 ### `GET /device/:device_id_or_serial_number/location`
 
@@ -124,7 +124,7 @@ below.
 - User requires the read/write role
 - Controller/Action: ["set" in Conch::Controller::DeviceLocation](../modules/Conch%3A%3AController%3A%3ADeviceLocation#set)
 - Request: [request.json#/$defs/DeviceLocationUpdate](../json-schema/request.json#/$defs/DeviceLocationUpdate)
-- Response: Redirect to the updated device
+- Response: `204 No Content`, plus Location header
 
 ### `DELETE /device/:device_id_or_serial_number/location`
 

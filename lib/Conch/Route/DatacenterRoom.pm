@@ -99,7 +99,7 @@ All routes require authentication.
 
 =item * Request: F<request.yaml#/$defs/DatacenterRoomCreate>
 
-=item * Response: Redirect to the created room
+=item * Response: C<201 Created>, plus Location header
 
 =back
 
@@ -126,7 +126,7 @@ the room
 
 =item * Request: F<request.yaml#/$defs/DatacenterRoomUpdate>
 
-=item * Response: Redirect to the updated room
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

@@ -66,7 +66,7 @@ All routes require authentication.
 
 =item * Request: F<request.yaml#/$defs/RackRoleCreate>
 
-=item * Response: Redirect to the created rack role
+=item * Response: C<201 Created>, plus Location header
 
 =back
 
@@ -90,7 +90,7 @@ All routes require authentication.
 
 =item * Request: F<request.yaml#/$defs/RackRoleUpdate>
 
-=item * Response: Redirect to the updated rack role
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

@@ -157,7 +157,7 @@ Supports the following optional query parameters:
 
 =item * Request: F<request.yaml#/$defs/BuildCreate>
 
-=item * Response: Redirect to the build
+=item * Response: C<201 Created>, plus Location header
 
 =back
 
@@ -195,7 +195,7 @@ Supports the following optional query parameters:
 
 =item * Request: F<request.yaml#/$defs/BuildUpdate>
 
-=item * Response: Redirect to the build
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -209,7 +209,7 @@ Supports the following optional query parameters:
 
 =item * Request: F<request.yaml#/$defs/BuildLinks>
 
-=item * Response: Redirect to the updated build
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

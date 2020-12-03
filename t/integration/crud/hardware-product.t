@@ -86,7 +86,7 @@ $t->post_ok('/hardware_product', json => { %hw_fields, specification => { disk_s
 
 $hw_fields{specification} = { disk_size => { _default => 0, AcmeCorp => 512 } };
 $t->post_ok('/hardware_product', json => \%hw_fields)
-    ->status_is(303)
+    ->status_is(201)
     ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok($t->tx->res->headers->location)
@@ -198,7 +198,7 @@ $t->post_ok("/hardware_product/$new_hw_id", json => { specification => { disk_si
     });
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { name => 'sungo2' })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/hardware_product/'.$new_hw_id);
 
 $new_product->{name} = 'sungo2';
@@ -251,7 +251,7 @@ $t->post_ok('/hardware_product', json => {
         bios_firmware => '1.2.3',
         cpu_type => 'fooey',
     })
-    ->status_is(303)
+    ->status_is(201)
     ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
 
 $t->get_ok('/hardware_product/sungo')
