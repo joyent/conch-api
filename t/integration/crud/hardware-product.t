@@ -258,20 +258,24 @@ $t->get_ok('/hardware_product/sungo')
     ->status_is(409)
     ->json_is({ error => 'there is more than one match' });
 
+my $base_specification = $hw_fields{specification} = {
+  disk_size => { _default => 0, AcmeCorp => 512 },
+};
+
 subtest 'manipulate hardware_product.specification' => sub {
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification', json => {})
     ->status_is(400)
     ->json_schema_is('QueryParamsValidationError')
     ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: path' }) ]);
 
-  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=', json => {})
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=', json => $base_specification)
     ->status_is(204)
     ->location_is('/hardware_product/'.$new_hw_id);
 
   $t->get_ok('/hardware_product/'.$new_hw_id)
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
-    ->json_cmp_deeply(superhashof({ specification => {} }));
+    ->json_cmp_deeply(superhashof({ specification => $base_specification }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=', json => 'hello')
     ->status_is(400)
@@ -298,7 +302,10 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => { disk_size => { _default => 128 } },
+      specification => {
+        $base_specification->%*,
+        disk_size => { _default => 128 },
+      },
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/SEAGATE_8000',
@@ -319,7 +326,10 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => { disk_size => { _default => 128, SEAGATE_8000 => 1 } },
+      specification => {
+        $base_specification->%*,
+        disk_size => { _default => 128, SEAGATE_8000 => 1 },
+      },
     }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/_default', json => 64)
@@ -330,7 +340,10 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => { disk_size => { _default => 64, SEAGATE_8000 => 1 } },
+      specification => {
+        $base_specification->%*,
+        disk_size => { _default => 64, SEAGATE_8000 => 1 },
+      },
     }));
 
   # the path we want to operate on is called .../~1~device/  and encodes as .../~01~0device/...
@@ -347,14 +360,18 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => { disk_size => {
-        _default => 64,
-        SEAGATE_8000 => 1,
-        'tilde~1~device' => 2,
-      } },
+      specification => {
+        $base_specification->%*,
+        disk_size => {
+          _default => 64,
+          SEAGATE_8000 => 1,
+          'tilde~1~device' => 2,
+        },
+      },
     }));
 
-  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/other_prop', json => [ 1,2,3 ])
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disks',
+      json => { usb_hdd_num => 0 })
     ->status_is(204)
     ->location_is('/hardware_product/'.$new_hw_id);
 
@@ -363,8 +380,25 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
       specification => {
+        $base_specification->%*,
         disk_size => { _default => 64, SEAGATE_8000 => 1, 'tilde~1~device' => 2 },
-        other_prop => [ 1, 2, 3 ],
+        disks => { usb_hdd_num => 0 },
+      },
+    }));
+
+  $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disks',
+      json => { usb_hdd_num => 0, sas_ssd_slots => '1,2,3' })
+    ->status_is(204)
+    ->location_is('/hardware_product/'.$new_hw_id);
+
+  $t->get_ok('/hardware_product/'.$new_hw_id)
+    ->status_is(200)
+    ->json_schema_is('HardwareProduct')
+    ->json_cmp_deeply(superhashof({
+      specification => {
+        $base_specification->%*,
+        disk_size => { _default => 64, SEAGATE_8000 => 1, 'tilde~1~device' => 2 },
+        disks => { usb_hdd_num => 0, sas_ssd_slots => '1,2,3' },
       },
     }));
 
@@ -393,8 +427,9 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
       specification => {
+        $base_specification->%*,
         disk_size => { _default => 64, SEAGATE_8000 => 1 },
-        other_prop => [ 1, 2, 3 ],
+        disks => { usb_hdd_num => 0, sas_ssd_slots => '1,2,3' },
       },
     }));
 
@@ -406,17 +441,25 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
     ->json_cmp_deeply(superhashof({
-      specification => { other_prop => [ 1, 2, 3 ] },
+      specification => {
+        $base_specification->%{ grep $_ ne 'disk_size', keys $base_specification->%* },
+        disks => { usb_hdd_num => 0, sas_ssd_slots => '1,2,3' },
+      },
     }));
 
-  $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=')
+  $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disks/usb_hdd_num')
     ->status_is(204)
     ->location_is('/hardware_product/'.$new_hw_id);
 
   $t->get_ok('/hardware_product/'.$new_hw_id)
     ->status_is(200)
     ->json_schema_is('HardwareProduct')
-    ->json_cmp_deeply(superhashof({ specification => undef }));
+    ->json_cmp_deeply(superhashof({
+      specification => {
+        $base_specification->%{ grep $_ ne 'disk_size', keys $base_specification->%* },
+        disks => { sas_ssd_slots => '1,2,3' },
+      },
+    }));
 };
 
 subtest 'delete a hardware product' => sub {

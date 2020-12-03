@@ -86,6 +86,12 @@ sub get ($c) {
     $bundled_schema->{'$id'} = $c->url_for('/json_schema/'.$type.'/'.$name)->to_abs;
     $bundled_schema->{'$schema'} //= 'https://json-schema.org/draft/2019-09/schema';
 
+    # hack! remove when adding get-from-database functionality
+    if ($c->req->url->path =~ qr{^/json_schema/hardware_product/specification/(?:1|latest)$}) {
+        $bundled_schema->{'$id'} = $c->url_for->path('1')->to_abs;
+        delete $bundled_schema->{deprecated};
+    }
+
     $c->res->headers->content_type('application/schema+json');
     return $c->status(200, $bundled_schema);
 }

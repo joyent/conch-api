@@ -78,7 +78,8 @@ original: {default_value => \"now()"}
 
 ```
 data_type: 'jsonb'
-is_nullable: 1
+default_value: '{}'
+is_nullable: 0
 ```
 
 ### sku

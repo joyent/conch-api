@@ -380,7 +380,7 @@ CREATE TABLE public.hardware_product (
     deactivated timestamp with time zone,
     created timestamp with time zone DEFAULT now() NOT NULL,
     updated timestamp with time zone DEFAULT now() NOT NULL,
-    specification jsonb,
+    specification jsonb DEFAULT '{}'::jsonb NOT NULL,
     sku text NOT NULL,
     generation_name text,
     legacy_product_name text,
