@@ -29,7 +29,7 @@ Supports the following optional query parameters:
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#create)
 - Request: [request.json#/$defs/BuildCreate](../json-schema/request.json#/$defs/BuildCreate)
-- Response: Redirect to the build
+- Response: `201 Created`, plus Location header
 
 ### `GET /build/:build_id_or_name`
 
@@ -48,20 +48,20 @@ Supports the following optional query parameters:
 - Requires system admin authorization or the admin role on the build
 - Controller/Action: ["update" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#update)
 - Request: [request.json#/$defs/BuildUpdate](../json-schema/request.json#/$defs/BuildUpdate)
-- Response: Redirect to the build
+- Response: `204 No Content`, plus Location header
 
 #### `POST /build/:build_id_or_name/links`
 
 - Requires system admin authorization or the admin role on the build
 - Controller/Action: ["add\_links" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#add_links)
 - Request: [request.json#/$defs/BuildLinks](../json-schema/request.json#/$defs/BuildLinks)
-- Response: Redirect to the updated build
+- Response: `204 No Content`, plus Location header
 
 #### `DELETE /build/:build_id_or_name/links`
 
 - Requires system admin authorization or the admin role on the build
 - Request: [request.json#/$defs/BuildLinksOrNull](../json-schema/request.json#/$defs/BuildLinksOrNull)
-- Response: 204 NO CONTENT
+- Response: `204 No Content`, plus Location header
 
 ### `GET /build/:build_id_or_name/user`
 

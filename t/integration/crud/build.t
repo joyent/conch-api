@@ -65,7 +65,7 @@ $t->post_ok('/build', json => {
       admins => [ { user_id => $admin_user->id } ],
       links => ['https://foo.com/1', 'https://bar.com/2'],
     })
-    ->status_is(303)
+    ->status_is(201)
     ->location_like(qr!^/build/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created build ${\Conch::UUID::UUID_FORMAT} \(my first build\)$/);
 
@@ -109,7 +109,7 @@ $t->get_ok('/build'.$_)
 
 
 $t->post_ok('/build/my first build', json => { description => 'a description', links => ['https://baz.com/3'] })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/build/'.$build->{id});
 $build->{description} = 'a description';
 $build->{links} = ['https://baz.com/3'];
@@ -130,7 +130,7 @@ foreach my $payload (
 }
 
 $t->post_ok('/build/my first build', json => { started => $now->minus_days(7) })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/build/'.$build->{id})
     ->log_info_is('build '.$build->{id}.' (my first build) started');
 $build->{started} = $now->minus_days(7)->to_string;
@@ -145,7 +145,7 @@ $t->post_ok('/build/my first build', json => { completed => $now->plus_days(1) }
     ->json_is({ error => 'build cannot be completed in the future' });
 
 $t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/build/'.$build->{id})
     ->log_info_is("build $build->{id} (my first build) completed as success (0 unhealthy devices); 0 users had role converted from rw to ro");
 
@@ -176,13 +176,13 @@ $t->post_ok('/build/my first build', json => { completed => $now })
     ->json_is({ error => 'build was already completed' });
 
 $t->post_ok('/build/my first build', json => { completed => undef })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/build/'.$build->{id})
     ->log_info_is('build '.$build->{id}.' (my first build) moved out of completed state');
 $build->@{qw(completed completed_user completed_status)} = (undef)x3;
 
 $t->post_ok('/build/my first build/links', json => { links => ['https://alpha.com/1'] })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/build/'.$build->{id});
 $build->{links} = ['https://alpha.com/1', 'https://baz.com/3'];
 
@@ -192,10 +192,12 @@ $t->get_ok('/build/my first build')
     ->json_is($build);
 
 $t->delete_ok('/build/my first build/links', json => { links => [ 'https://does-not-exist.com' ] })
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/build/'.$build->{id});
 
 $t->delete_ok('/build/my first build/links', json => { links => ['https://alpha.com/1'] })
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/build/'.$build->{id});
 $build->{links} = ['https://baz.com/3'];
 
 $t->get_ok('/build/my first build')
@@ -204,7 +206,8 @@ $t->get_ok('/build/my first build')
     ->json_is($build);
 
 $t->delete_ok('/build/my first build/links')
-    ->status_is(204);
+    ->status_is(204)
+    ->location_is('/build/'.$build->{id});
 $build->{links} = [];
 
 $t->get_ok('/build/my first build')
@@ -232,7 +235,7 @@ $t->post_ok('/build', json => {
         started => '2019-01-01T00:00:00Z',
         build_id => $build->{id},
     })
-    ->status_is(303)
+    ->status_is(201)
     ->location_like(qr!^/build/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created build ${\Conch::UUID::UUID_FORMAT} \(our second build\)$/);
 
@@ -416,7 +419,7 @@ $t2->delete_ok('/build/my first build/user/'.$new_user->email)
     ->log_debug_is('User lacks the required role (admin) for build my first build');
 
 $t->post_ok('/build/my first build', json => { completed => $now->minus_hours(2) })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/build/'.$build->{id})
     ->log_info_is("build $build->{id} (my first build) completed as success (0 unhealthy devices); 1 users had role converted from rw to ro");
 $build->{completed} = $now->minus_hours(2)->to_string;
@@ -530,7 +533,7 @@ $t->get_ok('/build/our second build/user')
 
 my $org_admin = $t->generate_fixtures('user_account');
 $t->post_ok('/organization', json => { name => 'my first organization', admins => [ { user_id => $org_admin->id } ] })
-    ->status_is(303)
+    ->status_is(201)
     ->location_like(qr!^/organization/${\Conch::UUID::UUID_FORMAT}$!)
     ->log_info_like(qr/^created organization ${\Conch::UUID::UUID_FORMAT} \(my first organization\)$/);
 my $organization = $t->app->db_organizations->find($t->tx->res->headers->location =~ s!^/organization/(${\Conch::UUID::UUID_FORMAT})$!$1!r);
@@ -1087,7 +1090,7 @@ $t->post_ok('/build/my first build/device/'.$device2->id)
     ->json_is({ error => 'cannot add a device to a completed build' });
 
 $t->post_ok('/build/my first build', json => { completed => undef })
-    ->status_is(303)
+    ->status_is(204)
     ->location_is('/build/'.$build->{id})
     ->log_info_is('build '.$build->{id}.' (my first build) moved out of completed state');
 $build->@{qw(completed completed_user completed_status)} = (undef)x3;
@@ -1218,7 +1221,7 @@ foreach my $device1_health (0, 1) {
         my $unhealthy_count = 0+ (!$device1_health && !$device1_phase) + (!$device2_health && !$device2_phase);
 
         $t->post_ok('/build/my first build', json => { completed => $now->minus_days(1) })
-          ->status_is(303)
+          ->status_is(204)
           ->location_is('/build/'.$build->{id})
           ->log_info_is("build $build->{id} (my first build) completed as "
             .($unhealthy_count ? 'failure' : 'success')

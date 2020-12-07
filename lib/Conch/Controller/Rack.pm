@@ -118,7 +118,8 @@ sub create ($c) {
     my $rack = $c->db_racks->create($input);
     $c->log->debug('Created rack '.$rack->id);
 
-    $c->status(303, '/rack/'.$rack->id);
+    $c->res->headers->location('/rack/'.$rack->id);
+    $c->status(201);
 }
 
 =head2 get
@@ -240,7 +241,7 @@ sub overwrite_layouts ($c) {
     })
     or return $c->status(400);
 
-    $c->status(303, '/rack/'.$c->stash('rack_id').'/layout');
+    $c->status(204, '/rack/'.$c->stash('rack_id').'/layout');
 }
 
 =head2 update
@@ -302,7 +303,7 @@ sub update ($c) {
 
     $rack->update({ updated => \'now()' });
     $c->log->debug('Updated rack '.$rack->id);
-    return $c->status(303);
+    return $c->status(204);
 }
 
 =head2 delete
@@ -473,7 +474,7 @@ sub set_assignment ($c) {
     };
 
     $c->log->debug('Updated device assignments for rack '.$c->stash('rack_id'));
-    $c->status(303, '/rack/'.$c->stash('rack_id').'/assignment');
+    $c->status(204, '/rack/'.$c->stash('rack_id').'/assignment');
 }
 
 =head2 delete_assignment
@@ -553,7 +554,7 @@ sub set_phase ($c) {
         $c->log->debug('set the phase for all devices in rack '.$c->stash('rack_id').' to '.$input->{phase});
     }
 
-    $c->status(303, '/rack/'.$c->stash('rack_id'));
+    $c->status(204, '/rack/'.$c->stash('rack_id'));
 }
 
 =head2 add_links
@@ -574,7 +575,7 @@ sub add_links ($c) {
     });
 
   my $rack_id = $c->stash('rack_id') // $c->stash('rack_rs')->get_column('id')->single;
-  $c->status(303, '/rack/'.$rack_id);
+  $c->status(204, '/rack/'.$rack_id);
 }
 
 =head2 remove_links
@@ -603,7 +604,8 @@ sub remove_links ($c) {
       ->update({ links => '{}', updated => \'now()' });
   }
 
-  $c->status(204);
+  my $rack_id = $c->stash('rack_id') // $c->stash('rack_rs')->get_column('id')->single;
+  $c->status(204, '/rack/'.$rack_id);
 }
 
 1;

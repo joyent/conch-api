@@ -234,7 +234,7 @@ below.
 
 =item * Request: F<request.yaml#/$defs/DeviceAssetTag>
 
-=item * Response: Redirect to the updated device
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -248,7 +248,7 @@ below.
 
 =item * Request: F<request.yaml#/$defs/Null>
 
-=item * Response: Redirect to the updated device
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -262,7 +262,7 @@ below.
 
 =item * Request: F<request.yaml#/$defs/DevicePhase>
 
-=item * Response: Redirect to the updated device
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -276,7 +276,7 @@ below.
 
 =item * Request: F<request.yaml#/$defs/DeviceLinks>
 
-=item * Response: Redirect to the updated device
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -304,7 +304,7 @@ below.
 
 =item * Request: F<request.yaml#/$defs/DeviceBuild>
 
-=item * Response: Redirect to the updated device
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -320,7 +320,7 @@ below.
 
 =item * Request: F<request.yaml#/$defs/DeviceHardware>
 
-=item * Response: Redirect to the updated device
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 
@@ -346,7 +346,7 @@ below.
 
 =item * Request: F<request.yaml#/$defs/DeviceLocationUpdate>
 
-=item * Response: Redirect to the updated device
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

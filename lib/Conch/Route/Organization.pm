@@ -82,7 +82,7 @@ All routes require authentication.
 
 =item * Request: F<request.yaml#/$defs/OrganizationCreate>
 
-=item * Response: Redirect to the organization
+=item * Response: C<201 Created>, plus Location header
 
 =back
 
@@ -108,7 +108,7 @@ All routes require authentication.
 
 =item * Request: F<request.yaml#/$defs/OrganizationUpdate>
 
-=item * Response: Redirect to the organization
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

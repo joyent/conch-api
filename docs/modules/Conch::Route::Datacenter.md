@@ -38,7 +38,7 @@ All routes require authentication.
 - Requires system admin authorization
 - Controller/Action: ["update" in Conch::Controller::Datacenter](../modules/Conch%3A%3AController%3A%3ADatacenter#update)
 - Request: [request.json#/$defs/DatacenterUpdate](../json-schema/request.json#/$defs/DatacenterUpdate)
-- Response: Redirect to the updated datacenter
+- Response: `204 No Content`, plus Location header
 
 ### `DELETE /dc/:datacenter_id`
 

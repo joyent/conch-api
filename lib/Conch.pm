@@ -145,7 +145,11 @@ C<< $c->render >> as a side-effect.
             return 0;
         }
 
-        if (any { $code == $_ } 301, 302, 303, 305, 307, 308) {
+        if ($code == 204) {
+            $c->res->headers->location($payload) if defined $payload;
+            $c->rendered;
+        }
+        elsif (any { $code == $_ } 301, 302, 303, 305, 307, 308) {
             $c->redirect_to($payload);
         }
         else {

@@ -82,7 +82,8 @@ sub create ($c) {
         user_organization_roles => [ map +{ user_id => $_->[2], role => 'admin' }, @admins ],
     });
     $c->log->info('created organization '.$organization->id.' ('.$organization->name.')');
-    $c->status(303, '/organization/'.$organization->id);
+    $c->res->headers->location('/organization/'.$organization->id);
+    $c->status(201);
 }
 
 =head2 find_organization
@@ -165,7 +166,7 @@ sub update ($c) {
             and $c->db_organizations->active->search({ name => $input->{name} })->exists;
 
     $organization->update($input);
-    $c->status(303, '/organization/'.$organization->id);
+    $c->status(204, '/organization/'.$organization->id);
 }
 
 =head2 delete

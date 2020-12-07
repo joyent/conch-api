@@ -97,7 +97,8 @@ sub create ($c) {
 
     my $room = $c->db_datacenter_rooms->create($input);
     $c->log->debug('Created datacenter room '.$room->id);
-    $c->status(303, '/room/'.$room->id);
+    $c->res->headers->location('/room/'.$room->id);
+    $c->status(201);
 }
 
 =head2 update
@@ -130,7 +131,7 @@ sub update ($c) {
 
     $room->update({ updated => \'now()' });
     $c->log->debug('Updated datacenter room '.$c->stash('datacenter_room_id_or_alias'));
-    $c->status(303);
+    $c->status(204);
 }
 
 =head2 delete

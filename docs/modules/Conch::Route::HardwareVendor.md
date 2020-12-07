@@ -35,7 +35,7 @@ All routes require authentication.
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::HardwareVendor](../modules/Conch%3A%3AController%3A%3AHardwareVendor#create)
 - Request: [request.json#/$defs/Null](../json-schema/request.json#/$defs/Null)
-- Response: Redirect to the created hardware vendor
+- Response: `201 Created`, plus Location header
 
 ## LICENSING
 

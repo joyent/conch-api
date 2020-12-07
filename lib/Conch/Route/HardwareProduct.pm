@@ -89,7 +89,7 @@ All routes require authentication.
 
 =item * Request: F<request.yaml#/$defs/HardwareProductCreate>
 
-=item * Response: Redirect to the created hardware product
+=item * Response: C<201 Created>, plus Location header
 
 =back
 
@@ -119,7 +119,7 @@ Identifiers accepted: C<id>, C<sku>, C<name> and C<alias>.
 
 =item * Request: F<request.yaml#/$defs/HardwareProductUpdate>
 
-=item * Response: Redirect to the updated hardware product
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

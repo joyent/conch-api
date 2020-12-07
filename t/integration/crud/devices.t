@@ -137,7 +137,8 @@ subtest 'unlocated device, no registered relay' => sub {
 
 subtest 'unlocated device with a registered relay' => sub {
     $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
-        ->status_is(201);
+        ->status_is(201)
+        ->location_like(qr!^/relay/${\Conch::UUID::UUID_FORMAT}$!);
 
     my $report = path('t/integration/resource/passing-device-report.json')->slurp_utf8;
     $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $report)
@@ -247,13 +248,9 @@ subtest 'unlocated device with a registered relay' => sub {
     );
 
     foreach my $query (@post_queries) {
-        $t->post_ok($query->@*);
-        if ($query->[0] =~ /settings/) {
-            $t->status_is(204);
-        } else {
-            $t->status_is(303)
-            ->location_is('/device/'.$test_device_id);
-        }
+        $t->post_ok($query->@*)
+          ->status_is(204)
+          ->location_is('/device/'.$test_device_id);
     }
 
     $t->app->db_device_nics->create({
@@ -334,12 +331,8 @@ subtest 'unlocated device with a registered relay' => sub {
 
     foreach my $query (@post_queries) {
         $t2->post_ok($query->@*)
-            ->location_is('/device/'.$test_device_id);
-        if ($query->[0] =~ /settings|validated|phase/) {
-            $t2->status_is(204);
-        } else {
-            $t2->status_is(303);
-        }
+          ->status_is(204)
+          ->location_is('/device/'.$test_device_id);
     }
 
     foreach my $query (@get_queries) {
@@ -449,13 +442,9 @@ subtest 'located device' => sub {
 
         $t->authenticate(email => $rw_user->email);
         foreach my $query (@post_queries) {
-            $t->post_ok($query->@*);
-            if ($query->[0] =~ /settings/) {
-                $t->status_is(204);
-            } else {
-                $t->status_is(303)
-                    ->location_is('/device/'.$located_device_id);
-            }
+            $t->post_ok($query->@*)
+              ->status_is(204)
+              ->location_is('/device/'.$located_device_id);
         }
         $t->post_ok('/device/LOCATED_DEVICE/settings/hello', json => { 'hello' => 'bye' })
             ->status_is(403)
@@ -471,7 +460,7 @@ subtest 'located device' => sub {
             ->status_is(204);
 
         $t->post_ok('/device/LOCATED_DEVICE/sku', json => { sku => $hardware_product2->sku })
-            ->status_is(303)
+            ->status_is(204)
             ->location_is('/device/'.$located_device_id);
 
         $t->authenticate(email => $ro_user->email);
@@ -670,7 +659,7 @@ subtest 'device network interfaces' => sub {
         ->json_is({ ipaddr => '10.72.160.146' });
 
     $t->post_ok('/device/TEST/phase', json => { phase => 'production' })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
 
     foreach my $query (
@@ -694,7 +683,7 @@ subtest 'device network interfaces' => sub {
         ->json_schema_is('DeviceNics');
 
     $t->post_ok('/device/TEST/phase', json => { phase => 'installation' })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
 };
 
@@ -826,16 +815,16 @@ subtest 'mutate device attributes' => sub {
         ]);
 
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => 'asset_tag' })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
 
     $t->post_ok('/device/TEST/asset_tag', json => { asset_tag => undef })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
 
     $t->app->db_devices->search({ serial_number => 'TEST' })->update({ validated => undef });
     $t->post_ok('/device/TEST/validated')
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
     $detailed_device->{validated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
@@ -843,7 +832,7 @@ subtest 'mutate device attributes' => sub {
         ->status_is(204);
 
     $t->post_ok('/device/TEST/phase', json => { phase => 'decommissioned' })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
 
     local $detailed_device->{phase} = 'decommissioned';
@@ -877,7 +866,7 @@ subtest 'mutate device attributes' => sub {
         });
 
     $t->post_ok('/device/TEST/hardware_product', json => { sku => $hardware_product2->sku })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
     $detailed_device->@{qw(hardware_product_id sku)} = map $hardware_product2->$_, qw(id sku);
 
@@ -891,7 +880,7 @@ subtest 'mutate device attributes' => sub {
         });
 
     $t->post_ok('/device/TEST/links', json => { links => [ 'https://foo.com/1' ] })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
     $detailed_device->{links} = [ 'https://foo.com/1' ];
     $detailed_device->{updated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
@@ -911,7 +900,7 @@ subtest 'mutate device attributes' => sub {
     $build->search_related('user_build_roles', { user_id => $ro_user->id })->update({ role => 'rw' });
 
     $t->post_ok('/device/TEST/build', json => { build_id => $build->id })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
     $detailed_device->@{qw(build_id build_name)} = map $build->$_, qw(id name);
 
@@ -926,7 +915,7 @@ subtest 'mutate device attributes' => sub {
     $detailed_device->{updated} = $t->tx->res->json->{updated};
 
     $t->post_ok('/device/TEST/links', json => { links => [ 'https://foo.com/1' ] })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
 
     $t->get_ok('/device/TEST')
@@ -935,7 +924,7 @@ subtest 'mutate device attributes' => sub {
         ->json_cmp_deeply($detailed_device);
 
     $t->post_ok('/device/TEST/links', json => { links => [ 'https://foo.com/1', 'https://foo.com/0' ] })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id);
     $detailed_device->{links} = [ 'https://foo.com/0', 'https://foo.com/1' ];
     $detailed_device->{updated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
@@ -1300,7 +1289,7 @@ subtest 'Device location' => sub {
 
     # now move device back to a Compute rack_unit
     $t_build->post_ok('/device/TEST/location', json => { rack_id => $rack_id, rack_unit_start => 1 })
-        ->status_is(303)
+        ->status_is(204)
         ->location_is('/device/'.$test_device_id.'/location');
 
     $t_build->get_ok('/device/TEST/location')

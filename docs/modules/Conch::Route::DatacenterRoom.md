@@ -25,7 +25,7 @@ All routes require authentication.
 - Requires system admin authorization
 - Controller/Action: ["create" in Conch::Controller::DatacenterRoom](../modules/Conch%3A%3AController%3A%3ADatacenterRoom#create)
 - Request: [request.json#/$defs/DatacenterRoomCreate](../json-schema/request.json#/$defs/DatacenterRoomCreate)
-- Response: Redirect to the created room
+- Response: `201 Created`, plus Location header
 
 ### `GET /room/:datacenter_room_id_or_alias`
 
@@ -39,7 +39,7 @@ the room
 - Requires system admin authorization
 - Controller/Action: ["update" in Conch::Controller::DatacenterRoom](../modules/Conch%3A%3AController%3A%3ADatacenterRoom#update)
 - Request: [request.json#/$defs/DatacenterRoomUpdate](../json-schema/request.json#/$defs/DatacenterRoomUpdate)
-- Response: Redirect to the updated room
+- Response: `204 No Content`, plus Location header
 
 ### `DELETE /room/:datacenter_room_id_or_alias`
 

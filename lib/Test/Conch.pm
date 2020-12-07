@@ -239,7 +239,7 @@ Wrapper around L<Test::Mojo/status_is>, adding some additional checks.
  3.1. 2xx and 4xx JSON responses should have a Link header
  4. HEAD requests should not have body content
  5. 200, 203, 206, 207 and most 4xx responses should have body content
- 6. 201, 204, 205 and most 3xx responses should not have body content
+ 6. 204, 205 and most 3xx responses should not have body content
  7. 302 should not be used at all
  8. 401, 403 responses should have a WWW-Authenticate header
 
@@ -287,7 +287,7 @@ sub status_is ($self, $status, $desc = undef) {
 
     # 6.
     $self->test('fail', $code.' responses should not have content')
-        if any { $code == $_ } 204,301,302,303,304,305,307,308 and $self->tx->res->text;
+        if any { $code == $_ } 204,205,301,302,303,304,305,307,308 and $self->tx->res->text;
 
     # 7.
     $self->test('fail', 'HTTP 302 is superseded by 303 and 307')

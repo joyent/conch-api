@@ -86,7 +86,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 
 =item * Request: F<request.yaml#/$defs/RackLayoutCreate>
 
-=item * Response: Redirect to the created rack layout
+=item * Response: C<201 Created>, plus Location header
 
 =back
 
@@ -112,7 +112,7 @@ C</room/datacenter_room_id_or_alias/rack/:rack_id_or_name/layout/:layout_id_or_r
 
 =item * Request: F<request.yaml#/$defs/RackLayoutUpdate>
 
-=item * Response: Redirect to the update rack layout
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

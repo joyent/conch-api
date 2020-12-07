@@ -96,7 +96,7 @@ All routes require authentication.
 
 =item * Request: F<request.yaml#/$defs/DatacenterUpdate>
 
-=item * Response: Redirect to the updated datacenter
+=item * Response: C<204 No Content>, plus Location header
 
 =back
 

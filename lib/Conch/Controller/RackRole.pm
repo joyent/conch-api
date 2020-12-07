@@ -58,7 +58,8 @@ sub create ($c) {
 
     my $rack_role = $c->db_rack_roles->create($input);
     $c->log->debug('Created rack role '.$rack_role->id);
-    $c->status(303, '/rack_role/'.$rack_role->id);
+    $c->res->headers->location('/rack_role/'.$rack_role->id);
+    $c->status(201);
 }
 
 =head2 get
@@ -131,7 +132,7 @@ sub update ($c) {
 
     $rack_role->update({ updated => \'now()' }) if $rack_role->is_changed;
     $c->log->debug('Updated rack role '.$rack_role->id);
-    $c->status(303);
+    $c->status(204);
 }
 
 =head2 delete

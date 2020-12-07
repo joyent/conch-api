@@ -122,7 +122,8 @@ sub create ($c) {
     return $c->status(400) if not $hardware_product;
 
     $c->log->debug('Created hardware product id '.$hardware_product->id);
-    $c->status(303, '/hardware_product/'.$hardware_product->id);
+    $c->res->headers->location('/hardware_product/'.$hardware_product->id);
+    $c->status(201);
 }
 
 =head2 update
@@ -162,7 +163,7 @@ sub update ($c) {
     })
     or return $c->res->code(400);
 
-    $c->status(303, '/hardware_product/'.$hardware_product->id);
+    $c->status(204, '/hardware_product/'.$hardware_product->id);
 }
 
 =head2 delete
