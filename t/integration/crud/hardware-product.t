@@ -68,19 +68,19 @@ my %hw_fields = (
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => 'not json!' } )
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof(superhashof({ data_location => '/specification', error => 'wrong type (expected object)' })));
+    ->json_cmp_deeply('/details', [ superhashof({ data_location => '/specification', error => 'wrong type (expected object)' }) ]);
 
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => '{"disk_size":"not an object"}' } )
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof(superhashof({ data_location => '/specification', error => 'wrong type (expected object)' })));
+    ->json_cmp_deeply('/details', [ superhashof({ data_location => '/specification', error => 'wrong type (expected object)' }) ]);
 
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => { disk_size => 'not an object' } })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply({
         error => 'request did not match required format',
-        details => superbagof(superhashof({ data_location => '/specification/disk_size', error => 'wrong type (expected object)' })),
+        details => [ superhashof({ data_location => '/specification/disk_size', error => 'wrong type (expected object)' }) ],
         schema => $base_uri.'json_schema/request/HardwareProductCreate',
     });
 
@@ -181,19 +181,19 @@ $t->post_ok('/hardware_product', json => {
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => 'not json!' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof(superhashof({ data_location => '/specification', error => 'wrong type (expected object)' })));
+    ->json_cmp_deeply('/details', [ superhashof({ data_location => '/specification', error => 'wrong type (expected object)' }) ]);
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => '{"disk_size":"not an object"}' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', superbagof(superhashof({ data_location => '/specification', error => 'wrong type (expected object)' })));
+    ->json_cmp_deeply('/details', [ superhashof({ data_location => '/specification', error => 'wrong type (expected object)' }) ]);
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => { disk_size => 'not an object' } })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply({
         error => 'request did not match required format',
-        details => superbagof(superhashof({ data_location => '/specification/disk_size', error => 'wrong type (expected object)' })),
+        details => [ superhashof({ data_location => '/specification/disk_size', error => 'wrong type (expected object)' }) ],
         schema => $base_uri.'json_schema/request/HardwareProductUpdate',
     });
 

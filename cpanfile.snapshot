@@ -2283,22 +2283,22 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
-  JSON-Schema-Draft201909-0.017
-    pathname: E/ET/ETHER/JSON-Schema-Draft201909-0.017.tar.gz
+  JSON-Schema-Draft201909-0.019
+    pathname: E/ET/ETHER/JSON-Schema-Draft201909-0.019.tar.gz
     provides:
-      JSON::Schema::Draft201909 0.017
-      JSON::Schema::Draft201909::Annotation 0.017
-      JSON::Schema::Draft201909::Document 0.017
-      JSON::Schema::Draft201909::Error 0.017
-      JSON::Schema::Draft201909::Result 0.017
-      JSON::Schema::Draft201909::Utilities 0.017
-      JSON::Schema::Draft201909::Vocabulary 0.017
-      JSON::Schema::Draft201909::Vocabulary::Applicator 0.017
-      JSON::Schema::Draft201909::Vocabulary::Content 0.017
-      JSON::Schema::Draft201909::Vocabulary::Core 0.017
-      JSON::Schema::Draft201909::Vocabulary::Format 0.017
-      JSON::Schema::Draft201909::Vocabulary::MetaData 0.017
-      JSON::Schema::Draft201909::Vocabulary::Validation 0.017
+      JSON::Schema::Draft201909 0.019
+      JSON::Schema::Draft201909::Annotation 0.019
+      JSON::Schema::Draft201909::Document 0.019
+      JSON::Schema::Draft201909::Error 0.019
+      JSON::Schema::Draft201909::Result 0.019
+      JSON::Schema::Draft201909::Utilities 0.019
+      JSON::Schema::Draft201909::Vocabulary 0.019
+      JSON::Schema::Draft201909::Vocabulary::Applicator 0.019
+      JSON::Schema::Draft201909::Vocabulary::Content 0.019
+      JSON::Schema::Draft201909::Vocabulary::Core 0.019
+      JSON::Schema::Draft201909::Vocabulary::Format 0.019
+      JSON::Schema::Draft201909::Vocabulary::MetaData 0.019
+      JSON::Schema::Draft201909::Vocabulary::Validation 0.019
     requirements:
       B 0
       Carp 0
