@@ -93,6 +93,7 @@ package RollbarSimulator {
         });
         $self->plugin('Conch::Plugin::Features', $self->config);
         $self->plugin('Conch::Plugin::JSONValidator', {});
+        $self->log(Mojo::Log->new(level => 'fatal'));
     }
 }
 
