@@ -5,7 +5,8 @@ use experimental 'signatures';
 use Test::More;
 use YAML::PP;
 use Path::Tiny;
-use JSON::Schema::Draft201909;
+use Try::Tiny;
+use JSON::Schema::Draft201909 0.019;
 use JSON::Schema::Draft201909::Utilities 'canonical_schema_uri';
 
 diag 'using JSON::Schema::Draft201909 '.JSON::Schema::Draft201909->VERSION;
@@ -14,7 +15,6 @@ my $yaml = YAML::PP->new(boolean => 'JSON::PP');
 my $js = JSON::Schema::Draft201909->new(
   output_format => 'terse',
   validate_formats => 1,
-  collect_annotations => 1,
   max_traversal_depth => 67,  # needed for other.yaml
 );
 
@@ -24,7 +24,12 @@ my @files;
 foreach my $filename (split /\n/, `git ls-files json-schema`) {
   diag('skipping '.$filename), next if $filename =~ /^\./ or $filename !~ /yaml$/;
   my $path = path($filename);
-  $js->add_schema($path->basename, $yaml->load_file($filename));
+  try {
+    $js->add_schema($path->basename, $yaml->load_file($filename));
+  }
+  catch {
+    die "$filename is not parseable: ", explain($@->TO_JSON);
+  };
   push @files, $path->basename;
 }
 

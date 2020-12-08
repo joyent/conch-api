@@ -69,7 +69,7 @@
           "$ref" : "common.json#/$defs/mojo_standard_placeholder"
         },
         "started" : {
-          "format" : "date-time",
+          "$ref" : "common.json#/$defs/date-time",
           "type" : "string"
         }
       },
@@ -154,7 +154,7 @@
       "minProperties" : 1,
       "properties" : {
         "completed" : {
-          "format" : "date-time",
+          "$ref" : "common.json#/$defs/date-time",
           "type" : [
             "null",
             "string"
@@ -177,7 +177,7 @@
           "$ref" : "common.json#/$defs/mojo_standard_placeholder"
         },
         "started" : {
-          "format" : "date-time",
+          "$ref" : "common.json#/$defs/date-time",
           "type" : [
             "null",
             "string"

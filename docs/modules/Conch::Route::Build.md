@@ -60,6 +60,7 @@ Supports the following optional query parameters:
 #### `DELETE /build/:build_id_or_name/links`
 
 - Requires system admin authorization or the admin role on the build
+- Controller/Action: ["remove\_links" in Conch::Controller::Build](../modules/Conch%3A%3AController%3A%3ABuild#remove_links)
 - Request: [request.json#/$defs/BuildLinksOrNull](../json-schema/request.json#/$defs/BuildLinksOrNull)
 - Response: `204 No Content`, plus Location header
 

@@ -15,7 +15,7 @@ use Pod::Markdown::Github;
 use Class::Method::Modifiers 'around';
 use Path::Tiny;
 use JSON::MaybeXS;
-use YAML::XS;
+use YAML::PP;
 use List::Util 'any';
 
 my %opts = (
@@ -144,9 +144,10 @@ foreach my $infile (@all_files) {
     path($outfile)->spew($markdown);
 }
 
+my $yaml_decoder = YAML::PP->new(boolean => 'JSON::PP');
 my $json_encoder = JSON()->new->pretty->indent_length(2)->canonical(1);
 foreach my $filename (grep m{^json-schema/[^.]+\.yaml$}, @all_files) {
-    my $data = YAML::XS::LoadFile($filename);
+    my $data = $yaml_decoder->load_file($filename);
     my $base = path($filename)->basename('.yaml');
     my ($type) = $filename =~ m{^json-schema/([^.]+)\.yaml$};
     if (any { $type eq $_ } qw(query_params request response common device_report)) {

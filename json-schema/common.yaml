@@ -13,6 +13,11 @@ $defs:
     oneOf:
       - format: ipv4
       - format: ipv6
+  date-time:
+    format: date-time
+    not:
+      type: string
+      pattern: '^000[01]'
   macaddr:
     type: string
     pattern: '^[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}$'

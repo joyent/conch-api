@@ -602,7 +602,7 @@ $defs:
         $ref: common.yaml#/$defs/non_empty_string
       started:
         type: string
-        format: date-time
+        $ref: common.yaml#/$defs/date-time
       admins:
         type: array
         uniqueItems: true
@@ -628,10 +628,10 @@ $defs:
           - $ref: common.yaml#/$defs/non_empty_string
       started:
         type: [ 'null', string ]
-        format: date-time
+        $ref: common.yaml#/$defs/date-time
       completed:
         type: [ 'null', string ]
-        format: date-time
+        $ref: common.yaml#/$defs/date-time
       links:
         $ref: common.yaml#/$defs/links
   BuildLinks:
