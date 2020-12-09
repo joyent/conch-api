@@ -28,7 +28,7 @@ foreach my $filename (split /\n/, `git ls-files json-schema`) {
     $js->add_schema($path->basename, $yaml->load_file($filename));
   }
   catch {
-    die "$filename is not parseable: ", explain($@->TO_JSON);
+    die "$filename is not parseable: ", explain($_->TO_JSON);
   };
   push @files, $path->basename;
 }

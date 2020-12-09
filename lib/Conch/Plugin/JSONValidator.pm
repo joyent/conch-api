@@ -9,6 +9,7 @@ use Mojo::JSON 'to_json';
 use Path::Tiny;
 use List::Util qw(any none first);
 use Try::Tiny;
+use Safe::Isa;
 
 =pod
 
@@ -149,8 +150,9 @@ Returns a L<JSON::Schema::Draft201909> object with all JSON Schemas pre-loaded.
         }
         catch {
           require Data::Dumper;
-          die "problems adding schema (YAML is not parseable?) - ",
-            Data::Dumper->new([ $@->TO_JSON ])->Indent(0)->Terse(1)->Dump;
+          die 'problems adding schema (YAML is not parseable?) - ',
+            Data::Dumper->new([ $_->$_isa('JSON::Schema::Draft201909::Result') ? $_->TO_JSON : $_ ])
+              ->Indent(0)->Terse(1)->Dump;
         };
 
         $_validator;
