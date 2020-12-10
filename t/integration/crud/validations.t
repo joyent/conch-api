@@ -55,4 +55,4 @@ $t->get_ok('/validation_plan/Conch v1 Legacy Plan: Server/validation')
     ->json_is([ $validations[0] ]);
 
 done_testing;
-# vim: set ts=4 sts=4 sw=4 et :
+# vim: set sts=2 sw=2 et :

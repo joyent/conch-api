@@ -144,4 +144,4 @@ if ( @dep_errors ) {
 
 pass;
 
-# vim: ts=4 sts=4 sw=4 et:
+# vim: set sts=2 sw=2 et :

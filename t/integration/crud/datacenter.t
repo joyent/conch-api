@@ -93,4 +93,4 @@ $t->get_ok("/dc/$idd")
     ->log_debug_is('Could not find datacenter '.$idd);
 
 done_testing;
-# vim: set ts=4 sts=4 sw=4 et :
+# vim: set sts=2 sw=2 et :
