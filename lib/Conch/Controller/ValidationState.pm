@@ -25,7 +25,8 @@ Response uses the ValidationStateWithResults json schema.
 sub get ($c) {
     my ($validation_state) = $c->db_validation_states
         ->search({ 'validation_state.id' => $c->stash('validation_state_id') })
-        ->with_results
+        ->with_legacy_validation_results
+        ->with_validation_results
         ->all;
 
     if (not $validation_state) {

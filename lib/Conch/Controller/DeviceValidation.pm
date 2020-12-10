@@ -32,7 +32,8 @@ sub get_validation_state ($c) {
         ->order_by({ -desc => 'validation_state.created' })
         ->rows(1)
         ->as_subselect_rs
-        ->with_results
+        ->with_legacy_validation_results
+        ->with_validation_results
         ->all;
 
     if (not $validation_state) {

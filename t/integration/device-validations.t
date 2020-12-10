@@ -33,6 +33,9 @@ my ($server_validation_plan) = $t->load_validation_plans([{
     validations => [ 'Conch::Validation::DeviceProductName' ],
 }]);
 
+my @json_schemas = map $t->load_fixture($_), qw(json_schema_red json_schema_black);
+
+
 $t->post_ok('/relay/deadbeef/register', json => { serial => 'deadbeef' })
     ->status_is(201);
 
@@ -51,6 +54,34 @@ $t->get_ok($t->tx->res->headers->location)
     ->json_schema_is('ValidationStateWithResults')
     ->json_is('/status', 'error');
 my $error_validation_state_id = $t->tx->res->json->{id};
+
+# manually add some new-style error results to this validation state
+$t->app->db_validation_state_members->create($_) foreach
+  {
+    validation_state_id => $error_validation_state_id,
+    result_order => 0,
+    validation_result => {
+      json_schema_id => $json_schemas[0]->id,
+      status => 'fail',
+      data_location => '',
+      schema_location => '/foo/$ref/bar',
+      absolute_schema_location => '/json_schema/foo/bar',
+      error => 'oh no not again',
+    },
+  },
+  {
+    validation_state_id => $error_validation_state_id,
+    result_order => 1,
+    validation_result => {
+      json_schema_id => $json_schemas[0]->id,
+      status => 'error',
+      data_location => '',
+      schema_location => '/$OMG',
+      absolute_schema_location => '/$OMG',
+      error => 'kaboom',
+    },
+  };
+
 
 $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
     ->status_is(201)
@@ -99,7 +130,7 @@ $t->get_ok('/device/TEST/validation_state?status=fail')
     ->log_debug_is('No validation states for device');
 
 
-# manually create a failing validation result... ew ew ew.
+# manually create some failing validation results... ew ew ew.
 # this uses the new validation plan, which is guaranteed to be different from the passing
 # valdiation that got recorded for this device via the report earlier.
 my (@fail_validation_state_id) = $t->app->db_validation_states->create({
@@ -131,6 +162,46 @@ my (@fail_validation_state_id) = $t->app->db_validation_states->create({
             },
         },
     ],
+    validation_state_members => [
+      {
+        result_order => 0,
+        validation_result => {
+          json_schema_id => $json_schemas[0]->id,
+          status => 'pass',
+          (map +($_ => undef), qw(data_location schema_location absolute_schema_location error)),
+        },
+      },
+      {
+        result_order => 1,
+        validation_result => {
+          json_schema_id => $json_schemas[0]->id,
+          status => 'fail',
+          data_location => '',
+          schema_location => '/foo/$ref/bar',
+          absolute_schema_location => '/json_schema/blah/bar',
+          error => 'oh no',
+        },
+      },
+      {
+        result_order => 2,
+        validation_result => {
+          json_schema_id => $json_schemas[0]->id,
+          status => 'fail',
+          data_location => '',
+          schema_location => '/foo/$ref/baz',
+          absolute_schema_location => '/json_schema/blah/baz',
+          error => 'oh no again',
+        },
+      },
+      {
+        result_order => 3,
+        validation_result => {
+          json_schema_id => $json_schemas[1]->id,
+          status => 'pass',
+          (map +($_ => undef), qw(data_location schema_location absolute_schema_location error)),
+        },
+      },
+    ],
 })->id;
 
 # record another, older, failing test using the same plan.
@@ -151,6 +222,17 @@ push @fail_validation_state_id, $t->app->db_validation_states->create({
             status => 'fail',
             category => 'test',
         },
+    }],
+    validation_state_members => [{
+      result_order => 0,
+      validation_result => {
+        json_schema_id => $json_schemas[0]->id,
+        status => 'fail',
+        data_location => '',
+        schema_location => '/baz/$ref/qux',
+        absolute_schema_location => '/json_schema/baz/bloop',
+        error => 'oh no again',
+      },
     }],
 })->id;
 
@@ -190,11 +272,36 @@ $t->get_ok('/device/TEST/validation_state')
                     version => 2,
                     description => 'Validate reported product name, sku matches product name, sku expected in rack layout',
                 },
+                {
+                  json_schema_id => $json_schemas[0]->id,
+                  '$id' => '/json_schema/colour/red/1',
+                  description => 'everything is red',
+                  status => 'fail',
+                  errors => [
+                    {
+                      data_location => '',
+                      schema_location => '/foo/$ref/bar',
+                      absolute_schema_location => '/json_schema/blah/bar',
+                      error => 'oh no',
+                    },
+                    {
+                      data_location => '',
+                      schema_location => '/foo/$ref/baz',
+                      absolute_schema_location => '/json_schema/blah/baz',
+                      error => 'oh no again',
+                    },
+                  ],
+                },
+                {
+                  json_schema_id => $json_schemas[1]->id,
+                  '$id' => '/json_schema/colour/black/1',
+                  description => 'everything is black',
+                  status => 'pass',
+                  errors => [],
+                },
             ],
         },
     );
-
-my $validation_states = $t->tx->res->json;
 
 $t->get_ok('/device/TEST/validation_state?status=pass')
     ->status_is(200)
@@ -219,7 +326,8 @@ $t->get_ok('/device/TEST/validation_state?status=error')
             hardware_product_id => $device->hardware_product_id,
             created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             status => 'error',
-            results => [{
+            results => [
+              {
                 id => re(Conch::UUID::UUID_FORMAT),
                 validation_id => re(Conch::UUID::UUID_FORMAT),
                 component => undef,
@@ -230,7 +338,28 @@ $t->get_ok('/device/TEST/validation_state?status=error')
                 name => 'product_name',
                 version => 2,
                 description => 'Validate reported product name, sku matches product name, sku expected in rack layout',
-            }],
+              },
+              {
+                json_schema_id => $json_schemas[0]->id,
+                '$id' => '/json_schema/colour/red/1',
+                description => 'everything is red',
+                status => 'error',
+                errors => [
+                  {
+                    data_location => '',
+                    schema_location => '/foo/$ref/bar',
+                    absolute_schema_location => '/json_schema/foo/bar',
+                    error => 'oh no not again',
+                  },
+                  {
+                    data_location => '',
+                    schema_location => '/$OMG',
+                    absolute_schema_location => '/$OMG',
+                    error => 'kaboom',
+                  },
+                ],
+              },
+            ],
         },
     );
 

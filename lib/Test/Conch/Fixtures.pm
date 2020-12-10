@@ -10,6 +10,7 @@ use List::Util qw(any pairmap);
 use Scalar::Util 'blessed';
 use Storable 'dclone';
 use Authen::Passphrase::AcceptAll;
+use Mojo::JSON 'to_json';
 use namespace::autoclean;
 
 =pod
@@ -265,6 +266,44 @@ my %canned_definitions = (
   },
   "type" : "object"
 }'
+      },
+      requires => {
+        ro_user => { our => 'created_user_id', their => 'id' },
+      },
+    },
+
+    json_schema_red => {
+      new => 'json_schema',
+      using => {
+        type => 'colour',
+        name => 'red',
+        version => 1,
+        body => to_json({
+          description => 'everything is red',
+          type => 'object',
+          properties => {
+            colour => { const => 'red' },
+          },
+        }),
+      },
+      requires => {
+        ro_user => { our => 'created_user_id', their => 'id' },
+      },
+    },
+
+    json_schema_black => {
+      new => 'json_schema',
+      using => {
+        type => 'colour',
+        name => 'black',
+        version => 1,
+        body => to_json({
+          description => 'everything is black',
+          type => 'object',
+          properties => {
+            colour => { const => 'black' },
+          },
+        }),
       },
       requires => {
         ro_user => { our => 'created_user_id', their => 'id' },

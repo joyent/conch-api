@@ -244,7 +244,7 @@ sub TO_JSON ($self) {
 
     # add legacy_validation_results data, if it has been prefetched
     if (my $cached_members = $self->related_resultset('legacy_validation_state_members')->get_cache) {
-        $data->{results} = [
+        push $data->{results}->@*,
             map {
                 my $cached_result = $_->related_resultset('legacy_validation_result')->get_cache;
                 # cache is always a listref even for a belongs_to relationship
@@ -253,8 +253,48 @@ sub TO_JSON ($self) {
                     map +($_ => $cached_result->[0]->get_column($_)), qw(name version description),
                 }
             }
-            $cached_members->@*
-        ];
+            $cached_members->@*;
+    }
+
+    # add validation_results data, if it has been prefetched
+    if (my $cached_members = $self->related_resultset('validation_state_members')->get_cache) {
+      # validation_results grouped by json_schema_id
+      my %results;
+
+      foreach my $member (sort { $a->result_order <=> $b->result_order } $cached_members->@*) {
+        if (my $cached_result = $member->related_resultset('validation_result')->get_cache) {
+          # cache is always a listref even for a belongs_to relationship
+          my $json_schema_id = $cached_result->[0]->json_schema_id;
+          if (not exists $results{$json_schema_id}) {
+            $results{$json_schema_id} = +{
+              # we do not need to make the $id URL absolute here, because the document
+              # body is not included
+              json_schema_id => $json_schema_id,
+              '$id' => $cached_result->[0]->get_column('dollar_id'),
+              description => $cached_result->[0]->get_column('description'),
+              status => $cached_result->[0]->status,
+              result_order => $member->result_order, # to be deleted after sorting
+              errors => [],
+            };
+          }
+
+          if (defined $cached_result->[0]->error) {
+            $results{$json_schema_id}{status} =
+                $results{$json_schema_id}{status} eq 'error' ? 'error'
+              : $cached_result->[0]->status eq 'error' ? 'error'
+              : 'fail';
+
+            push $results{$json_schema_id}->{errors}->@*, +{
+              map +($_ => $cached_result->[0]->$_),
+                qw(data_location schema_location absolute_schema_location error),
+            };
+          }
+        }
+      }
+
+      my @results = sort { $a->{result_order} <=> $b->{result_order} } values %results;
+      delete $_->{result_order} foreach @results;
+      push $data->{results}->@*, @results;
     }
 
     return $data;

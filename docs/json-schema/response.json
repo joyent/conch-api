@@ -1729,17 +1729,21 @@
           "$comment" : "usually a uri - except when validating against a new schema, or referencing a json_schema in the database",
           "format" : "uri-reference",
           "minLength" : 1,
+          "title" : "Absolute Schema Location",
           "type" : "string"
         },
         "data_location" : {
           "format" : "json-pointer",
+          "title" : "Data Location",
           "type" : "string"
         },
         "error" : {
-          "$ref" : "common.json#/$defs/non_empty_string"
+          "$ref" : "common.json#/$defs/non_empty_string",
+          "title" : "Error"
         },
         "schema_location" : {
           "format" : "json-pointer",
+          "title" : "Schema Location",
           "type" : "string"
         }
       },
@@ -1875,6 +1879,7 @@
       "uniqueItems" : true
     },
     "LegacyValidationResult" : {
+      "$comment" : "represents the single result of evaluating a device report against one legacy validation (there may be more than one result per validation)",
       "additionalProperties" : false,
       "properties" : {
         "category" : {
@@ -2976,6 +2981,77 @@
       ],
       "type" : "object"
     },
+    "ValidationResult" : {
+      "$comment" : "represents the results of evaluating a device report against one json_schema (unlike LegacyValidationResult, all errors are grouped together by json_schema)",
+      "additionalProperties" : false,
+      "else" : {
+        "properties" : {
+          "errors" : {
+            "minItems" : 1
+          }
+        }
+      },
+      "if" : {
+        "properties" : {
+          "status" : {
+            "const" : "pass"
+          }
+        }
+      },
+      "properties" : {
+        "$id" : {
+          "format" : "uri-reference",
+          "minLength" : 1,
+          "not" : {
+            "format" : "uri"
+          },
+          "title" : "JSON Schema Canonical URI Identifier",
+          "type" : "string"
+        },
+        "description" : {
+          "$ref" : "common.json#/$defs/non_empty_string",
+          "title" : "JSON Schema Description"
+        },
+        "errors" : {
+          "$comment" : "Note that absolute_schema_location in these errors will NOT contain the scheme and host, so as to avoid security issues arising from clicking on a link that came from a database copied from another conch instance",
+          "$ref" : "#/$defs/JSONSchemaErrors",
+          "not" : {
+            "contains" : {
+              "properties" : {
+                "absolute_schema_location" : {
+                  "format" : "uri"
+                }
+              }
+            }
+          }
+        },
+        "json_schema_id" : {
+          "$ref" : "common.json#/$defs/uuid",
+          "readOnly" : true,
+          "title" : "JSON Schema ID"
+        },
+        "status" : {
+          "$ref" : "common.json#/$defs/validation_status",
+          "title" : "Status"
+        }
+      },
+      "readOnly" : true,
+      "required" : [
+        "json_schema_id",
+        "$id",
+        "description",
+        "status",
+        "errors"
+      ],
+      "then" : {
+        "properties" : {
+          "errors" : {
+            "const" : []
+          }
+        }
+      },
+      "type" : "object"
+    },
     "ValidationStateWithResults" : {
       "additionalProperties" : false,
       "properties" : {
@@ -2997,7 +3073,14 @@
         },
         "results" : {
           "items" : {
-            "$ref" : "#/$defs/LegacyValidationResult"
+            "anyOf" : [
+              {
+                "$ref" : "#/$defs/LegacyValidationResult"
+              },
+              {
+                "$ref" : "#/$defs/ValidationResult"
+              }
+            ]
           },
           "type" : "array",
           "uniqueItems" : true
