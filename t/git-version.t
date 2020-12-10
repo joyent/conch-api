@@ -11,4 +11,4 @@ like($t->app->version_tag, qr/^v\d+\.\d+(?:\.\d+(.*))?-\d+-g[[:xdigit:]]+$/, 'go
 like($t->app->version_hash, qr/^[[:xdigit:]]+$/, 'got the version hash');
 
 done_testing;
-# vim: set ts=4 sts=4 sw=4 et :
+# vim: set sts=2 sw=2 et :

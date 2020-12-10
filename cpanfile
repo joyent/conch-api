@@ -1,4 +1,4 @@
-# vim: set ft=perl ts=8 sts=4 sw=4 et :
+# vim: set ft=perl sts=2 sw=2 et :
 
 print "Installing dependencies for conch, using $^X at version $]\n";
 print "PERL5LIB=$ENV{PERL5LIB}\n\n";

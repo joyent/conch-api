@@ -772,4 +772,4 @@ $t->get_ok($_)
     ), qw(id rack_unit_start);
 
 done_testing;
-# vim: set ts=4 sts=4 sw=4 et :
+# vim: set sts=2 sw=2 et :

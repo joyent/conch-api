@@ -326,4 +326,4 @@ subtest 'schemas that contain an unresolvable $ref property because it is not a 
 };
 
 done_testing;
-# vim: set ts=4 sts=4 sw=4 et :
+# vim: set sts=2 sw=2 et :

@@ -190,7 +190,7 @@ if (@ARGV and $ARGV[0] eq 'apply-dump-migration') {
     require DBIx::Class::Schema::Loader::Base;
     around 'DBIx::Class::Schema::Loader::Base::_default_custom_content' => sub {
         my $orig = shift; my $self = shift;
-        return "\n\n1;\n__END__\n\n=pod\n\n=head1 LICENSING\n\nCopyright Joyent, Inc.\n\nThis Source Code Form is subject to the terms of the Mozilla Public License,\nv.2.0. If a copy of the MPL was not distributed with this file, You can obtain\none at L<https://www.mozilla.org/en-US/MPL/2.0/>.\n\n=cut\n# vim: set ts=4 sts=4 sw=4 et :\n";
+        return "\n\n1;\n__END__\n\n=pod\n\n=head1 LICENSING\n\nCopyright Joyent, Inc.\n\nThis Source Code Form is subject to the terms of the Mozilla Public License,\nv.2.0. If a copy of the MPL was not distributed with this file, You can obtain\none at L<https://www.mozilla.org/en-US/MPL/2.0/>.\n\n=cut\n# vim: set sts=2 sw=2 et :\n";
     };
     DBIx::Class::Schema::Loader::make_schema_at(
         $loader_config->{schema_class},
@@ -221,4 +221,4 @@ v.2.0. If a copy of the MPL was not distributed with this file, You can obtain
 one at L<https://www.mozilla.org/en-US/MPL/2.0/>.
 
 =cut
-# vim: set ts=4 sts=4 sw=4 et :
+# vim: set sts=2 sw=2 et :
