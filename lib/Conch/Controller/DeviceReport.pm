@@ -425,14 +425,13 @@ sub validate_report ($c) {
     my ($status, @validation_results);
     $c->txn_wrapper(sub ($c) {
         if ($device) {
-            $c->db_devices->update({
+            $device->update({
                 serial_number       => $unserialized_report->{serial_number},
                 system_uuid         => $unserialized_report->{system_uuid},
                 uptime_since        => $unserialized_report->{uptime_since},
                 hostname            => $unserialized_report->{os}{hostname},
                 updated             => \'now()',
-            },
-            { key => 'device_serial_number_key' });
+            });
         }
         else {
             $device = $c->db_devices->create({

@@ -24,6 +24,8 @@ my $report = path('t/integration/resource/passing-device-report.json')->slurp_ut
 # matches report's product_name = Joyent-G1 (compute)
 my $hardware_product;
 
+my $device2 = $t->generate_fixtures('device');
+
 subtest preliminaries => sub {
     my $report_data = from_json($report);
 
@@ -75,10 +77,15 @@ my ($full_validation_plan) = $t->load_validation_plans([{
     validations => [ map $_->module, @validations ],
 }]);
 
-subtest 'run report without an existing device and without making updates' => sub {
+subtest 'run report without making updates' => sub {
     my $report_data = from_json($report);
-    $report_data->{serial_number} = 'different_device';
-    $report_data->{system_uuid} = create_uuid_str();
+
+    my %system_uuid = (
+      TEST => $report_data->{system_uuid},
+      DEADBEEF => create_uuid_str(),
+    );
+
+    $report_data->@{qw(serial_number system_uuid)} = %system_uuid{DEADBEEF};
 
     $t->txn_local('hardware_product must not be deactivated', sub {
         $hardware_product->update({ deactivated => \'now()' });
@@ -96,11 +103,16 @@ subtest 'run report without an existing device and without making updates' => su
             ->json_is({ error => 'legacy_validation_plan (id '.$hardware_product->legacy_validation_plan_id.') is deactivated and cannot be used' });
     });
 
-    $t->post_ok('/device_report?no_save_db=1', json => $report_data)
+    foreach my $serial (qw(DEADBEEF TEST)) {
+      $t->post_ok('/device_report?no_save_db=1', json => {
+          %$report_data,
+          serial_number => $serial,
+          system_uuid => $system_uuid{$serial},
+        })
         ->status_is(200)
         ->json_schema_is('ReportValidationResults')
         ->json_cmp_deeply({
-            device_serial_number => 'different_device',
+            device_serial_number => $serial,
             hardware_product_id => $hardware_product->id,
             sku => $hardware_product->sku,
             status => any(qw(error fail pass)), # likely some validations will hate this report.
@@ -116,6 +128,7 @@ subtest 'run report without an existing device and without making updates' => su
                 do { my $v = $_; map +($_ => $v->$_), qw(name version description) },
             }, @validations)),
         });
+    }
 
     ok(!$t->app->db_devices->search({ serial_number => 'different_device' })->exists,
         'the device was not inserted into the database');
