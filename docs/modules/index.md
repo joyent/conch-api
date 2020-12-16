@@ -4,6 +4,7 @@
 * [Conch::Command::check_layouts](../modules/Conch::Command::check_layouts)
 * [Conch::Command::check_validation_plans](../modules/Conch::Command::check_validation_plans)
 * [Conch::Command::copy_user_data](../modules/Conch::Command::copy_user_data)
+* [Conch::Command::create_test_validation_results](../modules/Conch::Command::create_test_validation_results)
 * [Conch::Command::create_token](../modules/Conch::Command::create_token)
 * [Conch::Command::create_user](../modules/Conch::Command::create_user)
 * [Conch::Command::fix_usernames](../modules/Conch::Command::fix_usernames)
