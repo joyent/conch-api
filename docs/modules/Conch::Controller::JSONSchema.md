@@ -29,6 +29,16 @@ Chainable action that uses the `json_schema_id`, `json_schema_type`, `json_schem
 JSON Schema, and stashes a simplified query (by `id`) to get to it in `json_schema_rs`, and
 the id itself in `json_schema_id`.
 
+If the resource is referenced as `/json_schema/:id` or as `/json_schema/:type/:name/:version`, the
+exact schema will be retrieved, even if it is deactivated; if it is referenced by
+`/json_schema/:type/:name/latest`, the latest **active** schema of that type-name series will be
+retrieved.
+
+### assert\_active
+
+A chainable route that will ensure that the JSON Schema referenced by the `json_schema_rs` stash
+variable is not deactivated (otherwise, a `410 Gone` response will be issued).
+
 ### get\_single
 
 Gets a single JSON Schema specification document.
@@ -45,7 +55,8 @@ If this JSON Schema was the latest of its series (`/json_schema/foo/bar/latest`)
 
 ### get\_metadata
 
-Gets meta information about all JSON Schemas in a particular type and name series.
+Gets meta information about all JSON Schemas in a particular type and name series,
+optionally fetching active schemas only.
 
 ## LICENSING
 

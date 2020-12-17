@@ -195,6 +195,11 @@ C<json_schema_version> values provided in the stash (usually via the request URL
 JSON Schema, and stashes a simplified query (by C<id>) to get to it in C<json_schema_rs>, and
 the id itself in C<json_schema_id>.
 
+If the resource is referenced as C</json_schema/:id> or as C</json_schema/:type/:name/:version>, the
+exact schema will be retrieved, even if it is deactivated; if it is referenced by
+C</json_schema/:type/:name/latest>, the latest B<active> schema of that type-name series will be
+retrieved.
+
 =cut
 
 sub find_json_schema ($c) {
@@ -212,14 +217,28 @@ sub find_json_schema ($c) {
     return $c->status(404);
   }
 
-  # we don't fetch the id earlier, because a query for /latest with 'active' can get a different row
-  my $id = $rs->active->get_column('id')->single;
-  return $c->status(410) if not $id;
+  if (($c->stash('json_schema_version')//'') eq 'latest') {
+    $rs = $rs->active;
+    return $c->status(410) if not $rs->exists;
+  }
 
+  # we don't fetch the id earlier, because a query for /latest with 'active' can get a different row
+  my $id = $rs->get_column('id')->single;
   $rs = $c->db_json_schemas->search({ 'json_schema.id' => $id });
   $c->stash('json_schema_rs', $rs);
   $c->stash('json_schema_id', $id);
   return 1;
+}
+
+=head2 assert_active
+
+A chainable route that will ensure that the JSON Schema referenced by the C<json_schema_rs> stash
+variable is not deactivated (otherwise, a C<410 Gone> response will be issued).
+
+=cut
+
+sub assert_active ($c) {
+  return $c->stash('json_schema_rs')->active->exists ? 1 : $c->status(410);
 }
 
 =head2 get_single
@@ -287,18 +306,23 @@ sub delete ($c) {
 
 =head2 get_metadata
 
-Gets meta information about all JSON Schemas in a particular type and name series.
+Gets meta information about all JSON Schemas in a particular type and name series,
+optionally fetching active schemas only.
 
 =cut
 
 sub get_metadata ($c) {
+  my $params = $c->stash('query_params');
+
   my $rs = $c->db_json_schemas->type($c->stash('json_schema_type'));
   $rs = $rs->name($c->stash('json_schema_name')) if $c->stash('json_schema_name');
 
   return $c->status(404) if not $rs->exists;
 
-  $rs = $rs->active;
-  return $c->status(410) if not $rs->exists;
+  if ($params->{active_only}) {
+    $rs = $rs->active;
+    return $c->status(410) if not $rs->exists;
+  }
 
   $rs = $rs
     ->with_description

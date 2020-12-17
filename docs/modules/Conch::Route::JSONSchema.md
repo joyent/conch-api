@@ -72,12 +72,22 @@ If this JSON Schema was the latest of its series (`/json_schema/foo/bar/latest`)
 
 Gets meta information about all JSON Schemas in a particular type series.
 
+Optionally accepts the following query parameter:
+
+- `active_only` (default `0`): set to `1` to only query for JSON Schemas that have not been
+deactivated.
+
 - Controller/Action: ["get\_metadata" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get_metadata)
 - Response: [response.json#/$defs/JSONSchemaDescriptions](../json-schema/response.json#/$defs/JSONSchemaDescriptions)
 
 ### `GET /json_schema/:json_schema_type/:json_schema_name`
 
 Gets meta information about all JSON Schemas in a particular type and name series.
+
+Optionally accepts the following query parameter:
+
+- `active_only` (default `0`): set to `1` to only query for JSON Schemas that have not been
+deactivated.
 
 - Controller/Action: ["get\_metadata" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get_metadata)
 - Response: [response.json#/$defs/JSONSchemaDescriptions](../json-schema/response.json#/$defs/JSONSchemaDescriptions)

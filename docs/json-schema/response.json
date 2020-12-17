@@ -1672,6 +1672,14 @@
             "readOnly" : true,
             "title" : "Created User"
           },
+          "deactivated" : {
+            "format" : "date-time",
+            "title" : "Deactivated",
+            "type" : [
+              "null",
+              "string"
+            ]
+          },
           "description" : {
             "title" : "Description",
             "type" : "string"
@@ -1705,7 +1713,8 @@
           "name",
           "version",
           "created",
-          "created_user"
+          "created_user",
+          "deactivated"
         ],
         "type" : "object"
       },

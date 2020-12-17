@@ -1852,6 +1852,7 @@ $defs:
         - version
         - created
         - created_user
+        - deactivated
       properties:
         id:
           title: ID
@@ -1887,5 +1888,9 @@ $defs:
           title: Created User
           readOnly: true
           $ref: '#/$defs/UserTerse'
+        deactivated:
+          title: Deactivated
+          type: [ 'null', string ]
+          format: date-time
 
 # vim: set sts=2 sw=2 et :

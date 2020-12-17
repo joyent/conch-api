@@ -316,6 +316,7 @@ $t_ro->get_ok('/json_schema/foo')
       version => 1,
       created => ignore,
       created_user => { map +($_ => $ro_user->$_), qw(id name email) },
+      deactivated => undef,
     },
     {
       id => $schema1_id,
@@ -326,6 +327,7 @@ $t_ro->get_ok('/json_schema/foo')
       version => 1,
       created => Conch::Time->new($db_rows[0]->{created})->to_string,
       created_user => { map +($_ => $ro_user->$_), qw(id name email) },
+      deactivated => undef,
     },
     {
       id => $schema2_id,
@@ -336,6 +338,7 @@ $t_ro->get_ok('/json_schema/foo')
       version => 2,
       created => Conch::Time->new($db_rows[1]->{created})->to_string,
       created_user => { map +($_ => $ro_user->$_), qw(id name email) },
+      deactivated => undef,
     },
   ]);
 my $metadata = $t_ro->tx->res->json;
@@ -369,12 +372,16 @@ $t_other->delete_ok($_)
 $t_ro->delete_ok('/json_schema/foo/bar/2')
   ->status_is(204)
   ->log_debug_is('Deactivated JSON Schema id '.$schema2_id.' (/json_schema/foo/bar/2); latest of this type and name is now /json_schema/foo/bar/1');
+$metadata->[2]->{deactivated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
 $t_ro->delete_ok('/json_schema/'.$schema2_id)
   ->status_is(410);
 
 $t_ro->get_ok('/json_schema/foo/bar/2')
-  ->status_is(410);
+  ->status_is(200)
+  ->header_is('Content-Type', 'application/schema+json')
+  ->json_schema_is('JSONSchema')
+  ->json_is('/x-json_schema_id', $schema2_id);
 
 $t_ro->get_ok('/json_schema/foo/bar/latest')
   ->status_is(200)
@@ -385,19 +392,33 @@ $t_ro->get_ok('/json_schema/foo/bar/latest')
 $t_ro->get_ok('/json_schema/foo/bar')
   ->status_is(200)
   ->json_schema_is('JSONSchemaDescriptions')
+  ->json_cmp_deeply([ $metadata->@[1..2] ]);
+
+$t_ro->get_ok('/json_schema/foo/bar?active_only=1')
+  ->status_is(200)
+  ->json_schema_is('JSONSchemaDescriptions')
   ->json_cmp_deeply([ $metadata->[1] ]);
 
 $t_ro->delete_ok('/json_schema/foo/bar/1')
   ->status_is(204)
   ->log_debug_is('Deactivated JSON Schema id '.$schema1_id.' (/json_schema/foo/bar/1); no schemas of this type and name remain');
+$metadata->[1]->{deactivated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
 
 $t_ro->get_ok('/json_schema/foo/bar/1')
-  ->status_is(410);
+  ->status_is(200)
+  ->header_is('Content-Type', 'application/schema+json')
+  ->json_schema_is('JSONSchema')
+  ->json_is('/x-json_schema_id', $schema1_id);
 
 $t_ro->get_ok('/json_schema/foo/bar/latest')
   ->status_is(410);
 
 $t_ro->get_ok('/json_schema/foo/bar')
+  ->status_is(200)
+  ->json_schema_is('JSONSchemaDescriptions')
+  ->json_cmp_deeply([ $metadata->@[1..2] ]);
+
+$t_ro->get_ok('/json_schema/foo/bar?active_only=1')
   ->status_is(410);
 
 done_testing;

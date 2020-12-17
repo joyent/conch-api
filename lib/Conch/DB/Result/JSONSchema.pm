@@ -163,7 +163,6 @@ __PACKAGE__->add_columns(
   '+version' => { retrieve_on_insert => 1 },
   '+body' => { is_serializable => 0 },
   '+created_user_id' => { is_serializable => 0 },
-  '+deactivated' => { is_serializable => 0 },
 );
 
 use experimental 'signatures';

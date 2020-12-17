@@ -73,13 +73,16 @@ sub secured_routes ($class, $schema) {
 
   # DELETE /json_schema/:json_schema_id
   # DELETE /json_schema/:json_schema_type/:json_schema_name/:json_schema_version
-  $_->delete('/')->to('#delete') foreach $with_schema_id, $with_schema_version_int;
+  $_->under('/')->to('#assert_active')->delete('/')->to('#delete')
+    foreach $with_schema_id, $with_schema_version_int;
 
   # GET /json_schema/:json_schema_type
-  $with_schema_type->get('/')->to('#get_metadata', response_schema => 'JSONSchemaDescriptions');
+  $with_schema_type->get('/')
+    ->to('#get_metadata', query_params_schema => 'ActiveOnly', response_schema => 'JSONSchemaDescriptions');
 
   # GET /json_schema/:json_schema_type/:json_schema_name
-  $with_schema_type_name->get('/')->to('#get_metadata', response_schema => 'JSONSchemaDescriptions');
+  $with_schema_type_name->get('/')
+    ->to('#get_metadata', query_params_schema => 'ActiveOnly', response_schema => 'JSONSchemaDescriptions');
 }
 
 1;
@@ -168,6 +171,15 @@ C<.../latest> link will now resolve to an earlier version in the series.
 
 Gets meta information about all JSON Schemas in a particular type series.
 
+Optionally accepts the following query parameter:
+
+=over 4
+
+=item * C<active_only> (default C<0>): set to C<1> to only query for JSON Schemas that have not been
+deactivated.
+
+=back
+
 =over 4
 
 =item * Controller/Action: L<Conch::Controller::JSONSchema/get_metadata>
@@ -179,6 +191,15 @@ Gets meta information about all JSON Schemas in a particular type series.
 =head2 C<GET /json_schema/:json_schema_type/:json_schema_name>
 
 Gets meta information about all JSON Schemas in a particular type and name series.
+
+Optionally accepts the following query parameter:
+
+=over 4
+
+=item * C<active_only> (default C<0>): set to C<1> to only query for JSON Schemas that have not been
+deactivated.
+
+=back
 
 =over 4
 
