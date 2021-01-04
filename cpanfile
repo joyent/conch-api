@@ -29,7 +29,7 @@ requires 'Email::Sender::Simple';
 requires 'Email::Sender::Transport::SMTP';
 requires 'Net::DNS';    # not used directly, but Email::Valid sometimes demands it
 requires 'experimental', '0.020';
-requires 'JSON::Schema::Draft201909', '0.019';
+requires 'JSON::Schema::Draft201909', '0.020';
 requires 'Email::Address::XS', '1.01';
 requires 'YAML::PP';
 requires 'next::XS';
