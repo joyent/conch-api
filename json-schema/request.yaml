@@ -411,6 +411,8 @@ $defs:
     required: [ password ]
     properties:
       password:
+        title: Password
+        writeOnly: true
         $ref: common.yaml#/$defs/non_empty_string
       set_session:
         type: boolean
@@ -433,6 +435,8 @@ $defs:
     required: [ password ]
     properties:
       password:
+        title: Password
+        writeOnly: true
         $ref: common.yaml#/$defs/non_empty_string
   NewUser:
     type: object
@@ -444,6 +448,8 @@ $defs:
       email:
         $ref: common.yaml#/$defs/email_address
       password:
+        title: Password
+        writeOnly: true
         $ref: common.yaml#/$defs/non_empty_string
       is_admin:
         type: boolean

@@ -96,7 +96,7 @@ $t->get_ok('/json_schema/request/Login')
         unevaluatedProperties => JSON::PP::false,
         required => [ 'password' ],
         properties => {
-            password => { '$ref' => '/json_schema/common/non_empty_string' },
+            password => { title => 'Password', writeOnly => JSON::PP::true, '$ref' => '/json_schema/common/non_empty_string' },
             set_session => { type => 'boolean' },
         },
         '$ref' => '/json_schema/request/UserIdOrEmail',
