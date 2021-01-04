@@ -1520,29 +1520,39 @@
         "additionalProperties" : false,
         "properties" : {
           "alias" : {
-            "$ref" : "common.json#/$defs/mojo_standard_placeholder"
+            "$ref" : "common.json#/$defs/mojo_standard_placeholder",
+            "title" : "Alias"
           },
           "created" : {
             "format" : "date-time",
+            "readOnly" : true,
+            "title" : "Created",
             "type" : "string"
           },
           "generation_name" : {
+            "title" : "Generation Name",
             "type" : [
               "null",
               "string"
             ]
           },
           "id" : {
-            "$ref" : "common.json#/$defs/uuid"
+            "$ref" : "common.json#/$defs/uuid",
+            "readOnly" : true,
+            "title" : "ID"
           },
           "name" : {
-            "$ref" : "common.json#/$defs/mojo_standard_placeholder"
+            "$ref" : "common.json#/$defs/mojo_standard_placeholder",
+            "title" : "Name"
           },
           "sku" : {
-            "$ref" : "common.json#/$defs/mojo_standard_placeholder"
+            "$ref" : "common.json#/$defs/mojo_standard_placeholder",
+            "title" : "SKU"
           },
           "updated" : {
             "format" : "date-time",
+            "readOnly" : true,
+            "title" : "Updated",
             "type" : "string"
           }
         },

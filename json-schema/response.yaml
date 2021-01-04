@@ -568,19 +568,29 @@ $defs:
         - updated
       properties:
         id:
+          title: ID
+          readOnly: true
           $ref: common.yaml#/$defs/uuid
         name:
+          title: Name
           $ref: common.yaml#/$defs/mojo_standard_placeholder
         alias:
+          title: Alias
           $ref: common.yaml#/$defs/mojo_standard_placeholder
         generation_name:
+          title: Generation Name
           type: [ 'null', string ]
         sku:
+          title: SKU
           $ref: common.yaml#/$defs/mojo_standard_placeholder
         created:
+          title: Created
+          readOnly: true
           type: string
           format: date-time
         updated:
+          title: Updated
+          readOnly: true
           type: string
           format: date-time
   HardwareProduct:
