@@ -91,7 +91,7 @@ package RollbarSimulator {
             $c->res->code(200);
             $c->render(json => { err => 0, result => { id => undef, uuid => $payload->{data}{uuid} } });
         });
-        $self->plugin('Conch::Plugin::Features', $self->config);
+        $self->plugin('Conch::Plugin::Features', { features => { no_db => 1 } });
         $self->plugin('Conch::Plugin::JSONValidator', {});
         $self->log(Mojo::Log->new(level => 'fatal'));
     }

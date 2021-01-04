@@ -8,6 +8,7 @@ use Mojo::JSON 'decode_json';
 use Path::Tiny 'path';
 use Test::Deep;
 use Test::Fatal;
+use Conch::UUID 'create_uuid_str';
 
 use constant SPEC_URL => 'https://json-schema.org/draft/2019-09/schema';
 
@@ -23,11 +24,6 @@ $t->get_ok('/schema/REQUEST/hello')
     ->status_is(404)
     ->json_is({ error => 'Route Not Found' })
     ->log_warn_is('no endpoint found for: GET /schema/REQUEST/hello');
-
-$t->get_ok('/json_schema/REQUEST/hello')
-    ->status_is(404)
-    ->json_is({ error => 'Route Not Found' })
-    ->log_warn_is('no endpoint found for: GET /json_schema/REQUEST/hello');
 
 $t->get_ok('/json_schema/request/b~a!!r')
     ->status_is(404)
@@ -171,25 +167,26 @@ $t->get_ok('/json_schema/request/HardwareProductCreate')
                 non_empty_string
                 mojo_standard_placeholder
                 HardwareProductUpdate
-                HardwareProductSpecification
             )
         },
     }), 'nested definitions are found and included');
 
-$t->get_ok('/json_schema/hardware_product/specification/'.$_)
+$t->get_ok('/json_schema/request/HardwareProductUpdate')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is('JSONSchemaOnDisk')
-    ->json_cmp_deeply({
-        '$schema' => SPEC_URL,
-        '$id' => $base_uri.'json_schema/hardware_product/specification/1',
-        '$comment' => ignore,
-        # no deprecated!
-        type => 'object',
-        additionalProperties => bool(1),
-        properties => superhashof({}),
-      })
-    foreach qw(latest 1);
+    ->json_cmp_deeply('', superhashof({
+      '$schema' => SPEC_URL,
+      '$id' => $base_uri.'json_schema/request/HardwareProductUpdate',
+      properties => superhashof({
+        specification => {
+          title => 'Specification',
+          type => 'object',
+          # note this reference is not expanded into $defs
+          '$ref' => '/json_schema/hardware_product/specification/latest',
+        },
+      }),
+    }), 'reference to hardware_product specification is contained');
 
 $t->get_ok('/json_schema/response/JSONSchemaOnDisk')
     ->status_is(200)
@@ -220,6 +217,45 @@ $t->get_ok('/json_schema/response/JSONSchemaOnDisk')
           },
         ],
     });
+
+$t->get_ok('/json_schema/response/JSONSchema')
+  ->status_is(200)
+  ->header_is('Content-Type', 'application/schema+json')
+  ->json_schema_is('JSONSchemaOnDisk')
+  ->json_cmp_deeply({
+    '$schema' => SPEC_URL,
+    '$id' => $base_uri.'json_schema/response/JSONSchema',
+    '$comment' => ignore,
+    contentMediaType => 'application/schema+json',
+    allOf => [
+      {
+        '$comment' => ignore,
+        '$id' => ignore,  # we just need there to be something here
+        '$ref' => SPEC_URL,
+        '$recursiveAnchor' => bool(1),
+        '$ref' => SPEC_URL,
+        properties => {
+          '$schema' => { const => SPEC_URL },
+          'x-json_schema_id' => { '$ref' => '/json_schema/common/uuid' },
+        },
+        unevaluatedProperties => bool(0),
+      },
+      {
+        '$comment' => ignore,
+        type => ignore,
+        required => [ '$id', '$schema', '$comment', 'description', 'x-json_schema_id' ],
+        properties => ignore,
+      },
+    ],
+    '$defs' => {
+      uuid => superhashof({}),
+      non_empty_string => {
+        '$id' => '/json_schema/common/non_empty_string',
+        type => 'string',
+        minLength => 1,
+      },
+    },
+  });
 
 $t->get_ok('/json_schema/request/DeviceReport')
     ->status_is(200)
@@ -324,6 +360,32 @@ subtest 'schemas that contain an unresolvable $ref property because it is not a 
         },
     }));
 };
+
+
+{
+  # we need a working database connection for these tests
+  my $t = Test::Conch->new;
+
+  $t->post_ok('/json_schema/foo/bar', json => {})
+    ->status_is(401);
+
+  $t->get_ok($_)->status_is(401)
+    foreach
+      '/json_schema/'.create_uuid_str,
+      '/json_schema/foo',
+      '/json_schema/foo/bar',
+      '/json_schema/foo/bar/1',
+      '/json_schema/foo/bar/latest';
+
+  $t->delete_ok($_)->status_is(401)
+    foreach
+      '/json_schema/'.create_uuid_str,
+      '/json_schema/foo/bar/1';
+
+  $t->get_ok('/json_schema/hardware_product/specification/'.$_)
+      ->status_is(401)
+    foreach qw(latest 1);
+}
 
 done_testing;
 # vim: set sts=2 sw=2 et :

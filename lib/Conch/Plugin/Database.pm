@@ -85,10 +85,13 @@ L<Conch::DB> object that persists for the lifetime of the application.
         );
     });
 
+    return if $app->feature('no_db');
+
 =head2 db_<table>s, db_ro_<table>s
 
 Provides direct read/write and read-only accessors to resultsets. The table name is used in
 the C<alias> attribute (see L<DBIx::Class::ResultSet/alias>).
+Note that these are B<NOT> available when the (developer-only) C<no_db> feature is enabled.
 
 =cut
 
@@ -156,8 +159,6 @@ use the subref's return value to signal success.
             return;
         };
     });
-
-    return if $app->feature('no_db');
 
 
     # verify that we are running the version of postgres we expect...

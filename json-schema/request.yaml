@@ -234,9 +234,6 @@ $defs:
       - purpose
       - bios_firmware
       - cpu_type
-  HardwareProductSpecification:
-    $comment: used for the /hardware_product/*/specification endpoints
-    $ref: common.yaml#/$defs/HardwareProductSpecification
   HardwareProductUpdate:
     type: object
     additionalProperties: false
@@ -258,7 +255,8 @@ $defs:
         $ref: common.yaml#/$defs/uuid
       specification:
         title: Specification
-        $ref: common.yaml#/$defs/HardwareProductSpecification
+        type: object
+        $ref: /json_schema/hardware_product/specification/latest
       sku:
         title: SKU
         $ref: common.yaml#/$defs/mojo_standard_placeholder
@@ -687,5 +685,34 @@ $defs:
           $ref: common.yaml#/$defs/mojo_standard_placeholder
         links:
           $ref: common.yaml#/$defs/links
+  JSONSchema:
+    allOf:
+      - $comment: Here we are essentially adding on to the main "schema" definition defined in the metaschema.
+        # hack! we need an $id here in order to use this location as a $recursiveRef target
+        $id: /json_schema/request/JSONSchema_recurse
+        $recursiveAnchor: true
+        $ref: 'https://json-schema.org/draft/2019-09/schema'
+        unevaluatedProperties: false
+        properties:
+          # we do not permit $ids to be declared in the schema, as we would have to index them so as to allow references from other documents.
+          $schema:
+            const: 'https://json-schema.org/draft/2019-09/schema'
+          $id: false
+          $anchor: false          # TODO
+          $recursiveAnchor: false # TODO
+          $recursiveRef: false    # TODO
+          $dynamicAnchor: false   # TODO
+          $dynamicRef: false      # TODO
+          definitions: false
+          dependencies: false
+          format:
+            $comment: iri-reference and uri-template are not supported by JSON::Schema::Draft201909
+            enum: [ date-time, date, time, duration, email, idn-email, hostname, idn-hostname, ipv4, ipv6, uri, uri-reference, iri, uuid, json-pointer, relative-json-pointer, regex ]
+      - $comment: Here we are adding on additional requirements for the top level schema only.
+        type: object
+        required: [ description ]
+        properties:
+          description:
+            $ref: common.yaml#/$defs/non_empty_string
 
 # vim: set sts=2 sw=2 et :

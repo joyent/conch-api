@@ -70,6 +70,7 @@ subselect
 subtest
 timestamptz
 TODO
+unresolvable
 unstarted
 validator
 VLAN

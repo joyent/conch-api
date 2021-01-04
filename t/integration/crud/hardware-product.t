@@ -7,10 +7,13 @@ use Test::Deep;
 use Test::Conch;
 use Conch::UUID 'create_uuid_str';
 use Mojo::Util 'url_escape';
+use Mojo::JSON 'from_json';
 
 my $t = Test::Conch->new;
 my $base_uri = $t->ua->server->url; # used as the base uri for all requests
 $t->load_fixture('super_user');
+
+my $json_schema = $t->load_fixture('json_schema_hardware_product_specification');
 
 $t->authenticate;
 
@@ -68,21 +71,61 @@ my %hw_fields = (
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => 'not json!' } )
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ superhashof({ data_location => '/specification', error => 'wrong type (expected object)' }) ]);
+    ->json_cmp_deeply('/details', my $create_errors = [
+      {
+        data_location => '/specification',
+        schema_location => '/$ref/properties/specification/$ref/type',
+        absolute_schema_location => $base_uri.'json_schema/hardware_product/specification/1#/type',
+        error => 'wrong type (expected object)',
+      },
+      {
+        data_location => '/specification',
+        schema_location => '/$ref/properties/specification/type',
+        absolute_schema_location => $base_uri.'json_schema/request/HardwareProductUpdate#/properties/specification/type',
+        error => 'wrong type (expected object)',
+      },
+    ]);
 
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => '{"disk_size":"not an object"}' } )
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ superhashof({ data_location => '/specification', error => 'wrong type (expected object)' }) ]);
+    ->json_cmp_deeply('/details', $create_errors);
 
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => { disk_size => 'not an object' } })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply({
-        error => 'request did not match required format',
-        details => [ superhashof({ data_location => '/specification/disk_size', error => 'wrong type (expected object)' }) ],
-        schema => $base_uri.'json_schema/request/HardwareProductCreate',
+      error => 'request did not match required format',
+      schema => $base_uri.'json_schema/request/HardwareProductCreate',
+      details => [ {
+        data_location => '/specification/disk_size',
+        schema_location => '/$ref/properties/specification/$ref/properties/disk_size/type',
+        absolute_schema_location => $base_uri.'json_schema/hardware_product/specification/1#/properties/disk_size/type',
+        error => 'wrong type (expected object)',
+      }],
     });
+
+$t->post_ok('/json_schema/hardware_product/specification', json =>
+  do {
+    my $s = from_json($json_schema->body);
+    $s->{properties}{disk_size} = JSON::PP::true;
+    $s;
+  })
+  ->status_is(201)
+  ->location_like(qr!^/json_schema/${\Conch::UUID::UUID_FORMAT}$!)
+  ->header_is('Content-Location', '/json_schema/hardware_product/specification/2');
+
+$t->post_ok('/hardware_product', json => {
+    %hw_fields,
+    name => 'ether1',
+    alias => 'ether1',
+    sku => 'ether sku',
+    specification => { disk_size => 'not an object' },
+  })
+  ->status_is(201)
+  ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
+
+$t->app->db_hardware_products->search({ name => 'ether1' })->delete;
 
 $hw_fields{specification} = { disk_size => { _default => 0, AcmeCorp => 512 } };
 $t->post_ok('/hardware_product', json => \%hw_fields)
@@ -181,12 +224,34 @@ $t->post_ok('/hardware_product', json => {
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => 'not json!' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ superhashof({ data_location => '/specification', error => 'wrong type (expected object)' }) ]);
+    ->json_cmp_deeply('/details', my $update_errors = [
+      {
+        data_location => '/specification',
+        schema_location => '/properties/specification/$ref/type',
+        absolute_schema_location => $base_uri.'json_schema/hardware_product/specification/2#/type',
+        error => 'wrong type (expected object)',
+      },
+      {
+        data_location => '/specification',
+        schema_location => '/properties/specification/type',
+        absolute_schema_location => $base_uri.'json_schema/request/HardwareProductUpdate#/properties/specification/type',
+        error => 'wrong type (expected object)',
+      },
+    ]);
 
+$t->app->db_json_schemas->resource('hardware_product', 'specification', 'latest')->deactivate;
+
+# we properly detect that the hw spec schema changed (even going backwards!) and re-load version 1
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => '{"disk_size":"not an object"}' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ superhashof({ data_location => '/specification', error => 'wrong type (expected object)' }) ]);
+    ->json_cmp_deeply('/details', [
+      {
+        $update_errors->[0]->%*,
+        absolute_schema_location => $update_errors->[0]{absolute_schema_location} =~ s/2#/1#/r,
+      },
+      $update_errors->[1],
+    ]);
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => { disk_size => 'not an object' } })
     ->status_is(400)
@@ -278,20 +343,38 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->json_cmp_deeply(superhashof({ specification => $base_specification }));
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=', json => 'hello')
-    ->status_is(400)
-    ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply(superhashof({
-      details => [ superhashof({ error => 'wrong type (expected object)' }) ],
-      schema => $base_uri.'json_schema/request/HardwareProductSpecification',
-    }));
+    ->status_is(409)
+    ->json_schema_is('ValidationError')
+    ->json_cmp_deeply({
+      error => 'new specification field did not match required format',
+      schema => $base_uri.'json_schema/hardware_product/specification/1',
+      data => 'hello',
+      details => [
+        {
+          data_location => '',
+          schema_location => '/type',
+          absolute_schema_location => $base_uri.'json_schema/hardware_product/specification/1#/type',
+          error => 'wrong type (expected object)',
+        }
+      ]
+    });
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size', json => 1)
-    ->status_is(400)
-    ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply(superhashof({
-      details => [ superhashof({ error => 'wrong type (expected object)' }) ],
-      schema => $base_uri.'json_schema/request/HardwareProductSpecification',
-    }));
+    ->status_is(409)
+    ->json_schema_is('ValidationError')
+    ->json_cmp_deeply({
+      error => 'new specification field did not match required format',
+      schema => $base_uri.'json_schema/hardware_product/specification/1',
+      data => { disk_size => 1 },
+      details => [
+        {
+          data_location => '/disk_size',
+          schema_location => '/properties/disk_size/type',
+          absolute_schema_location => $base_uri.'json_schema/hardware_product/specification/1#/properties/disk_size/type',
+          error => 'wrong type (expected object)',
+        }
+      ]
+   });
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size',
       json => { _default => 128 })
@@ -310,12 +393,21 @@ subtest 'manipulate hardware_product.specification' => sub {
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/SEAGATE_8000',
       json => {})
-    ->status_is(400)
-    ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply(superhashof({
-      details => [ superhashof({ error => 'wrong type (expected integer)' }) ],
-      schema => $base_uri.'json_schema/request/HardwareProductSpecification',
-    }));
+    ->status_is(409)
+    ->json_schema_is('ValidationError')
+    ->json_cmp_deeply({
+      error => 'new specification field did not match required format',
+      schema => $base_uri.'json_schema/hardware_product/specification/1',
+      data => { disk_size => { SEAGATE_8000 => {}, _default => 128 } },
+      details => [
+        {
+          data_location => '/disk_size/SEAGATE_8000',
+          schema_location => '/properties/disk_size/additionalProperties/type',
+          absolute_schema_location => $base_uri.'json_schema/hardware_product/specification/1#/properties/disk_size/additionalProperties/type',
+          error => 'wrong type (expected integer)',
+        }
+      ]
+   });
 
   $t->put_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/SEAGATE_8000',
       json => 1)
@@ -414,9 +506,24 @@ subtest 'manipulate hardware_product.specification' => sub {
     ->json_cmp_deeply('/details', [ superhashof({ error => 'not a json-pointer' }) ]);
 
   $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/_default')
-    ->status_is(400)
-    ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing property: _default' }) ]);
+    ->status_is(409)
+    ->json_schema_is('ValidationError')
+    ->json_cmp_deeply({
+      error => 'new specification field did not match required format',
+      schema => $base_uri.'json_schema/hardware_product/specification/1',
+      data => {
+        disk_size => { SEAGATE_8000 => 1, 'tilde~1~device' => 2 },
+        disks => { usb_hdd_num => 0, sas_ssd_slots => '1,2,3' },
+      },
+      details => [
+        {
+          data_location => '/disk_size',
+          schema_location => '/properties/disk_size/required',
+          absolute_schema_location => $base_uri.'json_schema/hardware_product/specification/1#/properties/disk_size/required',
+          error => 'missing property: _default',
+        }
+      ]
+   });
 
   $t->delete_ok('/hardware_product/'.$new_hw_id.'/specification?path=/disk_size/tilde~01~0device')
     ->status_is(204)

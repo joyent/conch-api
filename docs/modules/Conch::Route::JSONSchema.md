@@ -10,6 +10,10 @@
 
 Sets up the routes for /json\_schema that do not require authentication.
 
+### secured\_routes
+
+Sets up the routes for /json\_schema that require authentication.
+
 ## ROUTE ENDPOINTS
 
 ### `GET /json_schema/query_params/:json_schema_name`
@@ -26,19 +30,67 @@ Returns the JSON Schema document specified by type and name, used for validating
 requests and responses.
 
 - Does not require authentication.
-- Controller/Action: ["get" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get)
+- Controller/Action: ["get\_from\_disk" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get_from_disk)
 - Response: a JSON Schema ([response.json#/$defs/JSONSchemaOnDisk](../json-schema/response.json#/$defs/JSONSchemaOnDisk)) (Content-Type is
 `application/schema+json`).
 
-### `GET /json_schema/hardware_product/specification/latest`
+### `POST /json_schema/:json_schema_type/:json_schema_name`
 
-Fetches the JSON Schema document used for describing the structure of the `specification`
-column of the `hardware_product` database table.
+Stores a new JSON Schema in the database. Unresolvable `$ref`s are not permitted.
 
-Note: this is a special case of a generic endpoint to be added in Conch API version 3.2.
-In the future, it will be modifiable; attempted modifications of this schema will be verified
-against all existing `hardware_product.specification` data, and any attempted modifications to
-specification data will be verified against this schema.
+- Controller/Action: ["create" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#create)
+- Request: [request.json#/$defs/JSONSchema](../json-schema/request.json#/$defs/JSONSchema) (Content-Type is expected to be
+`application/schema+json`).
+- Response: `201 Created`, plus Location header
+
+### `GET /json_schema/:json_schema_id`
+
+### `GET /json_schema/:json_schema_type/:json_schema_name/:json_schema_version`
+
+### `GET /json_schema/:json_schema_type/:json_schema_name/latest`
+
+Fetches the referenced JSON Schema document.
+
+- Controller/Action: ["get\_single" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get_single)
+- Response: [response.json#/$defs/JSONSchema](../json-schema/response.json#/$defs/JSONSchema) (Content-Type is `application/schema+json`).
+
+### `DELETE /json_schema/:json_schema_id`
+
+Deactivates the database entry for a single JSON Schema, rendering it unusable.
+This operation is not permitted until all references from other documents have been removed,
+exception of references using `.../latest` which will now resolve to a different document
+(and internal references will be re-verified).
+
+If this JSON Schema was the latest of its series (`/json_schema/foo/bar/latest`), then that
+`.../latest` link will now resolve to an earlier version in the series.
+
+- Requires system admin authorization, if not the user who uploaded the document
+- Controller/Action: ["delete" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#delete)
+- Response: `204 No Content`
+
+### `GET /json_schema/:json_schema_type`
+
+Gets meta information about all JSON Schemas in a particular type series.
+
+Optionally accepts the following query parameter:
+
+- `active_only` (default `0`): set to `1` to only query for JSON Schemas that have not been
+deactivated.
+
+- Controller/Action: ["get\_metadata" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get_metadata)
+- Response: [response.json#/$defs/JSONSchemaDescriptions](../json-schema/response.json#/$defs/JSONSchemaDescriptions)
+
+### `GET /json_schema/:json_schema_type/:json_schema_name`
+
+Gets meta information about all JSON Schemas in a particular type and name series.
+
+Optionally accepts the following query parameter:
+
+- `active_only` (default `0`): set to `1` to only query for JSON Schemas that have not been
+deactivated.
+
+- Controller/Action: ["get\_metadata" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get_metadata)
+- Response: [response.json#/$defs/JSONSchemaDescriptions](../json-schema/response.json#/$defs/JSONSchemaDescriptions)
 
 ## LICENSING
 

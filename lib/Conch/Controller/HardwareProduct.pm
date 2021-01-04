@@ -186,7 +186,7 @@ C<specification> property to operate on. New data is written, and existing data 
 without regard to type (so long as it conforms to the schema).
 
 After the update operation, the C<specification> property must validate against
-F<common.yaml#/$defs/HardwareProductSpecification>.
+the schema at C</json_schema/hardware_product/specification/latest>.
 
 =cut
 
@@ -206,9 +206,20 @@ sub set_specification ($c) {
   my $rendered;
   my $result = $c->txn_wrapper(sub ($c) {
     $rs->update({ specification => $specification_clause });
-
     my $new_specification = from_json($rs->get_column('specification')->single);
-    if (not $c->validate_request('HardwareProductSpecification', $new_specification)) {
+
+    my $js = $c->json_schema_validator;
+    my $spec_uri = '/json_schema/hardware_product/specification/latest';  # NOT absolute
+    if (not my $result = $js->evaluate($new_specification, $spec_uri)) {
+      my @errors = $c->normalize_evaluation_result($result);
+      $c->stash('response_schema', 'ValidationError');
+      $c->status(409, {
+        error => 'new specification field did not match required format',
+        details => \@errors,
+        schema => scalar($js->get($spec_uri.'#/$id')),  # /<version>, not /latest
+        data => $new_specification,
+      });
+
       $rendered = 1;
       die 'rollback';
     }
@@ -228,7 +239,7 @@ Uses the URI query parameter C<path> as a json pointer to determine the path wit
 C<specification> property to operate on. All of the data at the indicated path is deleted.
 
 After the delete operation, the C<specification> property must validate against
-F<common.yaml#/$defs/HardwareProductSpecification>.
+the schema at C</json_schema/hardware_product/specification/latest>.
 
 =cut
 
@@ -247,10 +258,20 @@ sub delete_specification ($c) {
   my $rendered;
   my $result = $c->txn_wrapper(sub ($c) {
     $rs->update({ specification => $specification_clause });
+    my $new_specification = from_json($rs->get_column('specification')->single);
 
-    my $new_specification = $rs->get_column('specification')->single;
-    return 1 if not defined $new_specification;
-    if (not $c->validate_request('HardwareProductSpecification', from_json($new_specification))) {
+    my $js = $c->json_schema_validator;
+    my $spec_uri = '/json_schema/hardware_product/specification/latest';  # NOT absolute
+    if (not my $result = $js->evaluate($new_specification, $spec_uri)) {
+      my @errors = $c->normalize_evaluation_result($result);
+      $c->stash('response_schema', 'ValidationError');
+      $c->status(409, {
+        error => 'new specification field did not match required format',
+        details => \@errors,
+        schema => scalar($js->get($spec_uri.'#/$id')),  # /<version>, not /latest
+        data => $new_specification,
+      });
+
       $rendered = 1;
       die 'rollback';
     }

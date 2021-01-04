@@ -6,7 +6,7 @@ use Test::More;
 use YAML::PP;
 use Path::Tiny;
 use Try::Tiny;
-use JSON::Schema::Draft201909 0.019;
+use JSON::Schema::Draft201909 0.020;
 use JSON::Schema::Draft201909::Utilities 'canonical_schema_uri';
 
 diag 'using JSON::Schema::Draft201909 '.JSON::Schema::Draft201909->VERSION;
@@ -32,6 +32,9 @@ foreach my $filename (split /\n/, `git ls-files json-schema`) {
   };
   push @files, $path->basename;
 }
+
+# simple substitution for the real schema that is stored in the database
+$js->add_schema('/json_schema/hardware_product/specification/latest', { type => 'object' });
 
 my $pass = 1;
 foreach my $filename (@files) {
@@ -73,6 +76,7 @@ foreach my $filename (@files) {
           next;
         }
 
+        next if $uri eq '/json_schema/hardware_product/specification/latest';
         my @def_segments = split('/', $uri->fragment//'');
         if (@def_segments < 3 or ($def_segments[0] ne '' and $def_segments[1] ne '$defs')) {
           $result = fail('in '.$filename.', invalid uri fragment in $ref: "'.($uri->fragment//'').'"');

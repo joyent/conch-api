@@ -434,6 +434,25 @@ CREATE TABLE public.hardware_vendor (
 ALTER TABLE public.hardware_vendor OWNER TO conch;
 
 --
+-- Name: json_schema; Type: TABLE; Schema: public; Owner: conch
+--
+
+CREATE TABLE public.json_schema (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    type text NOT NULL,
+    name text NOT NULL,
+    version integer NOT NULL,
+    body jsonb NOT NULL,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    created_user_id uuid NOT NULL,
+    deactivated timestamp with time zone,
+    CONSTRAINT json_schema_version_check CHECK ((version > 0))
+);
+
+
+ALTER TABLE public.json_schema OWNER TO conch;
+
+--
 -- Name: migration; Type: TABLE; Schema: public; Owner: conch
 --
 
@@ -886,6 +905,22 @@ ALTER TABLE ONLY public.hardware_vendor
 
 
 --
+-- Name: json_schema json_schema_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.json_schema
+    ADD CONSTRAINT json_schema_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: json_schema json_schema_type_name_version_key; Type: CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.json_schema
+    ADD CONSTRAINT json_schema_type_name_version_key UNIQUE (type, name, version);
+
+
+--
 -- Name: migration migration_pkey; Type: CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1255,6 +1290,20 @@ CREATE UNIQUE INDEX hardware_vendor_name_key ON public.hardware_vendor USING btr
 
 
 --
+-- Name: json_schema_type_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX json_schema_type_idx ON public.json_schema USING btree (type) WHERE (deactivated IS NULL);
+
+
+--
+-- Name: json_schema_type_name_idx; Type: INDEX; Schema: public; Owner: conch
+--
+
+CREATE INDEX json_schema_type_name_idx ON public.json_schema USING btree (type, name) WHERE (deactivated IS NULL);
+
+
+--
 -- Name: organization_build_role_build_id_idx; Type: INDEX; Schema: public; Owner: conch
 --
 
@@ -1564,6 +1613,14 @@ ALTER TABLE ONLY public.hardware_product
 
 
 --
+-- Name: json_schema json_schema_created_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
+--
+
+ALTER TABLE ONLY public.json_schema
+    ADD CONSTRAINT json_schema_created_user_id_fkey FOREIGN KEY (created_user_id) REFERENCES public.user_account(id);
+
+
+--
 -- Name: organization_build_role organization_build_role_build_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: conch
 --
 
@@ -1844,6 +1901,13 @@ GRANT SELECT ON TABLE public.hardware_product TO conch_read_only;
 --
 
 GRANT SELECT ON TABLE public.hardware_vendor TO conch_read_only;
+
+
+--
+-- Name: TABLE json_schema; Type: ACL; Schema: public; Owner: conch
+--
+
+GRANT SELECT ON TABLE public.json_schema TO conch_read_only;
 
 
 --

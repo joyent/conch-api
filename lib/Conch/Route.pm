@@ -131,6 +131,8 @@ Returns the root node.
 
     my $secured = $root->under('/')->to('login#authenticate');
 
+    Conch::Route::JSONSchema->secured_routes($secured->any('/json_schema'));
+
     # POST /logout
     $secured->post('/logout')->to('login#logout', request_schema => 'Null');
 
@@ -144,7 +146,7 @@ Returns the root node.
     Conch::Route::DeviceReport->routes($secured->any('/device_report'));
     Conch::Route::Relay->routes($secured->any('/relay'));
     Conch::Route::User->routes($secured->any('/user'));
-    Conch::Route::HardwareProduct->routes($secured->any('/hardware_product'));
+    Conch::Route::HardwareProduct->routes($secured->any('/hardware_product'), $app);
     Conch::Route::Datacenter->routes($secured->any('/dc'));
     Conch::Route::DatacenterRoom->routes($secured->any('/room'));
     Conch::Route::RackRole->routes($secured->any('/rack_role'));

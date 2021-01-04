@@ -21,6 +21,8 @@ sub routes {
     my $device = shift; # secured, under /device
     my $app = shift;
 
+    return if $app->feature('no_db'); # for testing only
+
     $device->post('/:device_serial_number', { request_schema => 'Anything' },
         sub { shift->status(308, '/device_report') });
 

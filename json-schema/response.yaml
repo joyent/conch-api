@@ -17,7 +17,6 @@ $defs:
     properties:
       error:
         type: string
-        pattern: ' did not match required format$'
       details:
         type: array
         uniqueItems: true
@@ -26,8 +25,9 @@ $defs:
           $ref: '#/$defs/JSONSchemaError'
       schema:
         type: string
-        format: uri
-        pattern: '/json_schema/[^/.~]+/[A-Za-z0-9_-]+$'
+        minLength: 1
+        format: uri-reference
+        pattern: '/json_schema/[^/.~]+/[^/.~]+(?:$|/[^/.~]+$)'
       data:
         $comment: any supplementary details will be included here
   QueryParamsValidationError:
@@ -40,6 +40,7 @@ $defs:
         type: string
         const: query parameters did not match required format
       schema:
+        format: uri
         pattern: '/json_schema/query_params/[A-Za-z0-9_-]+$'
       data:
         $comment: the parsed form of the query parameters, as they were passed to the schema for validation
@@ -59,6 +60,7 @@ $defs:
         type: string
         const: request did not match required format
       schema:
+        format: uri
         pattern: '/json_schema/request/[A-Za-z0-9_-]+$'
   JSONSchemaError:
     $comment: very similar to https://json-schema.org/draft/2019-09/output/schema#/$defs/outputUnit - see https://json-schema.org/draft/2019-09/json-schema-core.html#rfc.section.10.4.2
@@ -73,9 +75,10 @@ $defs:
         type: string
         format: json-pointer
       absolute_schema_location:
+        $comment: 'usually a uri - except when validating against a new schema, or referencing a json_schema in the database'
         type: string
         minLength: 1
-        format: uri
+        format: uri-reference
       error:
         $ref: common.yaml#/$defs/non_empty_string
   JSONSchemaErrors:
@@ -664,7 +667,8 @@ $defs:
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       specification:
         title: Specification
-        $ref: common.yaml#/$defs/HardwareProductSpecification
+        type: object
+        $ref: /json_schema/hardware_product/specification/latest
       rack_unit_size:
         title: Rack Unit Size (RU)
         $ref: common.yaml#/$defs/positive_integer
@@ -1799,6 +1803,94 @@ $defs:
           $id:
             type: string
             minLength: 1
-            format: uri   # never merely a uri-reference
+            format: uri
+  JSONSchema:
+    $comment: this is the structure for responses from GET /json_schema/:type/:name/:version and GET /json_schema/:uuid, which fetches JSON Schemas from the database
+    contentMediaType: application/schema+json
+    allOf:
+      - $comment: Here we are essentially adding on to the main "schema" definition defined in the metaschema.
+        # hack! we need an $id here in order to use this location as a $recursiveRef target
+        $id: response_JSONSchema_recurse
+        $recursiveAnchor: true
+        $ref: 'https://json-schema.org/draft/2019-09/schema'
+        properties:
+          $schema:
+            const: 'https://json-schema.org/draft/2019-09/schema'
+          x-json_schema_id:
+            $ref: common.yaml#/$defs/uuid
+        unevaluatedProperties: false
+      - $comment: Here we are adding on additional requirements for the top level schema only.
+        type: object
+        required:
+          - $id       # the official path, e.g. https://conch.joyent.us/json_schema/foo/bar/1
+          - $schema
+          - $comment
+          - description
+          - x-json_schema_id
+        properties:
+          $comment:
+            type: string
+            pattern: '^created by '
+          $id:
+            type: string
+            minLength: 1
+            format: uri
+          description:
+            $ref: common.yaml#/$defs/non_empty_string
+  JSONSchemaDescriptions:
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - $id
+        - description
+        - type
+        - name
+        - version
+        - created
+        - created_user
+        - deactivated
+      properties:
+        id:
+          title: ID
+          readOnly: true
+          $ref: common.yaml#/$defs/uuid
+        $id:
+          title: Canonical URI Identifier
+          readOnly: true
+          type: string
+          format: uri-reference
+          pattern: '^/json_schema/'
+        description:
+          title: Description
+          type: string
+        type:
+          title: Type
+          readOnly: true
+          $ref: common.yaml#/$defs/json_pointer_token
+        name:
+          title: Name
+          readOnly: true
+          $ref: common.yaml#/$defs/json_pointer_token
+        version:
+          title: Version
+          readOnly: true
+          $ref: common.yaml#/$defs/positive_integer
+        created:
+          title: Created
+          readOnly: true
+          type: string
+          format: date-time
+        created_user:
+          title: Created User
+          readOnly: true
+          $ref: '#/$defs/UserTerse'
+        deactivated:
+          title: Deactivated
+          type: [ 'null', string ]
+          format: date-time
 
 # vim: set sts=2 sw=2 et :

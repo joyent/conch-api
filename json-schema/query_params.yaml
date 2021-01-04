@@ -224,5 +224,13 @@ $defs:
       path:
         type: string
         format: json-pointer
+  ActiveOnly:
+    type: object
+    additionalProperties: false
+    properties:
+      active_only:
+        $ref: '#/$defs/boolean_string'
+    default:
+      active_only: '0'
 
 # vim: set sts=2 sw=2 et :
