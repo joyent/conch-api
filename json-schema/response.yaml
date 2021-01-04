@@ -884,6 +884,7 @@ $defs:
         format: date-time
   LegacyValidationResult:
     type: object
+    readOnly: true
     additionalProperties: false
     required:
       - id
@@ -898,26 +899,36 @@ $defs:
       - description
     properties:
       id:
+        title: ID
         oneOf:
           - type: 'null'
           - $ref: common.yaml#/$defs/uuid
       category:
+        title: Category
         type: string
       component:
+        title: Component
         type: [ 'null', string ]
       hint:
+        title: Hint
         type: [ 'null', string ]
       message:
+        title: Error Message
         type: string
       status:
+        title: Status
         $ref: common.yaml#/$defs/validation_status
       validation_id:
+        title: Validation ID
         $ref: common.yaml#/$defs/uuid
       name:
+        title: Validation Name
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       version:
+        title: Validation Version
         $ref: common.yaml#/$defs/positive_integer
       description:
+        title: Validation Description
         type: string
   LegacyValidationResults:
     type: array

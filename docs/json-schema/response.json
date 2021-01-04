@@ -1878,18 +1878,22 @@
       "additionalProperties" : false,
       "properties" : {
         "category" : {
+          "title" : "Category",
           "type" : "string"
         },
         "component" : {
+          "title" : "Component",
           "type" : [
             "null",
             "string"
           ]
         },
         "description" : {
+          "title" : "Validation Description",
           "type" : "string"
         },
         "hint" : {
+          "title" : "Hint",
           "type" : [
             "null",
             "string"
@@ -1903,24 +1907,31 @@
             {
               "$ref" : "common.json#/$defs/uuid"
             }
-          ]
+          ],
+          "title" : "ID"
         },
         "message" : {
+          "title" : "Error Message",
           "type" : "string"
         },
         "name" : {
-          "$ref" : "common.json#/$defs/mojo_standard_placeholder"
+          "$ref" : "common.json#/$defs/mojo_standard_placeholder",
+          "title" : "Validation Name"
         },
         "status" : {
-          "$ref" : "common.json#/$defs/validation_status"
+          "$ref" : "common.json#/$defs/validation_status",
+          "title" : "Status"
         },
         "validation_id" : {
-          "$ref" : "common.json#/$defs/uuid"
+          "$ref" : "common.json#/$defs/uuid",
+          "title" : "Validation ID"
         },
         "version" : {
-          "$ref" : "common.json#/$defs/positive_integer"
+          "$ref" : "common.json#/$defs/positive_integer",
+          "title" : "Validation Version"
         }
       },
+      "readOnly" : true,
       "required" : [
         "id",
         "category",
