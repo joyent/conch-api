@@ -83,7 +83,7 @@ Results in this data in `specification`, changing the data type at node `/foo/ba
 - Requires system admin authorization
 - Controller/Action: ["set\_specification" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#set_specification)
 - Request: after the update operation, the `specification` property must validate against
-[common.json#/$defs/HardwareProductSpecification](../json-schema/common.json#/$defs/HardwareProductSpecification).
+the schema available from `GET /json_schema/hardware_product/specification/latest`.
 - Response: `204 No Content`
 
 ### `DELETE /hardware_product/:hardware_product_id_or_other/specification?path=:path_to_data`
@@ -93,7 +93,7 @@ parameter `path` as the JSON pointer to the data to be removed. All other proper
 blob are left untouched.
 
 After the delete operation, the `specification` property must validate against
-[common.json#/$defs/HardwareProductSpecification](../json-schema/common.json#/$defs/HardwareProductSpecification).
+the schema available from `GET /json_schema/hardware_product/specification/latest`.
 
 - Requires system admin authorization
 - Controller/Action: ["delete\_specification" in Conch::Controller::HardwareProduct](../modules/Conch%3A%3AController%3A%3AHardwareProduct#delete_specification)

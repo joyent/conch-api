@@ -149,6 +149,8 @@ Fetches the referenced JSON Schema document.
 
 =head2 C<DELETE /json_schema/:json_schema_id>
 
+=head2 C<DELETE /json_schema/:json_schema_type/:json_schema_name/:json_schema_version>
+
 Deactivates the database entry for a single JSON Schema, rendering it unusable.
 This operation is not permitted until all references from other documents have been removed,
 exception of references using C<.../latest> which will now resolve to a different document
@@ -169,28 +171,9 @@ C<.../latest> link will now resolve to an earlier version in the series.
 
 =head2 C<GET /json_schema/:json_schema_type>
 
-Gets meta information about all JSON Schemas in a particular type series.
-
-Optionally accepts the following query parameter:
-
-=over 4
-
-=item * C<active_only> (default C<0>): set to C<1> to only query for JSON Schemas that have not been
-deactivated.
-
-=back
-
-=over 4
-
-=item * Controller/Action: L<Conch::Controller::JSONSchema/get_metadata>
-
-=item * Response: F<response.yaml#/$defs/JSONSchemaDescriptions>
-
-=back
-
 =head2 C<GET /json_schema/:json_schema_type/:json_schema_name>
 
-Gets meta information about all JSON Schemas in a particular type and name series.
+Gets meta information about all JSON Schemas in a particular type series, or a type and name series.
 
 Optionally accepts the following query parameter:
 
