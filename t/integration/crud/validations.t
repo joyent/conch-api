@@ -17,7 +17,7 @@ $t->load_validation_plans([{
 
 $t->authenticate;
 
-my @validations = map $_->TO_JSON, $t->app->db_validations->order_by([ 'validation.name', 'validation.version' ]);
+my @validations = map $_->TO_JSON, $t->app->db_legacy_validations->order_by([ qw(name version) ]);
 
 $t->get_ok('/validation_plan')
     ->status_is(200)

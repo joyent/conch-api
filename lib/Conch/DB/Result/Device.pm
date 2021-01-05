@@ -358,17 +358,17 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 validation_results
+=head2 legacy_validation_results
 
 Type: has_many
 
-Related object: L<Conch::DB::Result::ValidationResult>
+Related object: L<Conch::DB::Result::LegacyValidationResult>
 
 =cut
 
 __PACKAGE__->has_many(
-  "validation_results",
-  "Conch::DB::Result::ValidationResult",
+  "legacy_validation_results",
+  "Conch::DB::Result::LegacyValidationResult",
   { "foreign.device_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -400,7 +400,7 @@ __PACKAGE__->many_to_many("relays", "device_relay_connections", "relay");
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:ygCrs0YElHPOZ3jUN4DWUg
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:GVALxao2yh1/rBoSrWhzfg
 
 __PACKAGE__->load_components('+Conch::DB::Helper::Row::WithPhase');
 

@@ -1,8 +1,8 @@
-# Conch::ValidationSystem
+# Conch::LegacyValidationSystem
 
 ## SOURCE
 
-[https://github.com/joyent/conch-api/blob/master/lib/Conch/ValidationSystem.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/ValidationSystem.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/LegacyValidationSystem.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/LegacyValidationSystem.pm)
 
 ## METHODS
 
@@ -11,7 +11,7 @@
 Verifies that all validations mentioned in validation plans correspond to modules we actually
 have available in Conch::Validation::\*.
 
-Validations not referenced by an active plan are ignored.
+Legacy Validations not referenced by an active plan are ignored.
 
 Returns a tuple, indicating the number of valid and invalid plans checked.
 
@@ -50,12 +50,12 @@ All provided data objects can and should be read-only (fetched with a ro db hand
 
 If `no_save_db => 1` is passed, the validation records are returned (along with the
 overall result status), without writing them to the database. Otherwise, a validation\_state
-record is created and validation\_result records saved with deduplication logic applied.
+record is created and legacy\_validation\_result records saved with deduplication logic applied.
 
 Takes options as a hash:
 
 ```perl
-validation_plan => $plan,       # required, a Conch::DB::Result::ValidationPlan object
+validation_plan => $plan,       # required, a Conch::DB::Result::LegacyValidationPlan object
 device => $device,              # required, a Conch::DB::Result::Device object
 device_report => $report,       # optional, a Conch::DB::Result::DeviceReport object
                                 # (required if no_save_db is false)
@@ -67,14 +67,14 @@ no_save_db => 0|1               # optional, defaults to false
 ### run\_validation
 
 Runs the provided validation record against the provided device and device report.
-Creates and returns validation\_result records, without writing them to the database.
+Creates and returns legacy\_validation\_result records, without writing them to the database.
 
 All provided data objects can and should be read-only (fetched with a ro db handle).
 
 Takes options as a hash:
 
 ```perl
-validation => $validation,      # required, a Conch::DB::Result::Validation object
+validation => $validation,      # required, a Conch::DB::Result::LegacyValidation object
 device => $device,              # required, a Conch::DB::Result::Device object
 data => $data,                  # required, a hashref of device report data
 ```

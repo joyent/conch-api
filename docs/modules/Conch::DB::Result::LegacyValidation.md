@@ -1,12 +1,12 @@
-# Conch::DB::Result::Validation
+# Conch::DB::Result::LegacyValidation
 
 ## SOURCE
 
-[https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/Validation.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/Validation.pm)
+[https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/LegacyValidation.pm](https://github.com/joyent/conch-api/blob/master/lib/Conch/DB/Result/LegacyValidation.pm)
 
 ## BASE CLASS: [Conch::DB::Result](../modules/Conch%3A%3ADB%3A%3AResult)
 
-## TABLE: `validation`
+## TABLE: `legacy_validation`
 
 ## ACCESSORS
 
@@ -78,30 +78,30 @@ is_nullable: 1
 
 ## UNIQUE CONSTRAINTS
 
-### `validation_name_version_key`
+### `l_validation_name_version_key`
 
 - ["name"](#name)
 - ["version"](#version)
 
 ## RELATIONS
 
-### validation\_plan\_members
+### legacy\_validation\_plan\_members
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationPlanMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationPlanMember)
+Related object: [Conch::DB::Result::LegacyValidationPlanMember](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ALegacyValidationPlanMember)
 
-### validation\_results
+### legacy\_validation\_results
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
+Related object: [Conch::DB::Result::LegacyValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ALegacyValidationResult)
 
-### validation\_plans
+### legacy\_validation\_plans
 
 Type: many\_to\_many
 
-Composing rels: ["validation\_plan\_members"](#validation_plan_members) -> validation\_plan
+Composing rels: ["legacy\_validation\_plan\_members"](#legacy_validation_plan_members) -> legacy\_validation\_plan
 
 ## LICENSING
 

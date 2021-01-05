@@ -106,12 +106,12 @@ sub create ($c) {
         }
     }
 
-    for my $key (qw(hardware_vendor_id validation_plan_id)) {
-        (my $rs_name = $key) =~ s/_id$/s/; $rs_name = 'db_'.$rs_name;
-        return $c->status(409, { error => $key.' does not exist' })
-            if not $c->$rs_name->active->search({ id => $input->{$key} })->exists;
-    }
+    return $c->status(409, { error => 'hardware_vendor_id does not exist' })
+      if not $c->db_hardware_vendors->active->search({ id => $input->{hardware_vendor_id} })->exists;
+    return $c->status(409, { error => 'validation_plan_id does not exist' })
+      if not $c->db_legacy_validation_plans->active->search({ id => $input->{validation_plan_id} })->exists;
 
+    $input->{legacy_validation_plan_id} = delete $input->{validation_plan_id};
     $input->{specification} = to_json($input->{specification}) if defined $input->{specification};
 
     my $hardware_product = $c->txn_wrapper(sub ($c) {
@@ -146,14 +146,17 @@ sub update ($c) {
         }
     }
 
-    for my $key (qw(hardware_vendor_id validation_plan_id)) {
-        next if not exists $input->{$key};
-        next if $input->{$key} eq $hardware_product->$key;
-        (my $rs_name = $key) =~ s/_id$/s/; $rs_name = 'db_'.$rs_name;
-        return $c->status(409, { error => $key.' does not exist' })
-            if not $c->$rs_name->active->search({ id => $input->{$key} })->exists;
-    }
+    return $c->status(409, { error => 'hardware_vendor_id does not exist' })
+      if exists $input->{hardware_vendor_id}
+        and $input->{hardware_vendor_id} ne $hardware_product->hardware_vendor_id
+        and not $c->db_hardware_vendors->active->search({ id => $input->{hardware_vendor_id} })->exists;
 
+    return $c->status(409, { error => 'validation_plan_id does not exist' })
+      if exists $input->{validation_plan_id}
+        and $input->{validation_plan_id} ne $hardware_product->legacy_validation_plan_id
+        and not $c->db_legacy_validation_plans->active->search({ id => $input->{validation_plan_id} })->exists;
+
+    $input->{legacy_validation_plan_id} = delete $input->{validation_plan_id} if exists $input->{validation_plan_id};
     $input->{specification} = to_json($input->{specification}) if defined $input->{specification};
 
     $c->txn_wrapper(sub ($c) {

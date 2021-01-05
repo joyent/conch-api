@@ -1,4 +1,4 @@
-package Conch::ValidationSystem;
+package Conch::LegacyValidationSystem;
 
 use Mojo::Base -base, -signatures;
 use Path::Tiny;
@@ -14,7 +14,7 @@ has 'log';
 
 =head1 NAME
 
-Conch::ValidationSystem
+Conch::LegacyValidationSystem
 
 =head1 METHODS
 
@@ -23,7 +23,7 @@ Conch::ValidationSystem
 Verifies that all validations mentioned in validation plans correspond to modules we actually
 have available in Conch::Validation::*.
 
-Validations not referenced by an active plan are ignored.
+Legacy Validations not referenced by an active plan are ignored.
 
 Returns a tuple, indicating the number of valid and invalid plans checked.
 
@@ -31,9 +31,9 @@ Returns a tuple, indicating the number of valid and invalid plans checked.
 
 sub check_validation_plans ($self) {
     $self->log->debug('verifying all active validation plans');
-    my $validation_plan_rs = $self->schema->resultset('validation_plan')
+    my $validation_plan_rs = $self->schema->resultset('legacy_validation_plan')
         ->active
-        ->prefetch({ validation_plan_members => 'validation' });
+        ->prefetch({ legacy_validation_plan_members => 'legacy_validation' });
 
     my %validation_modules;
     my ($good_plans, $bad_plans);
@@ -71,7 +71,7 @@ sub check_validation_plan ($self, $validation_plan) {
 
     my %validation_modules;
     my $valid_plan = 1;
-    foreach my $validation ($validation_plan->validations) {
+    foreach my $validation ($validation_plan->legacy_validations) {
         if ($validation->deactivated) {
             $self->log->warn('validation id '.$validation->id
                 .' "'.$validation->name.'" version '.$validation->version
@@ -145,7 +145,7 @@ sub load_validations ($self) {
     my ($num_deactivated, $num_created) = (0, 0);
 
     $self->log->debug('loading modules under lib/Conch/Validation/');
-    my $validation_rs = $self->schema->resultset('validation');
+    my $validation_rs = $self->schema->resultset('legacy_validation');
     my @modules;
 
     my $iterator = sub {
@@ -234,23 +234,23 @@ continue to run validations pointing to the same code modules.
 =cut
 
 sub update_validation_plans ($self) {
-    my $validation_plan_rs = $self->schema->resultset('validation_plan');
+    my $validation_plan_rs = $self->schema->resultset('legacy_validation_plan');
 
     # deactivates old validation rows; creates new ones in their place
     # note that if a conflict is found, this sub will die.
     my ($num_deactivated, $num_created) = $self->load_validations;
 
     # now get the updated list of all active validations by module name...
-    my %validations = map +($_->module => $_), $self->schema->resultset('validation')->active->all;
+    my %validations = map +($_->module => $_), $self->schema->resultset('legacy_validation')->active->all;
 
     $validation_plan_rs = $validation_plan_rs
         ->active
-        ->prefetch({ validation_plan_members => 'validation' });
+        ->prefetch({ legacy_validation_plan_members => 'legacy_validation' });
 
     while (my $plan = $validation_plan_rs->next) {
         my (%existing_active_validations, @add_active_validations);
-        foreach my $member ($plan->validation_plan_members) {
-            my $existing_validation = $member->validation;
+        foreach my $member ($plan->legacy_validation_plan_members) {
+            my $existing_validation = $member->legacy_validation;
 
             if ($existing_validation->deactivated) {
                 $self->log->info('validation plan '.$plan->name.' has a deactivated validation ('
@@ -272,7 +272,7 @@ sub update_validation_plans ($self) {
             next if $existing_active_validations{$want_validation->module};
             $self->log->info('adding '.$want_validation->name.' version '
                 .$want_validation->version.' to validation plan '.$plan->name);
-            $plan->add_to_validations($want_validation);
+            $plan->add_to_legacy_validations($want_validation);
         }
     }
 }
@@ -285,11 +285,11 @@ All provided data objects can and should be read-only (fetched with a ro db hand
 
 If C<< no_save_db => 1 >> is passed, the validation records are returned (along with the
 overall result status), without writing them to the database. Otherwise, a validation_state
-record is created and validation_result records saved with deduplication logic applied.
+record is created and legacy_validation_result records saved with deduplication logic applied.
 
 Takes options as a hash:
 
-    validation_plan => $plan,       # required, a Conch::DB::Result::ValidationPlan object
+    validation_plan => $plan,       # required, a Conch::DB::Result::LegacyValidationPlan object
     device => $device,              # required, a Conch::DB::Result::Device object
     device_report => $report,       # optional, a Conch::DB::Result::DeviceReport object
                                     # (required if no_save_db is false)
@@ -311,12 +311,12 @@ sub run_validation_plan ($self, %options) {
     Carp::croak('missing data or device report') if not $data;
 
     my $validation_rs = $validation_plan
-        ->related_resultset('validation_plan_members')
-        ->related_resultset('validation')
+        ->related_resultset('legacy_validation_plan_members')
+        ->related_resultset('legacy_validation')
         ->active;
 
     my @validation_results;
-    my $validation_result_rs = $self->schema->resultset('validation_result');
+    my $validation_result_rs = $self->schema->resultset('legacy_validation_result');
     while (my $validation = $validation_rs->next) {
         require_module($validation->module);
         my $validator = $validation->module->new(
@@ -328,22 +328,22 @@ sub run_validation_plan ($self, %options) {
 
         push @validation_results, map {
             my $result = $validation_result_rs->new_result({
-                validation_id       => $validation->id,
+                legacy_validation_id => $validation->id,
                 device_id           => $device->id,
                 $_->%{qw(message hint status category component)},
             });
-            $result->related_resultset('validation')->set_cache([ $validation ]);
+            $result->related_resultset('legacy_validation')->set_cache([ $validation ]);
             $result;
         }
         $validator->validation_results;
 
-        $self->log->debug('validation '.$validation->name.' returned no results for device id '.$device->id)
+        $self->log->debug('legacy validation '.$validation->name.' returned no results for device id '.$device->id)
             if not $validator->validation_results;
     }
 
     # maybe no validations ran? this is a problem.
     if (not @validation_results) {
-        $self->log->warn('validations did not produce a result');
+        $self->log->warn('legacy validations did not produce a result');
         return;
     }
 
@@ -366,9 +366,9 @@ sub run_validation_plan ($self, %options) {
         status => $status,
         # provided column data is used to determine if these result(s) already exist in the db,
         # and they are reused if so, otherwise they are inserted
-        validation_state_members => [ map +{
+        legacy_validation_state_members => [ map +{
             result_order => $result_order++,
-            validation_result => $_,
+            legacy_validation_result => $_,
         }, @validation_results ],
     });
 }
@@ -376,13 +376,13 @@ sub run_validation_plan ($self, %options) {
 =head2 run_validation
 
 Runs the provided validation record against the provided device and device report.
-Creates and returns validation_result records, without writing them to the database.
+Creates and returns legacy_validation_result records, without writing them to the database.
 
 All provided data objects can and should be read-only (fetched with a ro db handle).
 
 Takes options as a hash:
 
-    validation => $validation,      # required, a Conch::DB::Result::Validation object
+    validation => $validation,      # required, a Conch::DB::Result::LegacyValidation object
     device => $device,              # required, a Conch::DB::Result::Device object
     data => $data,                  # required, a hashref of device report data
 
@@ -400,14 +400,14 @@ sub run_validation ($self, %options) {
     );
     $validator->run($data);
 
-    my $validation_result_rs = $self->schema->resultset('validation_result');
+    my $validation_result_rs = $self->schema->resultset('legacy_validation_result');
     my @validation_results = map {
         my $result = $validation_result_rs->new_result({
-            validation_id       => $validation->id,
+            legacy_validation_id => $validation->id,
             device_id           => $device->id,
             $_->%{qw(message hint status category component)},
         });
-        $result->related_resultset('validation')->set_cache([ $validation ]);
+        $result->related_resultset('legacy_validation')->set_cache([ $validation ]);
         $result;
     }
     $validator->validation_results;

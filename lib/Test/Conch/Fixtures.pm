@@ -10,6 +10,7 @@ use List::Util qw(any pairmap);
 use Scalar::Util 'blessed';
 use Storable 'dclone';
 use Authen::Passphrase::AcceptAll;
+use Mojo::JSON 'to_json';
 use namespace::autoclean;
 
 =pod
@@ -134,7 +135,7 @@ my %canned_definitions = (
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
-            validation_plan_basic => { our => 'validation_plan_id', their => 'id' },
+            legacy_validation_plan_basic => { our => 'legacy_validation_plan_id', their => 'id' },
         },
     },
     # this is a server, not a switch.
@@ -161,7 +162,7 @@ my %canned_definitions = (
         },
         requires => {
             hardware_vendor_0 => { our => 'hardware_vendor_id', their => 'id' },
-            validation_plan_basic => { our => 'validation_plan_id', their => 'id' },
+            legacy_validation_plan_basic => { our => 'legacy_validation_plan_id', their => 'id' },
         },
     },
     # this is a server, not a switch.
@@ -188,7 +189,7 @@ my %canned_definitions = (
         },
         requires => {
             hardware_vendor_1 => { our => 'hardware_vendor_id', their => 'id' },
-            validation_plan_basic => { our => 'validation_plan_id', their => 'id' },
+            legacy_validation_plan_basic => { our => 'legacy_validation_plan_id', their => 'id' },
         },
     },
 
@@ -203,10 +204,10 @@ my %canned_definitions = (
         },
     },
 
-    validation_plan_basic => {
-        new => 'validation_plan',
+    legacy_validation_plan_basic => {
+        new => 'legacy_validation_plan',
         using => {
-            name => 'basic validation plan',
+            name => 'basic legacy_validation plan',
             description => 'whee',
         },
     },
@@ -265,6 +266,44 @@ my %canned_definitions = (
   },
   "type" : "object"
 }'
+      },
+      requires => {
+        ro_user => { our => 'created_user_id', their => 'id' },
+      },
+    },
+
+    json_schema_red => {
+      new => 'json_schema',
+      using => {
+        type => 'colour',
+        name => 'red',
+        version => 1,
+        body => to_json({
+          description => 'everything is red',
+          type => 'object',
+          properties => {
+            colour => { const => 'red' },
+          },
+        }),
+      },
+      requires => {
+        ro_user => { our => 'created_user_id', their => 'id' },
+      },
+    },
+
+    json_schema_black => {
+      new => 'json_schema',
+      using => {
+        type => 'colour',
+        name => 'black',
+        version => 1,
+        body => to_json({
+          description => 'everything is black',
+          type => 'object',
+          properties => {
+            colour => { const => 'black' },
+          },
+        }),
       },
       requires => {
         ro_user => { our => 'created_user_id', their => 'id' },
@@ -580,13 +619,13 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
                 },
                 requires => {
                     "hardware_vendor_$num" => { our => 'hardware_vendor_id', their => 'id' },
-                    $specification->{validation_plan_id} ? () :
-                        ("validation_plan_$num" => { our => 'validation_plan_id', their => 'id' }),
+                    $specification->{legacy_validation_plan_id} ? () :
+                        ("legacy_validation_plan_$num" => { our => 'legacy_validation_plan_id', their => 'id' }),
                 },
             },
         },
         [ 'hardware_vendor', $num, $vendor_spec ],
-        $specification->{validation_plan_id} ? () : [ 'validation_plan', $num, {} ];
+        $specification->{legacy_validation_plan_id} ? () : [ 'legacy_validation_plan', $num, {} ];
     }
     elsif ($fixture_type eq 'datacenter_room') {
         return +{
@@ -678,13 +717,13 @@ sub _generate_definition ($self, $fixture_type, $num, $specification) {
         };
         # TODO: not declaring an admin user; some GET queries may fail json schema validation
     }
-    elsif ($fixture_type eq 'validation_plan') {
+    elsif ($fixture_type eq 'legacy_validation_plan') {
         return +{
-            "validation_plan_$num" => {
-                new => 'validation_plan',
+            "legacy_validation_plan_$num" => {
+                new => 'legacy_validation_plan',
                 using => {
-                    name => "validation_plan_$num",
-                    description => "validation_plan_$num description",
+                    name => "legacy_validation_plan_$num",
+                    description => "legacy_validation_plan_$num description",
                     ($specification // {})->%*,
                 },
             },

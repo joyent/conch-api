@@ -32,7 +32,7 @@ sub run ($self, @opts) {
     );
 
     # any issues found go to stderr
-    Conch::ValidationSystem->new(log => Conch::Log->new, schema => $self->app->ro_schema)
+    Conch::LegacyValidationSystem->new(log => Conch::Log->new, schema => $self->app->ro_schema)
         ->check_validation_plans;
 }
 

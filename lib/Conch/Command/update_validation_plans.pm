@@ -45,7 +45,7 @@ sub run ($self, @opts) {
         # all work will be performed in a transaction, so we can bail out if something surprising
         # happens and there will be no ill effects.
         $schema->txn_do(sub {
-            Conch::ValidationSystem->new(
+            Conch::LegacyValidationSystem->new(
                 log => $self->app->log,
                 schema => $schema,
             )->update_validation_plans;

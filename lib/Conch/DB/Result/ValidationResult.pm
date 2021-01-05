@@ -35,38 +35,12 @@ __PACKAGE__->table("validation_result");
   is_nullable: 0
   size: 16
 
-=head2 validation_id
+=head2 json_schema_id
 
   data_type: 'uuid'
   is_foreign_key: 1
   is_nullable: 0
   size: 16
-
-=head2 message
-
-  data_type: 'text'
-  is_nullable: 0
-
-=head2 hint
-
-  data_type: 'text'
-  is_nullable: 1
-
-=head2 status
-
-  data_type: 'enum'
-  extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
-  is_nullable: 0
-
-=head2 category
-
-  data_type: 'text'
-  is_nullable: 0
-
-=head2 component
-
-  data_type: 'text'
-  is_nullable: 1
 
 =head2 created
 
@@ -75,12 +49,31 @@ __PACKAGE__->table("validation_result");
   is_nullable: 0
   original: {default_value => \"now()"}
 
-=head2 device_id
+=head2 status
 
-  data_type: 'uuid'
-  is_foreign_key: 1
+  data_type: 'enum'
+  extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
   is_nullable: 0
-  size: 16
+
+=head2 data_location
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 schema_location
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 absolute_schema_location
+
+  data_type: 'text'
+  is_nullable: 1
+
+=head2 error
+
+  data_type: 'text'
+  is_nullable: 1
 
 =cut
 
@@ -92,12 +85,15 @@ __PACKAGE__->add_columns(
     is_nullable => 0,
     size => 16,
   },
-  "validation_id",
+  "json_schema_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "message",
-  { data_type => "text", is_nullable => 0 },
-  "hint",
-  { data_type => "text", is_nullable => 1 },
+  "created",
+  {
+    data_type     => "timestamp with time zone",
+    default_value => \"current_timestamp",
+    is_nullable   => 0,
+    original      => { default_value => \"now()" },
+  },
   "status",
   {
     data_type => "enum",
@@ -107,19 +103,14 @@ __PACKAGE__->add_columns(
     },
     is_nullable => 0,
   },
-  "category",
-  { data_type => "text", is_nullable => 0 },
-  "component",
+  "data_location",
   { data_type => "text", is_nullable => 1 },
-  "created",
-  {
-    data_type     => "timestamp with time zone",
-    default_value => \"current_timestamp",
-    is_nullable   => 0,
-    original      => { default_value => \"now()" },
-  },
-  "device_id",
-  { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
+  "schema_location",
+  { data_type => "text", is_nullable => 1 },
+  "absolute_schema_location",
+  { data_type => "text", is_nullable => 1 },
+  "error",
+  { data_type => "text", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -140,19 +131,17 @@ __PACKAGE__->set_primary_key("id");
 
 =over 4
 
-=item * L</device_id>
-
-=item * L</validation_id>
-
-=item * L</message>
-
-=item * L</hint>
+=item * L</json_schema_id>
 
 =item * L</status>
 
-=item * L</category>
+=item * L</data_location>
 
-=item * L</component>
+=item * L</schema_location>
+
+=item * L</absolute_schema_location>
+
+=item * L</error>
 
 =back
 
@@ -161,45 +150,29 @@ __PACKAGE__->set_primary_key("id");
 __PACKAGE__->add_unique_constraint(
   "validation_result_all_columns_key",
   [
-    "device_id",
-    "validation_id",
-    "message",
-    "hint",
+    "json_schema_id",
     "status",
-    "category",
-    "component",
+    "data_location",
+    "schema_location",
+    "absolute_schema_location",
+    "error",
   ],
 );
 
 =head1 RELATIONS
 
-=head2 device
+=head2 json_schema
 
 Type: belongs_to
 
-Related object: L<Conch::DB::Result::Device>
+Related object: L<Conch::DB::Result::JSONSchema>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "device",
-  "Conch::DB::Result::Device",
-  { id => "device_id" },
-  { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
-);
-
-=head2 validation
-
-Type: belongs_to
-
-Related object: L<Conch::DB::Result::Validation>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "validation",
-  "Conch::DB::Result::Validation",
-  { id => "validation_id" },
+  "json_schema",
+  "Conch::DB::Result::JSONSchema",
+  { id => "json_schema_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
@@ -234,31 +207,8 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:00k1URNkOBldwrhf2z7WVg
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:0Wg2gtNhRPzFzAZPKrl/Sw
 
-__PACKAGE__->add_columns(
-    '+created' => { is_serializable => 0 },
-    '+device_id' => { is_serializable => 0 },
-);
-
-use experimental 'signatures';
-use next::XS;
-
-=head2 TO_JSON
-
-Include information about the validation corresponding to the result, if available.
-
-=cut
-
-sub TO_JSON ($self) {
-    my $data = $self->next::method(@_);
-
-    if (my $validation = ($self->related_resultset('validation')->get_cache // [])->[0]) {
-        $data->{$_} = $validation->$_ foreach qw(name version description);
-    }
-
-    return $data;
-}
 
 1;
 __END__

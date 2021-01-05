@@ -19,49 +19,13 @@ is_nullable: 0
 size: 16
 ```
 
-### validation\_id
+### json\_schema\_id
 
 ```
 data_type: 'uuid'
 is_foreign_key: 1
 is_nullable: 0
 size: 16
-```
-
-### message
-
-```
-data_type: 'text'
-is_nullable: 0
-```
-
-### hint
-
-```
-data_type: 'text'
-is_nullable: 1
-```
-
-### status
-
-```
-data_type: 'enum'
-extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
-is_nullable: 0
-```
-
-### category
-
-```
-data_type: 'text'
-is_nullable: 0
-```
-
-### component
-
-```
-data_type: 'text'
-is_nullable: 1
 ```
 
 ### created
@@ -73,13 +37,40 @@ is_nullable: 0
 original: {default_value => \"now()"}
 ```
 
-### device\_id
+### status
 
 ```
-data_type: 'uuid'
-is_foreign_key: 1
+data_type: 'enum'
+extra: {custom_type_name => "validation_status_enum",list => ["error","fail","pass"]}
 is_nullable: 0
-size: 16
+```
+
+### data\_location
+
+```
+data_type: 'text'
+is_nullable: 1
+```
+
+### schema\_location
+
+```
+data_type: 'text'
+is_nullable: 1
+```
+
+### absolute\_schema\_location
+
+```
+data_type: 'text'
+is_nullable: 1
+```
+
+### error
+
+```
+data_type: 'text'
+is_nullable: 1
 ```
 
 ## PRIMARY KEY
@@ -90,27 +81,20 @@ size: 16
 
 ### `validation_result_all_columns_key`
 
-- ["device\_id"](#device_id)
-- ["validation\_id"](#validation_id)
-- ["message"](#message)
-- ["hint"](#hint)
+- ["json\_schema\_id"](#json_schema_id)
 - ["status"](#status)
-- ["category"](#category)
-- ["component"](#component)
+- ["data\_location"](#data_location)
+- ["schema\_location"](#schema_location)
+- ["absolute\_schema\_location"](#absolute_schema_location)
+- ["error"](#error)
 
 ## RELATIONS
 
-### device
+### json\_schema
 
 Type: belongs\_to
 
-Related object: [Conch::DB::Result::Device](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ADevice)
-
-### validation
-
-Type: belongs\_to
-
-Related object: [Conch::DB::Result::Validation](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidation)
+Related object: [Conch::DB::Result::JSONSchema](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AJSONSchema)
 
 ### validation\_state\_members
 
@@ -123,10 +107,6 @@ Related object: [Conch::DB::Result::ValidationStateMember](../modules/Conch%3A%3
 Type: many\_to\_many
 
 Composing rels: ["validation\_state\_members"](#validation_state_members) -> validation\_state
-
-### TO\_JSON
-
-Include information about the validation corresponding to the result, if available.
 
 ## LICENSING
 

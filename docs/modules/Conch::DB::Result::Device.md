@@ -194,11 +194,11 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::HardwareProduct](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProduct)
 
-### validation\_results
+### legacy\_validation\_results
 
 Type: has\_many
 
-Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
+Related object: [Conch::DB::Result::LegacyValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ALegacyValidationResult)
 
 ### validation\_states
 

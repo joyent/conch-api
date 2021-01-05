@@ -2,7 +2,7 @@ use Mojo::Base -strict;
 use Test::More;
 use Test::Warnings;
 use Test::Deep;
-use Conch::ValidationSystem;
+use Conch::LegacyValidationSystem;
 use Test::Conch;
 use Path::Tiny;
 use Test::Fatal;
@@ -11,8 +11,8 @@ my $t = Test::Conch->new;
 my $schema = $t->app->schema;
 $t->app->log->max_history_size(50);
 
-my $validation_system = Conch::ValidationSystem->new(log => $t->app->log, schema => $schema);
-my $validation_rs = $schema->resultset('validation');
+my $validation_system = Conch::LegacyValidationSystem->new(log => $t->app->log, schema => $schema);
+my $validation_rs = $schema->resultset('legacy_validation');
 
 # ether still likes to play a round or two if the course is nice
 my @validation_modules = map { s{^lib/}{}; s{/}{::}g; s/\.pm$//r }
@@ -107,7 +107,7 @@ subtest 'increment a validation\'s version (presumably the code changed too)' =>
     );
 
     is(
-        $schema->resultset('validation')->count,
+        $schema->resultset('legacy_validation')->count,
         scalar @validation_modules + 1,
         'Number of total validation modules has gone up by one',
     );

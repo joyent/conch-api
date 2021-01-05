@@ -28,6 +28,10 @@ Conch-specific commands are:
 
     Copy user records and authentication tokens between databases
 
+- [create\_test\_validation\_results](../modules/Conch%3A%3ACommand%3A%3Acreate_test_validation_results)
+
+    create test validation results
+
 - [create\_token](../modules/Conch%3A%3ACommand%3A%3Acreate_token)
 
     Create a new application token

@@ -69,17 +69,21 @@ $defs:
     additionalProperties: false
     properties:
       data_location:
+        title: Data Location
         type: string
         format: json-pointer
       schema_location:
+        title: Schema Location
         type: string
         format: json-pointer
       absolute_schema_location:
+        title: Absolute Schema Location
         $comment: 'usually a uri - except when validating against a new schema, or referencing a json_schema in the database'
         type: string
         minLength: 1
         format: uri-reference
       error:
+        title: Error
         $ref: common.yaml#/$defs/non_empty_string
   JSONSchemaErrors:
     type: array
@@ -883,7 +887,9 @@ $defs:
         type: string
         format: date-time
   LegacyValidationResult:
+    $comment: represents the single result of evaluating a device report against one legacy validation (there may be more than one result per validation)
     type: object
+    readOnly: true
     additionalProperties: false
     required:
       - id
@@ -898,32 +904,92 @@ $defs:
       - description
     properties:
       id:
+        title: ID
         oneOf:
           - type: 'null'
           - $ref: common.yaml#/$defs/uuid
       category:
+        title: Category
         type: string
       component:
+        title: Component
         type: [ 'null', string ]
       hint:
+        title: Hint
         type: [ 'null', string ]
       message:
+        title: Error Message
         type: string
       status:
+        title: Status
         $ref: common.yaml#/$defs/validation_status
       validation_id:
+        title: Validation ID
         $ref: common.yaml#/$defs/uuid
       name:
+        title: Validation Name
         $ref: common.yaml#/$defs/mojo_standard_placeholder
       version:
+        title: Validation Version
         $ref: common.yaml#/$defs/positive_integer
       description:
+        title: Validation Description
         type: string
   LegacyValidationResults:
     type: array
     uniqueItems: true
     items:
       $ref: '#/$defs/LegacyValidationResult'
+  ValidationResult:
+    $comment: represents the results of evaluating a device report against one json_schema (unlike LegacyValidationResult, all errors are grouped together by json_schema)
+    type: object
+    readOnly: true
+    additionalProperties: false
+    required:
+      - json_schema_id
+      - $id
+      - description
+      - status
+      - errors
+    properties:
+      json_schema_id:
+        title: JSON Schema ID
+        readOnly: true
+        $ref: common.yaml#/$defs/uuid
+      $id:
+        title: JSON Schema Canonical URI Identifier
+        type: string
+        minLength: 1
+        format: uri-reference
+        not:
+          format:
+            uri
+      description:
+        title: JSON Schema Description
+        $ref: common.yaml#/$defs/non_empty_string
+      status:
+        title: Status
+        $ref: common.yaml#/$defs/validation_status
+      errors:
+        $comment: 'Note that absolute_schema_location in these errors will NOT contain the scheme and host, so as to avoid security issues arising from clicking on a link that came from a database copied from another conch instance'
+        $ref: '#/$defs/JSONSchemaErrors'
+        not:
+          contains:
+            properties:
+              absolute_schema_location:
+                format: uri
+    if:
+      properties:
+        status:
+          const: pass
+    then:
+      properties:
+        errors:
+          const: []
+    else:
+      properties:
+        errors:
+          minItems: 1
   ValidationStateWithResults:
     type: object
     additionalProperties: false
@@ -947,7 +1013,9 @@ $defs:
         type: array
         uniqueItems: true
         items:
-          $ref: '#/$defs/LegacyValidationResult'
+          anyOf:
+            - $ref: '#/$defs/LegacyValidationResult'
+            - $ref: '#/$defs/ValidationResult'
       status:
         $ref: common.yaml#/$defs/validation_status
       hardware_product_id:

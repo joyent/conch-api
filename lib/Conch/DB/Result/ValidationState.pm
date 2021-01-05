@@ -162,6 +162,21 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 legacy_validation_state_members
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::LegacyValidationStateMember>
+
+=cut
+
+__PACKAGE__->has_many(
+  "legacy_validation_state_members",
+  "Conch::DB::Result::LegacyValidationStateMember",
+  { "foreign.validation_state_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 validation_state_members
 
 Type: has_many
@@ -175,6 +190,20 @@ __PACKAGE__->has_many(
   "Conch::DB::Result::ValidationStateMember",
   { "foreign.validation_state_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 legacy_validation_results
+
+Type: many_to_many
+
+Composing rels: L</legacy_validation_state_members> -> legacy_validation_result
+
+=cut
+
+__PACKAGE__->many_to_many(
+  "legacy_validation_results",
+  "legacy_validation_state_members",
+  "legacy_validation_result",
 );
 
 =head2 validation_results
@@ -193,7 +222,7 @@ __PACKAGE__->many_to_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:pep0iRoZHez2p2JTgmW8Qw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XXllCgKi4icCQQKcXCPF/Q
 
 __PACKAGE__->add_columns(
     '+created' => { retrieve_on_insert => 1 },
@@ -213,19 +242,59 @@ Include all the associated validation results, when available.
 sub TO_JSON ($self) {
     my $data = $self->next::method(@_);
 
-    # add validation_results data, if it has been prefetched
-    if (my $cached_members = $self->related_resultset('validation_state_members')->get_cache) {
-        $data->{results} = [
+    # add legacy_validation_results data, if it has been prefetched
+    if (my $cached_members = $self->related_resultset('legacy_validation_state_members')->get_cache) {
+        push $data->{results}->@*,
             map {
-                my $cached_result = $_->related_resultset('validation_result')->get_cache;
+                my $cached_result = $_->related_resultset('legacy_validation_result')->get_cache;
                 # cache is always a listref even for a belongs_to relationship
                 !$cached_result ? () : +{
                     $cached_result->[0]->TO_JSON->%*,
                     map +($_ => $cached_result->[0]->get_column($_)), qw(name version description),
                 }
             }
-            $cached_members->@*
-        ];
+            $cached_members->@*;
+    }
+
+    # add validation_results data, if it has been prefetched
+    if (my $cached_members = $self->related_resultset('validation_state_members')->get_cache) {
+      # validation_results grouped by json_schema_id
+      my %results;
+
+      foreach my $member (sort { $a->result_order <=> $b->result_order } $cached_members->@*) {
+        if (my $cached_result = $member->related_resultset('validation_result')->get_cache) {
+          # cache is always a listref even for a belongs_to relationship
+          my $json_schema_id = $cached_result->[0]->json_schema_id;
+          if (not exists $results{$json_schema_id}) {
+            $results{$json_schema_id} = +{
+              # we do not need to make the $id URL absolute here, because the document
+              # body is not included
+              json_schema_id => $json_schema_id,
+              '$id' => $cached_result->[0]->get_column('dollar_id'),
+              description => $cached_result->[0]->get_column('description'),
+              status => $cached_result->[0]->status,
+              result_order => $member->result_order, # to be deleted after sorting
+              errors => [],
+            };
+          }
+
+          if (defined $cached_result->[0]->error) {
+            $results{$json_schema_id}{status} =
+                $results{$json_schema_id}{status} eq 'error' ? 'error'
+              : $cached_result->[0]->status eq 'error' ? 'error'
+              : 'fail';
+
+            push $results{$json_schema_id}->{errors}->@*, +{
+              map +($_ => $cached_result->[0]->$_),
+                qw(data_location schema_location absolute_schema_location error),
+            };
+          }
+        }
+      }
+
+      my @results = sort { $a->{result_order} <=> $b->{result_order} } values %results;
+      delete $_->{result_order} foreach @results;
+      push $data->{results}->@*, @results;
     }
 
     return $data;

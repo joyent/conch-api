@@ -10,10 +10,15 @@ Interface to queries involving validation states.
 
 ## METHODS
 
-### with\_results
+### with\_legacy\_validation\_results
+
+Generates a resultset that adds the legacy\_validation\_results to the validation\_state(s) in the
+resultset (to be rendered as a flat list of results grouped by validation\_state).
+
+### with\_validation\_results
 
 Generates a resultset that adds the validation\_results to the validation\_state(s) in the
-resultset.
+resultset (to be rendered as a list json\_schemas, each with a list of errors).
 
 ## LICENSING
 

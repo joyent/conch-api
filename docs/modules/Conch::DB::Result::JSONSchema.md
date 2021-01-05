@@ -92,6 +92,12 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
+### validation\_results
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::ValidationResult](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AValidationResult)
+
 ## METHODS
 
 ### TO\_JSON

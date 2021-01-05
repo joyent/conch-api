@@ -1,12 +1,12 @@
 use utf8;
-package Conch::DB::Result::ValidationPlanMember;
+package Conch::DB::Result::LegacyValidationPlanMember;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Conch::DB::Result::ValidationPlanMember
+Conch::DB::Result::LegacyValidationPlanMember
 
 =cut
 
@@ -20,22 +20,22 @@ use warnings;
 
 use base 'Conch::DB::Result';
 
-=head1 TABLE: C<validation_plan_member>
+=head1 TABLE: C<legacy_validation_plan_member>
 
 =cut
 
-__PACKAGE__->table("validation_plan_member");
+__PACKAGE__->table("legacy_validation_plan_member");
 
 =head1 ACCESSORS
 
-=head2 validation_id
+=head2 legacy_validation_id
 
   data_type: 'uuid'
   is_foreign_key: 1
   is_nullable: 0
   size: 16
 
-=head2 validation_plan_id
+=head2 legacy_validation_plan_id
 
   data_type: 'uuid'
   is_foreign_key: 1
@@ -45,9 +45,9 @@ __PACKAGE__->table("validation_plan_member");
 =cut
 
 __PACKAGE__->add_columns(
-  "validation_id",
+  "legacy_validation_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
-  "validation_plan_id",
+  "legacy_validation_plan_id",
   { data_type => "uuid", is_foreign_key => 1, is_nullable => 0, size => 16 },
 );
 
@@ -55,51 +55,52 @@ __PACKAGE__->add_columns(
 
 =over 4
 
-=item * L</validation_id>
+=item * L</legacy_validation_id>
 
-=item * L</validation_plan_id>
+=item * L</legacy_validation_plan_id>
 
 =back
 
 =cut
 
-__PACKAGE__->set_primary_key("validation_id", "validation_plan_id");
+__PACKAGE__->set_primary_key("legacy_validation_id", "legacy_validation_plan_id");
 
 =head1 RELATIONS
 
-=head2 validation
+=head2 legacy_validation
 
 Type: belongs_to
 
-Related object: L<Conch::DB::Result::Validation>
+Related object: L<Conch::DB::Result::LegacyValidation>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "validation",
-  "Conch::DB::Result::Validation",
-  { id => "validation_id" },
+  "legacy_validation",
+  "Conch::DB::Result::LegacyValidation",
+  { id => "legacy_validation_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
-=head2 validation_plan
+=head2 legacy_validation_plan
 
 Type: belongs_to
 
-Related object: L<Conch::DB::Result::ValidationPlan>
+Related object: L<Conch::DB::Result::LegacyValidationPlan>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "validation_plan",
-  "Conch::DB::Result::ValidationPlan",
-  { id => "validation_plan_id" },
+  "legacy_validation_plan",
+  "Conch::DB::Result::LegacyValidationPlan",
+  { id => "legacy_validation_plan_id" },
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vZ3a0DQ4DdEcDOifIq5Prw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4R0Ih5lVgK3H4wrjX7SFUw
+
 
 1;
 __END__

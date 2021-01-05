@@ -66,10 +66,10 @@ my $device = $t->generate_fixtures('device', {
 });
 
 # create a validation plan with all current validations in it
-Conch::ValidationSystem->new(log => $t->app->log, schema => $t->app->schema)->load_validations;
-my @validations = $t->app->db_validations->all;
+Conch::LegacyValidationSystem->new(log => $t->app->log, schema => $t->app->schema)->load_validations;
+my @validations = $t->app->db_legacy_validations->all;
 my ($full_validation_plan) = $t->load_validation_plans([{
-    id          => $hardware_product->validation_plan_id,
+    id          => $hardware_product->legacy_validation_plan_id,
     name        => 'our validation plan',
     description => 'Test Plan',
     validations => [ map $_->module, @validations ],
@@ -89,11 +89,11 @@ subtest 'run report without an existing device and without making updates' => su
     });
 
     $t->txn_local('validation_plan must not be deactivated', sub {
-        $hardware_product->validation_plan->update({ deactivated => \'now()' });
+        $hardware_product->legacy_validation_plan->update({ deactivated => \'now()' });
 
         $t->post_ok('/device_report?no_save_db=1', json => $report_data)
             ->status_is(409)
-            ->json_is({ error => 'validation_plan (id '.$hardware_product->validation_plan_id.') is deactivated and cannot be used' });
+            ->json_is({ error => 'legacy_validation_plan (id '.$hardware_product->legacy_validation_plan_id.') is deactivated and cannot be used' });
     });
 
     $t->post_ok('/device_report?no_save_db=1', json => $report_data)
@@ -125,7 +125,7 @@ subtest 'save reports for device' => sub {
     # for these tests, we need to use a plan containing a validation we know will pass.
     # we remove all the existing validations from the plan and replace it with just one.
     $t->load_validation_plans([{
-        id          => $hardware_product->validation_plan_id,
+        id          => $hardware_product->legacy_validation_plan_id,
         description => 'Test Plan',
         validations => [ 'Conch::Validation::DeviceProductName' ],
     }]);
@@ -199,15 +199,15 @@ subtest 'save reports for device' => sub {
     is($device->related_resultset('device_reports')->count, 1, 'one device_report row created');
     is($device->related_resultset('validation_states')->count, 1, 'one validation_state row created');
     # DeviceProductName now creates two results in most cases
-    is($t->app->db_validation_results->count, 2, 'two validation result rows created');
+    is($t->app->db_legacy_validation_results->count, 2, 'two validation result rows created');
     is($device->related_resultset('device_relay_connections')->count, 1, 'one device_relay_connection row created');
 
     $t->txn_local('validation_plan must not be deactivated', sub {
-        $hardware_product->validation_plan->update({ deactivated => \'now()' });
+        $hardware_product->legacy_validation_plan->update({ deactivated => \'now()' });
 
         $t->post_ok('/device_report', { 'Content-Type' => 'application/json' }, $good_report)
             ->status_is(409)
-            ->json_is({ error => 'validation_plan (id '.$hardware_product->validation_plan_id.') is deactivated and cannot be used' });
+            ->json_is({ error => 'legacy_validation_plan (id '.$hardware_product->legacy_validation_plan_id.') is deactivated and cannot be used' });
     });
 
     # submit another passing report, this time swapping around some iface_names...
@@ -232,7 +232,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 2, 'two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'two validation_state rows exist');
-    is($t->app->db_validation_results->count, 2, 'the second two validation results are the same as the first two');
+    is($t->app->db_legacy_validation_results->count, 2, 'the second two validation results are the same as the first two');
 
 
     # submit another passing report (this makes 3)
@@ -254,7 +254,7 @@ subtest 'save reports for device' => sub {
     # now the 2nd of the 3 reports should be deleted.
     is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
-    is($t->app->db_validation_results->count, 2, 'still only two validation result rows exist');
+    is($t->app->db_legacy_validation_results->count, 2, 'still only two validation result rows exist');
 
     ok(!$t->app->db_device_reports->search({ id => $device_report_ids[1] })->exists,
         'second device_report deleted');
@@ -271,7 +271,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
-    is($t->app->db_validation_results->count, 2, 'still only two validation result rows exist');
+    is($t->app->db_legacy_validation_results->count, 2, 'still only two validation result rows exist');
 
     $t->get_ok('/device/'.$device_id)
         ->status_is(200)
@@ -287,7 +287,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two validation_state rows exist');
-    is($t->app->db_validation_results->count, 2, 'still only two validation result rows exist');
+    is($t->app->db_legacy_validation_results->count, 2, 'still only two validation result rows exist');
 
     $t->get_ok('/device/TEST')
         ->status_is(200)
@@ -319,7 +319,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 2, 'still just two device_report rows exist');
     is($device->related_resultset('validation_states')->count, 2, 'still just two rows exist');
-    is($t->app->db_validation_results->count, 2, 'the second two validation results are the same as the first two');
+    is($t->app->db_legacy_validation_results->count, 2, 'the second two validation results are the same as the first two');
 
 
     my $error_report = path('t/integration/resource/error-device-report.json')->slurp_utf8;
@@ -347,7 +347,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 3, 'now another device_report row exists');
     is($device->related_resultset('validation_states')->count, 3, 'now another validation_state row exists');
-    is($t->app->db_validation_results->count, 3, 'now three validation result rows exist');
+    is($t->app->db_legacy_validation_results->count, 3, 'now three validation result rows exist');
 
     $t->get_ok('/device/TEST')
         ->status_is(200)
@@ -370,7 +370,7 @@ subtest 'save reports for device' => sub {
 
     is($device->related_resultset('device_reports')->count, 4, 'now another device_report row exists');
     is($device->related_resultset('validation_states')->count, 4, 'now another validation_state row exists');
-    is($t->app->db_validation_results->count, 3, 'still just three validation result rows exist');
+    is($t->app->db_legacy_validation_results->count, 3, 'still just three validation result rows exist');
 
 
     cmp_deeply(
@@ -557,7 +557,7 @@ subtest 'hardware_product is different' => sub {
         $t->generate_fixtures('hardware_product', {
             sku => 'my_new_sku',
             generation_name => 'something',
-            validation_plan_id => $full_validation_plan->id,
+            legacy_validation_plan_id => $full_validation_plan->id,
         });
 
     my $altered_report = from_json($report);

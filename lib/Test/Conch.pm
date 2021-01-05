@@ -446,7 +446,7 @@ sub load_validation_plans ($self, $plans) {
     my @plans;
 
     for my $plan_data ($plans->@*) {
-        my $plan = $self->app->db_validation_plans->active->search({
+        my $plan = $self->app->db_legacy_validation_plans->active->search({
                 exists $plan_data->{id} ? ( $plan_data->%{id} ) : ( $plan_data->%{name} ),
             })->single;
         if ($plan) {
@@ -456,17 +456,17 @@ sub load_validation_plans ($self, $plans) {
             }
         }
         else {
-            $plan = $self->app->db_validation_plans->create({ $plan_data->%{qw(name description)} });
+            $plan = $self->app->db_legacy_validation_plans->create({ $plan_data->%{qw(name description)} });
             $self->app->log->info('Created validation plan '.$plan->name);
         }
 
-        $plan->delete_related('validation_plan_members');
+        $plan->delete_related('legacy_validation_plan_members');
         foreach my $module ($plan_data->{validations}->@*) {
             my $validation = $self->load_validation($module);
-            $plan->add_to_validations($validation);
+            $plan->add_to_legacy_validations($validation);
         }
         $self->app->log->info('Loaded validation plan '.$plan->name);
-        push @plans, $self->app->db_ro_validation_plans->find($plan->id);
+        push @plans, $self->app->db_ro_legacy_validation_plans->find($plan->id);
     }
     return @plans;
 }
@@ -478,18 +478,18 @@ Add data for a validator module to the database, if it does not already exist.
 =cut
 
 sub load_validation ($self, $module) {
-    my $validation = $self->app->db_ro_validations->active->search({ module => $module })->single;
+    my $validation = $self->app->db_ro_legacy_validations->active->search({ module => $module })->single;
     return $validation if $validation;
 
     require_module($module);
 
-    $validation = $self->app->db_validations->create({
+    $validation = $self->app->db_legacy_validations->create({
         name => $module->name,
         version => $module->version,
         description => $module->description,
         module => $module,
     });
-    return $self->app->db_ro_validations->find($validation->id);
+    return $self->app->db_ro_legacy_validations->find($validation->id);
 }
 
 =head2 load_fixture

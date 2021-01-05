@@ -40,10 +40,10 @@ subtest 'generate_definition' => sub {
             'hardware_vendor_99_ru1',
             'hardware_vendor_99_ru2',
             'hardware_vendor_99_ru3',
-            'validation_plan_99',
-            'validation_plan_99_ru1',
-            'validation_plan_99_ru2',
-            'validation_plan_99_ru3',
+            'legacy_validation_plan_99',
+            'legacy_validation_plan_99_ru1',
+            'legacy_validation_plan_99_ru2',
+            'legacy_validation_plan_99_ru3',
         ),
         'generated requested fixtures, and for many supporting tables as well',
     );
@@ -89,10 +89,10 @@ subtest 'generate_fixture_definitions wrapper' => sub {
                 HardwareVendor
                 HardwareVendor
                 HardwareVendor
-                ValidationPlan
-                ValidationPlan
-                ValidationPlan
-                ValidationPlan
+                LegacyValidationPlan
+                LegacyValidationPlan
+                LegacyValidationPlan
+                LegacyValidationPlan
             )
         ),
         'loaded requested fixtures into the database (and for many supporting tables as well)',
@@ -133,7 +133,7 @@ subtest 'unnested data' => sub {
                 Device
                 HardwareProduct
                 HardwareVendor
-                ValidationPlan
+                LegacyValidationPlan
             )
         ),
         'loaded requested fixtures into the database (and for many supporting tables as well)',
@@ -166,7 +166,7 @@ subtest 'nested data' => sub {
                 Device
                 HardwareProduct
                 HardwareVendor
-                ValidationPlan
+                LegacyValidationPlan
             )
         ),
         'loaded requested fixtures into the database (and for many supporting tables as well)',
@@ -209,8 +209,8 @@ subtest 'nested data with layout' => sub {
                 Rack
                 RackRole
                 RackLayout
-                ValidationPlan
-                ValidationPlan
+                LegacyValidationPlan
+                LegacyValidationPlan
             )
         ),
         'loaded requested fixtures into the database (and for many supporting tables as well)',

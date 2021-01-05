@@ -35,5 +35,5 @@ loader_options:
 
   omit_timestamp: 1
 
-  # exclude these tables
-  exclude: !!perl/regexp ^legacy_
+  # exclude these tables - they are kept as backups only
+  exclude: !!perl/regexp ^legacy_.*workspace

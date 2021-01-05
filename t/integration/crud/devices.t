@@ -18,7 +18,7 @@ my $hardware_product = $t->load_fixture('hardware_product_compute');
 my $hardware_product2 = $t->load_fixture('hardware_product_storage');
 
 $t->load_validation_plans([{
-    id          => $hardware_product->validation_plan_id,
+    id          => $hardware_product->legacy_validation_plan_id,
     name        => 'our plan',
     description => 'Test Plan',
     validations => [ 'Conch::Validation::DeviceProductName' ],
