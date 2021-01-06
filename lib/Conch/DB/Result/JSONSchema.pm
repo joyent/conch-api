@@ -200,6 +200,9 @@ sub TO_JSON ($self) {
   $data->{'$id'} = '/json_schema/'.join('/', $data->@{qw(type name version)});
   $data->{description} = $self->get_column('description') if $self->has_column_loaded('description');
 
+  # Mojo::JSON renders \0, \1 as json booleans
+  $data->{latest} = \$self->get_column('latest');
+
   if (my $user_cache = $self->related_resultset('created_user')->get_cache) {
     $data->{created_user} = +{ map +($_ => $user_cache->[0]->$_), qw(id name email) };
   }

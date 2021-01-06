@@ -325,10 +325,11 @@ sub get_metadata ($c) {
   }
 
   $rs = $rs
+    ->with_latest_flag  # closes off the resultset as a subquery!
     ->with_description
     ->with_created_user
     ->remove_columns([ 'body' ])
-    ->order_by([ qw(json_schema.name version) ]);
+    ->order_by([ qw(json_schema.name json_schema.version) ]);
 
   $c->status(200, [ $rs->all ]);
 }

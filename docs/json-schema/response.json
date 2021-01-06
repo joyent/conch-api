@@ -1653,6 +1653,13 @@
     "JSONSchemaDescriptions" : {
       "items" : {
         "additionalProperties" : false,
+        "if" : {
+          "properties" : {
+            "deactivated" : {
+              "type" : "string"
+            }
+          }
+        },
         "properties" : {
           "$id" : {
             "format" : "uri-reference",
@@ -1689,6 +1696,11 @@
             "readOnly" : true,
             "title" : "ID"
           },
+          "latest" : {
+            "description" : "true when it is the latest of its type-name series",
+            "title" : "Latest in Type-Name Series?",
+            "type" : "boolean"
+          },
           "name" : {
             "$ref" : "common.json#/$defs/json_pointer_token",
             "readOnly" : true,
@@ -1712,10 +1724,18 @@
           "type",
           "name",
           "version",
+          "latest",
           "created",
           "created_user",
           "deactivated"
         ],
+        "then" : {
+          "properties" : {
+            "latest" : {
+              "const" : false
+            }
+          }
+        },
         "type" : "object"
       },
       "type" : "array",

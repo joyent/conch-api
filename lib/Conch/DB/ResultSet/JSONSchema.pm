@@ -93,6 +93,42 @@ sub resource ($self, $type, $name, $version_or_latest) {
   return $rs;
 }
 
+=head2 with_latest_flag
+
+Chainable resultset that adds the C<latest> boolean flag to each result, indicating whether
+that row is the latest of its type-name series (that is, whether it can be referenced as
+C</json_schema/type/name/latest>).
+
+The query will be closed off as a subselect (that additional chaining will SELECT FROM),
+so it makes a difference whether you add things to the resultset before or after calling this
+method.
+
+=cut
+
+sub with_latest_flag ($self) {
+  my $me = $self->current_source_alias;
+
+  # "Note that first_value, last_value, and nth_value consider only the rows within the
+  # “window frame”, which by default contains the rows from the start of the partition
+  # through the last peer of the current row."
+  # therefore we sort in reverse, so latest comes first and is visible to all rows in the
+  # window. see https://www.postgresql.org/docs/10/functions-window.html
+  my $rs = $self
+    ->add_columns([qw(id type name version deactivated)]) # make sure these columns are available
+    ->search(undef, {
+      '+select' => [{
+        '' => \"first_value($me.id) over (partition by $me.type, $me.name order by $me.deactivated asc nulls first, version desc)",
+        -as => 'last_row_id',
+      }],
+    })
+    ->as_subselect_rs;
+
+  # RT#132276: do not select columns that aren't there
+  $rs = $rs->columns($self->{attrs}{columns}) if exists $self->{attrs}{columns};
+
+  return $rs->add_columns({ latest => \"$me.id = last_row_id and $me.deactivated is null" });
+}
+
 1;
 __END__
 

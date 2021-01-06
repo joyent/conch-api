@@ -1918,6 +1918,7 @@ $defs:
         - type
         - name
         - version
+        - latest
         - created
         - created_user
         - deactivated
@@ -1947,6 +1948,10 @@ $defs:
           title: Version
           readOnly: true
           $ref: common.yaml#/$defs/positive_integer
+        latest:
+          title: Latest in Type-Name Series?
+          description: true when it is the latest of its type-name series
+          type: boolean
         created:
           title: Created
           readOnly: true
@@ -1960,5 +1965,13 @@ $defs:
           title: Deactivated
           type: [ 'null', string ]
           format: date-time
+      if:
+        properties:
+          deactivated:
+            type: string
+      then:
+        properties:
+          latest:
+            const: false
 
 # vim: set sts=2 sw=2 et :

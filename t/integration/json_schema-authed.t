@@ -314,6 +314,7 @@ $t_ro->get_ok('/json_schema/foo')
       type => 'foo',
       name => 'alpha',
       version => 1,
+      latest => JSON::PP::true,
       created => ignore,
       created_user => { map +($_ => $ro_user->$_), qw(id name email) },
       deactivated => undef,
@@ -325,6 +326,7 @@ $t_ro->get_ok('/json_schema/foo')
       type => 'foo',
       name => 'bar',
       version => 1,
+      latest => JSON::PP::false,
       created => Conch::Time->new($db_rows[0]->{created})->to_string,
       created_user => { map +($_ => $ro_user->$_), qw(id name email) },
       deactivated => undef,
@@ -336,11 +338,13 @@ $t_ro->get_ok('/json_schema/foo')
       type => 'foo',
       name => 'bar',
       version => 2,
+      latest => JSON::PP::true,
       created => Conch::Time->new($db_rows[1]->{created})->to_string,
       created_user => { map +($_ => $ro_user->$_), qw(id name email) },
       deactivated => undef,
     },
   ]);
+
 my $metadata = $t_ro->tx->res->json;
 
 $t_other->get_ok('/json_schema/foo')
@@ -372,7 +376,10 @@ $t_other->delete_ok($_)
 $t_ro->delete_ok('/json_schema/foo/bar/2')
   ->status_is(204)
   ->log_debug_is('Deactivated JSON Schema id '.$schema2_id.' (/json_schema/foo/bar/2); latest of this type and name is now /json_schema/foo/bar/1');
+
+$metadata->[1]->{latest} = JSON::PP::true;
 $metadata->[2]->{deactivated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+$metadata->[2]->{latest} = JSON::PP::false;
 
 $t_ro->delete_ok('/json_schema/'.$schema2_id)
   ->status_is(410);
@@ -403,6 +410,7 @@ $t_ro->delete_ok('/json_schema/foo/bar/1')
   ->status_is(204)
   ->log_debug_is('Deactivated JSON Schema id '.$schema1_id.' (/json_schema/foo/bar/1); no schemas of this type and name remain');
 $metadata->[1]->{deactivated} = re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/);
+$metadata->[1]->{latest} = JSON::PP::false;
 
 $t_ro->get_ok('/json_schema/foo/bar/1')
   ->status_is(200)
