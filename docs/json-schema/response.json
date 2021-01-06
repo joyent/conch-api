@@ -1632,6 +1632,7 @@
             "$id" : {
               "format" : "uri",
               "minLength" : 1,
+              "pattern" : "/json_schema/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/[0-9]+$",
               "type" : "string"
             },
             "description" : {
@@ -1663,7 +1664,7 @@
         "properties" : {
           "$id" : {
             "format" : "uri-reference",
-            "pattern" : "^/json_schema/",
+            "pattern" : "^/json_schema/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/[0-9]+$",
             "readOnly" : true,
             "title" : "Canonical URI Identifier",
             "type" : "string"

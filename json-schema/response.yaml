@@ -1903,6 +1903,7 @@ $defs:
             type: string
             minLength: 1
             format: uri
+            pattern: '/json_schema/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/[0-9]+$'
           description:
             $ref: common.yaml#/$defs/non_empty_string
   JSONSchemaDescriptions:
@@ -1932,7 +1933,7 @@ $defs:
           readOnly: true
           type: string
           format: uri-reference
-          pattern: '^/json_schema/'
+          pattern: '^/json_schema/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/[0-9]+$'
         description:
           title: Description
           type: string
