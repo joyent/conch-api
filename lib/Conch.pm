@@ -146,7 +146,7 @@ C<< $c->render >> as a side-effect.
         }
 
         if ($code == 204) {
-            $c->res->headers->location($payload) if defined $payload;
+            $c->res_location($payload) if defined $payload;
             $c->rendered;
         }
         elsif (any { $code == $_ } 301, 302, 303, 305, 307, 308) {
@@ -160,6 +160,17 @@ C<< $c->render >> as a side-effect.
         }
 
         return 0;
+    });
+
+
+=head2 res_location
+
+Simple helper for setting the C<Location> header in the response.
+
+=cut
+
+    $self->helper(res_location => sub ($c, @args) {
+      $c->res->headers->location($c->url_for(@args));
     });
 
 

@@ -85,7 +85,7 @@ Response uses the HardwareProduct json schema.
 
 sub get ($c) {
     my $hardware_product = $c->stash('hardware_product_rs')->single;
-    $c->res->headers->location('/hardware_product/'.$hardware_product->id);
+    $c->res_location('/hardware_product/'.$hardware_product->id);
     $c->status(200, $hardware_product);
 }
 
@@ -122,7 +122,7 @@ sub create ($c) {
     return $c->status(400) if not $hardware_product;
 
     $c->log->debug('Created hardware product id '.$hardware_product->id);
-    $c->res->headers->location('/hardware_product/'.$hardware_product->id);
+    $c->res_location('/hardware_product/'.$hardware_product->id);
     $c->status(201);
 }
 
@@ -232,7 +232,7 @@ sub set_specification ($c) {
 
   return $rendered ? () : $c->status(400) if not $result;
 
-  $c->res->headers->location('/hardware_product/'.$hardware_product_id);
+  $c->res_location('/hardware_product/'.$hardware_product_id);
   $c->status(204);
 }
 
@@ -284,7 +284,7 @@ sub delete_specification ($c) {
 
   return $rendered ? () : $c->status(400) if not $result;
 
-  $c->res->headers->location('/hardware_product/'.$hardware_product_id);
+  $c->res_location('/hardware_product/'.$hardware_product_id);
   $c->status(204);
 }
 

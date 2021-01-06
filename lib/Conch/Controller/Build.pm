@@ -91,7 +91,7 @@ sub create ($c) {
         user_build_roles => [ map +{ user_id => $_->[2], role => 'admin' }, @admins ],
     });
     $c->log->info('created build '.$build->id.' ('.$build->name.')');
-    $c->res->headers->location('/build/'.$build->id);
+    $c->res_location('/build/'.$build->id);
     $c->status(201);
 }
 

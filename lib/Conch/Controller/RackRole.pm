@@ -58,7 +58,7 @@ sub create ($c) {
 
     my $rack_role = $c->db_rack_roles->create($input);
     $c->log->debug('Created rack role '.$rack_role->id);
-    $c->res->headers->location('/rack_role/'.$rack_role->id);
+    $c->res_location('/rack_role/'.$rack_role->id);
     $c->status(201);
 }
 
@@ -125,7 +125,7 @@ sub update ($c) {
         }
     }
 
-    $c->res->headers->location('/rack_role/'.$rack_role->id);
+    $c->res_location('/rack_role/'.$rack_role->id);
 
     $rack_role->set_columns($input);
     return $c->status(204) if not $rack_role->is_changed;

@@ -73,7 +73,7 @@ Response uses the DatacenterRoomDetailed json schema.
 
 sub get_one ($c) {
     my $room = $c->stash('datacenter_room_rs')->single;
-    $c->res->headers->location('/room/'.$room->id);
+    $c->res_location('/room/'.$room->id);
     $c->status(200, $room);
 }
 
@@ -97,7 +97,7 @@ sub create ($c) {
 
     my $room = $c->db_datacenter_rooms->create($input);
     $c->log->debug('Created datacenter room '.$room->id);
-    $c->res->headers->location('/room/'.$room->id);
+    $c->res_location('/room/'.$room->id);
     $c->status(201);
 }
 
@@ -124,7 +124,7 @@ sub update ($c) {
         if $input->{vendor_name} and $input->{vendor_name} ne $room->vendor_name
             and $c->db_datacenter_rooms->search({ vendor_name => $input->{vendor_name} })->exists;
 
-    $c->res->headers->location('/room/'.$room->id);
+    $c->res_location('/room/'.$room->id);
 
     $room->set_columns($input);
     return $c->status(204) if not $room->is_changed;

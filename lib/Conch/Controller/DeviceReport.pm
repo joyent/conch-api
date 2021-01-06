@@ -181,7 +181,7 @@ sub process ($c) {
         }
     }
 
-    $c->res->headers->location($c->url_for('/validation_state/'.$validation_state->id));
+    $c->res_location('/validation_state/'.$validation_state->id);
     $c->status(201);
 }
 

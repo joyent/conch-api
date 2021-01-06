@@ -138,7 +138,7 @@ sub _check_authentication ($c) {
                 $user->user_session_tokens->login_only
                     ->update({ expires => \'least(expires, now() + interval \'10 minutes\')' }) if $session_token;
 
-                $c->res->headers->location($c->url_for('/user/me/password?clear_tokens=none'));
+                $c->res_location('/user/me/password?clear_tokens=none');
                 return 0;
             }
 
@@ -203,7 +203,7 @@ sub login ($c) {
         $c->_update_session($user->id, $input->{set_session} ? time + 10 * 60 : 0);
 
         # we logged the user in, but he must now change his password (within 10 minutes)
-        $c->res->headers->location($c->url_for('/user/me/password?clear_tokens=none'));
+        $c->res_location('/user/me/password?clear_tokens=none');
         return $c->_respond_with_jwt($user->id, time + 10 * 60);
     }
 

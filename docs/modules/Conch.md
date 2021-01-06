@@ -27,6 +27,10 @@ and therefore other helpers).
 Helper method for setting the response status code and json content. Calls
 `$c->render` as a side-effect.
 
+### res\_location
+
+Simple helper for setting the `Location` header in the response.
+
 ### startup\_time
 
 Stores a [Conch::Time](../modules/Conch%3A%3ATime) instance representing the time the server started accepting requests.
