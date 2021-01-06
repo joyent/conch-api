@@ -206,7 +206,7 @@ subtest 'unlocated device with a registered relay' => sub {
             },
             'response.yaml#/$defs/DetailedDevice')->TO_JSON,
         {
-            valid => bool(0),
+            valid => JSON::PP::false,
             errors => [ superhashof({ error => 'missing property: location' }) ],
         },
         'lack of location data is rejected by the response schema when phase=integration',
@@ -217,7 +217,7 @@ subtest 'unlocated device with a registered relay' => sub {
             { $test_device_data->%*, phase => 'production' },
             'response.yaml#/$defs/DetailedDevice')->TO_JSON,
         {
-            valid => bool(0),
+            valid => JSON::PP::false,
             errors => [
                 map +{
                     instanceLocation => '/'.$_,

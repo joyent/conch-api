@@ -329,7 +329,7 @@ subtest 'User' => sub {
             ->json_schema_is('UserDetailed')
             ->json_cmp_deeply({
                 $user_detailed->%*,
-                refuse_session_auth => bool(1),
+                refuse_session_auth => JSON::PP::true,
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -342,7 +342,7 @@ subtest 'User' => sub {
             ->json_schema_is('UserDetailed')
             ->json_cmp_deeply({
                 $user_detailed->%*,
-                refuse_session_auth => bool(1),
+                refuse_session_auth => JSON::PP::true,
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });
@@ -425,7 +425,7 @@ subtest 'User' => sub {
             ->json_schema_is('UserDetailed')
             ->json_cmp_deeply({
                 $user_detailed->%*,
-                refuse_session_auth => bool(1),
+                refuse_session_auth => JSON::PP::true,
                 last_login => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
                 last_seen => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
             });

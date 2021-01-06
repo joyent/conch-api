@@ -47,7 +47,7 @@ $t->get_ok('/json_schema/response/Ping' => { 'If-Modified-Since' => 'Sun, 01 Jan
         '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/response/Ping',
         type => 'object',
-        additionalProperties => bool(0),
+        additionalProperties => JSON::PP::false,
         required => ['status'],
         properties => { status => { const => 'ok' } },
     });
@@ -69,7 +69,7 @@ $t->get_ok('/schema/response/login_token')
         '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/response/LoginToken',
         type => 'object',
-        additionalProperties => bool(0),
+        additionalProperties => JSON::PP::false,
         required => ['jwt_token'],
         properties => { jwt_token => {
             type => 'string',
@@ -93,7 +93,7 @@ $t->get_ok('/json_schema/request/Login')
         '$schema' => SPEC_URL,
         '$id' => $base_uri.'json_schema/request/Login',
         type => 'object',
-        unevaluatedProperties => bool(0),
+        unevaluatedProperties => JSON::PP::false,
         required => [ 'password' ],
         properties => {
             password => { '$ref' => '/json_schema/common/non_empty_string' },
@@ -117,7 +117,7 @@ $t->get_ok('/json_schema/request/Login')
             UserIdOrEmail => {
                 '$id' => '/json_schema/request/UserIdOrEmail',
                 type => 'object',
-                additionalProperties => bool(1),
+                additionalProperties => JSON::PP::true,
                 oneOf => [ { required => [ 'user_id' ] }, { required => [ 'email' ] } ],
                 properties => {
                     user_id => { '$ref' => '/json_schema/common/uuid' },
@@ -125,7 +125,7 @@ $t->get_ok('/json_schema/request/Login')
                 },
             },
         },
-        default => { set_session => bool(0) },
+        default => { set_session => JSON::PP::false },
     });
 
 $t->get_ok('/json_schema/query_params/ResetUserPassword')
@@ -142,7 +142,7 @@ $t->get_ok('/json_schema/query_params/ResetUserPassword')
             },
         },
         type => 'object',
-        additionalProperties => bool(0),
+        additionalProperties => JSON::PP::false,
         properties => {
             clear_tokens => { enum => [ qw(none login_only all) ] },
             send_mail => { '$ref' => '/json_schema/query_params/boolean_string' },
@@ -202,12 +202,12 @@ $t->get_ok('/json_schema/response/JSONSchemaOnDisk')
             '$comment' => ignore,
             '$id' => ignore,  # we just need there to be something here
             '$ref' => SPEC_URL,
-            '$recursiveAnchor' => bool(1),
+            '$recursiveAnchor' => JSON::PP::true,
             '$ref' => SPEC_URL,
             properties => {
               '$schema' => { const => SPEC_URL },
             },
-            unevaluatedProperties => bool(0),
+            unevaluatedProperties => JSON::PP::false,
           },
           {
             '$comment' => ignore,
@@ -232,13 +232,13 @@ $t->get_ok('/json_schema/response/JSONSchema')
         '$comment' => ignore,
         '$id' => ignore,  # we just need there to be something here
         '$ref' => SPEC_URL,
-        '$recursiveAnchor' => bool(1),
+        '$recursiveAnchor' => JSON::PP::true,
         '$ref' => SPEC_URL,
         properties => {
           '$schema' => { const => SPEC_URL },
           'x-json_schema_id' => { '$ref' => '/json_schema/common/uuid' },
         },
-        unevaluatedProperties => bool(0),
+        unevaluatedProperties => JSON::PP::false,
       },
       {
         '$comment' => ignore,
@@ -301,7 +301,7 @@ $t->get_ok('/json_schema/device_report/DeviceReport_v3_0_0')
         '$schema' => SPEC_URL,
         '$comment' => ignore,
         type => 'object',
-        additionalProperties => bool(1),
+        additionalProperties => JSON::PP::true,
         required => ignore,
         properties => superhashof({}),
         '$defs' => {
