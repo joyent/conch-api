@@ -69,7 +69,7 @@ sub run ($self, @opts) {
             },
         ), $opt->from, $opt->to;
 
-    my $from_user_rs = $from_schema->resultset('user_account')->hri;
+    my $from_user_rs = $from_schema->resultset('user_account')->active->hri;
     my $to_user_rs = $to_schema->resultset('user_account');
 
     if ($opt->dry_run) {
@@ -86,6 +86,8 @@ sub run ($self, @opts) {
                 ++$updated;
             }
             else {
+                next if $to_user_rs->search(\[ 'lower(email) = lower(?)', $user_data->{email} ]);
+
                 my $row = $to_user_rs->new_result({});
                 # we do not use set_columns, because DBIx::Class::PassphraseColumn
                 # inappropriately wraps it to encrypt the data.
