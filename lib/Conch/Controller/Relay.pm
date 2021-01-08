@@ -42,7 +42,7 @@ sub register ($c) {
         $c->status(204);
     }
 
-    $c->res->headers->location($c->url_for('/relay/'.$relay->id));
+    $c->res_location('/relay/'.$relay->id);
     return;
 }
 

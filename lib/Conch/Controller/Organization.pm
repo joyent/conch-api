@@ -82,7 +82,7 @@ sub create ($c) {
         user_organization_roles => [ map +{ user_id => $_->[2], role => 'admin' }, @admins ],
     });
     $c->log->info('created organization '.$organization->id.' ('.$organization->name.')');
-    $c->res->headers->location('/organization/'.$organization->id);
+    $c->res_location('/organization/'.$organization->id);
     $c->status(201);
 }
 

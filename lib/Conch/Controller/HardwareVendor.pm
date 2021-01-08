@@ -83,7 +83,7 @@ sub create ($c) {
     my $hardware_vendor = $c->db_hardware_vendors->create({ name => $c->stash('hardware_vendor_name') });
 
     $c->log->debug('Created hardware vendor '.$c->stash('hardware_vendor_name'));
-    $c->res->headers->location('/hardware_vendor/'.$hardware_vendor->id);
+    $c->res_location('/hardware_vendor/'.$hardware_vendor->id);
     $c->status(201);
 }
 

@@ -194,7 +194,7 @@ Results in this data in C<specification>, changing the data type at node C</foo/
 =item * Controller/Action: L<Conch::Controller::HardwareProduct/set_specification>
 
 =item * Request: after the update operation, the C<specification> property must validate against
-F<common.yaml#/$defs/HardwareProductSpecification>.
+the schema available from C<GET /json_schema/hardware_product/specification/latest>.
 
 =item * Response: C<204 No Content>
 
@@ -207,7 +207,7 @@ parameter C<path> as the JSON pointer to the data to be removed. All other prope
 blob are left untouched.
 
 After the delete operation, the C<specification> property must validate against
-F<common.yaml#/$defs/HardwareProductSpecification>.
+the schema available from C<GET /json_schema/hardware_product/specification/latest>.
 
 =over 4
 

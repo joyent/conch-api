@@ -86,7 +86,7 @@ subtest '/device/:id/interface/:iface_name/:field validation' => sub {
     cmp_deeply(
         $validator->evaluate({ device_id => create_uuid_str() }, $schema)->TO_JSON,
         {
-            valid => bool(0),
+            valid => JSON::PP::false,
             errors => [
                 {
                     instanceLocation => '/device_id',
@@ -102,7 +102,7 @@ subtest '/device/:id/interface/:iface_name/:field validation' => sub {
     cmp_deeply(
         $validator->evaluate({ created => '2018-01-02T00:00:00.000+00:20' }, $schema)->TO_JSON,
         {
-            valid => bool(0),
+            valid => JSON::PP::false,
             errors => [
                 {
                     instanceLocation => '/created',
@@ -128,7 +128,7 @@ subtest 'device report validation' => sub {
         $validator->evaluate('00000000-0000-0000-0000-000000000000',
             'device_report.yaml#/$defs/DeviceReport_v3_0_0/properties/system_uuid')->TO_JSON,
         {
-            valid => bool(0),
+            valid => JSON::PP::false,
             errors => [
                 {
                     instanceLocation => '',
@@ -145,7 +145,7 @@ subtest 'device report validation' => sub {
         $validator->evaluate({ '' => {} },
             'device_report.yaml#/$defs/DeviceReport_v3_0_0/properties/disks')->TO_JSON,
         {
-            valid => bool(0),
+            valid => JSON::PP::false,
             errors => [
                 {
                     instanceLocation => '/',

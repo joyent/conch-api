@@ -118,7 +118,7 @@ sub create ($c) {
     my $rack = $c->db_racks->create($input);
     $c->log->debug('Created rack '.$rack->id);
 
-    $c->res->headers->location('/rack/'.$rack->id);
+    $c->res_location('/rack/'.$rack->id);
     $c->status(201);
 }
 
@@ -131,7 +131,7 @@ Response uses the Rack json schema.
 =cut
 
 sub get ($c) {
-    $c->res->headers->location('/rack/'.$c->stash('rack_id'));
+    $c->res_location('/rack/'.$c->stash('rack_id'));
     my $rs = $c->stash('rack_rs')
         ->with_build_name
         ->with_full_rack_name
@@ -160,7 +160,7 @@ sub get_layouts ($c) {
         ->all;
 
     $c->log->debug('Found '.scalar(@layouts).' rack layouts');
-    $c->res->headers->location('/rack/'.$c->stash('rack_id').'/layout');
+    $c->res_location('/rack/'.$c->stash('rack_id').'/layout');
     $c->status(200, \@layouts);
 }
 
@@ -296,7 +296,7 @@ sub update ($c) {
         }
     }
 
-    $c->res->headers->location('/rack/'.$rack->id);
+    $c->res_location('/rack/'.$rack->id);
 
     $rack->set_columns($input);
     return $c->status(204) if not $rack->is_changed;
@@ -348,7 +348,7 @@ sub get_assignment ($c) {
         ->all;
 
     $c->log->debug('Found '.scalar(@assignments).' device-rack assignments');
-    $c->res->headers->location('/rack/'.$c->stash('rack_id').'/assignment');
+    $c->res_location('/rack/'.$c->stash('rack_id').'/assignment');
     $c->status(200, \@assignments);
 }
 

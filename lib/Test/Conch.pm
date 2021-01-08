@@ -611,12 +611,11 @@ subtest and is invoked with the test object as well as any additional provided a
 =cut
 
 sub txn_local ($self, $test_name, $subref, @args) {
-    $self->app->schema->txn_begin;
-
+  $self->app->txn_wrapper(sub {
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     Test::More::subtest($test_name => $subref, $self, @args);
-
-    $self->app->schema->txn_rollback;
+    die 'rollback';
+  });
 }
 
 =head2 email_cmp_deeply
@@ -807,6 +806,7 @@ sub reset_log ($self) {
 sub _request_ok ($self, @args) {
     undef $self->{_mail_composed};
     $self->reset_log;
+    $self->stash(undef);
     my $result = $self->next::method(@args);
 
     my $dump_log;
@@ -820,6 +820,9 @@ sub _request_ok ($self, @args) {
     Test::More::diag 'log history: ',
             Data::Dumper->new([ $log_history ])->Sortkeys(1)->Indent(1)->Terse(1)->Dump
         if $dump_log || $self->tx->res->code == 500 && $self->tx->req->url->path !~ qr{^/_die};
+
+    my $stash = $self->stash;
+    $self->test('note', 'request died: '.$stash->{exception}->message) if exists $stash->{exception};
 
     return $result;
 }

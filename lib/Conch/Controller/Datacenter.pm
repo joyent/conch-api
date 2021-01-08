@@ -95,7 +95,7 @@ sub create ($c) {
 
     my $dc = $c->db_datacenters->create($input);
     $c->log->debug('Created datacenter '.$dc->id);
-    $c->res->headers->location('/dc/'.$dc->id);
+    $c->res_location('/dc/'.$dc->id);
     $c->status(201);
 }
 

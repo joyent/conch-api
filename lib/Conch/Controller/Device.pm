@@ -113,12 +113,12 @@ sub find_device ($c) {
     if (my $bad_phase = $params->{phase_earlier_than} // $c->stash('phase_earlier_than')) {
         my $phase = $c->stash('device_rs')->get_column('phase')->single;
         if (Conch::DB::Result::Device->phase_cmp($phase, $bad_phase) >= 0) {
-            $c->res->headers->location($c->url_for('/device/'.$device_id.'/links'));
+            $c->res_location('/device/'.$device_id.'/links');
             return $c->status(409, { error => 'device is in the '.$phase.' phase' });
         }
     }
 
-    $c->res->headers->location('/device/'.$device_id);
+    $c->res_location('/device/'.$device_id);
     return 1;
 }
 

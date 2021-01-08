@@ -183,7 +183,7 @@ sub create ($c) {
 
   my $path = $row->canonical_path;
   $c->log->info('created json schema '.$row->id.' at '.$path);
-  $c->res->headers->location($c->url_for('/json_schema/'.$row->id));
+  $c->res_location('/json_schema/'.$row->id);
   $c->res->headers->content_location($c->url_for($path));
   $c->status(201);
 }

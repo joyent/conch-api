@@ -111,7 +111,7 @@ sub create ($c) {
     my $layout = $c->db_rack_layouts->create($input);
     $c->log->debug('Created rack layout '.$layout->id);
 
-    $c->res->headers->location('/layout/'.$layout->id);
+    $c->res_location('/layout/'.$layout->id);
     $c->status(201);
 }
 
@@ -130,7 +130,7 @@ sub get ($c) {
         ->with_sku
         ->single;
 
-    $c->res->headers->location('/layout/'.$layout->id);
+    $c->res_location('/layout/'.$layout->id);
     $c->status(200, $layout);
 }
 
@@ -237,7 +237,7 @@ sub update ($c) {
         return $c->status(409, { error => 'rack_unit_start conflict' });
     }
 
-    $c->res->headers->location('/layout/'.$layout->id);
+    $c->res_location('/layout/'.$layout->id);
 
     $layout->set_columns($input);
     return $c->status(204) if not $layout->is_changed;

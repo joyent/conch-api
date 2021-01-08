@@ -720,7 +720,9 @@
       },
       "properties" : {
         "password" : {
-          "$ref" : "common.json#/$defs/non_empty_string"
+          "$ref" : "common.json#/$defs/non_empty_string",
+          "title" : "Password",
+          "writeOnly" : true
         },
         "set_session" : {
           "type" : "boolean"
@@ -745,7 +747,9 @@
           "$ref" : "common.json#/$defs/non_empty_string"
         },
         "password" : {
-          "$ref" : "common.json#/$defs/non_empty_string"
+          "$ref" : "common.json#/$defs/non_empty_string",
+          "title" : "Password",
+          "writeOnly" : true
         }
       },
       "required" : [
@@ -1168,7 +1172,9 @@
       "additionalProperties" : false,
       "properties" : {
         "password" : {
-          "$ref" : "common.json#/$defs/non_empty_string"
+          "$ref" : "common.json#/$defs/non_empty_string",
+          "title" : "Password",
+          "writeOnly" : true
         }
       },
       "required" : [
