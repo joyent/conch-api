@@ -44,6 +44,16 @@ Chainable resultset that restricts the resultset to the single row that matches
 the indicated resource.  (Does **not** fetch the indicated resource content -- you would need a
 `->column(...)` for that.)
 
+### with\_latest\_flag
+
+Chainable resultset that adds the `latest` boolean flag to each result, indicating whether
+that row is the latest of its type-name series (that is, whether it can be referenced as
+`/json_schema/type/name/latest`).
+
+The query will be closed off as a subselect (that additional chaining will SELECT FROM),
+so it makes a difference whether you add things to the resultset before or after calling this
+method.
+
 ## LICENSING
 
 Copyright Joyent, Inc.

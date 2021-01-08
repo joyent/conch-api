@@ -1903,6 +1903,7 @@ $defs:
             type: string
             minLength: 1
             format: uri
+            pattern: '/json_schema/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/[0-9]+$'
           description:
             $ref: common.yaml#/$defs/non_empty_string
   JSONSchemaDescriptions:
@@ -1918,6 +1919,7 @@ $defs:
         - type
         - name
         - version
+        - latest
         - created
         - created_user
         - deactivated
@@ -1931,7 +1933,7 @@ $defs:
           readOnly: true
           type: string
           format: uri-reference
-          pattern: '^/json_schema/'
+          pattern: '^/json_schema/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/[0-9]+$'
         description:
           title: Description
           type: string
@@ -1947,6 +1949,10 @@ $defs:
           title: Version
           readOnly: true
           $ref: common.yaml#/$defs/positive_integer
+        latest:
+          title: Latest in Type-Name Series?
+          description: true when it is the latest of its type-name series
+          type: boolean
         created:
           title: Created
           readOnly: true
@@ -1960,5 +1966,13 @@ $defs:
           title: Deactivated
           type: [ 'null', string ]
           format: date-time
+      if:
+        properties:
+          deactivated:
+            type: string
+      then:
+        properties:
+          latest:
+            const: false
 
 # vim: set sts=2 sw=2 et :
