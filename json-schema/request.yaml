@@ -58,7 +58,7 @@ $defs:
       vendor_name:
         $ref: common.yaml#/$defs/mojo_relaxed_placeholder
   DeviceReport:
-    $ref: device_report.yaml#/$defs/DeviceReport_v3_0_0
+    $ref: device_report.yaml#/$defs/DeviceReport_v3_2_0
   RackCreate:
     type: object
     additionalProperties: false

@@ -368,7 +368,7 @@
       "type" : "object"
     },
     "DeviceReport" : {
-      "$ref" : "device_report.json#/$defs/DeviceReport_v3_0_0"
+      "$ref" : "device_report.json#/$defs/DeviceReport_v3_2_0"
     },
     "DeviceSetting" : {
       "$ref" : "#/$defs/DeviceSettings",
