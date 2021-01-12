@@ -404,6 +404,20 @@ $defs:
         deprecated: true
         title: Number of USBs
         type: integer
+    default:
+      specification: {}
+      cpu_num: 0
+      dimms_num: 0
+      ram_total: 0
+      nics_num: 0
+      sata_hdd_num: 0
+      sas_hdd_num: 0
+      sata_ssd_num: 0
+      psu_total: 0
+      usb_num: 0
+      sas_ssd_num: 0
+      nvme_ssd_num: 0
+      raid_lun_num: 0
   Login:
     type: object
     $ref: '#/$defs/UserIdOrEmail'
