@@ -724,7 +724,7 @@ sub add_test_routes ($t) {
                 remotePort  => ignore,
                 headers     => superhashof({}),
                 query_params => {},
-                # no body! that contains the password!!!
+                body => { email => 'foo@example.com', password => '--REDACTED--' },
             },
             res => {
                 headers => superhashof({}),
@@ -759,11 +759,13 @@ sub add_test_routes ($t) {
                 remotePort  => ignore,
                 headers     => superhashof({}),
                 query_params => {},
+                # Test::Conch::authenticate sets set_session -> true
+                body => { email => 'conch@conch.joyent.us', password => '--REDACTED--', set_session => JSON::PP::true },
             },
             res => {
                 headers => superhashof({}),
                 statusCode => 200,
-                # no body! that contains the JWT!!!
+                body => { jwt_token => '--REDACTED--' },
             },
         },
         'dispatch line for /login success in verbose mode',
@@ -799,7 +801,12 @@ sub add_test_routes ($t) {
             res => {
                 headers => superhashof({}),
                 statusCode => 201,
-                # no body! that contains the api token!!!
+                body => {
+                  name => 'my api token',
+                  token => '--REDACTED--',
+                  (map +($_ => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/)), qw(created expires)),
+                  last_used => undef,
+                },
             },
         },
         'dispatch line for creating a token in verbose mode does not contain the token string',
@@ -830,7 +837,7 @@ sub add_test_routes ($t) {
                 remotePort  => ignore,
                 headers     => superhashof({ Authorization => '--REDACTED--' }),
                 query_params => {},
-                # no body! that contains the password!!!
+                body => { password => '--REDACTED--' },
             },
             res => {
                 headers => superhashof({}),

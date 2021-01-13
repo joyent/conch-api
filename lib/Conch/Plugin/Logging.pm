@@ -153,15 +153,20 @@ Logs the request and its response.
                 headers     => $req_headers,
                 query_params => $c->req->query_params->to_hash,
                 # no body_params: presently we do not permit application/x-www-form-urlencoded
-                $verbose && !(ref $req_json eq 'HASH' and exists $req_json->{password})
-                    ? ( body => $c->req->json // $c->req->text ) : (),
+                !$verbose ? ()
+                  : !defined $req_json ? ( body => $c->req->text )
+                  : ref $req_json ne 'HASH' || !exists $req_json->{password} ? ( body => $req_json )
+                  : ( body => +{ $req_json->%*, password => '--REDACTED--' } ),
             },
             res => {
                 headers => $res_headers,
                 statusCode => $c->res->code,
-                $c->res->code >= 400
-                        || ($verbose && !(ref $res_json eq 'HASH' and grep /token/, keys $res_json->%*))
-                    ? ( body => $c->res->json // $c->res->text ) : (),
+                !$verbose && $c->res->code < 400 ? ()
+                  : !defined $res_json ? ( body => $c->res->text )
+                  : (ref $res_json ne 'HASH' || !grep /token/, keys $res_json->%*)
+                    ? ( body => $res_json )
+                  : ( body => +{ $res_json->%*,
+                      map +($_ => '--REDACTED--'), grep /token/, keys $res_json->%* } ),
             },
             latency => int(1000 * $c->timing->elapsed('request_latency')),
         };
