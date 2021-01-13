@@ -152,7 +152,7 @@ is_nullable: 0
 
 ```
 data_type: 'text'
-is_nullable: 0
+is_nullable: 1
 ```
 
 ### dimms\_num

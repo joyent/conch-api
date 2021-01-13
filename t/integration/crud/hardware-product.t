@@ -52,13 +52,13 @@ $t->post_ok('/hardware_product', json => { wat => 'wat' })
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', [
         superhashof({ error => 'additional property not permitted' }),
-        superhashof({ error => 'missing properties: name, alias, hardware_vendor_id, sku, rack_unit_size, validation_plan_id, purpose, bios_firmware, cpu_type' }),
+        superhashof({ error => 'missing properties: name, alias, hardware_vendor_id, sku, rack_unit_size, validation_plan_id, purpose, bios_firmware' }),
     ]);
 
 $t->post_ok('/hardware_product', json => { name => 'sungo', alias => 'sungo' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: hardware_vendor_id, sku, rack_unit_size, validation_plan_id, purpose, bios_firmware, cpu_type' }) ]);
+    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: hardware_vendor_id, sku, rack_unit_size, validation_plan_id, purpose, bios_firmware' }) ]);
 
 my %hw_fields = (
     name => 'sungo',
@@ -69,7 +69,6 @@ my %hw_fields = (
     validation_plan_id => $validation_plan_id,
     purpose => 'myself',
     bios_firmware => '1.2.3',
-    cpu_type => 'fooey',
 );
 
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => 'not json!' } )
@@ -149,6 +148,7 @@ $t->get_ok($t->tx->res->headers->location)
         legacy_product_name => undef,
         hba_firmware => undef,
         cpu_num => 0,
+        cpu_type => undef,
         dimms_num => 0,
         ram_total => 0,
         nics_num => 0,
@@ -189,7 +189,6 @@ $t->post_ok('/hardware_product', json => {
         validation_plan_id => $validation_plan_id,
         purpose => 'nothing',
         bios_firmware => '0',
-        cpu_type => 'cold',
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -204,7 +203,6 @@ $t->post_ok('/hardware_product', json => {
         validation_plan_id => $validation_plan_id,
         purpose => 'nothing',
         bios_firmware => '0',
-        cpu_type => 'cold',
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -219,7 +217,6 @@ $t->post_ok('/hardware_product', json => {
         validation_plan_id => create_uuid_str(),
         purpose => 'nothing',
         bios_firmware => '0',
-        cpu_type => 'cold',
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -318,7 +315,6 @@ $t->post_ok('/hardware_product', json => {
         validation_plan_id => $validation_plan_id,
         purpose => 'myself',
         bios_firmware => '1.2.3',
-        cpu_type => 'fooey',
     })
     ->status_is(201)
     ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);

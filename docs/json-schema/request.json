@@ -400,8 +400,7 @@
         "rack_unit_size",
         "validation_plan_id",
         "purpose",
-        "bios_firmware",
-        "cpu_type"
+        "bios_firmware"
       ]
     },
     "HardwareProductUpdate" : {

@@ -705,7 +705,7 @@ $defs:
         $comment: this property will be moved into /specification in v3.4
         deprecated: true
         title: CPU Type
-        type: string
+        type: [ 'null', string ]
       dimms_num:
         $comment: this property will be moved into /specification in v3.4
         deprecated: true

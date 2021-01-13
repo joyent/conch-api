@@ -233,7 +233,6 @@ $defs:
       - validation_plan_id
       - purpose
       - bios_firmware
-      - cpu_type
   HardwareProductUpdate:
     type: object
     additionalProperties: false
