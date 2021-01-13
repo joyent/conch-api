@@ -66,6 +66,26 @@ including database connectivity information.
 
 * `make run`
 
+## Creating Local Credentials
+
+First, you need to get a login token into the local database. We can do this by leveraging the
+knowledge that an encrypted password entry of `''` will match against all supplied inputs:
+
+  $ psql -U conch conch --command="insert into user_account (name, password, email) values ('me', '', 'your_email@joyent.com')"
+
+Now, we use this email and password to generate a login token:
+
+  make run
+  curl -i -H'Content-Type: application/json' --url http://127.0.0.1:5001/login -d '{"email":"your_email@joyent.com","password":"anything"}'
+
+You will see output like this:
+
+  {"jwt_token":"eyJInR5cCI6Iwhargarbl.eyJl9pZCI6ImM1MGYwhargarbl.WV3uJEvg0bqInI9pEtl04ZZ8ECN4yQOSmehello"}
+
+Save that token somewhere, such as in an environment variable or a file, for use in future API calls. You will include it in the "Authorization" header, for example:
+
+  curl -i --url https://staging.conch.joyent.us/user/me --header "Authorization: Bearer eyJInR5cCI6Iwhargarbl.eyJl9pZCI6ImM1MGYwhargarbl.WV3uJEvg0bqInI9pEtl04ZZ8ECN4yQOSmehello"
+
 ## Docker
 
 ### Compose

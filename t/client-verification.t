@@ -18,7 +18,8 @@ $t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0' })
 
 $t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'X-Conch-UI' => 'v3.0.2.1-gdeadbeef' })
     ->status_is(403)
-    ->log_warn_is('Conch UI too old: requires at least 4.x')
+    ->json_is({ error => 'Conch UI too old: requires at least 4.x' })
+    ->log_warn_is('Conch UI too old: requires at least 4.x -- got major=3, minor=0')
     ->log_info_is(superhashof({
             req => superhashof({
                 user => 'NOT AUTHED',
@@ -33,9 +34,13 @@ $t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'X-Conch-UI' => '
 
 $t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'x-conch-ui' => 'v3.0.2.1-gdeadbeef' })
     ->status_is(403)
-    ->log_warn_is('Conch UI too old: requires at least 4.x');
+    ->json_is({ error => 'Conch UI too old: requires at least 4.x' })
+    ->log_warn_is('Conch UI too old: requires at least 4.x -- got major=3, minor=0');
 
 $t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'X-Conch-UI' => 'v4.0.0.3.gdeadbeef' })
+    ->status_is(200);
+
+$t->get_ok('/ping', { 'User-Agent' => 'Mozilla/5.0 Macintosh', 'X-Conch-UI' => 'v4.1-0-gdeadbeef' })
     ->status_is(200);
 
 $t->get_ok('/ping', { 'User-Agent' => 'conch shell v1.11.11-v1.11-0-g0ad9598' })
@@ -44,7 +49,8 @@ $t->get_ok('/ping', { 'User-Agent' => 'conch shell v1.11.11-v1.11-0-g0ad9598' })
 
 $t->get_ok('/ping', { 'User-Agent' => 'Conch/0.0.0 ConchShell/blahblah...' })
     ->status_is(403)
-    ->log_warn_is('Conch Shell too old');
+    ->json_is({ error => 'Conch Shell too old' })
+    ->log_warn_is('Conch Shell too old -- got major=0, minor=0');
 
 $t->get_ok('/ping', { 'User-Agent' => 'Conch/3.12.0 ConchShell/blahblah...' })
     ->status_is(200);
