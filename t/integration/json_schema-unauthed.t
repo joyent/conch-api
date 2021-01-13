@@ -153,24 +153,6 @@ $t->get_ok('/json_schema/query_params/ResetUserPassword')
         },
     });
 
-$t->get_ok('/json_schema/request/HardwareProductCreate')
-    ->status_is(200)
-    ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is('JSONSchemaOnDisk')
-    ->json_cmp_deeply('', superhashof({
-        '$schema' => SPEC_URL,
-        '$id' => $base_uri.'json_schema/request/HardwareProductCreate',
-        '$defs' => {
-            map +($_ => superhashof({})), qw(
-                uuid
-                positive_integer
-                non_empty_string
-                mojo_standard_placeholder
-                HardwareProductUpdate
-            )
-        },
-    }), 'nested definitions are found and included');
-
 $t->get_ok('/json_schema/request/HardwareProductUpdate')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
@@ -186,7 +168,7 @@ $t->get_ok('/json_schema/request/HardwareProductUpdate')
           '$ref' => '/json_schema/hardware_product/specification/latest',
         },
       }),
-    }), 'reference to hardware_product specification is contained');
+    }), 'reference to hardware_product specification is retained');
 
 $t->get_ok('/json_schema/response/JSONSchemaOnDisk')
     ->status_is(200)

@@ -392,15 +392,26 @@
     },
     "HardwareProductCreate" : {
       "$ref" : "#/$defs/HardwareProductUpdate",
+      "anyOf" : [
+        {
+          "required" : [
+            "name",
+            "sku",
+            "validation_plan_id",
+            "bios_firmware"
+          ]
+        },
+        {
+          "required" : [
+            "device_report"
+          ]
+        }
+      ],
       "required" : [
-        "name",
         "alias",
         "hardware_vendor_id",
-        "sku",
         "rack_unit_size",
-        "validation_plan_id",
-        "purpose",
-        "bios_firmware"
+        "purpose"
       ]
     },
     "HardwareProductUpdate" : {
@@ -443,6 +454,10 @@
           "deprecated" : true,
           "title" : "CPU Type",
           "type" : "string"
+        },
+        "device_report" : {
+          "$ref" : "device_report.json#/$defs/DeviceReport_v3_2_0",
+          "title" : "Sample passing device report"
         },
         "dimms_num" : {
           "$comment" : "this property will be moved into /specification in v3.4",

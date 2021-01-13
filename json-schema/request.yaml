@@ -225,14 +225,18 @@ $defs:
   HardwareProductCreate:
     $ref: '#/$defs/HardwareProductUpdate'
     required:
-      - name
       - alias
       - hardware_vendor_id
-      - sku
       - rack_unit_size
-      - validation_plan_id
       - purpose
-      - bios_firmware
+    anyOf:
+      - required:
+          - name
+          - sku
+          - validation_plan_id
+          - bios_firmware
+      - required:
+          - device_report
   HardwareProductUpdate:
     type: object
     additionalProperties: false
@@ -403,6 +407,9 @@ $defs:
         deprecated: true
         title: Number of USBs
         type: integer
+      device_report:
+        title: Sample passing device report
+        $ref: device_report.yaml#/$defs/DeviceReport_v3_2_0
     default:
       specification: {}
       cpu_num: 0

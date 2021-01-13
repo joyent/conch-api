@@ -45,7 +45,8 @@ sub routes {
     # POST /hardware_product
     $hardware_product->require_system_admin
       ->under($check_for_changed_specification_schema)
-      ->post('/')->to('#create', request_schema => 'HardwareProductCreate');
+      ->under('/')->to('#extract_from_device_report', request_schema => 'HardwareProductCreate')
+      ->post('/')->to('#create');
 
     {
         $hardware_product->any('/<:hardware_product_key>=<:hardware_product_value>/*optional',
@@ -69,7 +70,8 @@ sub routes {
         # POST /hardware_product/:hardware_product_id_or_other
         $hwp_with_admin
           ->under($check_for_changed_specification_schema)
-          ->post('/')->to('#update', request_schema => 'HardwareProductUpdate');
+          ->under('/')->to('#extract_from_device_report', request_schema => 'HardwareProductUpdate')
+          ->post('/')->to('#update');
 
         # DELETE /hardware_product/:hardware_product_id_or_other
         $hwp_with_admin->delete('/')->to('#delete');

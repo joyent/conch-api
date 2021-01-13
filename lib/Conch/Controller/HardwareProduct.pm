@@ -4,6 +4,7 @@ use Mojo::Base 'Mojolicious::Controller', -signatures;
 
 use Conch::UUID 'is_uuid';
 use Mojo::JSON qw(to_json from_json);
+use List::Util 'sum';
 
 =pod
 
@@ -97,7 +98,9 @@ Creates a new hardware_product.
 =cut
 
 sub create ($c) {
-    my $input = $c->stash('request_data');
+    # this stash value is set by extract_from_device_report, run just before this action
+    # when dispatching the route
+    my $input = $c->stash('hardware_product_data');
 
     for my $key (qw(name alias sku)) {
         next if not $input->{$key};
@@ -114,6 +117,7 @@ sub create ($c) {
 
     $input->{legacy_validation_plan_id} = delete $input->{validation_plan_id};
     $input->{specification} = to_json($input->{specification}) if defined $input->{specification};
+    delete $input->{device_report};
 
     my $hardware_product = $c->txn_wrapper(sub ($c) {
         $c->db_hardware_products->create($input);
@@ -134,7 +138,10 @@ Updates an existing hardware_product.
 =cut
 
 sub update ($c) {
-    my $input = $c->stash('request_data');
+    # this stash value is set by extract_from_device_report, run just before this action
+    # when dispatching the route
+    my $input = $c->stash('hardware_product_data');
+
     my $hardware_product = $c->stash('hardware_product_rs')->single;
 
     for my $key (qw(name alias sku)) {
@@ -159,6 +166,7 @@ sub update ($c) {
 
     $input->{legacy_validation_plan_id} = delete $input->{validation_plan_id} if exists $input->{validation_plan_id};
     $input->{specification} = to_json($input->{specification}) if defined $input->{specification};
+    delete $input->{device_report};
 
     $c->txn_wrapper(sub ($c) {
         $hardware_product->update({ $input->%*, updated => \'now()' }) if $input->%*;
@@ -376,6 +384,71 @@ sub remove_all_json_schemas ($c) {
 
   $c->log->debug('Removed all JSON Schemas from hardware product '.$c->stash('hardware_product_id_or_other'));
   $c->status(204);
+}
+
+=head2 extract_from_device_report
+
+If a sample device report is provided in the payload, use its contents to extrapolate some values
+for C<hardware_product>.
+
+=cut
+
+sub extract_from_device_report($c) {
+  my $input = $c->stash('request_data');
+
+  my %extracted;
+  if (my $report = $input->{device_report}) {
+    if (not exists $input->{validation_plan_id}) {
+      # ( switch => $id, server => $id )
+      my %plans = map +(
+        ($_->{name} =~ /server/i ? ( server => $_->{id} ) : ()),
+        ($_->{name} =~ /switch/i ? ( switch => $_->{id} ) : ()),
+      ), $c->db_legacy_validation_plans->active->columns([qw(id name)])->hri->all;
+
+      # This is a horrible hack! Infer plan from device_type, defaulting to 'server'.
+      $extracted{validation_plan_id} = $report->{device_type} ? $plans{$report->{device_type}}
+        : $plans{server};
+
+      return $c->status(409, { error => 'cannot determine validation_plan_id from device_type' })
+        if not $extracted{validation_plan_id};
+    }
+
+    $extracted{name} = $report->{product_name};
+    $extracted{sku} = $report->{sku};
+    $extracted{bios_firmware} = $report->{bios_version};
+
+    $extracted{cpu_num} = ($report->{cpus} // [])->@*;
+
+    # beware: this is a truthy test, not exists check, as in DimmCount
+    $extracted{dimms_num} = grep $_->{'memory-size'} || $_->{'memory-type'},
+      ($report->{dimms} // [])->@*;
+    $extracted{ram_total} = sum map $_->{'memory-size'} // 0, ($report->{dimms} // [])->@*;
+
+    $extracted{nics_num} = keys(($report->{interfaces} // {})->%*);
+
+    $extracted{nvme_ssd_num} = grep $_->{drive_type} && fc($_->{drive_type}) eq fc('NVME_SSD'),
+      values(($report->{disks} // {})->%*);
+    $extracted{raid_lun_num} = grep $_->{drive_type} && fc($_->{drive_type}) eq fc('RAID_LUN'),
+      values(($report->{disks} // {})->%*);
+    $extracted{sas_hdd_num} = grep $_->{drive_type} && fc($_->{drive_type}) eq fc('SAS_HDD'),
+      values(($report->{disks} // {})->%*);
+    $extracted{sas_ssd_num} = grep $_->{drive_type} && fc($_->{drive_type}) eq fc('SAS_SSD'),
+      values(($report->{disks} // {})->%*);
+    $extracted{sata_hdd_num} = grep $_->{drive_type} && fc($_->{drive_type}) eq fc('SATA_HDD'),
+      values(($report->{disks} // {})->%*);
+
+    # note: special case for Joyent-Compute-Platform-3302 special case is skipped.
+    # see Conch::Validation::SataSsdNum
+    $extracted{sata_ssd_num} = grep $_->{drive_type} && fc($_->{drive_type}) eq fc('SATA_SSD'),
+      values(($report->{disks} // {})->%*);
+
+    $extracted{usb_num} = grep $_->{transport} && fc($_->{transport}) eq fc('usb'),
+      values(($report->{disks} // {})->%*);
+  }
+
+  # values passed directly in the payload take priority over values inferred from the report
+  $c->stash('hardware_product_data', +{ %extracted, $input->%* });
+  return 1;
 }
 
 1;
