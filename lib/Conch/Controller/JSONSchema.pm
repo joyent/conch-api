@@ -283,6 +283,16 @@ sub delete ($c) {
 
   my $json_schema_id = $c->stash('json_schema_id');
 
+  my $hardware_product_rs = $c->db_hardware_product_json_schemas
+    ->search({ json_schema_id => $json_schema_id });
+  if ($hardware_product_rs->exists) {
+    $c->stash('response_schema', 'HardwareProductJSONSchemaDeleteError');
+    return $c->status(409, {
+      error => 'JSON Schema cannot be deleted: referenced by hardware',
+      hardware_product_ids => [ $hardware_product_rs->get_column('hardware_product_id')->all ],
+    });
+  }
+
   my $latest = $c->db_json_schemas
     ->active
     ->resource($metadata->@{qw(type name)}, 'latest')
@@ -330,6 +340,16 @@ sub get_metadata ($c) {
     ->with_created_user
     ->remove_columns([ 'body' ])
     ->order_by([ qw(json_schema.name json_schema.version) ]);
+
+  if ($params->{with_hardware_products}) {
+    $rs = $rs
+      ->search(undef, { join => { hardware_product_json_schemas => 'hardware_product' }, collapse => 1 })
+      ->add_columns({
+        map +('hardware_product_json_schemas.hardware_product.'.$_ => 'hardware_product.'.$_),
+          qw(id name alias generation_name sku created updated)
+      })
+      ->order_by('hardware_product.name')
+  }
 
   $c->status(200, [ $rs->all ]);
 }

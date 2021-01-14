@@ -92,6 +92,12 @@ Type: belongs\_to
 
 Related object: [Conch::DB::Result::UserAccount](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AUserAccount)
 
+### hardware\_product\_json\_schemas
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::HardwareProductJSONSchema](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProductJSONSchema)
+
 ### validation\_results
 
 Type: has\_many

@@ -11,11 +11,15 @@ use Mojo::JSON 'from_json';
 
 my $t = Test::Conch->new;
 my $base_uri = $t->ua->server->url; # used as the base uri for all requests
-$t->load_fixture('super_user');
+my $super_user = $t->load_fixture('super_user');
+my $other_user = $t->generate_fixtures('user_account');
 
 my $json_schema = $t->load_fixture('json_schema_hardware_product_specification');
 
 $t->authenticate;
+
+my $t_other = Test::Conch->new(pg => $t->pg);
+$t_other->authenticate(email => $other_user->email);
 
 $t->get_ok('/hardware_product')
     ->status_is(200)
@@ -29,7 +33,7 @@ $t->get_ok('/hardware_product')
     ->json_schema_is('HardwareProducts');
 
 my $products = $t->tx->res->json;
-my $hw_id = $products->[0]{id};
+my ($hw_id, $hw_name) = $products->[0]->@{qw(id name)};
 
 $t->get_ok('/hardware_product/'.create_uuid_str())
     ->status_is(404)
@@ -583,6 +587,259 @@ subtest 'delete a hardware product' => sub {
         ->status_is(200)
         ->json_schema_is('HardwareProducts')
         ->json_cmp_deeply($products);
+};
+
+use constant SPEC_URL => 'https://json-schema.org/draft/2019-09/schema';
+
+subtest 'hardware_products and json_schemas' => sub {
+  my ($t_super, $t) = ($t, undef);
+
+  my $ro_user = $t_super->load_fixture('ro_user');
+  my $t_ro = Test::Conch->new(pg => $t_super->pg);
+  $t_ro->authenticate(email => $ro_user->email);
+
+  $_->get_ok('/hardware_product/'.$hw_id.'/json_schema')
+    ->status_is(200)
+    ->json_schema_is('HardwareJSONSchemaDescriptions')
+    ->json_is([])
+    foreach $t_super, $t_ro, $t_other;
+
+  $_->get_ok('/hardware_product/'.$hw_name.'/json_schema')
+    ->status_is(200)
+    ->json_schema_is('HardwareJSONSchemaDescriptions')
+    ->json_is([])
+    foreach $t_super, $t_ro, $t_other;
+
+  # /json_schema/firmware/sku123/1
+  $t_ro->post_ok('/json_schema/firmware/sku123', json => {
+      '$schema' => SPEC_URL,
+      description => 'firmware validation for 123',
+      type => 'object',
+      properties => { a => { type => 'string' } },
+    })
+    ->status_is(201);
+  my ($main_id) = ($t_ro->tx->res->headers->location =~ m!/([^/]+)$!);
+
+  $t_ro->get_ok('/json_schema/firmware')
+    ->status_is(200)
+    ->json_schema_is('JSONSchemaDescriptions')
+    ->json_cmp_deeply([
+      my $main_schema_description = {
+        id => $main_id,
+        '$id' => '/json_schema/firmware/sku123/1',
+        description => 'firmware validation for 123',
+        type => 'firmware',
+        name => 'sku123',
+        version => 1,
+        latest => JSON::PP::true,
+        created => ignore,
+        created_user => { map +($_ => $ro_user->$_), qw(id name email) },
+        deactivated => undef,
+      },
+    ]);
+
+  $t_ro->get_ok('/json_schema/firmware?with_hardware_products=1')
+    ->status_is(200)
+    ->json_schema_is('JSONSchemaDescriptions')
+    ->json_cmp_deeply([
+      {
+        $main_schema_description->%*,
+        hardware_products => [],
+      },
+    ]);
+
+  $t_super->post_ok('/hardware_product/'.$hw_id.'/json_schema/'.create_uuid_str)
+    ->status_is(404)
+    ->log_debug_like(qr/^Could not find JSON Schema ${\Conch::UUID::UUID_FORMAT}$/);
+
+  $t_ro->post_ok('/hardware_product/'.$hw_id.'/json_schema/'.$_)
+    ->status_is(403)
+    ->log_debug_is('User must be system admin')
+      foreach ($main_id, 'firmware/sku123/2');
+
+  $t_super->post_ok('/hardware_product/'.$hw_id.'/json_schema/'.$main_id)
+    ->status_is(201)
+    ->location_is('/hardware_product/'.$hw_id.'/json_schema');
+
+  $t_super->post_ok('/hardware_product/'.$hw_id.'/json_schema/'.$main_id)
+    ->status_is(204);
+
+  $t_ro->get_ok('/hardware_product/'.$hw_id.'/json_schema')
+    ->status_is(200)
+    ->json_schema_is('HardwareJSONSchemaDescriptions')
+    ->json_cmp_deeply([
+      my $main_hardware_description = {
+        id => $main_id,
+        '$id' => '/json_schema/firmware/sku123/1',
+        description => 'firmware validation for 123',
+        type => 'firmware',
+        name => 'sku123',
+        version => 1,
+        latest => JSON::PP::true,
+        created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        created_user => { map +($_ => $ro_user->$_), qw(id name email) },
+        added => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        added_user => { map +($_ => $super_user->$_), qw(id name email) },
+      },
+    ]);
+
+  $t_ro->get_ok('/hardware_product/'.$hw_name.'/json_schema')
+    ->status_is(200)
+    ->json_schema_is('HardwareJSONSchemaDescriptions')
+    ->json_cmp_deeply([ $main_hardware_description ]);
+
+  # .../latest is not supported here, because it implies that when a new schema in the type-name
+  # series is added, the hardware_product association is updated to match, which is not true
+  $t_super->post_ok('/hardware_product/'.$products->[0]{name}.'/json_schema/firmware/sku123/latest')
+    ->status_is(404);
+
+  $t_ro->get_ok('/json_schema/firmware?with_hardware_products=1')
+    ->status_is(200)
+    ->json_schema_is('JSONSchemaDescriptions')
+    ->json_cmp_deeply([
+      {
+        $main_schema_description->%*,
+        hardware_products => [ $products->[0] ],
+      },
+    ]);
+
+  # /json_schema/firmware/sku123/2
+  $t_ro->post_ok('/json_schema/firmware/sku123', json => {
+      '$schema' => SPEC_URL,
+      description => 'another hardware schema',
+      type => 'object',
+      properties => { z => { type => 'string' } },
+    })
+    ->status_is(201)
+    ->location_like(qr!^/json_schema/${\Conch::UUID::UUID_FORMAT}$!);
+  my ($second_id) = ($t_ro->tx->res->headers->location =~ m!/([^/]+)$!);
+
+  $main_schema_description->{latest} = JSON::PP::false;
+  $main_hardware_description->{latest} = JSON::PP::false;
+
+  $t_ro->get_ok('/json_schema/firmware')
+    ->status_is(200)
+    ->json_schema_is('JSONSchemaDescriptions')
+    ->json_cmp_deeply([
+      $main_schema_description,
+      my $second_schema_description = {
+        id => $second_id,
+        '$id' => '/json_schema/firmware/sku123/2',
+        description => 'another hardware schema',
+        type => 'firmware',
+        name => 'sku123',
+        version => 2,
+        latest => JSON::PP::true,
+        created => ignore,
+        created_user => { map +($_ => $ro_user->$_), qw(id name email) },
+        deactivated => undef,
+      },
+    ]);
+
+  $_->get_ok('/hardware_product/'.$hw_id.'/json_schema')
+    ->status_is(200)
+    ->json_schema_is('HardwareJSONSchemaDescriptions')
+    ->json_cmp_deeply([ $main_hardware_description ])
+    foreach $t_super, $t_ro, $t_other;
+
+  $t_super->post_ok('/hardware_product/'.$products->[0]{name}.'/json_schema/firmware/sku123/2')
+    ->status_is(201)
+    ->location_is('/hardware_product/'.$hw_id.'/json_schema');
+
+  $t_ro->get_ok('/hardware_product/'.$hw_id.'/json_schema')
+    ->status_is(200)
+    ->json_schema_is('HardwareJSONSchemaDescriptions')
+    ->json_cmp_deeply([
+      $main_hardware_description,
+      (my $second_hardware_description = {
+        id => $second_id,
+        '$id' => '/json_schema/firmware/sku123/2',
+        description => 'another hardware schema',
+        type => 'firmware',
+        name => 'sku123',
+        version => 2,
+        latest => JSON::PP::true,
+        created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        created_user => { map +($_ => $ro_user->$_), qw(id name email) },
+        added => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+        added_user => { map +($_ => $super_user->$_), qw(id name email) },
+      }),
+    ]);
+
+  $t_ro->get_ok('/hardware_product/'.$hw_name.'/json_schema')
+    ->status_is(200)
+    ->json_schema_is('HardwareJSONSchemaDescriptions')
+    ->json_cmp_deeply([
+      $main_hardware_description,
+      $second_hardware_description,
+    ]);
+
+  $t_super->delete_ok('/json_schema/'.$main_id)
+    ->status_is(409)
+    ->json_schema_is('HardwareProductJSONSchemaDeleteError')
+    ->json_is({
+      error => 'JSON Schema cannot be deleted: referenced by hardware',
+      hardware_product_ids => [ $hw_id ],
+    });
+
+  # 'latest' is not supported, due to race conditions (what if someone else added another
+  # schema while we are trying to update the hardware associations?)
+  $t_super->delete_ok('/hardware_product/'.$products->[0]{name}.'/json_schema/firmware/sku123/latest')
+    ->status_is(404)
+    ->json_is({ error => 'Route Not Found' });
+
+  $t_super->delete_ok('/hardware_product/'.$products->[0]{name}.'/json_schema/'.create_uuid_str)
+    ->status_is(404)
+    ->json_is({ error => 'Entity Not Found' })
+    ->log_debug_like(qr/^Could not find JSON Schema ${\Conch::UUID::UUID_FORMAT}$/);
+
+  $t_super->delete_ok('/hardware_product/'.$products->[1]{id}.'/json_schema/'.$main_id)
+    ->status_is(404)
+    ->json_is({ error => 'Entity Not Found' })
+    ->log_debug_is('JSON Schema '.$main_id.' is not used by hardware product '.$products->[1]{id});
+
+  $t_ro->delete_ok('/hardware_product/'.$products->[0]{name}.'/json_schema/'.$_)
+    ->status_is(403)
+    ->log_debug_is('User must be system admin')
+      foreach ($main_id, 'firmware/sku123/2');
+
+  $t_super->delete_ok('/hardware_product/'.$products->[0]{name}.'/json_schema/'.$main_id)
+    ->status_is(204)
+    ->log_debug_is('Removed JSON Schema '.$main_id.' from hardware product '.$products->[0]{name});
+
+  $_->get_ok('/hardware_product/'.$hw_id.'/json_schema')
+    ->status_is(200)
+    ->json_schema_is('HardwareJSONSchemaDescriptions')
+    ->json_cmp_deeply([ $second_hardware_description ])
+    foreach $t_super, $t_ro, $t_other;
+
+  $t_super->delete_ok('/hardware_product/'.$products->[0]{name}.'/json_schema/'.$main_id)
+    ->status_is(404)
+    ->log_debug_is('JSON Schema '.$main_id.' is not used by hardware product '.$products->[0]{name});
+
+  $t_super->delete_ok('/json_schema/'.$main_id)
+    ->status_is(204)
+    ->log_debug_is('Deactivated JSON Schema id '.$main_id.' (/json_schema/firmware/sku123/1)');
+
+  $t_super->delete_ok('/hardware_product/'.$products->[0]{name}.'/json_schema/firmware/sku123/1')
+    ->status_is(410);
+
+  $t_ro->delete_ok('/hardware_product/'.$products->[0]{name}.'/json_schema')
+    ->status_is(403)
+    ->log_debug_is('User must be system admin');
+
+  $t_super->delete_ok('/hardware_product/'.$products->[0]{name}.'/json_schema')
+    ->status_is(204)
+    ->log_debug_is('Removed all JSON Schemas from hardware product '.$products->[0]{name});
+
+  $t_super->get_ok('/hardware_product/'.$hw_id.'/json_schema')
+    ->status_is(200)
+    ->json_schema_is('HardwareJSONSchemaDescriptions')
+    ->json_is([]);
+
+  $t_super->delete_ok('/hardware_product/'.$products->[0]{name}.'/json_schema')
+    ->status_is(404)
+    ->log_debug_is('No JSON Schemas are used by hardware product '.$products->[0]{name});
 };
 
 done_testing;

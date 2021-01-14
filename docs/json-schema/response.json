@@ -1213,6 +1213,87 @@
       ],
       "type" : "object"
     },
+    "HardwareJSONSchemaDescriptions" : {
+      "items" : {
+        "additionalProperties" : false,
+        "properties" : {
+          "$id" : {
+            "format" : "uri-reference",
+            "pattern" : "^/json_schema/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/[0-9]+$",
+            "readOnly" : true,
+            "title" : "Canonical URI Identifier",
+            "type" : "string"
+          },
+          "added" : {
+            "format" : "date-time",
+            "readOnly" : true,
+            "title" : "Added",
+            "type" : "string"
+          },
+          "added_user" : {
+            "$ref" : "#/$defs/UserTerse",
+            "readOnly" : true,
+            "title" : "Added User"
+          },
+          "created" : {
+            "format" : "date-time",
+            "readOnly" : true,
+            "title" : "Created",
+            "type" : "string"
+          },
+          "created_user" : {
+            "$ref" : "#/$defs/UserTerse",
+            "readOnly" : true,
+            "title" : "Created User"
+          },
+          "description" : {
+            "title" : "Description",
+            "type" : "string"
+          },
+          "id" : {
+            "$ref" : "common.json#/$defs/uuid",
+            "readOnly" : true,
+            "title" : "ID"
+          },
+          "latest" : {
+            "description" : "true when it is the latest of its type-name series",
+            "title" : "Latest in Type-Name Series?",
+            "type" : "boolean"
+          },
+          "name" : {
+            "$ref" : "common.json#/$defs/json_pointer_token",
+            "readOnly" : true,
+            "title" : "Name"
+          },
+          "type" : {
+            "$ref" : "common.json#/$defs/json_pointer_token",
+            "readOnly" : true,
+            "title" : "Type"
+          },
+          "version" : {
+            "$ref" : "common.json#/$defs/positive_integer",
+            "readOnly" : true,
+            "title" : "Version"
+          }
+        },
+        "required" : [
+          "id",
+          "$id",
+          "description",
+          "type",
+          "name",
+          "version",
+          "latest",
+          "created",
+          "created_user",
+          "added",
+          "added_user"
+        ],
+        "type" : "object"
+      },
+      "type" : "array",
+      "uniqueItems" : true
+    },
     "HardwareProduct" : {
       "additionalProperties" : false,
       "properties" : {
@@ -1516,6 +1597,27 @@
       ],
       "type" : "object"
     },
+    "HardwareProductJSONSchemaDeleteError" : {
+      "additionalProperties" : false,
+      "properties" : {
+        "error" : {
+          "type" : "string"
+        },
+        "hardware_product_ids" : {
+          "items" : {
+            "$ref" : "common.json#/$defs/uuid"
+          },
+          "minItems" : 1,
+          "type" : "array",
+          "uniqueItems" : true
+        }
+      },
+      "required" : [
+        "error",
+        "hardware_product_ids"
+      ],
+      "type" : "object"
+    },
     "HardwareProducts" : {
       "items" : {
         "additionalProperties" : false,
@@ -1691,6 +1793,10 @@
           "description" : {
             "title" : "Description",
             "type" : "string"
+          },
+          "hardware_products" : {
+            "$ref" : "#/$defs/HardwareProducts",
+            "title" : "Referenced by Hardware Products"
           },
           "id" : {
             "$ref" : "common.json#/$defs/uuid",

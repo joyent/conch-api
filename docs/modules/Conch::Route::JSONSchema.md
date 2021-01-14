@@ -80,6 +80,8 @@ Optionally accepts the following query parameter:
 
 - `active_only` (default `0`): set to `1` to only query for JSON Schemas that have not been
 deactivated.
+- `with_hardware_products` (default `0`): set to `1` to include a list of hardware products
+that reference each JSON Schema
 
 - Controller/Action: ["get\_metadata" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get_metadata)
 - Response: [response.json#/$defs/JSONSchemaDescriptions](../json-schema/response.json#/$defs/JSONSchemaDescriptions)

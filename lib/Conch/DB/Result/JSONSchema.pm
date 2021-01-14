@@ -155,6 +155,21 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 hardware_product_json_schemas
+
+Type: has_many
+
+Related object: L<Conch::DB::Result::HardwareProductJSONSchema>
+
+=cut
+
+__PACKAGE__->has_many(
+  "hardware_product_json_schemas",
+  "Conch::DB::Result::HardwareProductJSONSchema",
+  { "foreign.json_schema_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 validation_results
 
 Type: has_many
@@ -172,7 +187,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uLq9Y9mhviTZq75gCWVoUw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:FcSHIe/8mva6PqEQecnYXw
 
 __PACKAGE__->add_columns(
   '+version' => { retrieve_on_insert => 1 },
@@ -205,6 +220,23 @@ sub TO_JSON ($self) {
 
   if (my $user_cache = $self->related_resultset('created_user')->get_cache) {
     $data->{created_user} = +{ map +($_ => $user_cache->[0]->$_), qw(id name email) };
+  }
+
+  # for GET /hardware_product/*/json_schema
+  if ($self->has_column_loaded('added_user_id')) {
+    $data->{added_user} = +{ map +($_ => $self->get_column('added_user_'.$_)), qw(id name email) };
+    $data->{added} = Conch::Time->new($self->get_column('added'));
+    delete $data->{deactivated};
+  }
+
+  # for GET /json_schema/:type...?with_hardware_products=1
+  if (my $hwjs_cache = $self->related_resultset('hardware_product_json_schemas')->get_cache) {
+    $data->{hardware_products} = [
+      map {
+        my $hw_cache = $_->related_resultset('hardware_product')->get_cache->[0];
+        +{ map +($_ => $hw_cache->$_), qw(id name alias generation_name sku created updated) }
+      } $hwjs_cache->@*
+    ];
   }
 
   return $data;

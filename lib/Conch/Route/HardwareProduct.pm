@@ -83,6 +83,32 @@ sub routes {
         $hwp_with_admin
           ->under($check_for_changed_specification_schema)
           ->delete('/specification')->to('#delete_specification', query_params_schema => 'HardwareProductSpecification');
+
+
+        my $hw_with_schema = $with_hardware_product_id_or_other->any('/json_schema');
+
+        # GET /hardware/:hardware_product_id_or_other/json_schema
+        $hw_with_schema->get('/')->to('hardware_product#get_json_schema_metadata', response_schema => 'HardwareJSONSchemaDescriptions');
+
+        my $hw_with_schema_id = $hw_with_schema->require_system_admin
+          ->under('/<json_schema_id:uuid>')->to('JSONSchema#find_json_schema');
+
+        my $hw_with_schema_version_int = $hw_with_schema->require_system_admin
+          ->under('/<json_schema_type:json_pointer_token>/<json_schema_name:json_pointer_token>/:json_schema_version', [ json_schema_version => qr/[0-9]+/ ])->to('JSONSchema#find_json_schema')
+          ->under('/')->to('JSONSchema#assert_active');
+
+        # POST /hardware/:hardware_product_id_or_other/json_schema/:json_schema_id
+        # POST /hardware/:hardware_product_id_or_other/json_schema/:json_schema_type/:json_schema_name/:json_schema_version
+        $_->post('/')->to('hardware_product#add_json_schema')
+          foreach $hw_with_schema_id, $hw_with_schema_version_int;
+
+        # DELETE /hardware/:hardware_product_id_or_other/json_schema/:json_schema_id
+        # DELETE /hardware/:hardware_product_id_or_other/json_schema/:json_schema_type/:json_schema_name/:json_schema_version
+        $_->delete('/')->to('hardware_product#remove_json_schema')
+          foreach $hw_with_schema_id, $hw_with_schema_version_int;
+
+        # DELETE /hardware/:hardware_product_id_or_other/json_schema
+        $hw_with_schema->require_system_admin->delete('/')->to('hardware_product#remove_all_json_schemas');
     }
 }
 
@@ -214,6 +240,68 @@ the schema available from C<GET /json_schema/hardware_product/specification/late
 =item * Requires system admin authorization
 
 =item * Controller/Action: L<Conch::Controller::HardwareProduct/delete_specification>
+
+=item * Response: C<204 No Content>
+
+=back
+
+=head2 C<GET /hardware/:hardware_product_id_or_other/json_schema>
+
+Retrieves a summary of the JSON Schemas configured to be used as validations for the indicated
+hardware. Note the timestamp and user information are for when the JSON Schema was added for
+the hardware, not when the schema itself was created.
+
+=over 4
+
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/get_json_schema_metadata>
+
+=item * Response: F<response.yaml#/$defs/HardwareJSONSchemaDescriptions>
+
+=back
+
+=head2 C<POST /hardware/:hardware_product_id_or_other/json_schema/:json_schema_id>
+
+=head2 C<POST /hardware/:hardware_product_id_or_other/json_schema/:json_schema_type/:json_schema_name/:json_schema_version>
+
+Adds the indicated JSON Schema to the list of validations for the indicated hardware.
+
+=over 4
+
+=item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/add_json_schema>
+
+=item * Request: F<request.yaml#/$defs/Null>
+
+=item * Response: C<201 Created>
+
+=back
+
+=head2 C<DELETE /hardware/:hardware_product_id_or_other/json_schema/:json_schema_id>
+
+=head2 C<DELETE /hardware/:hardware_product_id_or_other/json_schema/:json_schema_type/:json_schema_name/:json_schema_version>
+
+Removes the indicated JSON Schema from the list of validations for the indicated hardware.
+
+=over 4
+
+=item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/remove_json_schema>
+
+=item * Response: C<204 No Content>
+
+=back
+
+=head2 C<DELETE /hardware/:hardware_product_id_or_other/json_schema>
+
+Removes B<all> the JSON Schemas from the list of validations for the indicated hardware.
+
+=over 4
+
+=item * Requires system admin authorization
+
+=item * Controller/Action: L<Conch::Controller::HardwareProduct/remove_all_json_schemas>
 
 =item * Response: C<204 No Content>
 

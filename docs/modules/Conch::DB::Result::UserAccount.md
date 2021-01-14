@@ -106,6 +106,12 @@ Type: has\_many
 
 Related object: [Conch::DB::Result::Build](../modules/Conch%3A%3ADB%3A%3AResult%3A%3ABuild)
 
+### hardware\_product\_json\_schemas
+
+Type: has\_many
+
+Related object: [Conch::DB::Result::HardwareProductJSONSchema](../modules/Conch%3A%3ADB%3A%3AResult%3A%3AHardwareProductJSONSchema)
+
 ### json\_schemas
 
 Type: has\_many
