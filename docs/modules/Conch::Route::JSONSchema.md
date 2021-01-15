@@ -29,7 +29,8 @@ Sets up the routes for /json\_schema that require authentication.
 Returns the JSON Schema document specified by type and name, used for validating endpoint
 requests and responses.
 
-- Does not require authentication.
+- Note: references to JSON Schemas that would require authentication are not bundled into
+`$defs`.
 - Controller/Action: ["get\_from\_disk" in Conch::Controller::JSONSchema](../modules/Conch%3A%3AController%3A%3AJSONSchema#get_from_disk)
 - Response: a JSON Schema ([response.json#/$defs/JSONSchemaOnDisk](../json-schema/response.json#/$defs/JSONSchemaOnDisk)) (Content-Type is
 `application/schema+json`).

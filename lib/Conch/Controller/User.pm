@@ -351,7 +351,7 @@ sub get ($c) {
 
 =head2 update
 
-Updates user attributes. System admin only.
+Updates user attributes. System admin only, unless the target user is the authenticated user.
 Sends an email to the affected user, unless C<?send_mail=0> is included in the query.
 
 The response uses the UserError json schema for some error conditions; on success, redirects to

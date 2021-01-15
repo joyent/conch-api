@@ -142,10 +142,10 @@ All routes require authentication.
 
 =back
 
-=head2 C<< POST /user/:target_user_id_or_email?send_mail=<1|0> >>
+=head2 C<< POST /user/me?send_mail=<1|0> >>
 
 Optionally take the query parameter C<send_mail> (defaults to C<1>) to send
-an email telling the user their account was updated
+an email telling the user their account was updated.
 
 =over 4
 
@@ -327,7 +327,7 @@ otherwise, the user is logged out.
 =head2 C<< POST /user/:target_user_id_or_email?send_mail=<1|0> >>
 
 Optionally take the query parameter C<send_mail> (defaults to C<1>) to send
-an email telling the user their account was updated
+an email telling the user their account was updated.
 
 =over 4
 

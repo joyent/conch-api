@@ -19,10 +19,10 @@ All routes require authentication.
 - Controller/Action: ["get" in Conch::Controller::User](../modules/Conch%3A%3AController%3A%3AUser#get)
 - Response: [response.json#/$defs/UserDetailed](../json-schema/response.json#/$defs/UserDetailed)
 
-### `POST /user/:target_user_id_or_email?send_mail=<1|0>`
+### `POST /user/me?send_mail=<1|0>`
 
 Optionally take the query parameter `send_mail` (defaults to `1`) to send
-an email telling the user their account was updated
+an email telling the user their account was updated.
 
 - Controller/Action: ["update" in Conch::Controller::User](../modules/Conch%3A%3AController%3A%3AUser#update)
 - Request: [request.json#/$defs/UpdateUser](../json-schema/request.json#/$defs/UpdateUser)
@@ -118,7 +118,7 @@ otherwise, the user is logged out.
 ### `POST /user/:target_user_id_or_email?send_mail=<1|0>`
 
 Optionally take the query parameter `send_mail` (defaults to `1`) to send
-an email telling the user their account was updated
+an email telling the user their account was updated.
 
 - Requires system admin authorization
 - Controller/Action: ["update" in Conch::Controller::User](../modules/Conch%3A%3AController%3A%3AUser#update)
