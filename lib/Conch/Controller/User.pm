@@ -409,6 +409,17 @@ sub update ($c) {
             orig_data => \%orig_columns,
             new_data => \%dirty_columns,
         );
+
+        # also send to old email address, if it was changed!
+        $c->send_mail(
+            template_file => 'updated_user_account',
+            From => 'noreply',
+            To => '"'.$orig_columns{name}.'" <'.$orig_columns{email}.'>',
+            Subject => 'Your Conch account has been updated',
+            orig_data => \%orig_columns,
+            new_data => \%dirty_columns,
+        )
+        if exists $dirty_columns{email} and fc $input->{email} ne fc $orig_columns{email};
     }
 
     $c->log->debug('updating user '.$user->email.': '.$c->req->text);
