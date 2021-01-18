@@ -368,6 +368,12 @@ sub update ($c) {
 
     my $is_system_admin = $c->is_system_admin;
 
+    if ($is_system_admin and not $INC{'Test/More.pm'} and my $conch_ui_version = $c->req->headers->header('X-Conch-UI')) {
+      my ($major, $minor, $tiny) = $conch_ui_version =~ /^v(\d+)\.(\d+)(?:\.(\d+))?/;
+      return $c->status(403, { error => 'this api is blocked until https://github.com/joyent/conch-ui/issues/303 is fixed' })
+        if $major == 4 and $minor == 1 and ($tiny//0) == 0;
+    }
+
     my $user = $c->stash('target_user');
     my %orig_columns = $user->get_columns;
     $user->set_columns($input);
