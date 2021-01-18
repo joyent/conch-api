@@ -2,7 +2,6 @@ package Conch::Plugin::JSONValidator;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-use feature 'unicode_strings';
 use JSON::Schema::Draft201909 '0.020';
 use YAML::PP;
 use Mojo::JSON 'to_json';

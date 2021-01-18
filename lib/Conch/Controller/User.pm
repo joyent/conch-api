@@ -6,7 +6,6 @@ use Conch::UUID 'is_uuid';
 use Email::Valid;
 use List::Util 'pairmap';
 use Authen::Passphrase::RejectAll;
-use feature 'fc';
 
 =pod
 
