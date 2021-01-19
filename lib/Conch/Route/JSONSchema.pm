@@ -107,7 +107,8 @@ requests and responses.
 
 =over 4
 
-=item * Does not require authentication.
+=item * Note: references to JSON Schemas that would require authentication are not bundled into
+C<$defs>.
 
 =item * Controller/Action: L<Conch::Controller::JSONSchema/get_from_disk>
 

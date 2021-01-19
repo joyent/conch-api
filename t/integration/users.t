@@ -183,15 +183,23 @@ subtest 'User' => sub {
                 { email => 'cONcH@cONCh.joyent.us' },
                 { name => 'conch' };
 
-    $t->post_ok('/user/me', json => { email => 'rO_USer@cONCh.joyent.us', name => 'rO_USer' })
+    $t->post_ok('/user/me', json => { email => 'rO_USer_new@cONCh.joyent.us', name => 'rO_USer' })
         ->status_is(204)
         ->location_is('/user/'.$ro_user->id)
-        ->email_cmp_deeply({
-            To => '"rO_USer" <rO_USer@cONCh.joyent.us>',
+        ->email_cmp_deeply([
+          {
+            To => '"rO_USer" <rO_USer_new@cONCh.joyent.us>',
             From => 'noreply@joyent.com',
             Subject => 'Your Conch account has been updated',
-            body => re(qr/^Your account at \Q$JOYENT\E has been updated:\R\R {7}email: ro_user\@conch.joyent.us -> rO_USer\@cONCh.joyent.us\R {8}name: ro_user -> rO_USer\R\R/m),
-        });
+            body => re(qr/^Your account at \Q$JOYENT\E has been updated:\R\R {7}email: ro_user\@conch.joyent.us -> rO_USer_new\@cONCh.joyent.us\R {8}name: ro_user -> rO_USer\R\R/m),
+          },
+          {
+            To => '"ro_user" <ro_user@conch.joyent.us>',
+            From => 'noreply@joyent.com',
+            Subject => 'Your Conch account has been updated',
+            body => re(qr/^Your account at \Q$JOYENT\E has been updated:\R\R {7}email: ro_user\@conch.joyent.us -> rO_USer_new\@cONCh.joyent.us\R {8}name: ro_user -> rO_USer\R\R/m),
+          },
+        ]);
 
     $ro_user->discard_changes;
 

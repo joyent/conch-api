@@ -351,7 +351,7 @@ sub get ($c) {
 
 =head2 update
 
-Updates user attributes. System admin only.
+Updates user attributes. System admin only, unless the target user is the authenticated user.
 Sends an email to the affected user, unless C<?send_mail=0> is included in the query.
 
 The response uses the UserError json schema for some error conditions; on success, redirects to
@@ -367,6 +367,12 @@ sub update ($c) {
         if exists $input->{email} and not Email::Valid->address($input->{email});
 
     my $is_system_admin = $c->is_system_admin;
+
+    if ($is_system_admin and not $INC{'Test/More.pm'} and my $conch_ui_version = $c->req->headers->header('X-Conch-UI')) {
+      my ($major, $minor, $tiny) = $conch_ui_version =~ /^v(\d+)\.(\d+)(?:\.(\d+))?/;
+      return $c->status(403, { error => 'this api is blocked until https://github.com/joyent/conch-ui/issues/303 is fixed' })
+        if $major == 4 and $minor == 1 and ($tiny//0) == 0;
+    }
 
     my $user = $c->stash('target_user');
     my %orig_columns = $user->get_columns;
@@ -403,6 +409,17 @@ sub update ($c) {
             orig_data => \%orig_columns,
             new_data => \%dirty_columns,
         );
+
+        # also send to old email address, if it was changed!
+        $c->send_mail(
+            template_file => 'updated_user_account',
+            From => 'noreply',
+            To => '"'.$orig_columns{name}.'" <'.$orig_columns{email}.'>',
+            Subject => 'Your Conch account has been updated',
+            orig_data => \%orig_columns,
+            new_data => \%dirty_columns,
+        )
+        if exists $dirty_columns{email} and fc $input->{email} ne fc $orig_columns{email};
     }
 
     $c->log->debug('updating user '.$user->email.': '.$c->req->text);
