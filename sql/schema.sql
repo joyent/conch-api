@@ -390,7 +390,7 @@ CREATE TABLE public.hardware_product (
     bios_firmware text NOT NULL,
     hba_firmware text,
     cpu_num integer DEFAULT 0 NOT NULL,
-    cpu_type text NOT NULL,
+    cpu_type text,
     dimms_num integer DEFAULT 0 NOT NULL,
     ram_total integer DEFAULT 0 NOT NULL,
     nics_num integer DEFAULT 0 NOT NULL,

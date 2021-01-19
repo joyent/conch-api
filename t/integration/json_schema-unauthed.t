@@ -153,24 +153,6 @@ $t->get_ok('/json_schema/query_params/ResetUserPassword')
         },
     });
 
-$t->get_ok('/json_schema/request/HardwareProductCreate')
-    ->status_is(200)
-    ->header_is('Content-Type', 'application/schema+json')
-    ->json_schema_is('JSONSchemaOnDisk')
-    ->json_cmp_deeply('', superhashof({
-        '$schema' => SPEC_URL,
-        '$id' => $base_uri.'json_schema/request/HardwareProductCreate',
-        '$defs' => {
-            map +($_ => superhashof({})), qw(
-                uuid
-                positive_integer
-                non_empty_string
-                mojo_standard_placeholder
-                HardwareProductUpdate
-            )
-        },
-    }), 'nested definitions are found and included');
-
 $t->get_ok('/json_schema/request/HardwareProductUpdate')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
@@ -186,7 +168,7 @@ $t->get_ok('/json_schema/request/HardwareProductUpdate')
           '$ref' => '/json_schema/hardware_product/specification/latest',
         },
       }),
-    }), 'reference to hardware_product specification is contained');
+    }), 'reference to hardware_product specification is retained');
 
 $t->get_ok('/json_schema/response/JSONSchemaOnDisk')
     ->status_is(200)
@@ -264,11 +246,11 @@ $t->get_ok('/json_schema/request/DeviceReport')
     ->json_cmp_deeply(superhashof({
         '$schema' => SPEC_URL,
         '$id' => re(qr{/json_schema/request/DeviceReport$}),
-        '$ref' => '/json_schema/device_report/DeviceReport_v3_0_0',
+        '$ref' => '/json_schema/device_report/DeviceReport_v3_2_0',
         '$defs' => superhashof({
-            'DeviceReport_v3_0_0' => superhashof({
+            'DeviceReport_v3_2_0' => superhashof({
                 '$comment' => ignore,
-                '$id' => '/json_schema/device_report/DeviceReport_v3_0_0',
+                '$id' => '/json_schema/device_report/DeviceReport_v3_2_0',
                 properties => superhashof({}),
                 required => superbagof(),
             }),
@@ -292,12 +274,12 @@ $t->get_ok('/json_schema/common/non_zero_uuid')
         },
     });
 
-$t->get_ok('/json_schema/device_report/DeviceReport_v3_0_0')
+$t->get_ok('/json_schema/device_report/DeviceReport_v3_2_0')
     ->status_is(200)
     ->header_is('Content-Type', 'application/schema+json')
     ->json_schema_is('JSONSchemaOnDisk')
     ->json_cmp_deeply({
-        '$id' => $base_uri.'json_schema/device_report/DeviceReport_v3_0_0',
+        '$id' => $base_uri.'json_schema/device_report/DeviceReport_v3_2_0',
         '$schema' => SPEC_URL,
         '$comment' => ignore,
         type => 'object',

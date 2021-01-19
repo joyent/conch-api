@@ -226,7 +226,7 @@ sub _test_case {
     if (not Test::Builder->new->is_passing) {
         require Data::Dumper;
         diag 'all results: ',
-            Data::Dumper->new([ [ $validation->legacy_validation_results ] ])->Indent(1)->Terse(1)->Dump;
+            Data::Dumper->new([ [ $validation->validation_results ] ])->Indent(1)->Terse(1)->Dump;
     }
 }
 

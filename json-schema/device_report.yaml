@@ -5,17 +5,22 @@ $defs:
     $comment: an integer that may be presented as a json string
     type: [ integer, string ]
     pattern: '^[0-9]+$'
-  DeviceReport_v3_0_0:
+  DeviceReport_v3_2_0:
     $comment: the contents of a posted device report from relays and reporters
     type: object
     additionalProperties: true  # there is all kinds of junk in here still
     required:
+      - report_version
       - bios_version
       - product_name
       - sku
       - serial_number
       - system_uuid
     properties:
+      report_version:
+        $comment: future conch-api versions MAY be backwards-compatible to previous report versions, but this is not guaranteed
+        type: string
+        const: 'v3.2'
       bios_version:
         type: string
       cpus:

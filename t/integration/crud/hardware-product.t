@@ -52,13 +52,19 @@ $t->post_ok('/hardware_product', json => { wat => 'wat' })
     ->json_schema_is('RequestValidationError')
     ->json_cmp_deeply('/details', [
         superhashof({ error => 'additional property not permitted' }),
-        superhashof({ error => 'missing properties: name, alias, hardware_vendor_id, sku, rack_unit_size, validation_plan_id, purpose, bios_firmware, cpu_type' }),
+        superhashof({ error => 'missing properties: alias, hardware_vendor_id, rack_unit_size, purpose' }),
+        superhashof({ error => 'missing properties: name, sku, validation_plan_id, bios_firmware' }),
+        superhashof({ error => 'missing property: device_report' }),
     ]);
 
 $t->post_ok('/hardware_product', json => { name => 'sungo', alias => 'sungo' })
     ->status_is(400)
     ->json_schema_is('RequestValidationError')
-    ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: hardware_vendor_id, sku, rack_unit_size, validation_plan_id, purpose, bios_firmware, cpu_type' }) ]);
+    ->json_cmp_deeply('/details', [
+        superhashof({ error => 'missing properties: hardware_vendor_id, rack_unit_size, purpose' }),
+        superhashof({ error => 'missing properties: sku, validation_plan_id, bios_firmware' }),
+        superhashof({ error => 'missing property: device_report' }),
+    ]);
 
 my %hw_fields = (
     name => 'sungo',
@@ -69,7 +75,6 @@ my %hw_fields = (
     validation_plan_id => $validation_plan_id,
     purpose => 'myself',
     bios_firmware => '1.2.3',
-    cpu_type => 'fooey',
 );
 
 $t->post_ok('/hardware_product', json => { %hw_fields, specification => 'not json!' } )
@@ -149,6 +154,7 @@ $t->get_ok($t->tx->res->headers->location)
         legacy_product_name => undef,
         hba_firmware => undef,
         cpu_num => 0,
+        cpu_type => undef,
         dimms_num => 0,
         ram_total => 0,
         nics_num => 0,
@@ -189,7 +195,6 @@ $t->post_ok('/hardware_product', json => {
         validation_plan_id => $validation_plan_id,
         purpose => 'nothing',
         bios_firmware => '0',
-        cpu_type => 'cold',
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -204,7 +209,6 @@ $t->post_ok('/hardware_product', json => {
         validation_plan_id => $validation_plan_id,
         purpose => 'nothing',
         bios_firmware => '0',
-        cpu_type => 'cold',
     })
     ->status_is(409)
     ->json_schema_is('Error')
@@ -219,11 +223,134 @@ $t->post_ok('/hardware_product', json => {
         validation_plan_id => create_uuid_str(),
         purpose => 'nothing',
         bios_firmware => '0',
-        cpu_type => 'cold',
     })
     ->status_is(409)
     ->json_schema_is('Error')
     ->json_is({ error => 'validation_plan_id does not exist' });
+
+$t->post_ok('/hardware_product', json => {
+    alias => 'another alias',
+    hardware_vendor_id => $vendor_id,
+    rack_unit_size => 1,
+    purpose => 'nothing',
+  })
+  ->status_is(400)
+  ->json_schema_is('RequestValidationError')
+  ->json_cmp_deeply('/details', [
+    {
+      data_location => '',
+      schema_location => '/anyOf/0/required',
+      absolute_schema_location => $base_uri.'json_schema/request/HardwareProductCreate#/anyOf/0/required',
+      error => 'missing properties: name, sku, validation_plan_id, bios_firmware',
+    },
+    {
+      data_location => '',
+      schema_location => '/anyOf/1/required',
+      absolute_schema_location => $base_uri.'json_schema/request/HardwareProductCreate#/anyOf/1/required',
+      error => 'missing property: device_report',
+    },
+  ]);
+
+$t->post_ok('/hardware_product', json => my $args ={
+    alias => 'another alias',
+    hardware_vendor_id => $vendor_id,
+    rack_unit_size => 1,
+    purpose => 'my purpose',
+    device_report => {
+      report_version => 'v3.2',
+      bios_version => 'my bios',
+      product_name => 'my product name',
+      sku => 'another sku',
+      serial_number => 'my_serial',
+      system_uuid => create_uuid_str,
+      # no device_type, and 'server' plan does not exist
+      cpus => [ {} ],
+      dimms => [
+        { 'memory-locator' => '' },
+        { 'memory-locator' => '', 'memory-size' => 20 },
+        { 'memory-locator' => '', 'memory-type' => undef },
+      ],
+      interfaces => {
+        foo => { mac => '00:00:00:00:00:00', product => '', vendor => '' },
+        bar => { mac => '00:00:00:00:00:00', product => '', vendor => '' },
+        baz => { mac => '00:00:00:00:00:00', product => '', vendor => '' },
+      },
+      disks => {
+        a => {},
+        b => { drive_type => 'NVME_SSD' },
+        c => { drive_type => 'RAID_LUN' },
+        d => { drive_type => 'SAS_HDD' },
+        e => { drive_type => 'SAS_SSD' },
+        f => { drive_type => 'SATA_HDD' },
+        g => { drive_type => 'SATA_SSD' },
+        h => { transport => 'usb' },
+      },
+    },
+  })
+  ->status_is(409)
+  ->json_schema_is('Error')
+  ->json_is({ error => 'cannot determine validation_plan_id from device_type' });
+
+$args->{device_report}{device_type} = 'server';
+$t->post_ok('/hardware_product', json => $args)
+  ->status_is(409)
+  ->json_schema_is('Error')
+  ->json_is({ error => 'cannot determine validation_plan_id from device_type' });
+
+my $server_plan = $t->app->db_legacy_validation_plans->create({ name => 'The Server Plan', description => 'hi' });
+
+$t->post_ok('/hardware_product', json => $args)
+  ->status_is(201)
+  ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);
+
+$t->get_ok($t->tx->res->headers->location)
+  ->status_is(200)
+  ->json_schema_is('HardwareProduct')
+  ->json_cmp_deeply({
+    name => 'my product name',
+    hardware_vendor_id => $vendor_id,
+    alias => 'another alias',
+    rack_unit_size => 1,
+    sku => 'another sku',
+    purpose => 'my purpose',
+    bios_firmware => 'my bios',
+    id => re(Conch::UUID::UUID_FORMAT),
+    validation_plan_id => $server_plan->id,
+    prefix => undef,
+    specification => {},
+    created => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+    updated => re(qr/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3,9}Z$/),
+    generation_name => undef,
+    legacy_product_name => undef,
+    hba_firmware => undef,
+    cpu_num => 1,
+    cpu_type => undef,
+    dimms_num => 1,
+    ram_total => 20,
+    nics_num => 3,
+    nvme_ssd_num => 1,
+    nvme_ssd_size => undef,
+    nvme_ssd_slots => undef,
+    raid_lun_num => 1,
+    sas_hdd_num => 1,
+    sas_hdd_size => undef,
+    sas_hdd_slots => undef,
+    sas_ssd_num => 1,
+    sas_ssd_size => undef,
+    sas_ssd_slots => undef,
+    sata_hdd_num => 1,
+    sata_hdd_size => undef,
+    sata_hdd_slots => undef,
+    sata_ssd_num => 1,
+    sata_ssd_size => undef,
+    sata_ssd_slots => undef,
+    psu_total => 0,
+    usb_num => 1,
+  });
+
+$t->delete_ok('/hardware_product/'.$t->tx->res->json->{id})
+  ->status_is(204);
+
 
 $t->post_ok("/hardware_product/$new_hw_id", json => { specification => 'not json!' })
     ->status_is(400)
@@ -318,7 +445,6 @@ $t->post_ok('/hardware_product', json => {
         validation_plan_id => $validation_plan_id,
         purpose => 'myself',
         bios_firmware => '1.2.3',
-        cpu_type => 'fooey',
     })
     ->status_is(201)
     ->location_like(qr!^/hardware_product/${\Conch::UUID::UUID_FORMAT}$!);

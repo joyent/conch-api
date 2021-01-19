@@ -126,7 +126,7 @@ subtest 'device report validation' => sub {
 
     cmp_deeply(
         $validator->evaluate('00000000-0000-0000-0000-000000000000',
-            'device_report.yaml#/$defs/DeviceReport_v3_0_0/properties/system_uuid')->TO_JSON,
+            'device_report.yaml#/$defs/DeviceReport_v3_2_0/properties/system_uuid')->TO_JSON,
         {
             valid => JSON::PP::false,
             errors => [
@@ -143,7 +143,7 @@ subtest 'device report validation' => sub {
 
     cmp_deeply(
         $validator->evaluate({ '' => {} },
-            'device_report.yaml#/$defs/DeviceReport_v3_0_0/properties/disks')->TO_JSON,
+            'device_report.yaml#/$defs/DeviceReport_v3_2_0/properties/disks')->TO_JSON,
         {
             valid => JSON::PP::false,
             errors => [

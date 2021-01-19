@@ -1,7 +1,7 @@
 {
   "$comment" : "NOTE: This file is for human reference ONLY. For programmatic use, use the GET '/json_schema/device_report/$schema_name' endpoints, or within conch itself, json-schema/device_report.yaml.",
   "$defs" : {
-    "DeviceReport_v3_0_0" : {
+    "DeviceReport_v3_2_0" : {
       "$comment" : "the contents of a posted device report from relays and reporters",
       "additionalProperties" : true,
       "properties" : {
@@ -192,6 +192,11 @@
           ],
           "type" : "object"
         },
+        "report_version" : {
+          "$comment" : "future conch-api versions MAY be backwards-compatible to previous report versions, but this is not guaranteed",
+          "const" : "v3.2",
+          "type" : "string"
+        },
         "serial_number" : {
           "$ref" : "common.json#/$defs/device_serial_number"
         },
@@ -227,6 +232,7 @@
         }
       },
       "required" : [
+        "report_version",
         "bios_version",
         "product_name",
         "sku",

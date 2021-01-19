@@ -133,7 +133,7 @@ __PACKAGE__->table("hardware_product");
 =head2 cpu_type
 
   data_type: 'text'
-  is_nullable: 0
+  is_nullable: 1
 
 =head2 dimms_num
 
@@ -306,7 +306,7 @@ __PACKAGE__->add_columns(
   "cpu_num",
   { data_type => "integer", default_value => 0, is_nullable => 0 },
   "cpu_type",
-  { data_type => "text", is_nullable => 0 },
+  { data_type => "text", is_nullable => 1 },
   "dimms_num",
   { data_type => "integer", default_value => 0, is_nullable => 0 },
   "ram_total",
@@ -457,7 +457,7 @@ __PACKAGE__->has_many(
 
 
 # Created by DBIx::Class::Schema::Loader v0.07049
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:5AVC0Uc3etwanzij1PM+fQ
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:4kFA0vtW1WRO8vyYhQH/+w
 
 use experimental 'signatures';
 use Mojo::JSON 'from_json';

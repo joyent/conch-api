@@ -368,7 +368,7 @@
       "type" : "object"
     },
     "DeviceReport" : {
-      "$ref" : "device_report.json#/$defs/DeviceReport_v3_0_0"
+      "$ref" : "device_report.json#/$defs/DeviceReport_v3_2_0"
     },
     "DeviceSetting" : {
       "$ref" : "#/$defs/DeviceSettings",
@@ -392,20 +392,45 @@
     },
     "HardwareProductCreate" : {
       "$ref" : "#/$defs/HardwareProductUpdate",
+      "anyOf" : [
+        {
+          "required" : [
+            "name",
+            "sku",
+            "validation_plan_id",
+            "bios_firmware"
+          ]
+        },
+        {
+          "required" : [
+            "device_report"
+          ]
+        }
+      ],
       "required" : [
-        "name",
         "alias",
         "hardware_vendor_id",
-        "sku",
         "rack_unit_size",
-        "validation_plan_id",
-        "purpose",
-        "bios_firmware",
-        "cpu_type"
+        "purpose"
       ]
     },
     "HardwareProductUpdate" : {
       "additionalProperties" : false,
+      "default" : {
+        "cpu_num" : 0,
+        "dimms_num" : 0,
+        "nics_num" : 0,
+        "nvme_ssd_num" : 0,
+        "psu_total" : 0,
+        "raid_lun_num" : 0,
+        "ram_total" : 0,
+        "sas_hdd_num" : 0,
+        "sas_ssd_num" : 0,
+        "sata_hdd_num" : 0,
+        "sata_ssd_num" : 0,
+        "specification" : {},
+        "usb_num" : 0
+      },
       "minProperties" : 1,
       "properties" : {
         "alias" : {
@@ -413,25 +438,29 @@
           "title" : "Alias"
         },
         "bios_firmware" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "BIOS Firmware",
           "type" : "string"
         },
         "cpu_num" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "Number of CPUs",
           "type" : "integer"
         },
         "cpu_type" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "CPU Type",
           "type" : "string"
         },
+        "device_report" : {
+          "$ref" : "device_report.json#/$defs/DeviceReport_v3_2_0",
+          "title" : "Sample passing device report"
+        },
         "dimms_num" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "Number of DIMMs",
           "type" : "integer"
@@ -445,7 +474,7 @@
           "title" : "Hardware Vendor ID"
         },
         "hba_firmware" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "HBA Firmware",
           "type" : [
@@ -469,19 +498,19 @@
           "title" : "Name"
         },
         "nics_num" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "Number of NICs",
           "type" : "integer"
         },
         "nvme_ssd_num" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "Number of NVME SSDs",
           "type" : "integer"
         },
         "nvme_ssd_size" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "NVME SSD Size",
           "type" : [
@@ -490,7 +519,7 @@
           ]
         },
         "nvme_ssd_slots" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "NVME SSD Slots",
           "type" : [
@@ -510,7 +539,7 @@
           "title" : "Prefix"
         },
         "psu_total" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "PSU Total",
           "type" : "integer"
@@ -524,25 +553,25 @@
           "title" : "Rack Unit Size (RU)"
         },
         "raid_lun_num" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "Number of RAID LUNs",
           "type" : "integer"
         },
         "ram_total" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "RAM Total",
           "type" : "integer"
         },
         "sas_hdd_num" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "Number of SAS HDDs",
           "type" : "integer"
         },
         "sas_hdd_size" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "SAS HDD Size",
           "type" : [
@@ -551,7 +580,7 @@
           ]
         },
         "sas_hdd_slots" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "SAS HDD Slots",
           "type" : [
@@ -560,13 +589,13 @@
           ]
         },
         "sas_ssd_num" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "Number of SAS SSDs",
           "type" : "integer"
         },
         "sas_ssd_size" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "SAS SSD Size",
           "type" : [
@@ -575,7 +604,7 @@
           ]
         },
         "sas_ssd_slots" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "SAS SSD Slots",
           "type" : [
@@ -584,13 +613,13 @@
           ]
         },
         "sata_hdd_num" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "Number of SATA HDDs",
           "type" : "integer"
         },
         "sata_hdd_size" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "SATA HDD Size",
           "type" : [
@@ -599,7 +628,7 @@
           ]
         },
         "sata_hdd_slots" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "SATA HDD Slots",
           "type" : [
@@ -608,13 +637,13 @@
           ]
         },
         "sata_ssd_num" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "Number of SATA SSDs",
           "type" : "integer"
         },
         "sata_ssd_size" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "SATA SSD Size",
           "type" : [
@@ -623,7 +652,7 @@
           ]
         },
         "sata_ssd_slots" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "SATA SSD Slots",
           "type" : [
@@ -641,7 +670,7 @@
           "type" : "object"
         },
         "usb_num" : {
-          "$comment" : "this property will be moved into /specification in v3.2",
+          "$comment" : "this property will be moved into /specification in v3.4",
           "deprecated" : true,
           "title" : "Number of USBs",
           "type" : "integer"

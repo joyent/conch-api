@@ -2,8 +2,6 @@ package Conch::Route;
 
 use Mojo::Base -strict, -signatures;
 use List::Util qw(uniqstr any);
-use feature 'state';
-use feature 'current_sub';
 
 use Conch::UUID;
 use Conch::Route::JSONSchema;

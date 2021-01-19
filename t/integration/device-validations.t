@@ -97,7 +97,7 @@ subtest 'test validating a device' => sub {
     $t->post_ok("/device/TEST/validation/$validation_id", json => {})
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: bios_version, product_name, sku, serial_number, system_uuid' }) ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: report_version, bios_version, product_name, sku, serial_number, system_uuid' }) ]);
 
     $t->post_ok("/device/TEST/validation/$validation_id",
             { 'Content-Type' => 'application/json' }, $good_report)
@@ -112,7 +112,7 @@ subtest 'test validating a device' => sub {
     $t->post_ok('/device/TEST/validation_plan/'.$test_validation_plan->id, json => {})
         ->status_is(400)
         ->json_schema_is('RequestValidationError')
-        ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: bios_version, product_name, sku, serial_number, system_uuid' }) ]);
+        ->json_cmp_deeply('/details', [ superhashof({ error => 'missing properties: report_version, bios_version, product_name, sku, serial_number, system_uuid' }) ]);
 
     $t->post_ok('/device/TEST/validation_plan/'.$test_validation_plan->id,
             { 'Content-Type' => 'application/json' }, $good_report)

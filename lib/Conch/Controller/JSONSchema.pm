@@ -2,7 +2,6 @@ package Conch::Controller::JSONSchema;
 
 use Mojo::Base 'Mojolicious::Controller', -signatures;
 
-use feature 'current_sub';
 use Mojo::JSON qw(to_json from_json);
 
 =pod

@@ -61,6 +61,11 @@ the schema at `/json_schema/hardware_product/specification/latest`.
 
 ### remove\_all\_json\_schemas
 
+### extract\_from\_device\_report
+
+If a sample device report is provided in the payload, use its contents to extrapolate some values
+for `hardware_product`.
+
 ## LICENSING
 
 Copyright Joyent, Inc.
