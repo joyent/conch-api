@@ -1076,11 +1076,11 @@ DISTRIBUTIONS
       Scalar::Util 0
       parent 0
       strictures 0
-  Data-Printer-0.99_019
-    pathname: G/GA/GARU/Data-Printer-0.99_019.tar.gz
+  Data-Printer-1.000004
+    pathname: G/GA/GARU/Data-Printer-1.000004.tar.gz
     provides:
       DDP undef
-      Data::Printer 0.99_019
+      Data::Printer 1.000004
       Data::Printer::Common undef
       Data::Printer::Config undef
       Data::Printer::Filter undef
@@ -1100,6 +1100,9 @@ DISTRIBUTIONS
       Data::Printer::Filter::VSTRING undef
       Data::Printer::Filter::Web undef
       Data::Printer::Object undef
+      Data::Printer::Profile undef
+      Data::Printer::Profile::Dumper undef
+      Data::Printer::Profile::JSON undef
       Data::Printer::Theme undef
       Data::Printer::Theme::Classic undef
       Data::Printer::Theme::Material undef

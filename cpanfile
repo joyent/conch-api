@@ -65,7 +65,7 @@ requires 'PerlIO::utf8_strict'; # ""
 requires 'List::Util', '1.55';
 
 # debugging aids
-requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
+requires 'Data::Printer', '1.000000';
 requires 'Devel::Confess';
 
 # misc scripts
