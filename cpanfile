@@ -35,7 +35,7 @@ requires 'YAML::PP';
 requires 'next::XS';
 
 # mojolicious and networking
-requires 'Mojolicious', '8.50';
+requires 'Mojolicious', '9.00';
 requires 'Mojo::Pg';
 requires 'Mojo::JWT';
 requires 'Mojolicious::Plugin::Util::RandomString', '0.07'; # memory leak: https://rt.cpan.org/Ticket/Display.html?id=125981

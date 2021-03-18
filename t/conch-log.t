@@ -59,7 +59,7 @@ my $api_version_re = qr/^${ Test::Conch->API_VERSION_RE }$/;
 
     cmp_deeply(
         decode('UTF-8', $fake_log_file),
-        re(qr/^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{5}] \[$$\] \[info\] this is a 💩 info\nmessage/),
+        re(qr/^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{5}] \[$$\] \[info\] this is a 💩 info message 0/),
         'regular log with no formatting options uses Mojo::Log defaults',
     );
 
