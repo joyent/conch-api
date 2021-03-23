@@ -2,7 +2,7 @@ package Conch::Plugin::JSONValidator;
 
 use Mojo::Base 'Mojolicious::Plugin', -signatures;
 
-use JSON::Schema::Draft201909 '0.020';
+use JSON::Schema::Draft201909 '0.024';
 use YAML::PP;
 use Mojo::JSON 'to_json';
 use Path::Tiny;
@@ -137,7 +137,10 @@ Returns a L<JSON::Schema::Draft201909> object with all JSON Schemas pre-loaded.
     my $_has_db = !$app->feature('no_db');
     $app->helper(json_schema_validator => sub ($c) {
         return $_validator if $_validator;
-        $_validator = JSON::Schema::Draft201909->new(output_format => 'terse');
+        $_validator = JSON::Schema::Draft201909->new(
+          output_format => 'terse',
+          validate_formats => 1,
+        );
         # TODO: blocked on https://github.com/ingydotnet/yaml-libyaml-pm/issues/68
         # local $YAML::XS::Boolean = 'JSON::PP'; ... YAML::XS::LoadFile(...)
         my $yaml = YAML::PP->new(boolean => 'JSON::PP');
