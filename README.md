@@ -1,3 +1,7 @@
+# NOTICE
+
+The Conch API has reached its end of life. _So long and thanks for all the fish._
+
 # Conch API Server
 
 Conch helps you build and manage datacenters.

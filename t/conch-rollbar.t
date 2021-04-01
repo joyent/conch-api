@@ -146,7 +146,6 @@ my $exception_payload = {
             stash => all(
                 # privileged data (e.g. from config file) is not leaked
                 hash_each(isa('')),    # not a ref
-                superhashof({ config => re(qr/^HASH\(0x/) }),
             ),
         },
         # optional, that we don't send: level framework client title
@@ -175,7 +174,6 @@ my $message_payload = {
             stash => all(
                 # privileged data (e.g. from config file) is not leaked
                 hash_each(isa('')),    # not a ref
-                superhashof({ config => re(qr/^HASH\(0x/) }),
             ),
         },
         # optional, that we don't send: framework client title
@@ -683,7 +681,6 @@ $t->do_and_wait_for_event(
                         stash => all(
                             # privileged data (e.g. from config file) is not leaked
                             hash_each(isa('')),    # not a ref
-                            superhashof({ config => re(qr/^HASH\(0x/) }),
                         ),
                     },
                     # optional, that we don't send: framework client title

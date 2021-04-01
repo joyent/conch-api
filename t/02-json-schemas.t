@@ -6,7 +6,7 @@ use Test::More;
 use YAML::PP;
 use Path::Tiny;
 use Try::Tiny;
-use JSON::Schema::Draft201909 0.020;
+use JSON::Schema::Draft201909 0.024;
 use JSON::Schema::Draft201909::Utilities 'canonical_schema_uri';
 
 diag 'using JSON::Schema::Draft201909 '.JSON::Schema::Draft201909->VERSION;

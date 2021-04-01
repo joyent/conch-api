@@ -29,13 +29,13 @@ requires 'Email::Sender::Simple';
 requires 'Email::Sender::Transport::SMTP';
 requires 'Net::DNS';    # not used directly, but Email::Valid sometimes demands it
 requires 'experimental', '0.020';
-requires 'JSON::Schema::Draft201909', '0.020';
+requires 'JSON::Schema::Draft201909', '0.025';
 requires 'Email::Address::XS', '1.01';
 requires 'YAML::PP';
 requires 'next::XS';
 
 # mojolicious and networking
-requires 'Mojolicious', '8.50';
+requires 'Mojolicious', '9.00';
 requires 'Mojo::Pg';
 requires 'Mojo::JWT';
 requires 'Mojolicious::Plugin::Util::RandomString', '0.07'; # memory leak: https://rt.cpan.org/Ticket/Display.html?id=125981
@@ -65,7 +65,7 @@ requires 'PerlIO::utf8_strict'; # ""
 requires 'List::Util', '1.55';
 
 # debugging aids
-requires 'Data::Printer', '0.99_019', dist => 'GARU/Data-Printer-0.99_019.tar.gz';
+requires 'Data::Printer', '1.000000';
 requires 'Devel::Confess';
 
 # misc scripts

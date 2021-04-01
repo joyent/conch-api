@@ -4,7 +4,7 @@ use warnings;
 use open ':std', ':encoding(UTF-8)'; # force stdin, stdout, stderr into utf8
 
 use Getopt::Long;
-use JSON::Schema::Draft201909 0.020;
+use JSON::Schema::Draft201909 0.024;
 use Mojo::File 'path';
 use JSON::MaybeXS 'decode_json';
 use Pod::Usage;
@@ -22,7 +22,7 @@ GetOptions(
 
 pod2usage(1) if $help;
 
-my $js = JSON::Schema::Draft201909->new;
+my $js = JSON::Schema::Draft201909->new(validate_formats => 1);
 
 my $schema = $schema_file ? $schema_file : "$schema_url/$name";
 $js->add_schema($schema);

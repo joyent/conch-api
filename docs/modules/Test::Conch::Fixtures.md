@@ -66,11 +66,11 @@ Add a new fixture definition.
 
 ### get\_definition
 
-Used by [DBIx::Class::Fixtures](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AFixtures).
+Used by [DBIx::Class::EasyFixture](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AEasyFixture).
 
 ### all\_fixture\_names
 
-Used by [DBIx::Class::Fixtures](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AFixtures).
+Used by [DBIx::Class::EasyFixture](https://metacpan.org/pod/DBIx%3A%3AClass%3A%3AEasyFixture).
 
 ## LICENSING
 

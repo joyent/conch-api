@@ -1076,11 +1076,11 @@ DISTRIBUTIONS
       Scalar::Util 0
       parent 0
       strictures 0
-  Data-Printer-0.99_019
-    pathname: G/GA/GARU/Data-Printer-0.99_019.tar.gz
+  Data-Printer-1.000004
+    pathname: G/GA/GARU/Data-Printer-1.000004.tar.gz
     provides:
       DDP undef
-      Data::Printer 0.99_019
+      Data::Printer 1.000004
       Data::Printer::Common undef
       Data::Printer::Config undef
       Data::Printer::Filter undef
@@ -1100,6 +1100,9 @@ DISTRIBUTIONS
       Data::Printer::Filter::VSTRING undef
       Data::Printer::Filter::Web undef
       Data::Printer::Object undef
+      Data::Printer::Profile undef
+      Data::Printer::Profile::Dumper undef
+      Data::Printer::Profile::JSON undef
       Data::Printer::Theme undef
       Data::Printer::Theme::Classic undef
       Data::Printer::Theme::Material undef
@@ -2026,6 +2029,14 @@ DISTRIBUTIONS
       Module::CPANfile 0
       Test::More 0.88
       version 0.76
+  Feature-Compat-Try-0.02
+    pathname: P/PE/PEVANS/Feature-Compat-Try-0.02.tar.gz
+    provides:
+      Feature::Compat::Try 0.02
+    requirements:
+      Module::Build 0.4004
+      Syntax::Keyword::Try 0.21
+      perl 5.014
   File-ShareDir-1.118
     pathname: R/RE/REHSACK/File-ShareDir-1.118.tar.gz
     provides:
@@ -2283,27 +2294,28 @@ DISTRIBUTIONS
       JSON::PP 2.27300
       Scalar::Util 0
       perl 5.006
-  JSON-Schema-Draft201909-0.020
-    pathname: E/ET/ETHER/JSON-Schema-Draft201909-0.020.tar.gz
+  JSON-Schema-Draft201909-0.025
+    pathname: E/ET/ETHER/JSON-Schema-Draft201909-0.025.tar.gz
     provides:
-      JSON::Schema::Draft201909 0.020
-      JSON::Schema::Draft201909::Annotation 0.020
-      JSON::Schema::Draft201909::Document 0.020
-      JSON::Schema::Draft201909::Error 0.020
-      JSON::Schema::Draft201909::Result 0.020
-      JSON::Schema::Draft201909::Utilities 0.020
-      JSON::Schema::Draft201909::Vocabulary 0.020
-      JSON::Schema::Draft201909::Vocabulary::Applicator 0.020
-      JSON::Schema::Draft201909::Vocabulary::Content 0.020
-      JSON::Schema::Draft201909::Vocabulary::Core 0.020
-      JSON::Schema::Draft201909::Vocabulary::Format 0.020
-      JSON::Schema::Draft201909::Vocabulary::MetaData 0.020
-      JSON::Schema::Draft201909::Vocabulary::Validation 0.020
+      JSON::Schema::Draft201909 0.025
+      JSON::Schema::Draft201909::Annotation 0.025
+      JSON::Schema::Draft201909::Document 0.025
+      JSON::Schema::Draft201909::Error 0.025
+      JSON::Schema::Draft201909::Result 0.025
+      JSON::Schema::Draft201909::Utilities 0.025
+      JSON::Schema::Draft201909::Vocabulary 0.025
+      JSON::Schema::Draft201909::Vocabulary::Applicator 0.025
+      JSON::Schema::Draft201909::Vocabulary::Content 0.025
+      JSON::Schema::Draft201909::Vocabulary::Core 0.025
+      JSON::Schema::Draft201909::Vocabulary::Format 0.025
+      JSON::Schema::Draft201909::Vocabulary::MetaData 0.025
+      JSON::Schema::Draft201909::Vocabulary::Validation 0.025
     requirements:
       B 0
       Carp 0
       Exporter 0
       ExtUtils::MakeMaker 0
+      Feature::Compat::Try 0
       File::ShareDir 0
       File::ShareDir::Install 0.06
       JSON::MaybeXS 1.004001
@@ -2315,6 +2327,7 @@ DISTRIBUTIONS
       Mojo::URL 0
       Mojolicious 7.23
       Moo 0
+      Moo::Object 0
       Moo::Role 0
       MooX::HandlesVia 0
       MooX::TypeTiny 0.002002
@@ -2322,7 +2335,6 @@ DISTRIBUTIONS
       Ref::Util 0.100
       Safe::Isa 0
       Storable 0
-      Syntax::Keyword::Try 0.11
       Types::Standard 1.010002
       constant 0
       if 0
@@ -2805,8 +2817,8 @@ DISTRIBUTIONS
       Mojolicious 8.50
       SQL::Abstract 1.86
       perl 5.016
-  Mojolicious-8.70
-    pathname: S/SR/SRI/Mojolicious-8.70.tar.gz
+  Mojolicious-9.14
+    pathname: S/SR/SRI/Mojolicious-9.14.tar.gz
     provides:
       Mojo undef
       Mojo::Asset undef
@@ -2835,7 +2847,6 @@ DISTRIBUTIONS
       Mojo::Home undef
       Mojo::IOLoop undef
       Mojo::IOLoop::Client undef
-      Mojo::IOLoop::Delay undef
       Mojo::IOLoop::Server undef
       Mojo::IOLoop::Stream undef
       Mojo::IOLoop::Subprocess undef
@@ -2875,7 +2886,7 @@ DISTRIBUTIONS
       Mojo::UserAgent::Transactor undef
       Mojo::Util undef
       Mojo::WebSocket undef
-      Mojolicious 8.70
+      Mojolicious 9.14
       Mojolicious::Command undef
       Mojolicious::Command::Author::cpanify undef
       Mojolicious::Command::Author::generate undef
@@ -3698,10 +3709,10 @@ DISTRIBUTIONS
       perl 5.006
       strict 0
       warnings 0
-  Syntax-Keyword-Try-0.20
-    pathname: P/PE/PEVANS/Syntax-Keyword-Try-0.20.tar.gz
+  Syntax-Keyword-Try-0.21
+    pathname: P/PE/PEVANS/Syntax-Keyword-Try-0.21.tar.gz
     provides:
-      Syntax::Keyword::Try 0.20
+      Syntax::Keyword::Try 0.21
     requirements:
       ExtUtils::CBuilder 0
       Module::Build 0.4004

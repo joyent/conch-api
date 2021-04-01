@@ -40,6 +40,7 @@ my @include = qw(
   YAML
   autodie
   Dist::CheckConflicts
+  SQL::Abstract
 );
 
 my @exclude = qw(
